@@ -56,7 +56,21 @@ namespace MsgPackLite
         private const byte MP_RAW16 = (byte)0xda;
         private const byte MP_RAW32 = (byte)0xdb;
 
-        public static void Pack(object item, Stream os)
+        public static object Unpack(byte[] bytesArray, int options = 0)
+        {
+            var stream = new MemoryStream(bytesArray);
+            return Unpack(stream, options);
+        }
+
+        public static byte[] Pack(object item)
+        {
+            var stream = new MemoryStream();
+            Pack(item, stream);
+
+            return stream.ToArray();
+        }
+
+        private static void Pack(object item, Stream os)
         {
             var outputWriter = new BinaryWriter(os);
 
@@ -80,61 +94,7 @@ namespace MsgPackLite
             }
             else if (IsIntegerNumber(item))
             {
-                var value = (long)item;
-                if (value >= 0)
-                {
-                    if (value <= MAX_7BIT)
-                    {
-                        outputWriter.Write((int)value | MP_FIXNUM);
-                    }
-                    else if (value <= MAX_8BIT)
-                    {
-                        outputWriter.Write(MP_UINT8);
-                        outputWriter.Write((int)value);
-                    }
-                    else if (value <= MAX_16BIT)
-                    {
-                        outputWriter.Write(MP_UINT16);
-                        outputWriter.Write((short)value);
-                    }
-                    else if (value <= MAX_32BIT)
-                    {
-                        outputWriter.Write(MP_UINT32);
-                        outputWriter.Write((int)value);
-                    }
-                    else
-                    {
-                        outputWriter.Write(MP_UINT64);
-                        outputWriter.Write(value);
-                    }
-                }
-                else
-                {
-                    if (value >= -(MAX_5BIT + 1))
-                    {
-                        outputWriter.Write((int)(value & 0xff));
-                    }
-                    else if (value >= -(MAX_7BIT + 1))
-                    {
-                        outputWriter.Write(MP_INT8);
-                        outputWriter.Write((int)value);
-                    }
-                    else if (value >= -(MAX_15BIT + 1))
-                    {
-                        outputWriter.Write(MP_INT16);
-                        outputWriter.Write((short)value);
-                    }
-                    else if (value >= -MAX_31BIT)
-                    {
-                        outputWriter.Write(MP_INT32);
-                        outputWriter.Write((int)value);
-                    }
-                    else
-                    {
-                        outputWriter.Write(MP_INT64);
-                        outputWriter.Write(value);
-                    }
-                }
+                PackIntegerNumber(item, outputWriter);
             }
             else if (item is string || item is byte[] || item is MemoryStream)
             {
@@ -157,7 +117,7 @@ namespace MsgPackLite
 
                 if (data.Length <= MAX_5BIT)
                 {
-                    outputWriter.Write(data.Length | MP_FIXRAW);
+                    outputWriter.Write((byte)(data.Length | MP_FIXRAW));
                 }
                 else if (data.Length <= MAX_8BIT)
                 {
@@ -233,16 +193,81 @@ namespace MsgPackLite
             }
         }
 
-        public static object Unpack(Stream stream, int options)
+        private static void PackIntegerNumber(object item, BinaryWriter outputWriter)
+        {
+            if (item is ulong && (ulong)item > long.MaxValue)
+            {
+                outputWriter.Write(MP_UINT64);
+                outputWriter.Write((ulong)item);
+            }
+            else
+            {
+                var value = CastToLong(item);
+                if (value >= 0)
+                {
+                    if (value <= MAX_7BIT)
+                    {
+                        outputWriter.Write((byte)value);
+                    }
+                    else if (value <= MAX_8BIT)
+                    {
+                        outputWriter.Write(MP_UINT8);
+                        outputWriter.Write((byte)value);
+                    }
+                    else if (value <= MAX_16BIT)
+                    {
+                        outputWriter.Write(MP_UINT16);
+                        outputWriter.Write((short)value);
+                    }
+                    else if (value <= MAX_32BIT)
+                    {
+                        outputWriter.Write(MP_UINT32);
+                        outputWriter.Write((int)value);
+                    }
+                    else
+                    {
+                        outputWriter.Write(MP_UINT64);
+                        outputWriter.Write(value);
+                    }
+                }
+                else
+                {
+                    if (value >= -(MAX_5BIT + 1))
+                    {
+                        outputWriter.Write((byte)(value & 0xff));
+                    }
+                    else if (value >= -MAX_7BIT)
+                    {
+                        outputWriter.Write(MP_INT8);
+                        outputWriter.Write((byte)value);
+                    }
+                    else if (value >= -MAX_15BIT)
+                    {
+                        outputWriter.Write(MP_INT16);
+                        outputWriter.Write((short)value);
+                    }
+                    else if (value >= -MAX_31BIT)
+                    {
+                        outputWriter.Write(MP_INT32);
+                        outputWriter.Write((int)value);
+                    }
+                    else
+                    {
+                        outputWriter.Write(MP_INT64);
+                        outputWriter.Write(value);
+                    }
+                }
+            }
+        }
+
+
+        private static object Unpack(Stream stream, int options)
         {
             var inputStream = new BinaryReader(stream);
-            int value = inputStream.ReadByte();
-            if (value < 0)
-            {
-                throw new ArgumentException("No more input available when expecting a value");
-            }
 
-            switch ((byte)value)
+            var value = inputStream.ReadByte();
+
+            switch (value)
             {
                 case MP_NULL:
                     return null;
@@ -286,9 +311,15 @@ namespace MsgPackLite
                     return UnpackRaw(inputStream.ReadInt32(), inputStream.BaseStream, options);
             }
 
+            if ((value & (1 << 7)) == 0)
+                return value;
+
+            if ((value & MP_NEGATIVE_FIXNUM) == MP_NEGATIVE_FIXNUM_INT)
+                return (sbyte) value;
+
             if (value >= MP_NEGATIVE_FIXNUM_INT && value <= MP_NEGATIVE_FIXNUM_INT + MAX_5BIT)
             {
-                return (byte)value;
+                return value;
             }
 
             if (value >= MP_FIXARRAY_INT && value <= MP_FIXARRAY_INT + MAX_4BIT)
@@ -383,5 +414,30 @@ namespace MsgPackLite
                    || value is long
                    || value is ulong;
         }
+
+        private static long CastToLong(object item)
+        {
+            if (item is sbyte)
+                return (sbyte)item;
+            if (item is byte)
+                return (byte)item;
+            if (item is short)
+                return (short)item;
+            if (item is ushort)
+                return (ushort)item;
+            if (item is int)
+                return (int)item;
+            if (item is uint)
+                return (uint)item;
+            if (item is long)
+                return (long)item;
+            if (item is ulong)
+                return (long)(ulong)item;
+
+            throw new ArgumentException("Item can't be converted to long :" + item);
+        }
+
+
+
     }
 }
