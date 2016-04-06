@@ -27,31 +27,26 @@ namespace MsgPackLite
         private const byte MpFloat = 0xca;
         private const byte MpDouble = 0xcb;
 
-        private const byte MpFixnum = 0xf0; //last 7 bits is value
         private const byte MpUint8 = 0xcc;
         private const byte MpUint16 = 0xcd;
         private const byte MpUint32 = 0xce;
         private const byte MpUint64 = 0xcf;
 
         private const byte MpNegativeFixnum = 0xe0; //last 5 bits is value
-        private const int MpNegativeFixnumInt = 0xe0; //  /me wishes for signed numbers.
         private const byte MpInt8 = 0xd0;
         private const byte MpInt16 = 0xd1;
         private const byte MpInt32 = 0xd2;
         private const byte MpInt64 = 0xd3;
 
         private const byte MpFixarray = 0x90; //last 4 bits is size
-        private const int MpFixarrayInt = 0x90;
         private const byte MpArray16 = 0xdc;
         private const byte MpArray32 = 0xdd;
 
         private const byte MpFixmap = 0x80; //last 4 bits is size
-        private const int MpFixmapInt = 0x80;
         private const byte MpMap16 = 0xde;
         private const byte MpMap32 = 0xdf;
 
         private const byte MpFixstr = 0xa0; //last 5 bits is size
-        private const byte MpFixstrInt = 0xa0;
         private const byte MpStr8 = 0xd9;
         private const byte MpStr16 = 0xda;
         private const byte MpStr32 = 0xdb;
@@ -372,30 +367,27 @@ namespace MsgPackLite
                     return UnpackBin(ReadInt32(reader), reader);
             }
 
-            if ((value & MpFixnum) == 0)
-                return value;
-
-            if ((value & MpNegativeFixnum) == MpNegativeFixnumInt)
+            if ((value & MpNegativeFixnum) == MpNegativeFixnum)
                 return (sbyte) value;
 
-            if (value >= MpNegativeFixnumInt && value <= MpNegativeFixnumInt + Max5Bit)
+            if (value >= MpNegativeFixnum && value <= MpNegativeFixnum + Max5Bit)
             {
                 return value;
             }
 
-            if (value >= MpFixarrayInt && value <= MpFixarrayInt + Max4Bit)
+            if (value >= MpFixarray && value <= MpFixarray + Max4Bit)
             {
-                return UnpackList(value - MpFixarrayInt, reader);
+                return UnpackList(value - MpFixarray, reader);
             }
 
-            if (value >= MpFixmapInt && value <= MpFixmapInt + Max4Bit)
+            if (value >= MpFixmap && value <= MpFixmap + Max4Bit)
             {
-                return UnpackMap(value - MpFixmapInt, reader);
+                return UnpackMap(value - MpFixmap, reader);
             }
 
-            if (value >= MpFixstrInt && value <= MpFixstrInt + Max5Bit)
+            if (value >= MpFixstr && value <= MpFixstr + Max5Bit)
             {
-                return UnpackString(value - MpFixstrInt, reader);
+                return UnpackString(value - MpFixstr, reader);
             }
 
             if (value <= Max7Bit)
