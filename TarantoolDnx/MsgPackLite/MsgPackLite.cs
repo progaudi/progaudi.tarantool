@@ -59,42 +59,42 @@ namespace MsgPackLite
         public static object Unpack(byte[] bytesArray, int options = 0)
         {
             var stream = new MemoryStream(bytesArray);
-            return Unpack(stream, options);
+            var reader = new BinaryReader(stream);
+            return Unpack(reader, options);
         }
 
         public static byte[] Pack(object item)
         {
             var stream = new MemoryStream();
-            Pack(item, stream);
+            var writer = new BinaryWriter(stream);
+            Pack(item, writer);
 
             return stream.ToArray();
         }
 
-        private static void Pack(object item, Stream os)
+        private static void Pack(object item, BinaryWriter writer)
         {
-            var outputWriter = new BinaryWriter(os);
-
             if (item == null)
             {
-                outputWriter.Write(MP_NULL);
+                writer.Write(MP_NULL);
             }
             else if (item is bool)
             {
-                outputWriter.Write((bool)item ? MP_TRUE : MP_FALSE);
+                writer.Write((bool)item ? MP_TRUE : MP_FALSE);
             }
             else if (item is float)
             {
-                outputWriter.Write(MP_FLOAT);
-                outputWriter.Write((float)item);
+                writer.Write(MP_FLOAT);
+                writer.Write(ToBigEndianBytes((float)item));
             }
             else if (item is double)
             {
-                outputWriter.Write(MP_DOUBLE);
-                outputWriter.Write((double)item);
+                writer.Write(MP_DOUBLE);
+                writer.Write(ToBigEndianBytes((double)item));
             }
             else if (IsIntegerNumber(item))
             {
-                PackIntegerNumber(item, outputWriter);
+                PackIntegerNumber(item, writer);
             }
             else if (item is string || item is byte[] || item is MemoryStream)
             {
@@ -115,76 +115,18 @@ namespace MsgPackLite
                     data = memoryStream.ToArray();
                 }
 
-                if (data.Length <= MAX_5BIT)
-                {
-                    outputWriter.Write((byte)(data.Length | MP_FIXRAW));
-                }
-                else if (data.Length <= MAX_8BIT)
-                {
-                    outputWriter.Write(MP_RAW8);
-                    outputWriter.Write((byte)data.Length);
-                }
-                else if (data.Length <= MAX_16BIT)
-                {
-                    outputWriter.Write(MP_RAW16);
-                    outputWriter.Write((short)data.Length);
-                }
-                else
-                {
-                    outputWriter.Write(MP_RAW32);
-                    outputWriter.Write(data.Length);
-                }
-                outputWriter.Write(data);
+                PackByteArray(writer, data);
             }
             else
             {
                 var list1 = item as IList;
                 if (list1 != null)
                 {
-                    var list = list1;
-                    var length = list.Count;
-
-                    if (length <= MAX_4BIT)
-                    {
-                        outputWriter.Write(length | MP_FIXARRAY);
-                    }
-                    else if (length <= MAX_16BIT)
-                    {
-                        outputWriter.Write(MP_ARRAY16);
-                        outputWriter.Write((short)length);
-                    }
-                    else
-                    {
-                        outputWriter.Write(MP_ARRAY32);
-                        outputWriter.Write(length);
-                    }
-                    foreach (var element in list)
-                    {
-                        Pack(element, outputWriter.BaseStream);
-                    }
+                    PackList(writer, list1);
                 }
                 else if (item is IDictionary)
                 {
-                    var map = (Dictionary<Object, Object>)item;
-                    if (map.Count <= MAX_4BIT)
-                    {
-                        outputWriter.Write(map.Count | MP_FIXMAP);
-                    }
-                    else if (map.Count <= MAX_16BIT)
-                    {
-                        outputWriter.Write(MP_MAP16);
-                        outputWriter.Write((short)map.Count);
-                    }
-                    else
-                    {
-                        outputWriter.Write(MP_MAP32);
-                        outputWriter.Write(map.Count);
-                    }
-                    foreach (var kvp in map)
-                    {
-                        Pack(kvp.Key, outputWriter.BaseStream);
-                        Pack(kvp.Value, outputWriter.BaseStream);
-                    }
+                    PackMap(item, writer);
                 }
                 else
                 {
@@ -193,12 +135,139 @@ namespace MsgPackLite
             }
         }
 
+        private static byte[] ToBigEndianBytes(float item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+
+        private static byte[] ToBigEndianBytes(double item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+
+        private static byte[] ToBigEndianBytes(ushort item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+
+        private static byte[] ToBigEndianBytes(short item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+
+        private static byte[] ToBigEndianBytes(uint item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+        private static byte[] ToBigEndianBytes(int item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+
+        private static byte[] ToBigEndianBytes(ulong item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+
+        private static byte[] ToBigEndianBytes(long item)
+        {
+            return ReverseArray(BitConverter.GetBytes(item));
+        }
+
+        private static byte[] ReverseArray(byte[] array)
+        {
+            if(!BitConverter.IsLittleEndian)
+                return array;
+            
+            var result = new byte[array.Length];
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                result[array.Length - 1 - i] = array[i];
+            }
+
+            return result;
+        }
+
+        private static void PackByteArray(BinaryWriter writer, byte[] data)
+        {
+            if (data.Length <= MAX_5BIT)
+            {
+                writer.Write((byte) (data.Length | MP_FIXRAW));
+            }
+            else if (data.Length <= MAX_8BIT)
+            {
+                writer.Write(MP_RAW8);
+                writer.Write((byte) data.Length);
+            }
+            else if (data.Length <= MAX_16BIT)
+            {
+                writer.Write(MP_RAW16);
+                writer.Write(ToBigEndianBytes((ushort) data.Length));
+            }
+            else
+            {
+                writer.Write(MP_RAW32);
+                writer.Write(ToBigEndianBytes((uint) data.Length));
+            }
+            writer.Write(data);
+        }
+
+        private static void PackMap(object item, BinaryWriter writer)
+        {
+            var map = (IDictionary<object, object>) item;
+            if (map.Count <= MAX_4BIT)
+            {
+                writer.Write((byte) (map.Count | MP_FIXMAP));
+            }
+            else if (map.Count <= MAX_16BIT)
+            {
+                writer.Write(MP_MAP16);
+                writer.Write(ToBigEndianBytes((ushort) map.Count));
+            }
+            else
+            {
+                writer.Write(MP_MAP32);
+                writer.Write(ToBigEndianBytes((uint) map.Count));
+            }
+            foreach (var kvp in map)
+            {
+                Pack(kvp.Key, writer);
+                Pack(kvp.Value, writer);
+            }
+        }
+
+        private static void PackList(BinaryWriter writer, IList list1)
+        {
+            var list = list1;
+            var length = list.Count;
+
+            if (length <= MAX_4BIT)
+            {
+                writer.Write((byte) (length | MP_FIXARRAY));
+            }
+            else if (length <= MAX_16BIT)
+            {
+                writer.Write(MP_ARRAY16);
+                writer.Write(ToBigEndianBytes((ushort) length));
+            }
+            else
+            {
+                writer.Write(MP_ARRAY32);
+                writer.Write(ToBigEndianBytes((uint)length));
+            }
+            foreach (var element in list)
+            {
+                Pack(element, writer);
+            }
+        }
+
         private static void PackIntegerNumber(object item, BinaryWriter outputWriter)
         {
             if (item is ulong && (ulong)item > long.MaxValue)
             {
                 outputWriter.Write(MP_UINT64);
-                outputWriter.Write((ulong)item);
+                outputWriter.Write(ToBigEndianBytes((ulong)item));
             }
             else
             {
@@ -217,17 +286,17 @@ namespace MsgPackLite
                     else if (value <= MAX_16BIT)
                     {
                         outputWriter.Write(MP_UINT16);
-                        outputWriter.Write((short)value);
+                        outputWriter.Write(ToBigEndianBytes((ushort)value));
                     }
                     else if (value <= MAX_32BIT)
                     {
                         outputWriter.Write(MP_UINT32);
-                        outputWriter.Write((int)value);
+                        outputWriter.Write(ToBigEndianBytes((uint)value));
                     }
                     else
                     {
                         outputWriter.Write(MP_UINT64);
-                        outputWriter.Write(value);
+                        outputWriter.Write(ToBigEndianBytes(value));
                     }
                 }
                 else
@@ -244,28 +313,25 @@ namespace MsgPackLite
                     else if (value >= -MAX_15BIT)
                     {
                         outputWriter.Write(MP_INT16);
-                        outputWriter.Write((short)value);
+                        outputWriter.Write(ToBigEndianBytes((short)value));
                     }
                     else if (value >= -MAX_31BIT)
                     {
                         outputWriter.Write(MP_INT32);
-                        outputWriter.Write((int)value);
+                        outputWriter.Write(ToBigEndianBytes((int)value));
                     }
                     else
                     {
                         outputWriter.Write(MP_INT64);
-                        outputWriter.Write(value);
+                        outputWriter.Write(ToBigEndianBytes(value));
                     }
                 }
             }
         }
 
-
-        private static object Unpack(Stream stream, int options)
+        private static object Unpack(BinaryReader reader, int options)
         {
-            var inputStream = new BinaryReader(stream);
-
-            var value = inputStream.ReadByte();
+            var value = reader.ReadByte();
 
             switch (value)
             {
@@ -276,39 +342,39 @@ namespace MsgPackLite
                 case MP_TRUE:
                     return true;
                 case MP_FLOAT:
-                    return inputStream.ReadSingle();
+                    return ReadSingle(reader);
                 case MP_DOUBLE:
-                    return inputStream.ReadDouble();
+                    return ReadDouble(reader);
                 case MP_UINT8:
-                    return inputStream.ReadByte();
+                    return reader.ReadByte();
                 case MP_UINT16:
-                    return inputStream.ReadUInt16();
+                    return ReadUInt16(reader);
                 case MP_UINT32:
-                    return inputStream.ReadUInt32();
+                    return ReadUInt32(reader);
                 case MP_UINT64:
-                    return inputStream.ReadUInt64();
+                    return ReadUInt64(reader);
                 case MP_INT8:
-                    return inputStream.ReadByte();
+                    return reader.ReadByte();
                 case MP_INT16:
-                    return inputStream.ReadInt16();
+                    return ReadInt16(reader);
                 case MP_INT32:
-                    return inputStream.ReadInt32();
+                    return ReadInt32(reader);
                 case MP_INT64:
-                    return inputStream.ReadInt64();
+                    return ReadInt64(reader);
                 case MP_ARRAY16:
-                    return UnpackList(inputStream.ReadInt16() & MAX_16BIT, inputStream.BaseStream, options);
+                    return UnpackList(ReadInt16(reader) & MAX_16BIT, reader, options);
                 case MP_ARRAY32:
-                    return UnpackList(inputStream.ReadInt32(), inputStream.BaseStream, options);
+                    return UnpackList(ReadInt32(reader), reader, options);
                 case MP_MAP16:
-                    return UnpackMap(inputStream.ReadInt16() & MAX_16BIT, inputStream.BaseStream, options);
+                    return UnpackMap(ReadInt16(reader) & MAX_16BIT, reader, options);
                 case MP_MAP32:
-                    return UnpackMap(inputStream.ReadInt32(), inputStream.BaseStream, options);
+                    return UnpackMap(ReadInt32(reader), reader, options);
                 case MP_RAW8:
-                    return UnpackRaw(inputStream.ReadByte() & MAX_8BIT, inputStream.BaseStream, options);
+                    return UnpackRaw(reader.ReadByte() & MAX_8BIT, reader, options);
                 case MP_RAW16:
-                    return UnpackRaw(inputStream.ReadInt16() & MAX_16BIT, inputStream.BaseStream, options);
+                    return UnpackRaw(ReadInt16(reader) & MAX_16BIT, reader, options);
                 case MP_RAW32:
-                    return UnpackRaw(inputStream.ReadInt32(), inputStream.BaseStream, options);
+                    return UnpackRaw(ReadInt32(reader), reader, options);
             }
 
             if ((value & (1 << 7)) == 0)
@@ -324,17 +390,17 @@ namespace MsgPackLite
 
             if (value >= MP_FIXARRAY_INT && value <= MP_FIXARRAY_INT + MAX_4BIT)
             {
-                return UnpackList(value - MP_FIXARRAY_INT, inputStream.BaseStream, options);
+                return UnpackList(value - MP_FIXARRAY_INT, reader, options);
             }
 
             if (value >= MP_FIXMAP_INT && value <= MP_FIXMAP_INT + MAX_4BIT)
             {
-                return UnpackMap(value - MP_FIXMAP_INT, inputStream.BaseStream, options);
+                return UnpackMap(value - MP_FIXMAP_INT, reader, options);
             }
 
             if (value >= MP_FIXRAW_INT && value <= MP_FIXRAW_INT + MAX_5BIT)
             {
-                return UnpackRaw(value - MP_FIXRAW_INT, inputStream.BaseStream, options);
+                return UnpackRaw(value - MP_FIXRAW_INT, reader, options);
             }
 
             if (value <= MAX_7BIT)
@@ -345,7 +411,47 @@ namespace MsgPackLite
             throw new ArgumentException("Input contains invalid type value " + (byte)value);
         }
 
-        private static object UnpackRaw(int size, Stream inputStream, int options)
+        private static long ReadInt64(BinaryReader reader)
+        {
+            return BitConverter.ToInt64(ReverseArray(reader.ReadBytes(8)), 0);
+        }
+
+        private static int ReadInt32(BinaryReader reader)
+        {
+            return BitConverter.ToInt32(ReverseArray(reader.ReadBytes(4)), 0);
+        }
+
+        private static short ReadInt16(BinaryReader reader)
+        {
+            return BitConverter.ToInt16(ReverseArray(reader.ReadBytes(2)), 0);
+        }
+
+        private static ulong ReadUInt64(BinaryReader reader)
+        {
+            return BitConverter.ToUInt64(ReverseArray(reader.ReadBytes(8)), 0);
+        }
+
+        private static uint ReadUInt32(BinaryReader reader)
+        {
+            return BitConverter.ToUInt32(ReverseArray(reader.ReadBytes(4)), 0);
+        }
+
+        private static ushort ReadUInt16(BinaryReader reader)
+        {
+            return BitConverter.ToUInt16(ReverseArray(reader.ReadBytes(2)), 0);
+        }
+
+        private static double ReadDouble(BinaryReader reader)
+        {
+            return BitConverter.ToDouble(ReverseArray(reader.ReadBytes(8)), 0);
+        }
+
+        private static float ReadSingle(BinaryReader reader)
+        {
+            return BitConverter.ToSingle(ReverseArray(reader.ReadBytes(4)), 0);
+        }
+
+        private static object UnpackRaw(int size, BinaryReader reader, int options)
         {
             if (size < 0)
             {
@@ -354,7 +460,7 @@ namespace MsgPackLite
 
             var data = new byte[size];
 
-            inputStream.Read(data, 0, size);
+            reader.Read(data, 0, size);
 
             if ((options & OPTION_UNPACK_RAW_AS_BYTE_BUFFER) != 0)
             {
@@ -369,7 +475,7 @@ namespace MsgPackLite
             return data;
         }
 
-        private static IDictionary UnpackMap(int size, Stream inputStream, int options)
+        private static IDictionary UnpackMap(int size, BinaryReader reader, int options)
         {
             if (size < 0)
             {
@@ -379,25 +485,25 @@ namespace MsgPackLite
             var ret = new Dictionary<object, object>(size);
             for (var i = 0; i < size; ++i)
             {
-                var key = Unpack(inputStream, options);
-                var value = Unpack(inputStream, options);
+                var key = Unpack(reader, options);
+                var value = Unpack(reader, options);
                 ret.Add(key, value);
             }
 
             return ret;
         }
 
-        private static IList UnpackList(int size, Stream inputStream, int options)
+        private static IList UnpackList(int size, BinaryReader reader, int options)
         {
             if (size < 0)
             {
                 throw new ArgumentException("Array to unpack too large (more than 2^31 elements)!");
             }
-            var ret = new ArrayList(size);
+            var ret = new object[size];
 
             for (var i = 0; i < size; ++i)
             {
-                ret.Add(Unpack(inputStream, options));
+                ret[i] = Unpack(reader, options);
             }
 
             return ret;
