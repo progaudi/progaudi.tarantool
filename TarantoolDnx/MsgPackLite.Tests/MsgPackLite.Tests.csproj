@@ -50,9 +50,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Array.cs" />
+    <Compile Include="Binary.cs" />
+    <Compile Include="Boolean.cs" />
+    <Compile Include="Double.cs" />
     <Compile Include="Helpers.cs" />
-    <Compile Include="MsgPackLite.cs" />
+    <Compile Include="Long.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="Null.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="String.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MsgPackLite\MsgPackLite.csproj">
