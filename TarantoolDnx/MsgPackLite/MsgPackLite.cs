@@ -244,68 +244,55 @@ namespace MsgPackLite
 
         private static void PackIntegerNumber(object item, BinaryWriter outputWriter)
         {
-            if (item is ulong && (ulong)item > long.MaxValue)
+            var longValue = CastToLong(item);
+            var byteValue = (byte)longValue;
+            if (item is ulong && (ulong)item> Max7Bit)
             {
                 outputWriter.Write(MpUint64);
                 outputWriter.Write(ToBigEndianBytes((ulong)item));
             }
-            else
+            else if (longValue >= 0 && longValue <= Max7Bit)
             {
-                var value = CastToLong(item);
-                if (value >= 0)
-                {
-                    if (value <= Max7Bit)
-                    {
-                        outputWriter.Write((byte)value);
-                    }
-                    else if (value <= Max8Bit)
-                    {
-                        outputWriter.Write(MpUint8);
-                        outputWriter.Write((byte)value);
-                    }
-                    else if (value <= Max16Bit)
-                    {
-                        outputWriter.Write(MpUint16);
-                        outputWriter.Write(ToBigEndianBytes((ushort)value));
-                    }
-                    else if (value <= Max32Bit)
-                    {
-                        outputWriter.Write(MpUint32);
-                        outputWriter.Write(ToBigEndianBytes((uint)value));
-                    }
-                    else
-                    {
-                        outputWriter.Write(MpUint64);
-                        outputWriter.Write(ToBigEndianBytes(value));
-                    }
-                }
-                else
-                {
-                    if (value >= -(Max5Bit + 1))
-                    {
-                        outputWriter.Write((byte)(value & 0xff));
-                    }
-                    else if (value >= -Max7Bit)
-                    {
-                        outputWriter.Write(MpInt8);
-                        outputWriter.Write((byte)value);
-                    }
-                    else if (value >= -Max15Bit)
-                    {
-                        outputWriter.Write(MpInt16);
-                        outputWriter.Write(ToBigEndianBytes((short)value));
-                    }
-                    else if (value >= -Max31Bit)
-                    {
-                        outputWriter.Write(MpInt32);
-                        outputWriter.Write(ToBigEndianBytes((int)value));
-                    }
-                    else
-                    {
-                        outputWriter.Write(MpInt64);
-                        outputWriter.Write(ToBigEndianBytes(value));
-                    }
-                }
+                outputWriter.Write((byte) longValue);
+            }
+            else if (longValue < 0 && byteValue>=MpNegativeFixnum && byteValue <= Max8Bit)
+            {
+                outputWriter.Write((byte) (byteValue | MpNegativeFixnum));
+            }
+            else if(item is byte)
+            {
+                outputWriter.Write(MpUint8);
+                outputWriter.Write((byte) item);
+            }
+            else if (item is ushort)
+            {
+                outputWriter.Write(MpUint16);
+                outputWriter.Write(ToBigEndianBytes((ushort)item));
+            }
+            else if (item is uint)
+            {
+                outputWriter.Write(MpUint32);
+                outputWriter.Write(ToBigEndianBytes((uint)item));
+            }
+            else if (item is sbyte)
+            {
+                outputWriter.Write(MpInt8);
+                outputWriter.Write((sbyte)item);
+            }
+            else if (item is short)
+            {
+                outputWriter.Write(MpInt16);
+                outputWriter.Write(ToBigEndianBytes((short)item));
+            }
+            else if (item is int)
+            {
+                outputWriter.Write(MpInt32);
+                outputWriter.Write(ToBigEndianBytes((int)item));
+            }
+            else if (item is long)
+            {
+                outputWriter.Write(MpInt64);
+                outputWriter.Write(ToBigEndianBytes((long)item));
             }
         }
 
