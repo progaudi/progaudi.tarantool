@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgPackLite", "MsgPackLite\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgPackLite.Tests", "MsgPackLite.Tests\MsgPackLite.Tests.csproj", "{C41DCAF9-5DD3-43A9-955E-2C7410B3A789}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgPack.Tests", "MsgPack.Tests\MsgPack.Tests.csproj", "{59D55563-82A6-4431-804B-8AB11A4C9780}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C41DCAF9-5DD3-43A9-955E-2C7410B3A789}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C41DCAF9-5DD3-43A9-955E-2C7410B3A789}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C41DCAF9-5DD3-43A9-955E-2C7410B3A789}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59D55563-82A6-4431-804B-8AB11A4C9780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59D55563-82A6-4431-804B-8AB11A4C9780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59D55563-82A6-4431-804B-8AB11A4C9780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59D55563-82A6-4431-804B-8AB11A4C9780}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MsgPackLite</RootNamespace>
     <AssemblyName>MsgPackLite</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,7 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BytesWriter.cs" />
+    <Compile Include="IBytesWriter.cs" />
+    <Compile Include="IMsgPackReader.cs" />
+    <Compile Include="IMsgPackWriter.cs" />
+    <Compile Include="MsgPackConstants.cs" />
     <Compile Include="MsgPackLite.cs" />
+    <Compile Include="MsgPackReader.cs" />
+    <Compile Include="MsgPackWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
