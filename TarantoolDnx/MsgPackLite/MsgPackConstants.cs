@@ -1,6 +1,6 @@
 namespace MsgPackLite
 {
-    public class MsgPackConstants
+    public sealed class MsgPackConstants
     {
         public const int Max4Bit = 0xf;
         public const int Max5Bit = 0x1f;

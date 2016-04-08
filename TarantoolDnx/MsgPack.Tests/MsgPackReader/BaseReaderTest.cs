@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using MsgPackLite;
 
 namespace MsgPack.Tests.MsgPackReader
@@ -7,10 +8,8 @@ namespace MsgPack.Tests.MsgPackReader
     {
         protected IMsgPackReader CreateReader(byte[] data)
         {
-            using (var stream = new MemoryStream(data))
-            {
-                return new MsgPackLite.MsgPackReader(stream);
-            }
+            var stream = new MemoryStream(data);
+            return new MsgPackLite.MsgPackReader(stream);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MsgPack.Tests.MsgPackReader
         public void ReadDictionary()
         {
             var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadDictionary<int,int>());
+            Assert.Null(msgPackReader.ReadMap<int,int>());
         }
     }
 }

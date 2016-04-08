@@ -3,7 +3,7 @@ using System.IO;
 
 namespace MsgPackLite
 {
-    public class BytesWriter : IBytesWriter
+    internal sealed class BytesWriter : IBytesWriter
     {
         private readonly Stream _innerStream;
 

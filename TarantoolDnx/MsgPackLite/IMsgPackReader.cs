@@ -18,6 +18,6 @@ namespace MsgPackLite
         ulong ReadULong();
         byte[] ReadBinary();
         T[] ReadArray<T>();
-        IDictionary<TK, TV> ReadDictionary<TK, TV>();
+        IDictionary<TK, TV> ReadMap<TK, TV>();
     }
 }

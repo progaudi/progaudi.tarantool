@@ -41,7 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BytesReader.cs" />
     <Compile Include="BytesWriter.cs" />
+    <Compile Include="IBytesReader.cs" />
     <Compile Include="IBytesWriter.cs" />
     <Compile Include="IMsgPackReader.cs" />
     <Compile Include="IMsgPackWriter.cs" />
