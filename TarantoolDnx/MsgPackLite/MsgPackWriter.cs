@@ -194,7 +194,7 @@ namespace MsgPackLite
             }
         }
 
-        public void WriteByteArray(byte[] data)
+        public void Write(byte[] data)
         {
             if (data == null)
             {
@@ -339,7 +339,7 @@ namespace MsgPackLite
             }
             else if (item is byte[])
             {
-                WriteByteArray((byte[])item);
+                Write((byte[])item);
             }
             else if (item is IList)
             {

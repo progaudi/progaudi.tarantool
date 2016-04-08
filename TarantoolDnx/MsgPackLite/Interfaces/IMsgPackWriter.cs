@@ -17,7 +17,7 @@ namespace MsgPackLite.Interfaces
         void Write(uint item);
         void Write(long item);
         void Write(ulong item);
-        void WriteByteArray(byte[] data);
+        void Write(byte[] data);
         void Write(IList item);
         void Write<TK, TV>(IDictionary<TK, TV> map);
     }

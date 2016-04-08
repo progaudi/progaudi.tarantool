@@ -15,7 +15,7 @@ namespace MsgPack.Tests.MsgPackWriter
         [Fact]
         public void WriteNullByteArray()
         {
-            Writer.WriteByteArray(null);
+            Writer.Write((byte[])null);
             AssertStreamContent(new byte[] { 0xc0 });
         }
         [Fact]
