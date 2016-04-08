@@ -18,6 +18,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "msgpack", "src\msgpack\msgp
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "msgpack.tests", "tests\msgpack.tests\msgpack.tests.xproj", "{DBE7481B-65ED-4729-B611-8BDDE87766C3}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "iproto", "src\iproto\iproto.xproj", "{27FF1E55-3854-4EF5-B8B0-3344C599B14A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27FF1E55-3854-4EF5-B8B0-3344C599B14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27FF1E55-3854-4EF5-B8B0-3344C599B14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27FF1E55-3854-4EF5-B8B0-3344C599B14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27FF1E55-3854-4EF5-B8B0-3344C599B14A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,5 +45,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{26884D70-2D12-46AC-884E-158E10E9314A} = {32A7AB4C-C3C8-446E-8AC8-4DF978111F86}
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3} = {6C17D83C-342E-4EFD-BBCA-D2D41E88AC45}
+		{27FF1E55-3854-4EF5-B8B0-3344C599B14A} = {32A7AB4C-C3C8-446E-8AC8-4DF978111F86}
 	EndGlobalSection
 EndGlobal
