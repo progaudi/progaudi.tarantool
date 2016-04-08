@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using MsgPackLite.Interfaces;
 
 namespace MsgPackLite
 {
@@ -228,9 +229,7 @@ namespace MsgPackLite
                 throw new ArgumentException("String to unpack too large (more than 2^31 elements)!");
             }
 
-            var data = new byte[size];
-
-            reader.ReadBytes(data, size);
+            var data = reader.ReadBytes(size);
 
             return Encoding.UTF8.GetString(data);
         }
@@ -242,9 +241,7 @@ namespace MsgPackLite
                 throw new ArgumentException("byte[] to unpack too large (more than 2^31 elements)!");
             }
 
-            var data = new byte[size];
-
-            reader.ReadBytes(data, size);
+            var data = reader.ReadBytes(size);
 
             return data;
         }

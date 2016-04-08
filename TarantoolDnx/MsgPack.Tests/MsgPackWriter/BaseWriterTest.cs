@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using MsgPackLite;
+using MsgPackLite.Interfaces;
 using Xunit;
 
 namespace MsgPack.Tests.MsgPackWriter

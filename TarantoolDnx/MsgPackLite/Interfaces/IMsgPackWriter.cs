@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace MsgPackLite
+namespace MsgPackLite.Interfaces
 {
     public interface IMsgPackWriter
     {

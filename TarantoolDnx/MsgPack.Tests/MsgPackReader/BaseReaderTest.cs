@@ -1,6 +1,5 @@
-﻿using System;
-using System.IO;
-using MsgPackLite;
+﻿using System.IO;
+using MsgPackLite.Interfaces;
 
 namespace MsgPack.Tests.MsgPackReader
 {

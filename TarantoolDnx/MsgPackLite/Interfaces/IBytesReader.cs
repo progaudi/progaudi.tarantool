@@ -1,4 +1,4 @@
-﻿namespace MsgPackLite
+﻿namespace MsgPackLite.Interfaces
 {
     public interface IBytesReader
     {
@@ -12,6 +12,6 @@
         ulong ReadUInt64();
         double ReadDouble();
         float ReadFloat();
-        void ReadBytes(byte[] data, int size);
+        byte[] ReadBytes(int count);
     }
 }

@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using MsgPackLite.Interfaces;
 
 namespace MsgPackLite
 {
-    internal sealed class BytesReader :IBytesReader
+    internal sealed class BytesReader : IBytesReader
     {
         private readonly Stream _innerStream;
 
@@ -13,7 +15,7 @@ namespace MsgPackLite
 
         public sbyte ReadSByte()
         {
-            throw new System.NotImplementedException();
+            return (sbyte)_innerStream.ReadByte();
         }
 
         public byte ReadByte()
@@ -21,54 +23,51 @@ namespace MsgPackLite
             return (byte)_innerStream.ReadByte();
         }
 
-        short IBytesReader.ReadInt16()
+        public short ReadInt16()
         {
-            throw new System.NotImplementedException();
+            return BitConverter.ToInt16(ReadBytes(2), 0);
         }
 
         public ushort ReadUInt16()
         {
-            throw new System.NotImplementedException();
+            return BitConverter.ToUInt16(ReadBytes(2), 0);
         }
 
         public float ReadFloat()
         {
-            throw new System.NotImplementedException();
-        }
-
-        public void ReadBytes(byte[] data, int size)
-        {
-            _innerStream.Read(data, 0, size);
-        }
-
-        public int ReadInt16()
-        {
-            throw new System.NotImplementedException();
+            return BitConverter.ToSingle(ReadBytes(2), 0);
         }
 
         public int ReadInt32()
         {
-            throw new System.NotImplementedException();
+            return BitConverter.ToInt32(ReadBytes(4), 0);
         }
 
         public uint ReadUInt32()
         {
-            throw new System.NotImplementedException();
+            return BitConverter.ToUInt32(ReadBytes(4), 0);
         }
 
         public long ReadInt64()
         {
-            throw new System.NotImplementedException();
+            return BitConverter.ToInt64(ReadBytes(8), 0);
         }
 
         public ulong ReadUInt64()
         {
-            throw new System.NotImplementedException();
+            return BitConverter.ToUInt64(ReadBytes(8), 0);
         }
 
         public double ReadDouble()
         {
-            throw new System.NotImplementedException();
+            return BitConverter.ToDouble(ReadBytes(8), 0);
+        }
+
+        public byte[] ReadBytes(int count)
+        {
+            var result = new byte[2];
+            _innerStream.Read(result, 0, count);
+            return result;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace MsgPackLite
+﻿namespace MsgPackLite.Interfaces
 {
     public interface IBytesWriter
     {

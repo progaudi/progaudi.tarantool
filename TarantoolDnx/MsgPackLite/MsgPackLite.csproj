@@ -43,12 +43,11 @@
   <ItemGroup>
     <Compile Include="BytesReader.cs" />
     <Compile Include="BytesWriter.cs" />
-    <Compile Include="IBytesReader.cs" />
-    <Compile Include="IBytesWriter.cs" />
-    <Compile Include="IMsgPackReader.cs" />
-    <Compile Include="IMsgPackWriter.cs" />
+    <Compile Include="Interfaces\IBytesReader.cs" />
+    <Compile Include="Interfaces\IBytesWriter.cs" />
+    <Compile Include="Interfaces\IMsgPackReader.cs" />
+    <Compile Include="Interfaces\IMsgPackWriter.cs" />
     <Compile Include="MsgPackConstants.cs" />
-    <Compile Include="MsgPackLite.cs" />
     <Compile Include="MsgPackReader.cs" />
     <Compile Include="MsgPackWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
