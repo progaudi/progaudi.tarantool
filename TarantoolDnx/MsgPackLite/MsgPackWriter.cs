@@ -89,7 +89,7 @@ namespace MsgPackLite
             }
             else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
             {
-                _writer.Write((byte) (byteValue | MsgPackConstants.MpNegativeFixnum));
+                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
             }
             else
             {
@@ -108,7 +108,7 @@ namespace MsgPackLite
             }
             else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
             {
-                _writer.Write((byte) (byteValue | MsgPackConstants.MpNegativeFixnum));
+                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
             }
             else
             {
@@ -140,7 +140,7 @@ namespace MsgPackLite
             }
             else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
             {
-                _writer.Write((byte) (byteValue | MsgPackConstants.MpNegativeFixnum));
+                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
             }
             else
             {
@@ -172,7 +172,7 @@ namespace MsgPackLite
             }
             else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
             {
-                _writer.Write((byte) (byteValue | MsgPackConstants.MpNegativeFixnum));
+                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
             }
             else
             {
@@ -361,7 +361,7 @@ namespace MsgPackLite
             Write(castedDict);
         }
 
-        private static IDictionary<object,object> CastDict(ICollection dictionary)
+        private static IDictionary<object, object> CastDict(ICollection dictionary)
         {
             var result = new Dictionary<object, object>(dictionary.Count);
             foreach (DictionaryEntry entry in dictionary)

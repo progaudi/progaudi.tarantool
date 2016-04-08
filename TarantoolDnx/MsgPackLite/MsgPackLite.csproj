@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BytesReader.cs" />
     <Compile Include="BytesWriter.cs" />
+    <Compile Include="ByteUtils.cs" />
     <Compile Include="Interfaces\IBytesReader.cs" />
     <Compile Include="Interfaces\IBytesWriter.cs" />
     <Compile Include="Interfaces\IMsgPackReader.cs" />

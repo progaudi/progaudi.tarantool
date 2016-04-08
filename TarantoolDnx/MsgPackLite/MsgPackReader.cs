@@ -8,26 +8,26 @@ namespace MsgPackLite
 {
     public class MsgPackReader : IMsgPackReader
     {
-        private readonly IBytesReader reader;
+        private readonly IBytesReader _reader;
 
-        public MsgPackReader(Stream bytesReader)
+        public MsgPackReader(Stream stream)
         {
-            reader = new BytesReader(bytesReader);
+            _reader = new BytesReader(stream);
         }
 
         public string ReadString()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             switch (value)
             {
                 case MsgPackConstants.MpNull:
                     return null;
                 case MsgPackConstants.MpStr8:
-                    return ReadString(reader.ReadByte() & MsgPackConstants.Max8Bit);
+                    return ReadString(_reader.ReadByte() & MsgPackConstants.Max8Bit);
                 case MsgPackConstants.MpStr16:
-                    return ReadString(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadString(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpStr32:
-                    return ReadString(reader.ReadInt32());
+                    return ReadString(_reader.ReadInt32());
             }
             if (value >= MsgPackConstants.MpFixstr && value <= MsgPackConstants.MpFixstr + MsgPackConstants.Max5Bit)
             {
@@ -39,10 +39,10 @@ namespace MsgPackLite
 
         public double ReadDouble()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpDouble)
             {
-                return reader.ReadDouble();
+                return _reader.ReadDouble();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -50,10 +50,10 @@ namespace MsgPackLite
 
         public float ReadFloat()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpFloat)
             {
-                return reader.ReadFloat();
+                return _reader.ReadFloat();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -61,7 +61,7 @@ namespace MsgPackLite
 
         public bool ReadBool()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
 
             switch (value)
             {
@@ -76,10 +76,10 @@ namespace MsgPackLite
 
         public byte ReadByte()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpUint8)
             {
-                return reader.ReadByte();
+                return _reader.ReadByte();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -87,10 +87,10 @@ namespace MsgPackLite
 
         public sbyte ReadSByte()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpInt8)
             {
-                return reader.ReadSByte();
+                return _reader.ReadSByte();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -98,10 +98,10 @@ namespace MsgPackLite
 
         public short ReadShort()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpInt16)
             {
-                return reader.ReadInt16();
+                return _reader.ReadInt16();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -109,10 +109,10 @@ namespace MsgPackLite
 
         public ushort ReadUShort()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpUint16)
             {
-                return reader.ReadUInt16();
+                return _reader.ReadUInt16();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -120,10 +120,10 @@ namespace MsgPackLite
 
         public int ReadInt()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpInt32)
             {
-                return reader.ReadInt32();
+                return _reader.ReadInt32();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -131,10 +131,10 @@ namespace MsgPackLite
 
         public uint ReadUInt()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpUint32)
             {
-                return reader.ReadUInt32();
+                return _reader.ReadUInt32();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -142,10 +142,10 @@ namespace MsgPackLite
 
         public long ReadLong()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpInt64)
             {
-                return reader.ReadInt64();
+                return _reader.ReadInt64();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -153,10 +153,10 @@ namespace MsgPackLite
 
         public ulong ReadULong()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             if (value == MsgPackConstants.MpUint64)
             {
-                return reader.ReadUInt64();
+                return _reader.ReadUInt64();
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -164,17 +164,17 @@ namespace MsgPackLite
 
         public byte[] ReadBinary()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             switch (value)
             {
                 case MsgPackConstants.MpNull:
                     return null;
                 case MsgPackConstants.MpBit8:
-                    return ReadBinary(reader.ReadByte() & MsgPackConstants.Max8Bit);
+                    return ReadBinary(_reader.ReadByte() & MsgPackConstants.Max8Bit);
                 case MsgPackConstants.MpBit16:
-                    return ReadBinary(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadBinary(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpBit32:
-                    return ReadBinary(reader.ReadInt32());
+                    return ReadBinary(_reader.ReadInt32());
             }
 
             throw new ArgumentException("Input contains invalid type value " + value);
@@ -182,15 +182,15 @@ namespace MsgPackLite
 
         public T[] ReadArray<T>()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             switch (value)
             {
                 case MsgPackConstants.MpNull:
                     return null;
                 case MsgPackConstants.MpArray16:
-                    return ReadArray<T>(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadArray<T>(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpArray32:
-                    return ReadArray<T>(reader.ReadInt32());
+                    return ReadArray<T>(_reader.ReadInt32());
             }
 
             if (value >= MsgPackConstants.MpFixarray && value <= MsgPackConstants.MpFixarray + MsgPackConstants.Max4Bit)
@@ -203,15 +203,15 @@ namespace MsgPackLite
 
         public IDictionary<TK, TV> ReadMap<TK, TV>()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
             switch (value)
             {
                 case MsgPackConstants.MpNull:
                     return null;
                 case MsgPackConstants.MpMap16:
-                    return ReadMap<TK, TV>(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadMap<TK, TV>(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpMap32:
-                    return ReadMap<TK, TV>(reader.ReadInt32());
+                    return ReadMap<TK, TV>(_reader.ReadInt32());
             }
 
             if (value >= MsgPackConstants.MpFixmap && value <= MsgPackConstants.MpFixmap + MsgPackConstants.Max4Bit)
@@ -229,7 +229,7 @@ namespace MsgPackLite
                 throw new ArgumentException("String to unpack too large (more than 2^31 elements)!");
             }
 
-            var data = reader.ReadBytes(size);
+            var data = _reader.ReadBytes(size);
 
             return Encoding.UTF8.GetString(data);
         }
@@ -241,7 +241,7 @@ namespace MsgPackLite
                 throw new ArgumentException("byte[] to unpack too large (more than 2^31 elements)!");
             }
 
-            var data = reader.ReadBytes(size);
+            var data = _reader.ReadBytes(size);
 
             return data;
         }
@@ -282,7 +282,7 @@ namespace MsgPackLite
 
         private object ReadObject()
         {
-            var value = reader.ReadByte();
+            var value = _reader.ReadByte();
 
             switch (value)
             {
@@ -293,45 +293,45 @@ namespace MsgPackLite
                 case MsgPackConstants.MpTrue:
                     return true;
                 case MsgPackConstants.MpFloat:
-                    return reader.ReadFloat();
+                    return _reader.ReadFloat();
                 case MsgPackConstants.MpDouble:
-                    return reader.ReadDouble();
+                    return _reader.ReadDouble();
                 case MsgPackConstants.MpUint8:
-                    return reader.ReadByte();
+                    return _reader.ReadByte();
                 case MsgPackConstants.MpUint16:
-                    return reader.ReadUInt16();
+                    return _reader.ReadUInt16();
                 case MsgPackConstants.MpUint32:
-                    return reader.ReadUInt32();
+                    return _reader.ReadUInt32();
                 case MsgPackConstants.MpUint64:
-                    return reader.ReadUInt64();
+                    return _reader.ReadUInt64();
                 case MsgPackConstants.MpInt8:
-                    return reader.ReadSByte();
+                    return _reader.ReadSByte();
                 case MsgPackConstants.MpInt16:
-                    return reader.ReadInt16();
+                    return _reader.ReadInt16();
                 case MsgPackConstants.MpInt32:
-                    return reader.ReadInt32();
+                    return _reader.ReadInt32();
                 case MsgPackConstants.MpInt64:
-                    return reader.ReadInt64();
+                    return _reader.ReadInt64();
                 case MsgPackConstants.MpArray16:
-                    return ReadArray<object>(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadArray<object>(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpArray32:
-                    return ReadArray<object>(reader.ReadInt32());
+                    return ReadArray<object>(_reader.ReadInt32());
                 case MsgPackConstants.MpMap16:
-                    return ReadMap<object, object>(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadMap<object, object>(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpMap32:
-                    return ReadMap<object, object>(reader.ReadInt32());
+                    return ReadMap<object, object>(_reader.ReadInt32());
                 case MsgPackConstants.MpStr8:
-                    return ReadString(reader.ReadByte() & MsgPackConstants.Max8Bit);
+                    return ReadString(_reader.ReadByte() & MsgPackConstants.Max8Bit);
                 case MsgPackConstants.MpStr16:
-                    return ReadString(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadString(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpStr32:
-                    return ReadString(reader.ReadInt32());
+                    return ReadString(_reader.ReadInt32());
                 case MsgPackConstants.MpBit8:
-                    return ReadBinary(reader.ReadByte() & MsgPackConstants.Max8Bit);
+                    return ReadBinary(_reader.ReadByte() & MsgPackConstants.Max8Bit);
                 case MsgPackConstants.MpBit16:
-                    return ReadBinary(reader.ReadInt16() & MsgPackConstants.Max16Bit);
+                    return ReadBinary(_reader.ReadInt16() & MsgPackConstants.Max16Bit);
                 case MsgPackConstants.MpBit32:
-                    return ReadBinary(reader.ReadInt32());
+                    return ReadBinary(_reader.ReadInt32());
             }
 
             if ((value & MsgPackConstants.MpNegativeFixnum) == MsgPackConstants.MpNegativeFixnum)

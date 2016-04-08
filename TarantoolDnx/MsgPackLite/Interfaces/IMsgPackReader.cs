@@ -12,7 +12,7 @@ namespace MsgPackLite.Interfaces
         sbyte ReadSByte();
         short ReadShort();
         ushort ReadUShort();
-        int ReadInt();  
+        int ReadInt();
         uint ReadUInt();
         long ReadLong();
         ulong ReadULong();
