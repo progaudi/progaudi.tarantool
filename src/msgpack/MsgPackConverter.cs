@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace TarantoolDnx.MsgPack
 {
@@ -14,7 +15,14 @@ namespace TarantoolDnx.MsgPack
         public static byte[] Convert<T>(T data, MsgPackSettings settings)
         {
             var stream = new MemoryStream();
-            settings.GetConverter<T>().Write(data, stream, settings);
+            var converter = settings.GetConverter<T>();
+
+            if (converter == null)
+            {
+                throw new SerializationException($"Provide converter for {typeof(T).Name}");
+            }
+
+            converter.Write(data, stream, settings);
             return stream.ToArray();
         }
     }

@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 
 namespace TarantoolDnx.MsgPack
 {
@@ -26,6 +29,8 @@ namespace TarantoolDnx.MsgPack
             { typeof(ulong), new IntConverter() },
         };
 
+        private static readonly ConcurrentDictionary<Type, IMsgPackConverter> GeneratedConverters = new ConcurrentDictionary<Type, IMsgPackConverter>();
+
         private static readonly IMsgPackConverter<object> nullConverter = new NullConverter();
 
         private readonly Dictionary<Type, IMsgPackConverter> converters = new Dictionary<Type, IMsgPackConverter>();
@@ -39,25 +44,64 @@ namespace TarantoolDnx.MsgPack
 
         public IMsgPackConverter<T> GetConverter<T>()
         {
+            var type = typeof(T);
+            return (IMsgPackConverter<T>) (GetConverterFromCache(type) ??
+                TryGenerateArrayConverter(type) ??
+                TryGenerateMapConverter(type));
+        }
+
+        private IMsgPackConverter TryGenerateMapConverter(Type type)
+        {
+            var mapInterface = GetMapInterface(type);
+            if (mapInterface == null)
+                return null;
+
+            var converterType = typeof(ReadOnlyMapConverter<,,>).MakeGenericType(type, mapInterface.GenericTypeArguments[0], mapInterface.GenericTypeArguments[1]);
+            return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
+        }
+
+        private IMsgPackConverter TryGenerateArrayConverter(Type type)
+        {
+            var arrayInterface = GetArrayInterface(type);
+            if (arrayInterface == null)
+                return null;
+
+            var converterType = typeof(ArrayConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
+            return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
+        }
+
+        private IMsgPackConverter GetConverterFromCache(Type type)
+        {
             IMsgPackConverter temp;
 
-            if (!converters.TryGetValue(typeof(T), out temp))
-            {
-                if (DefaultConverters.TryGetValue(typeof(T), out temp))
-                {
-                    return (IMsgPackConverter<T>)temp;
-                }
+            if (converters.TryGetValue(type, out temp))
+                return temp;
 
-                return null;
-            }
+            if (DefaultConverters.TryGetValue(type, out temp))
+                return temp;
 
-            var result = temp as IMsgPackConverter<T>;
-            if (result == null)
-            {
-                converters.Remove(typeof(T));
-            }
+            return null;
+        }
 
-            return result;
+        private static TypeInfo GetMapInterface(Type type)
+        {
+            return GetGenericInterface(type, typeof(IReadOnlyDictionary<,>))
+                ?? GetGenericInterface(type, typeof(IDictionary<,>));
+        }
+
+        private static TypeInfo GetArrayInterface(Type type)
+        {
+            return GetGenericInterface(type, typeof(IReadOnlyList<>))
+                ?? GetGenericInterface(type, typeof(IList<>));
+        }
+
+        private static TypeInfo GetGenericInterface(Type type, Type interfaceType)
+        {
+            return type
+                .GetTypeInfo()
+                .ImplementedInterfaces
+                .Select(x => x.GetTypeInfo())
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
         }
     }
 }

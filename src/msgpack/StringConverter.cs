@@ -35,7 +35,7 @@ namespace TarantoolDnx.MsgPack
                 return;
             }
 
-            if (length <= IntLimits.Max16Bit)
+            if (length <= ushort.MaxValue)
             {
                 stream.WriteByte((byte)DataTypes.Str16);
                 IntConverter.WriteValue((ushort)length, stream);
