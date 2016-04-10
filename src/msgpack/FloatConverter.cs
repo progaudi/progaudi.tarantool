@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -9,24 +10,48 @@ namespace TarantoolDnx.MsgPack
         {
             var binary = new FloatBinary(value);
             stream.WriteByte((byte) DataTypes.Single);
-            stream.WriteByte(binary.byte0);
-            stream.WriteByte(binary.byte1);
-            stream.WriteByte(binary.byte2);
-            stream.WriteByte(binary.byte3);
+            if (BitConverter.IsLittleEndian)
+            {
+                stream.WriteByte(binary.byte3);
+                stream.WriteByte(binary.byte2);
+                stream.WriteByte(binary.byte1);
+                stream.WriteByte(binary.byte0);
+            }
+            else
+            {
+                stream.WriteByte(binary.byte0);
+                stream.WriteByte(binary.byte1);
+                stream.WriteByte(binary.byte2);
+                stream.WriteByte(binary.byte3);
+            }
         }
 
         public void Write(double value, Stream stream, MsgPackSettings settings)
         {
             var binary = new DoubleBinary(value);
             stream.WriteByte((byte) DataTypes.Double);
-            stream.WriteByte(binary.byte0);
-            stream.WriteByte(binary.byte1);
-            stream.WriteByte(binary.byte2);
-            stream.WriteByte(binary.byte3);
-            stream.WriteByte(binary.byte4);
-            stream.WriteByte(binary.byte5);
-            stream.WriteByte(binary.byte6);
-            stream.WriteByte(binary.byte7);
+            if (BitConverter.IsLittleEndian)
+            {
+                stream.WriteByte(binary.byte7);
+                stream.WriteByte(binary.byte6);
+                stream.WriteByte(binary.byte5);
+                stream.WriteByte(binary.byte4);
+                stream.WriteByte(binary.byte3);
+                stream.WriteByte(binary.byte2);
+                stream.WriteByte(binary.byte1);
+                stream.WriteByte(binary.byte0);
+            }
+            else
+            {
+                stream.WriteByte(binary.byte0);
+                stream.WriteByte(binary.byte1);
+                stream.WriteByte(binary.byte2);
+                stream.WriteByte(binary.byte3);
+                stream.WriteByte(binary.byte4);
+                stream.WriteByte(binary.byte5);
+                stream.WriteByte(binary.byte6);
+                stream.WriteByte(binary.byte7);
+            }
         }
 
         [StructLayout(LayoutKind.Explicit)]

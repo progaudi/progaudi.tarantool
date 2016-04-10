@@ -3,7 +3,7 @@ using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Writer
 {
-    public class Long
+    public class Integers
     {
         [Theory]
         [InlineData(0, new byte[] { 0x00 })]
