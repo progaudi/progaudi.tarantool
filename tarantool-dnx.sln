@@ -16,10 +16,6 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "msgpack", "src\msgpack\msgp
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "msgpack.tests", "tests\msgpack.tests\msgpack.tests.xproj", "{DBE7481B-65ED-4729-B611-8BDDE87766C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgpack.tests.VS", "tests\msgpack.tests\VS\msgpack.tests.VS.csproj", "{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgpack.VS", "src\msgpack\VS\msgpack.VS.csproj", "{2F96BC33-6B63-464D-82B8-A99C90CCF33F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,14 +30,6 @@ Global
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,7 +37,5 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{26884D70-2D12-46AC-884E-158E10E9314A} = {32A7AB4C-C3C8-446E-8AC8-4DF978111F86}
 		{DBE7481B-65ED-4729-B611-8BDDE87766C3} = {6C17D83C-342E-4EFD-BBCA-D2D41E88AC45}
-		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7} = {6C17D83C-342E-4EFD-BBCA-D2D41E88AC45}
-		{2F96BC33-6B63-464D-82B8-A99C90CCF33F} = {32A7AB4C-C3C8-446E-8AC8-4DF978111F86}
 	EndGlobalSection
 EndGlobal
