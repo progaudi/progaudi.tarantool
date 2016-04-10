@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using Shouldly;
+using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader
 {
@@ -7,29 +8,29 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [Fact]
         public void ReadString()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadString());
+            var reader = CreateReader(new byte[] { 0xc0 });
+            reader.ReadString().ShouldBeNull();
         }
 
         [Fact]
         public void ReadBinary()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadBinary());
+            var reader = CreateReader(new byte[] { 0xc0 });
+            reader.ReadBinary().ShouldBeNull();
         }
 
         [Fact]
         public void ReadArray()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadArray<int>());
+            var reader = CreateReader(new byte[] { 0xc0 });
+            reader.ReadArray<int>().ShouldBeNull();
         }
 
         [Fact]
         public void ReadDictionary()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadMap<int,int>());
+            var reader = CreateReader(new byte[] { 0xc0 });
+            reader.ReadMap<int, int>().ShouldBeNull();
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace TarantoolDnx.MsgPack.Interfaces
 {
     public interface IMsgPackWriter
     {
         void Write(string item);
+        void Write(byte[] data);
+        void Write<T>(IReadOnlyList<T> data);
+        void Write<TK, TV>(IReadOnlyDictionary<TK, TV> map);
         void Write(double item);
         void Write(float item);
         void Write(bool item);
@@ -17,8 +19,5 @@ namespace TarantoolDnx.MsgPack.Interfaces
         void Write(uint item);
         void Write(long item);
         void Write(ulong item);
-        void Write(byte[] data);
-        void Write(IList item);
-        void Write<TK, TV>(IDictionary<TK, TV> map);
     }
 }

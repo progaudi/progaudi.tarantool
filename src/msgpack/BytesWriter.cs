@@ -13,6 +13,11 @@ namespace TarantoolDnx.MsgPack
             _innerStream = innerStream;
         }
 
+        public void Write(DataTypes data)
+        {
+            Write((byte)data);
+        }
+
         public void Write(byte data)
         {
             _innerStream.WriteByte(data);
@@ -28,42 +33,42 @@ namespace TarantoolDnx.MsgPack
             _innerStream.Write(data, 0, data.Length);
         }
 
-        public void WriteBigEndianBytes(double data)
+        public void Write(double data)
         {
             Write(ToBigEndianBytes(data));
         }
 
-        public void WriteBigEndianBytes(float data)
+        public void Write(float data)
         {
             Write(ToBigEndianBytes(data));
         }
 
-        public void WriteBigEndianBytes(short data)
+        public void Write(short data)
         {
             Write(ToBigEndianBytes(data));
         }
 
-        public void WriteBigEndianBytes(ushort data)
+        public void Write(ushort data)
         {
             Write(ToBigEndianBytes(data));
         }
 
-        public void WriteBigEndianBytes(int data)
+        public void Write(int data)
         {
             Write(ToBigEndianBytes(data));
         }
 
-        public void WriteBigEndianBytes(uint data)
+        public void Write(uint data)
         {
             Write(ToBigEndianBytes(data));
         }
 
-        public void WriteBigEndianBytes(long data)
+        public void Write(long data)
         {
             Write(ToBigEndianBytes(data));
         }
 
-        public void WriteBigEndianBytes(ulong data)
+        public void Write(ulong data)
         {
             Write(ToBigEndianBytes(data));
         }

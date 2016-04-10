@@ -8,7 +8,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         protected IMsgPackReader CreateReader(byte[] data)
         {
             var stream = new MemoryStream(data);
-            return new MsgPackReader(stream);
+            return null;
         }
     }
 }

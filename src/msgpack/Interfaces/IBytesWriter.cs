@@ -1,17 +1,18 @@
 ﻿namespace TarantoolDnx.MsgPack.Interfaces
 {
-    public interface IBytesWriter
+    internal interface IBytesWriter
     {
+        void Write(DataTypes data);
         void Write(byte data);
         void Write(sbyte data);
         void Write(byte[] data);
-        void WriteBigEndianBytes(double data);
-        void WriteBigEndianBytes(float data);
-        void WriteBigEndianBytes(short data);
-        void WriteBigEndianBytes(ushort data);
-        void WriteBigEndianBytes(int data);
-        void WriteBigEndianBytes(uint data);
-        void WriteBigEndianBytes(long data);
-        void WriteBigEndianBytes(ulong data);
+        void Write(double data);
+        void Write(float data);
+        void Write(short data);
+        void Write(ushort data);
+        void Write(int data);
+        void Write(uint data);
+        void Write(long data);
+        void Write(ulong data);
     }
 }

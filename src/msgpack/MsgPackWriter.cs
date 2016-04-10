@@ -1,379 +1,152 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using TarantoolDnx.MsgPack.Interfaces;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace TarantoolDnx.MsgPack
 {
-    public class MsgPackWriter : IMsgPackWriter
+    public class MsgPackWriter
     {
-        private readonly IBytesWriter _writer;
-
-        public MsgPackWriter(Stream innerStream)
+        private static readonly HashSet<Type> AllowedTypes = new HashSet<Type>
         {
-            _writer = new BytesWriter(innerStream);
+            typeof(bool),
+            typeof(sbyte),
+            typeof(byte),
+            typeof(short),
+            typeof(ushort),
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
+            typeof(float),
+            typeof(double),
+            typeof(string),
+            typeof(IReadOnlyList<byte>)
+        };
+
+        private static readonly ConcurrentDictionary<Type, bool> CheckedTypes = new ConcurrentDictionary<Type, bool>();
+
+        private readonly MemoryStream stream = new MemoryStream();
+
+        private readonly MsgPackSettings settings = new MsgPackSettings();
+
+        public void Write<T>(IReadOnlyList<T> data)
+        {
+            if (!IsTypeSerializable(typeof(IReadOnlyList<T>)))
+            {
+                throw new SerializationException($"Can't serialize IReadOnlyList<{typeof(T).Name}>");
+            }
+
+            WriteArrayHeaderAndLength(data.Count);
+
+            Write((IReadOnlyList<int>)data);
         }
 
-        public void Write(string item)
+        public void Write<TK, TV>(IReadOnlyDictionary<TK, TV> map)
         {
-            if (item == null)
+            if (!IsTypeSerializable(typeof(IReadOnlyDictionary<TK, TV>)))
             {
-                WriteNull();
+                throw new SerializationException($"Can't serialize IReadOnlyDictionary<{typeof(TK).Name}, {typeof(TV).Name}>");
+            }
+
+            WriteMapHeaderAndLength(map.Count);
+        }
+
+        private static bool IsTypeSerializable(Type type)
+        {
+            if (AllowedTypes.Any(x => x.IsAssignableFrom(type)))
+            {
+                return true;
+            }
+
+            bool allowed;
+            if (CheckedTypes.TryGetValue(type, out allowed))
+            {
+                return allowed;
+            }
+
+            var typeInfo = type.GetTypeInfo();
+            var arrayInterface = typeInfo.ImplementedInterfaces
+                .Select(x => x.GetTypeInfo())
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IReadOnlyList<>));
+
+            if (arrayInterface != null)
+            {
+                var elementType = arrayInterface.GenericTypeArguments[0];
+                var result = IsTypeSerializable(elementType);
+
+                CheckedTypes.TryAdd(elementType, result);
+                CheckedTypes.TryAdd(type, result);
+
+                return result;
+            }
+
+            var mapInterface = typeInfo.ImplementedInterfaces
+                .Select(x => x.GetTypeInfo())
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>));
+
+            if (mapInterface != null)
+            {
+                var keyType = mapInterface.GenericTypeParameters[0];
+                var valueType = mapInterface.GenericTypeParameters[1];
+                var isKeySerializable = IsTypeSerializable(keyType);
+                var isValueSerializable = IsTypeSerializable(valueType);
+                var result = isKeySerializable && isValueSerializable;
+
+                CheckedTypes.TryAdd(keyType, isKeySerializable);
+                CheckedTypes.TryAdd(valueType, isValueSerializable);
+                CheckedTypes.TryAdd(type, result);
+            }
+
+            var parent = typeInfo.BaseType;
+            if (parent == null)
+            {
+                CheckedTypes.TryAdd(type, false);
+                return false;
+            }
+
+            var isParentSerializable = IsTypeSerializable(parent);
+            CheckedTypes.TryAdd(parent, isParentSerializable);
+            CheckedTypes.TryAdd(type, isParentSerializable);
+
+            return isParentSerializable;
+        }
+
+        #region Headers
+
+        private void WriteArrayHeaderAndLength(int length)
+        {
+            WriteHeaderAndLength(length, DataTypes.FixArray, DataTypes.Array16, DataTypes.Array32);
+        }
+
+        private void WriteMapHeaderAndLength(int length)
+        {
+            WriteHeaderAndLength(length, DataTypes.FixMap, DataTypes.Map16, DataTypes.Map32);
+        }
+
+        private void WriteHeaderAndLength(int length, DataTypes lessThan15, DataTypes length16Bit, DataTypes length32Bit)
+        {
+            if (length <= 15)
+            {
+                IntConverter.WriteValue((byte)((byte)lessThan15 + length), stream);
+                return;
+            }
+
+            if (length <= ushort.MaxValue)
+            {
+                stream.WriteByte((byte)length16Bit);
+                IntConverter.WriteValue((ushort)length, stream);
             }
             else
             {
-                var data = Encoding.UTF8.GetBytes(item);
-
-                if (data.Length <= MsgPackConstants.Max5Bit)
-                {
-                    _writer.Write((byte)(data.Length | MsgPackConstants.MpFixstr));
-                }
-                else if (data.Length <= MsgPackConstants.Max8Bit)
-                {
-                    _writer.Write(MsgPackConstants.MpStr8);
-                    _writer.Write((byte)data.Length);
-                }
-                else if (data.Length <= MsgPackConstants.Max16Bit)
-                {
-                    _writer.Write(MsgPackConstants.MpStr16);
-                    _writer.WriteBigEndianBytes((ushort)data.Length);
-                }
-                else
-                {
-                    _writer.Write(MsgPackConstants.MpStr32);
-                    _writer.WriteBigEndianBytes((uint)data.Length);
-                }
-                _writer.Write(data);
+                stream.WriteByte((byte)length32Bit);
+                IntConverter.WriteValue((uint)length, stream);
             }
         }
 
-        public void Write(double item)
-        {
-            _writer.Write(MsgPackConstants.MpDouble);
-            _writer.WriteBigEndianBytes(item);
-        }
-
-        public void Write(float item)
-        {
-            _writer.Write(MsgPackConstants.MpFloat);
-            _writer.WriteBigEndianBytes(item);
-        }
-
-        public void Write(bool item)
-        {
-            _writer.Write(item ? MsgPackConstants.MpTrue : MsgPackConstants.MpFalse);
-        }
-
-        public void Write(byte item)
-        {
-            if (item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write(item);
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpUint8);
-                _writer.Write(item);
-            }
-        }
-
-        public void Write(sbyte item)
-        {
-            var byteValue = (byte)item;
-
-            if (item >= 0 && item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write((byte)item);
-            }
-            else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
-            {
-                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpInt8);
-                _writer.Write(item);
-            }
-        }
-
-        public void Write(short item)
-        {
-            var byteValue = (byte)item;
-
-            if (item >= 0 && item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write((byte)item);
-            }
-            else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
-            {
-                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpInt16);
-                _writer.WriteBigEndianBytes(item);
-            }
-        }
-
-        public void Write(ushort item)
-        {
-            if (item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write((byte)item);
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpUint16);
-                _writer.WriteBigEndianBytes(item);
-            }
-        }
-
-        public void Write(int item)
-        {
-            var byteValue = (byte)item;
-
-            if (item >= 0 && item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write((byte)item);
-            }
-            else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
-            {
-                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpInt32);
-                _writer.WriteBigEndianBytes(item);
-            }
-        }
-
-        public void Write(uint item)
-        {
-            if (item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write((byte)item);
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpUint32);
-                _writer.WriteBigEndianBytes(item);
-            }
-        }
-
-        public void Write(long item)
-        {
-            var byteValue = (byte)item;
-
-            if (item >= 0 && item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write((byte)item);
-            }
-            else if (item < 0 && byteValue >= MsgPackConstants.MpNegativeFixnum && byteValue <= MsgPackConstants.Max8Bit)
-            {
-                _writer.Write((byte)(byteValue | MsgPackConstants.MpNegativeFixnum));
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpInt64);
-                _writer.WriteBigEndianBytes(item);
-            }
-        }
-
-        public void Write(ulong item)
-        {
-            if (item <= MsgPackConstants.Max7Bit)
-            {
-                _writer.Write((byte)item);
-            }
-            else
-            {
-                _writer.Write(MsgPackConstants.MpUint64);
-                _writer.WriteBigEndianBytes(item);
-            }
-        }
-
-        public void Write(byte[] data)
-        {
-            if (data == null)
-            {
-                WriteNull();
-            }
-            else
-            {
-                if (data.Length <= MsgPackConstants.Max8Bit)
-                {
-                    _writer.Write(MsgPackConstants.MpBit8);
-                    _writer.Write((byte)data.Length);
-                }
-                else if (data.Length <= MsgPackConstants.Max16Bit)
-                {
-                    _writer.Write(MsgPackConstants.MpBit16);
-                    _writer.WriteBigEndianBytes((ushort)data.Length);
-                }
-                else
-                {
-                    _writer.Write(MsgPackConstants.MpBit32);
-                    _writer.WriteBigEndianBytes((uint)data.Length);
-                }
-
-                _writer.Write(data);
-            }
-        }
-
-        public void Write(IList list)
-        {
-            if (list == null)
-            {
-                WriteNull();
-            }
-            else
-            {
-                var length = list.Count;
-
-                if (length <= MsgPackConstants.Max4Bit)
-                {
-                    _writer.Write((byte)(length | MsgPackConstants.MpFixarray));
-                }
-                else if (length <= MsgPackConstants.Max16Bit)
-                {
-                    _writer.Write(MsgPackConstants.MpArray16);
-                    _writer.WriteBigEndianBytes((ushort)length);
-                }
-                else
-                {
-                    _writer.Write(MsgPackConstants.MpArray32);
-                    _writer.WriteBigEndianBytes((uint)length);
-                }
-                foreach (var element in list)
-                {
-                    Write(element);
-                }
-            }
-        }
-
-        public void Write<TK, TV>(IDictionary<TK, TV> map)
-        {
-            if (map == null)
-            {
-                WriteNull();
-            }
-            else
-            {
-                if (map.Count <= MsgPackConstants.Max4Bit)
-                {
-                    _writer.Write((byte)(map.Count | MsgPackConstants.MpFixmap));
-                }
-                else if (map.Count <= MsgPackConstants.Max16Bit)
-                {
-                    _writer.Write(MsgPackConstants.MpMap16);
-                    _writer.WriteBigEndianBytes((ushort)map.Count);
-                }
-                else
-                {
-                    _writer.Write(MsgPackConstants.MpMap32);
-                    _writer.WriteBigEndianBytes((uint)map.Count);
-                }
-                foreach (KeyValuePair<TK, TV> kvp in map)
-                {
-                    Write(kvp.Key);
-                    Write(kvp.Value);
-                }
-            }
-        }
-
-        private void Write(object item)
-        {
-            if (item == null)
-            {
-                WriteNull();
-            }
-            else if (item is bool)
-            {
-                Write((bool)item);
-            }
-            else if (item is float)
-            {
-                Write((float)item);
-            }
-            else if (item is double)
-            {
-                Write((double)item);
-            }
-            else if (item is byte)
-            {
-                Write((byte)item);
-            }
-            else if (item is sbyte)
-            {
-                Write((sbyte)item);
-            }
-            else if (item is short)
-            {
-                Write((short)item);
-            }
-            else if (item is ushort)
-            {
-                Write((ushort)item);
-            }
-            else if (item is int)
-            {
-                Write((int)item);
-            }
-            else if (item is uint)
-            {
-                Write((uint)item);
-            }
-            else if (item is long)
-            {
-                Write((long)item);
-            }
-            else if (item is ulong)
-            {
-                Write((ulong)item);
-            }
-            else if (item is string)
-            {
-                Write((string)item);
-            }
-            else if (item is byte[])
-            {
-                Write((byte[])item);
-            }
-            else if (item is IList)
-            {
-                Write((IList)item);
-            }
-            else if (item is IDictionary)
-            {
-                Write((IDictionary)item);
-            }
-            else
-            {
-                throw new ArgumentException("Cannot msgWrite object of type " + item.GetType().FullName);
-            }
-        }
-
-        private void Write(ICollection dict)
-        {
-            var castedDict = CastDict(dict);
-            Write(castedDict);
-        }
-
-        private static IDictionary<object, object> CastDict(ICollection dictionary)
-        {
-            var result = new Dictionary<object, object>(dictionary.Count);
-            foreach (DictionaryEntry entry in dictionary)
-            {
-                result.Add(entry.Key, entry.Value);
-            }
-            return result;
-        }
-
-        private void WriteNull()
-        {
-            _writer.Write(MsgPackConstants.MpNull);
-        }
+        #endregion
     }
 }
