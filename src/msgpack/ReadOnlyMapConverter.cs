@@ -3,8 +3,8 @@ using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
-    internal class MapConverter<TMap, TKey, TValue> : MapConverterBase<TMap, TKey, TValue>
-        where TMap : IDictionary<TKey, TValue>
+    internal class ReadOnlyMapConverter<TMap, TKey, TValue> : MapConverterBase<TMap, TKey, TValue>
+        where TMap : IReadOnlyDictionary<TKey, TValue>
     {
         public override void Write(TMap value, Stream stream, MsgPackSettings settings)
         {

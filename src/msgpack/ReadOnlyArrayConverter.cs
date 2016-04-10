@@ -3,8 +3,8 @@ using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
-    internal class ArrayConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
-        where TArray : IList<TElement>
+    internal class ReadOnlyArrayConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
+        where TArray : IReadOnlyList<TElement>
     {
         public override void Write(TArray value, Stream stream, MsgPackSettings settings)
         {

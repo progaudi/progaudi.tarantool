@@ -1,5 +1,4 @@
 ﻿using Shouldly;
-using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader
 {
