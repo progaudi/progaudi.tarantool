@@ -16,6 +16,7 @@ namespace TarantoolDnx.MsgPack
             { typeof(float), new FloatConverter() },
             { typeof(double), new FloatConverter() },
 
+            { typeof(byte), new IntConverter() },
             { typeof(sbyte), new IntConverter() },
             { typeof(short), new IntConverter() },
             { typeof(ushort), new IntConverter() },

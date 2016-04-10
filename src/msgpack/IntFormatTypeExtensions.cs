@@ -68,6 +68,9 @@ namespace TarantoolDnx.MsgPack
         {
             if (value >= 0)
             {
+                if (value <= Int8.MaxValue)
+                    return IntFormatType.PositiveFixNum;
+
                 if (value <= UInt8.MaxValue)
                     return IntFormatType.UInt8;
 
