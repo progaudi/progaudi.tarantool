@@ -23,7 +23,40 @@ namespace TarantoolDnx.MsgPack
 
         public string Read(Stream stream, MsgPackSettings settings, Func<string> creator)
         {
-            throw new System.NotImplementedException();
+            var type = (DataTypes)stream.ReadByte();
+
+            uint length;
+            if (TryGetFixstrLength(type, out length))
+            {
+                return ReadString(stream, length);
+            }
+
+            switch (type)
+            {
+                case DataTypes.Null:
+                    return null;
+                case DataTypes.Str8:
+                    return ReadString(stream, IntConverter.ReadUInt8(stream));
+                case DataTypes.Str16:
+                    return ReadString(stream, IntConverter.ReadUInt16(stream));
+                case DataTypes.Str32:
+                    return ReadString(stream, IntConverter.ReadUInt32(stream));
+                default:
+                    throw ExceptionUtils.BadTypeException(type, DataTypes.FixStr, DataTypes.Str8, DataTypes.Str16, DataTypes.Str32);
+            }
+        }
+
+        private string ReadString(Stream stream, uint length)
+        {
+            var buffer = BinaryConverter.ReadByteArray(stream, length);
+
+            return Encoding.UTF8.GetString(buffer);
+        }
+
+        private bool TryGetFixstrLength(DataTypes type, out uint length)
+        {
+            length = type - DataTypes.FixStr;
+            return (type & DataTypes.FixStr) == DataTypes.FixStr;
         }
 
         private void WriteStringHeaderAndLength(Stream stream, int length)

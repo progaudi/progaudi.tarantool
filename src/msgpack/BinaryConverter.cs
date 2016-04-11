@@ -18,26 +18,35 @@ namespace TarantoolDnx.MsgPack
             stream.Write(value, 0, value.Length);
         }
 
+        // We will have problem with binary blobs greater than int.MaxValue bytes.
         public byte[] Read(Stream stream, MsgPackSettings settings, Func<byte[]> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
-            byte[] buffer;
+            uint length;
             switch (type)
             {
+                case DataTypes.Null:
+                    return null;
                 case DataTypes.Bin8:
-                    buffer = new byte[IntConverter.ReadUInt8(stream)];
+                    length = IntConverter.ReadUInt8(stream);
                     break;
                 case DataTypes.Bin16:
-                    buffer = new byte[IntConverter.ReadUInt16(stream)];
+                    length = IntConverter.ReadUInt16(stream);
                     break;
                 case DataTypes.Bin32:
-                    buffer = new byte[IntConverter.ReadUInt32(stream)];
+                    length = IntConverter.ReadUInt32(stream);
                     break;
                 default:
-                    throw ExceptionUtils.BadTypeException(type, DataTypes.Bin8, DataTypes.Bin16, DataTypes.Bin32);
+                    throw ExceptionUtils.BadTypeException(type, DataTypes.Bin8, DataTypes.Bin16, DataTypes.Bin32, DataTypes.Null);
             }
 
+            return ReadByteArray(stream, length);
+        }
+
+        internal static byte[] ReadByteArray(Stream stream, uint length)
+        {
+            var buffer = new byte[length];
             var read = stream.Read(buffer, 0, buffer.Length);
             if (read < buffer.Length)
                 throw ExceptionUtils.NotEnoughBytes(read, buffer.Length);
