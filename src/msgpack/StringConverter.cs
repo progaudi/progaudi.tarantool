@@ -50,7 +50,7 @@ namespace TarantoolDnx.MsgPack
         {
             var buffer = BinaryConverter.ReadByteArray(stream, length);
 
-            return Encoding.UTF8.GetString(buffer);
+            return Encoding.UTF8.GetString(buffer, 0, buffer.Length);
         }
 
         private bool TryGetFixstrLength(DataTypes type, out uint length)
