@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 
 namespace TarantoolDnx.MsgPack
 {
@@ -9,14 +8,11 @@ namespace TarantoolDnx.MsgPack
         where TArray : IList<TElement>
     {
         private static readonly bool IsSingleDimensionArray;
-        private static readonly ConstructorInfo ArrayConstructor;
 
         static ArrayConverter()
         {
             var type = typeof(TArray);
             IsSingleDimensionArray = type.IsArray && type.GetArrayRank() == 1 && type.GetElementType() == typeof(TElement);
-            if (IsSingleDimensionArray)
-                ArrayConstructor = type.GetConstructors()[0];
         }
 
         public override void Write(TArray value, Stream stream, MsgPackSettings settings)
@@ -49,10 +45,13 @@ namespace TarantoolDnx.MsgPack
             {
                 case DataTypes.Null:
                     return default(TArray);
+
                 case DataTypes.Array16:
                     return ReadArray(stream, settings, creator, IntConverter.ReadUInt16(stream));
+
                 case DataTypes.Array32:
                     return ReadArray(stream, settings, creator, IntConverter.ReadUInt32(stream));
+
                 default:
                     throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
             }
@@ -78,20 +77,20 @@ namespace TarantoolDnx.MsgPack
 
         private TArray ReadArray(Stream stream, MsgPackSettings settings, uint length, IMsgPackConverter<TElement> converter)
         {
-            var result = (TArray)ArrayConstructor.Invoke(new object[] { (int)length });
+            var result = (TArray)(object)new TElement[length];
 
             for (var i = 0; i < length; i++)
             {
                 result[i] = converter.Read(stream, settings, null);
             }
-        
+
             return result;
         }
 
         private static TArray ReadList(Stream stream, MsgPackSettings settings, Func<TArray> creator, uint length,
             IMsgPackConverter<TElement> converter)
         {
-            var array = creator == null ? (TArray) Activator.CreateInstance(typeof(TArray)) : creator();
+            var array = creator == null ? (TArray)Activator.CreateInstance(typeof(TArray)) : creator();
 
             for (var i = 0u; i < length; i++)
             {
