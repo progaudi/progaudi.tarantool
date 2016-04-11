@@ -13,6 +13,13 @@ nuget:
 build:
   verbosity: minimal
 
+configuration:
+  - Debug
+  - Release
+
+matrix:
+  fast_finish: false
+
 init:
   - git config --global core.autocrlf true
   
