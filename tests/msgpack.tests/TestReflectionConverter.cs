@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+// ReSharper disable once RedundantUsingDirective
 using System.Reflection;
 using System.Runtime.Serialization;
 

@@ -30,7 +30,7 @@ namespace TarantoolDnx.MsgPack
 
         public override TMap Read(Stream stream, MsgPackSettings settings, Func<TMap> creator)
         {
-            throw new System.NotImplementedException();
+            throw ExceptionUtils.CantReadReadOnlyCollection(typeof(TMap));
         }
     }
 }

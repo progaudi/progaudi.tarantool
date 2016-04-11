@@ -14,5 +14,10 @@ namespace TarantoolDnx.MsgPack
         {
             return new SerializationException($"Expected {expected} bytes, got {actual} bytes.");
         }
+
+        public static Exception CantReadReadOnlyCollection(Type type)
+        {
+            return new SerializationException($"Can't deserialize into read-only collection {type.Name}. Create a specialized converter for that.");
+        }
     }
 }
