@@ -28,4 +28,4 @@ install:
 before_script:
   - dnu restore
 script:
-  - dnu -p tests/msgpack.tests test
+  - dnx -p tests/msgpack.tests test
