@@ -1,31 +1,30 @@
 using System;
-using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
     internal abstract class ArrayConverterBase<TArray, TElement> : IMsgPackConverter<TArray>
     {
-        public abstract void Write(TArray value, Stream stream, MsgPackContext context);
+        public abstract void Write(TArray value, IMsgPackWriter writer, MsgPackContext context);
 
-        public abstract TArray Read(Stream stream, MsgPackContext context, Func<TArray> creator);
+        public abstract TArray Read(IMsgPackReader reader, MsgPackContext context, Func<TArray> creator);
 
-        protected void WriteArrayHeaderAndLength(int length, Stream stream)
+        protected void WriteArrayHeaderAndLength(int length, IMsgPackWriter writer)
         {
             if (length <= 15)
             {
-                IntConverter.WriteValue((byte)((byte)DataTypes.FixArray + length), stream);
+                IntConverter.WriteValue((byte)((byte)DataTypes.FixArray + length), writer);
                 return;
             }
 
             if (length <= ushort.MaxValue)
             {
-                stream.WriteByte((byte)DataTypes.Array16);
-                IntConverter.WriteValue((ushort)length, stream);
+                writer.Write(DataTypes.Array16);
+                IntConverter.WriteValue((ushort)length, writer);
             }
             else
             {
-                stream.WriteByte((byte)DataTypes.Array32);
-                IntConverter.WriteValue((uint)length, stream);
+                writer.Write(DataTypes.Array32);
+                IntConverter.WriteValue((uint)length, writer);
             }
         }
 

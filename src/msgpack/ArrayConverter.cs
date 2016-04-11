@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
@@ -15,31 +14,31 @@ namespace TarantoolDnx.MsgPack
             IsSingleDimensionArray = type.IsArray && type.GetArrayRank() == 1 && type.GetElementType() == typeof(TElement);
         }
 
-        public override void Write(TArray value, Stream stream, MsgPackContext context)
+        public override void Write(TArray value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
-                context.NullConverter.Write(value, stream, context);
+                context.NullConverter.Write(value, writer, context);
                 return;
             }
 
-            WriteArrayHeaderAndLength(value.Count, stream);
+            WriteArrayHeaderAndLength(value.Count, writer);
             var elementConverter = context.GetConverter<TElement>();
             ValidateConverter(elementConverter);
 
             foreach (var element in value)
             {
-                elementConverter.Write(element, stream, context);
+                elementConverter.Write(element, writer, context);
             }
         }
 
-        public override TArray Read(Stream stream, MsgPackContext context, Func<TArray> creator)
+        public override TArray Read(IMsgPackReader reader, MsgPackContext context, Func<TArray> creator)
         {
-            var type = (DataTypes)stream.ReadByte();
+            var type = reader.ReadDataType();
 
             uint length;
             if (TryGetLengthFromFixArray(type, out length))
-                return ReadArray(stream, context, creator, length);
+                return ReadArray(reader, context, creator, length);
 
             switch (type)
             {
@@ -47,10 +46,10 @@ namespace TarantoolDnx.MsgPack
                     return default(TArray);
 
                 case DataTypes.Array16:
-                    return ReadArray(stream, context, creator, IntConverter.ReadUInt16(stream));
+                    return ReadArray(reader, context, creator, IntConverter.ReadUInt16(reader));
 
                 case DataTypes.Array32:
-                    return ReadArray(stream, context, creator, IntConverter.ReadUInt32(stream));
+                    return ReadArray(reader, context, creator, IntConverter.ReadUInt32(reader));
 
                 default:
                     throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
@@ -63,33 +62,33 @@ namespace TarantoolDnx.MsgPack
             return (type & DataTypes.FixArray) == DataTypes.FixArray;
         }
 
-        private TArray ReadArray(Stream stream, MsgPackContext context, Func<TArray> creator, uint length)
+        private TArray ReadArray(IMsgPackReader reader, MsgPackContext context, Func<TArray> creator, uint length)
         {
             var converter = context.GetConverter<TElement>();
 
             ValidateConverter(converter);
 
             if (IsSingleDimensionArray && creator == null)
-                return ReadArray(stream, context, length, converter);
+                return ReadArray(reader, context, length, converter);
 
-            return ReadList(stream, context, creator, length, converter);
+            return ReadList(reader, context, creator, length, converter);
         }
 
-        private TArray ReadArray(Stream stream, MsgPackContext context, uint length, IMsgPackConverter<TElement> converter)
+        private TArray ReadArray(IMsgPackReader reader, MsgPackContext context, uint length, IMsgPackConverter<TElement> converter)
         {
             // ReSharper disable once RedundantCast
             var result = (TArray)(object)new TElement[length];
 
             for (var i = 0; i < length; i++)
             {
-                result[i] = converter.Read(stream, context, null);
+                result[i] = converter.Read(reader, context, null);
             }
 
             return result;
         }
 
         private static TArray ReadList(
-            Stream stream,
+            IMsgPackReader reader,
             MsgPackContext context,
             Func<TArray> creator,
             uint length,
@@ -99,7 +98,7 @@ namespace TarantoolDnx.MsgPack
 
             for (var i = 0u; i < length; i++)
             {
-                array.Add(converter.Read(stream, context, null));
+                array.Add(converter.Read(reader, context, null));
             }
 
             return array;

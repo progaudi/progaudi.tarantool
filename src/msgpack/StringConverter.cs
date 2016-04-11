@@ -6,49 +6,53 @@ namespace TarantoolDnx.MsgPack
 {
     internal class StringConverter : IMsgPackConverter<string>
     {
-        public void Write(string value, Stream stream, MsgPackContext context)
+        public void Write(string value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
-                context.NullConverter.Write(value, stream, context);
+                context.NullConverter.Write(value, writer, context);
                 return;
             }
 
             var data = Encoding.UTF8.GetBytes(value);
 
-            WriteStringHeaderAndLength(stream, data.Length);
+            WriteStringHeaderAndLength(writer, data.Length);
 
-            stream.Write(data, 0, data.Length);
+            writer.Write(data);
         }
 
-        public string Read(Stream stream, MsgPackContext context, Func<string> creator)
+        public string Read(IMsgPackReader reader, MsgPackContext context, Func<string> creator)
         {
-            var type = (DataTypes) stream.ReadByte();
+            var type = reader.ReadDataType();
 
             uint length;
             if (TryGetFixstrLength(type, out length))
             {
-                return ReadString(stream, length);
+                return ReadString(reader, length);
             }
 
             switch (type)
             {
                 case DataTypes.Null:
                     return null;
+
                 case DataTypes.Str8:
-                    return ReadString(stream, IntConverter.ReadUInt8(stream));
+                    return ReadString(reader, IntConverter.ReadUInt8(reader));
+
                 case DataTypes.Str16:
-                    return ReadString(stream, IntConverter.ReadUInt16(stream));
+                    return ReadString(reader, IntConverter.ReadUInt16(reader));
+
                 case DataTypes.Str32:
-                    return ReadString(stream, IntConverter.ReadUInt32(stream));
+                    return ReadString(reader, IntConverter.ReadUInt32(reader));
+
                 default:
                     throw ExceptionUtils.BadTypeException(type, DataTypes.FixStr, DataTypes.Str8, DataTypes.Str16, DataTypes.Str32);
             }
         }
 
-        private string ReadString(Stream stream, uint length)
+        private string ReadString(IMsgPackReader reader, uint length)
         {
-            var buffer = BinaryConverter.ReadByteArray(stream, length);
+            var buffer = BinaryConverter.ReadByteArray(reader, length);
 
             return Encoding.UTF8.GetString(buffer, 0, buffer.Length);
         }
@@ -59,30 +63,30 @@ namespace TarantoolDnx.MsgPack
             return (type & DataTypes.FixStr) == DataTypes.FixStr;
         }
 
-        private void WriteStringHeaderAndLength(Stream stream, int length)
+        private void WriteStringHeaderAndLength(IMsgPackWriter writer, int length)
         {
             if (length <= 31)
             {
-                stream.WriteByte((byte) (((byte) DataTypes.FixStr + length) % 256));
+                writer.Write((byte)(((byte)DataTypes.FixStr + length) % 256));
                 return;
             }
 
             if (length <= byte.MaxValue)
             {
-                stream.WriteByte((byte) DataTypes.Str8);
-                IntConverter.WriteValue((byte) length, stream);
+                writer.Write(DataTypes.Str8);
+                IntConverter.WriteValue((byte)length, writer);
                 return;
             }
 
             if (length <= ushort.MaxValue)
             {
-                stream.WriteByte((byte) DataTypes.Str16);
-                IntConverter.WriteValue((ushort) length, stream);
+                writer.Write(DataTypes.Str16);
+                IntConverter.WriteValue((ushort)length, writer);
             }
             else
             {
-                stream.WriteByte((byte) DataTypes.Str32);
-                IntConverter.WriteValue((uint) length, stream);
+                writer.Write(DataTypes.Str32);
+                IntConverter.WriteValue((uint)length, writer);
             }
         }
     }

@@ -1,77 +1,79 @@
 using System;
-using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
     internal class BinaryConverter : IMsgPackConverter<byte[]>
     {
-        public void Write(byte[] value, Stream stream, MsgPackContext context)
+        public void Write(byte[] value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
-                context.NullConverter.Write(value, stream, context);
+                context.NullConverter.Write(value, writer, context);
                 return;
             }
 
-            WriteBinaryHeaderAndLength(value.Length, stream);
+            WriteBinaryHeaderAndLength(value.Length, writer);
 
-            stream.Write(value, 0, value.Length);
+            writer.Write(value);
         }
 
         // We will have problem with binary blobs greater than int.MaxValue bytes.
-        public byte[] Read(Stream stream, MsgPackContext context, Func<byte[]> creator)
+        public byte[] Read(IMsgPackReader reader, MsgPackContext context, Func<byte[]> creator)
         {
-            var type = (DataTypes) stream.ReadByte();
+            var type = reader.ReadDataType();
 
             uint length;
             switch (type)
             {
                 case DataTypes.Null:
                     return null;
+
                 case DataTypes.Bin8:
-                    length = IntConverter.ReadUInt8(stream);
+                    length = IntConverter.ReadUInt8(reader);
                     break;
+
                 case DataTypes.Bin16:
-                    length = IntConverter.ReadUInt16(stream);
+                    length = IntConverter.ReadUInt16(reader);
                     break;
+
                 case DataTypes.Bin32:
-                    length = IntConverter.ReadUInt32(stream);
+                    length = IntConverter.ReadUInt32(reader);
                     break;
+
                 default:
                     throw ExceptionUtils.BadTypeException(type, DataTypes.Bin8, DataTypes.Bin16, DataTypes.Bin32, DataTypes.Null);
             }
 
-            return ReadByteArray(stream, length);
+            return ReadByteArray(reader, length);
         }
 
-        internal static byte[] ReadByteArray(Stream stream, uint length)
+        internal static byte[] ReadByteArray(IMsgPackReader reader, uint length)
         {
             var buffer = new byte[length];
-            var read = stream.Read(buffer, 0, buffer.Length);
-            if (read < buffer.Length)
-                throw ExceptionUtils.NotEnoughBytes(read, buffer.Length);
+
+            reader.ReadBytes(buffer);
 
             return buffer;
         }
 
-        private void WriteBinaryHeaderAndLength(int length, Stream stream)
+        private void WriteBinaryHeaderAndLength(int length, IMsgPackWriter writer)
         {
             if (length <= byte.MaxValue)
             {
-                stream.WriteByte((byte) DataTypes.Bin8);
-                IntConverter.WriteValue((byte) length, stream);
+                writer.Write(DataTypes.Bin8);
+                IntConverter.WriteValue((byte)length, writer);
                 return;
             }
 
             if (length <= ushort.MaxValue)
             {
-                stream.WriteByte((byte) DataTypes.Bin16);
-                IntConverter.WriteValue((ushort) length, stream);
+                writer.Write(DataTypes.Bin16);
+                IntConverter.WriteValue((ushort)length, writer);
             }
             else
             {
-                stream.WriteByte((byte) DataTypes.Bin32);
-                IntConverter.WriteValue((uint) length, stream);
+                writer.Write(DataTypes.Bin32);
+                IntConverter.WriteValue((uint)length, writer);
             }
         }
     }

@@ -61,6 +61,12 @@
     <Compile Include="..\IMsgPackConverter.cs">
       <Link>IMsgPackConverter.cs</Link>
     </Compile>
+    <Compile Include="..\IMsgPackReader.cs">
+      <Link>IMsgPackReader.cs</Link>
+    </Compile>
+    <Compile Include="..\IMsgPackWriter.cs">
+      <Link>IMsgPackWriter.cs</Link>
+    </Compile>
     <Compile Include="..\IntConverter.cs">
       <Link>IntConverter.cs</Link>
     </Compile>
@@ -87,6 +93,9 @@
     </Compile>
     <Compile Include="..\ReadOnlyMapConverter.cs">
       <Link>ReadOnlyMapConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\StreamWrapper.cs">
+      <Link>StreamWrapper.cs</Link>
     </Compile>
     <Compile Include="..\StringConverter.cs">
       <Link>StringConverter.cs</Link>
