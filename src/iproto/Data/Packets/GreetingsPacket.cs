@@ -1,4 +1,4 @@
-﻿namespace iproto.Data
+﻿namespace iproto.Data.Packets
 {
     public class GreetingsPacket
     {

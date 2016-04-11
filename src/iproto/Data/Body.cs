@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace iproto.Data
+﻿namespace iproto.Data
 {
-    public class Body : Dictionary<int, object>
+    public class Body
     {
     }
 }
