@@ -4,7 +4,7 @@ using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
-    internal class ReadOnlyArrayConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
+    internal class ReadOnlyListConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
         where TArray : IReadOnlyList<TElement>
     {
         public override void Write(TArray value, Stream stream, MsgPackSettings settings)
@@ -27,7 +27,7 @@ namespace TarantoolDnx.MsgPack
 
         public override TArray Read(Stream stream, MsgPackSettings settings, Func<TArray> creator)
         {
-            throw new System.NotImplementedException();
+            throw ExceptionUtils.CantReadReadOnlyCollection(typeof(TArray));
         }
     }
 }

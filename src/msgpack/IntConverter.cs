@@ -17,12 +17,15 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum(value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue(value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -41,17 +44,19 @@ namespace TarantoolDnx.MsgPack
             sbyte tempInt8;
             if (TryGetNegativeNumber(type, out tempInt8))
             {
-                return (byte) tempInt8;
+                return (byte)tempInt8;
             }
 
             switch (type)
             {
                 case DataTypes.UInt8:
                     return ReadUInt8(stream);
+
                 case DataTypes.Int8:
-                    return (byte) ReadInt8(stream);
+                    return (byte)ReadInt8(stream);
+
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+                    throw new SerializationException($"Waited for an int, got {type:G} (0x{type:X})");
             }
         }
 
@@ -62,15 +67,19 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
+
                 case IntFormatType.NegativeFixNum:
                     WriteNegativeFixNum(value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue(value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -83,7 +92,7 @@ namespace TarantoolDnx.MsgPack
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
-                return (sbyte) temp;
+                return (sbyte)temp;
             }
 
             sbyte tempInt8;
@@ -97,7 +106,7 @@ namespace TarantoolDnx.MsgPack
                 return ReadInt8(stream);
             }
 
-            throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+            throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
         }
 
         public void Write(short value, Stream stream, MsgPackSettings settings)
@@ -107,21 +116,27 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
+
                 case IntFormatType.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
+
                 case IntFormatType.Int16:
                     WriteMPackValue(value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -147,12 +162,15 @@ namespace TarantoolDnx.MsgPack
             {
                 case DataTypes.UInt8:
                     return ReadUInt8(stream);
+
                 case DataTypes.Int8:
                     return ReadInt8(stream);
+
                 case DataTypes.Int16:
                     return ReadInt16(stream);
+
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
             }
         }
 
@@ -163,21 +181,27 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
+
                 case IntFormatType.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt16:
                     WriteMPackValue(value, stream);
                     break;
+
                 case IntFormatType.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -196,21 +220,25 @@ namespace TarantoolDnx.MsgPack
             sbyte tempInt8;
             if (TryGetNegativeNumber(type, out tempInt8))
             {
-                return (ushort) tempInt8;
+                return (ushort)tempInt8;
             }
 
             switch (type)
             {
                 case DataTypes.UInt8:
                     return ReadUInt8(stream);
+
                 case DataTypes.UInt16:
                     return ReadUInt16(stream);
+
                 case DataTypes.Int8:
-                    return (ushort) ReadInt8(stream);
+                    return (ushort)ReadInt8(stream);
+
                 case DataTypes.Int16:
-                    return (ushort) ReadInt16(stream);
+                    return (ushort)ReadInt16(stream);
+
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
             }
         }
 
@@ -221,27 +249,35 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
+
                 case IntFormatType.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
+
                 case IntFormatType.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
+
                 case IntFormatType.UInt32:
                     WriteMPackValue((uint)value, stream);
                     break;
+
                 case IntFormatType.Int32:
                     WriteMPackValue(value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -267,16 +303,21 @@ namespace TarantoolDnx.MsgPack
             {
                 case DataTypes.UInt8:
                     return ReadUInt8(stream);
+
                 case DataTypes.UInt16:
                     return ReadUInt16(stream);
+
                 case DataTypes.Int8:
                     return ReadInt8(stream);
+
                 case DataTypes.Int16:
                     return ReadInt16(stream);
+
                 case DataTypes.Int32:
                     return ReadInt32(stream);
+
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
             }
         }
 
@@ -287,27 +328,35 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
+
                 case IntFormatType.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
+
                 case IntFormatType.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
+
                 case IntFormatType.UInt32:
                     WriteMPackValue(value, stream);
                     break;
+
                 case IntFormatType.Int32:
                     WriteMPackValue((int)value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -326,25 +375,31 @@ namespace TarantoolDnx.MsgPack
             sbyte tempInt8;
             if (TryGetNegativeNumber(type, out tempInt8))
             {
-                return (uint) tempInt8;
+                return (uint)tempInt8;
             }
 
             switch (type)
             {
                 case DataTypes.UInt8:
                     return ReadUInt8(stream);
+
                 case DataTypes.UInt16:
                     return ReadUInt16(stream);
+
                 case DataTypes.UInt32:
                     return ReadUInt32(stream);
+
                 case DataTypes.Int8:
-                    return (uint) ReadInt8(stream);
+                    return (uint)ReadInt8(stream);
+
                 case DataTypes.Int16:
-                    return (uint) ReadInt16(stream);
+                    return (uint)ReadInt16(stream);
+
                 case DataTypes.Int32:
-                    return (uint) ReadInt32(stream);
+                    return (uint)ReadInt32(stream);
+
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
             }
         }
 
@@ -355,33 +410,43 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
+
                 case IntFormatType.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
+
                 case IntFormatType.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
+
                 case IntFormatType.UInt32:
                     WriteMPackValue((uint)value, stream);
                     break;
+
                 case IntFormatType.Int32:
                     WriteMPackValue((int)value, stream);
                     break;
+
                 case IntFormatType.UInt64:
                     WriteMPackValue((ulong)value, stream);
                     break;
+
                 case IntFormatType.Int64:
                     WriteMPackValue(value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -407,20 +472,27 @@ namespace TarantoolDnx.MsgPack
             {
                 case DataTypes.UInt8:
                     return ReadUInt8(stream);
+
                 case DataTypes.UInt16:
                     return ReadUInt16(stream);
+
                 case DataTypes.UInt32:
                     return ReadUInt32(stream);
+
                 case DataTypes.Int8:
                     return ReadInt8(stream);
+
                 case DataTypes.Int16:
                     return ReadInt16(stream);
+
                 case DataTypes.Int32:
                     return ReadInt32(stream);
+
                 case DataTypes.Int64:
                     return ReadInt64(stream);
+
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
             }
         }
 
@@ -431,33 +503,43 @@ namespace TarantoolDnx.MsgPack
                 case IntFormatType.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
+
                 case IntFormatType.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
+
                 case IntFormatType.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
+
                 case IntFormatType.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
+
                 case IntFormatType.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
+
                 case IntFormatType.UInt32:
                     WriteMPackValue((uint)value, stream);
                     break;
+
                 case IntFormatType.Int32:
                     WriteMPackValue((int)value, stream);
                     break;
+
                 case IntFormatType.UInt64:
                     WriteMPackValue(value, stream);
                     break;
+
                 case IntFormatType.Int64:
                     WriteMPackValue((long)value, stream);
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -476,29 +558,37 @@ namespace TarantoolDnx.MsgPack
             sbyte tempInt8;
             if (TryGetNegativeNumber(type, out tempInt8))
             {
-                return (ulong) tempInt8;
+                return (ulong)tempInt8;
             }
 
             switch (type)
             {
                 case DataTypes.UInt8:
                     return ReadUInt8(stream);
+
                 case DataTypes.UInt16:
                     return ReadUInt16(stream);
+
                 case DataTypes.UInt32:
                     return ReadUInt32(stream);
+
                 case DataTypes.UInt64:
                     return ReadUInt64(stream);
+
                 case DataTypes.Int8:
-                    return (ulong) ReadInt8(stream);
+                    return (ulong)ReadInt8(stream);
+
                 case DataTypes.Int16:
-                    return (ulong) ReadInt16(stream);
+                    return (ulong)ReadInt16(stream);
+
                 case DataTypes.Int32:
-                    return (ulong) ReadInt32(stream);
+                    return (ulong)ReadInt32(stream);
+
                 case DataTypes.Int64:
-                    return (ulong) ReadInt64(stream);
+                    return (ulong)ReadInt64(stream);
+
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} ({type:X})");
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
             }
         }
 
@@ -506,7 +596,7 @@ namespace TarantoolDnx.MsgPack
         {
             if ((type & DataTypes.PositiveFixNum) == type)
             {
-                temp = (byte) type;
+                temp = (byte)type;
                 return true;
             }
 
@@ -528,7 +618,7 @@ namespace TarantoolDnx.MsgPack
 
         private static void WriteNegativeFixNum(sbyte item, Stream stream)
         {
-            stream.WriteByte((byte) (byte.MaxValue + item + 1));
+            stream.WriteByte((byte)(byte.MaxValue + item + 1));
         }
 
         private static void WritePositiveFixNum(byte item, Stream stream)
@@ -538,28 +628,28 @@ namespace TarantoolDnx.MsgPack
 
         private static void WriteMPackValue(sbyte item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.Int8);
+            stream.WriteByte((byte)DataTypes.Int8);
             WriteValue(item, stream);
         }
 
         internal static void WriteValue(sbyte item, Stream stream)
         {
             var value = item >= 0 ? item : byte.MaxValue + item + 1;
-            stream.WriteByte((byte) (value%256));
+            stream.WriteByte((byte)(value % 256));
         }
 
         internal static sbyte ReadInt8(Stream stream)
         {
             var temp = (byte)stream.ReadByte();
             if (temp <= sbyte.MaxValue)
-                return (sbyte) temp;
+                return (sbyte)temp;
 
-            return (sbyte) (temp - byte.MaxValue - 1);
+            return (sbyte)(temp - byte.MaxValue - 1);
         }
 
         private static void WriteMPackValue(byte item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.UInt8);
+            stream.WriteByte((byte)DataTypes.UInt8);
             WriteValue(item, stream);
         }
 
@@ -570,35 +660,35 @@ namespace TarantoolDnx.MsgPack
 
         internal static byte ReadUInt8(Stream stream)
         {
-            return (byte) stream.ReadByte();
+            return (byte)stream.ReadByte();
         }
 
         private static void WriteMPackValue(ushort item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.UInt16);
+            stream.WriteByte((byte)DataTypes.UInt16);
             WriteValue(item, stream);
         }
 
         internal static void WriteValue(ushort item, Stream stream)
         {
-            stream.WriteByte((byte) ((item >> 8)%256));
-            stream.WriteByte((byte) (item%256));
+            stream.WriteByte((byte)((item >> 8) % 256));
+            stream.WriteByte((byte)(item % 256));
         }
 
         internal static ushort ReadUInt16(Stream stream)
         {
-            return (ushort) ((stream.ReadByte() << 8) + stream.ReadByte());
+            return (ushort)((stream.ReadByte() << 8) + stream.ReadByte());
         }
 
         private static void WriteMPackValue(short item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.Int16);
+            stream.WriteByte((byte)DataTypes.Int16);
             WriteValue(item, stream);
         }
 
         internal static void WriteValue(short item, Stream stream)
         {
-            var value = (ushort) (item >= 0 ? item : ushort.MaxValue + item + 1);
+            var value = (ushort)(item >= 0 ? item : ushort.MaxValue + item + 1);
             WriteValue(value, stream);
         }
 
@@ -606,20 +696,20 @@ namespace TarantoolDnx.MsgPack
         {
             var temp = ReadUInt16(stream);
             if (temp <= short.MaxValue)
-                return (short) temp;
+                return (short)temp;
 
-            return (short) (temp - 1 - ushort.MaxValue);
+            return (short)(temp - 1 - ushort.MaxValue);
         }
 
         private static void WriteMPackValue(int item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.Int32);
+            stream.WriteByte((byte)DataTypes.Int32);
             WriteValue(item, stream);
         }
 
         internal static void WriteValue(int item, Stream stream)
         {
-            var value = (uint) (item > 0 ? item : uint.MaxValue + item + 1);
+            var value = (uint)(item > 0 ? item : uint.MaxValue + item + 1);
             WriteValue(value, stream);
         }
 
@@ -627,51 +717,51 @@ namespace TarantoolDnx.MsgPack
         {
             var temp = ReadUInt32(stream);
             if (temp <= int.MaxValue)
-                return (int) temp;
+                return (int)temp;
 
-            return (int) (temp - 1 - uint.MaxValue);
+            return (int)(temp - 1 - uint.MaxValue);
         }
 
         private static void WriteMPackValue(uint item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.UInt32);
+            stream.WriteByte((byte)DataTypes.UInt32);
             WriteValue(item, stream);
         }
 
         internal static void WriteValue(uint item, Stream stream)
         {
-            stream.WriteByte((byte) ((item >> 24)%256));
-            stream.WriteByte((byte) ((item >> 16)%256));
-            stream.WriteByte((byte) ((item >> 8)%256));
-            stream.WriteByte((byte) (item%256));
+            stream.WriteByte((byte)((item >> 24) % 256));
+            stream.WriteByte((byte)((item >> 16) % 256));
+            stream.WriteByte((byte)((item >> 8) % 256));
+            stream.WriteByte((byte)(item % 256));
         }
 
         internal static uint ReadUInt32(Stream stream)
         {
-            var temp = (uint) (stream.ReadByte() << 24);
-            temp += (uint) stream.ReadByte() << 16;
-            temp += (uint) stream.ReadByte() << 8;
-            temp += (uint) stream.ReadByte();
+            var temp = (uint)(stream.ReadByte() << 24);
+            temp += (uint)stream.ReadByte() << 16;
+            temp += (uint)stream.ReadByte() << 8;
+            temp += (uint)stream.ReadByte();
 
             return temp;
         }
 
         private static void WriteMPackValue(ulong item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.UInt64);
+            stream.WriteByte((byte)DataTypes.UInt64);
             WriteValue(item, stream);
         }
 
         internal static void WriteValue(ulong item, Stream stream)
         {
-            stream.WriteByte((byte) ((item >> 56)%256));
-            stream.WriteByte((byte) ((item >> 48)%256));
-            stream.WriteByte((byte) ((item >> 40)%256));
-            stream.WriteByte((byte) ((item >> 32)%256));
-            stream.WriteByte((byte) ((item >> 24)%256));
-            stream.WriteByte((byte) ((item >> 16)%256));
-            stream.WriteByte((byte) ((item >> 8)%256));
-            stream.WriteByte((byte) (item%256));
+            stream.WriteByte((byte)((item >> 56) % 256));
+            stream.WriteByte((byte)((item >> 48) % 256));
+            stream.WriteByte((byte)((item >> 40) % 256));
+            stream.WriteByte((byte)((item >> 32) % 256));
+            stream.WriteByte((byte)((item >> 24) % 256));
+            stream.WriteByte((byte)((item >> 16) % 256));
+            stream.WriteByte((byte)((item >> 8) % 256));
+            stream.WriteByte((byte)(item % 256));
         }
 
         internal static ulong ReadUInt64(Stream stream)
@@ -690,13 +780,13 @@ namespace TarantoolDnx.MsgPack
 
         private static void WriteMPackValue(long item, Stream stream)
         {
-            stream.WriteByte((byte) DataTypes.Int64);
+            stream.WriteByte((byte)DataTypes.Int64);
             WriteValue(item, stream);
         }
 
         internal static void WriteValue(long item, Stream stream)
         {
-            var value = item >= 0 ? (ulong) item : ulong.MaxValue + (ulong) item + 1L;
+            var value = item >= 0 ? (ulong)item : ulong.MaxValue + (ulong)item + 1L;
             WriteValue(value, stream);
         }
 
@@ -704,9 +794,9 @@ namespace TarantoolDnx.MsgPack
         {
             var temp = ReadUInt64(stream);
             if (temp <= long.MaxValue)
-                return (long) temp;
+                return (long)temp;
 
-            return (long) (temp - 1 - ulong.MaxValue);
+            return (long)(temp - 1 - ulong.MaxValue);
         }
     }
 }

@@ -81,7 +81,7 @@ namespace TarantoolDnx.MsgPack
             arrayInterface = GetGenericInterface(type, typeof(IReadOnlyList<>));
             if (arrayInterface != null)
             {
-                var converterType = typeof(ReadOnlyArrayConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
+                var converterType = typeof(ReadOnlyListConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
                 return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
             }
 

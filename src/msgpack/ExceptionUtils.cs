@@ -7,7 +7,7 @@ namespace TarantoolDnx.MsgPack
     {
         public static Exception BadTypeException(DataTypes actual, params DataTypes[] expectedCodes)
         {
-            return new SerializationException($"Got {actual:G} ({actual:X}), while expecting one of these: {string.Join(", ", expectedCodes)}");
+            return new SerializationException($"Got {actual:G} (0x{actual:X}), while expecting one of these: {string.Join(", ", expectedCodes)}");
         }
 
         public static Exception NotEnoughBytes(int actual, int expected)

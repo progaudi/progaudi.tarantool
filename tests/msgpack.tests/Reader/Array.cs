@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Shouldly;
+﻿using Shouldly;
+using System.Collections.Generic;
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader
@@ -7,9 +7,34 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
     public class Array
     {
         [Fact]
+        public void SimpleArray()
+        {
+            var tests = new[]
+            {
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+            };
+
+            var bytes = new byte[]
+            {
+                149,
+                161, 97,
+                161, 98,
+                161, 99,
+                161, 100,
+                161, 101
+            };
+
+            MsgPackConverter.Deserialize<string[]>(bytes).ShouldBe(tests);
+        }
+
+        [Fact]
         public void TestArrayPack()
         {
-            var tests = new object[]
+            var expected = new object[]
             {
                 0,
                 50505,
@@ -17,7 +42,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
                 float.MaxValue,
                 new [] { true, false, true },
                 null,
-                new Dictionary<string, string> { { "Ball", "Soccer" } }
+                new Dictionary<object, object> { { "Ball", "Soccer" } }
             };
 
             var data = new byte[]
@@ -38,7 +63,8 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
 
             var settings = new MsgPackSettings();
             settings.RegisterConverter(new TestReflectionConverter());
-            MsgPackConverter.Serialize(tests, settings).ShouldBe(data);
+
+            MsgPackConverter.Deserialize<object[]>(data, settings).ShouldBe(expected);
         }
     }
 }
