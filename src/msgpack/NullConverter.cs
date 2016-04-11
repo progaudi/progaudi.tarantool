@@ -1,18 +1,17 @@
 using System;
-using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
     internal class NullConverter : IMsgPackConverter<object>
     {
-        public void Write(object value, Stream stream, MsgPackContext context)
+        public void Write(object value, IMsgPackWriter writer, MsgPackContext context)
         {
-            stream.WriteByte((byte) DataTypes.Null);
+            writer.Write(DataTypes.Null);
         }
 
-        public object Read(Stream stream, MsgPackContext context, Func<object> creator)
+        public object Read(IMsgPackReader reader, MsgPackContext context, Func<object> creator)
         {
-            var type = (DataTypes) stream.ReadByte();
+            var type = reader.ReadDataType();
             if (type == DataTypes.Null)
                 return null;
 

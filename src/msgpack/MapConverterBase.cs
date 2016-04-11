@@ -1,31 +1,30 @@
 using System;
-using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
     internal abstract class MapConverterBase<TMap, TKey, TValue> : IMsgPackConverter<TMap>
     {
-        public abstract void Write(TMap value, Stream stream, MsgPackContext context);
+        public abstract void Write(TMap value, IMsgPackWriter writer, MsgPackContext context);
 
-        public abstract TMap Read(Stream stream, MsgPackContext context, Func<TMap> creator);
+        public abstract TMap Read(IMsgPackReader reader, MsgPackContext context, Func<TMap> creator);
 
-        protected void WriteMapHeaderAndLength(int length, Stream stream)
+        protected void WriteMapHeaderAndLength(int length, IMsgPackWriter reader)
         {
             if (length <= 15)
             {
-                IntConverter.WriteValue((byte)((byte)DataTypes.FixMap + length), stream);
+                IntConverter.WriteValue((byte)((byte)DataTypes.FixMap + length), reader);
                 return;
             }
 
             if (length <= ushort.MaxValue)
             {
-                stream.WriteByte((byte)DataTypes.Map16);
-                IntConverter.WriteValue((ushort)length, stream);
+                reader.Write(DataTypes.Map16);
+                IntConverter.WriteValue((ushort)length, reader);
             }
             else
             {
-                stream.WriteByte((byte)DataTypes.Map32);
-                IntConverter.WriteValue((uint)length, stream);
+                reader.Write(DataTypes.Map32);
+                IntConverter.WriteValue((uint)length, reader);
             }
         }
 

@@ -1,114 +1,116 @@
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 
 namespace TarantoolDnx.MsgPack
 {
     internal class FloatConverter : IMsgPackConverter<float>, IMsgPackConverter<double>
     {
-        public void Write(double value, Stream stream, MsgPackContext context)
+        public void Write(double value, IMsgPackWriter writer, MsgPackContext context)
         {
             var binary = new DoubleBinary(value);
-            stream.WriteByte((byte) DataTypes.Double);
+            writer.Write(DataTypes.Double);
             if (BitConverter.IsLittleEndian)
             {
-                stream.WriteByte(binary.byte7);
-                stream.WriteByte(binary.byte6);
-                stream.WriteByte(binary.byte5);
-                stream.WriteByte(binary.byte4);
-                stream.WriteByte(binary.byte3);
-                stream.WriteByte(binary.byte2);
-                stream.WriteByte(binary.byte1);
-                stream.WriteByte(binary.byte0);
+                writer.Write(binary.byte7);
+                writer.Write(binary.byte6);
+                writer.Write(binary.byte5);
+                writer.Write(binary.byte4);
+                writer.Write(binary.byte3);
+                writer.Write(binary.byte2);
+                writer.Write(binary.byte1);
+                writer.Write(binary.byte0);
             }
             else
             {
-                stream.WriteByte(binary.byte0);
-                stream.WriteByte(binary.byte1);
-                stream.WriteByte(binary.byte2);
-                stream.WriteByte(binary.byte3);
-                stream.WriteByte(binary.byte4);
-                stream.WriteByte(binary.byte5);
-                stream.WriteByte(binary.byte6);
-                stream.WriteByte(binary.byte7);
+                writer.Write(binary.byte0);
+                writer.Write(binary.byte1);
+                writer.Write(binary.byte2);
+                writer.Write(binary.byte3);
+                writer.Write(binary.byte4);
+                writer.Write(binary.byte5);
+                writer.Write(binary.byte6);
+                writer.Write(binary.byte7);
             }
         }
 
-        double IMsgPackConverter<double>.Read(Stream stream, MsgPackContext context, Func<double> creator)
+        double IMsgPackConverter<double>.Read(IMsgPackReader reader, MsgPackContext context, Func<double> creator)
         {
-            var type = (DataTypes) stream.ReadByte();
+            var type = (DataTypes)reader.ReadByte();
 
             if (type != DataTypes.Single && type != DataTypes.Double)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single, DataTypes.Double);
 
             if (type == DataTypes.Single)
             {
-                return ReadFloat(stream);
+                return ReadFloat(reader);
             }
 
-            var bytes = ReadBytes(stream, 8);
+            var bytes = ReadBytes(reader, 8);
 
             return new DoubleBinary(bytes).value;
         }
 
-        public void Write(float value, Stream stream, MsgPackContext context)
+        public void Write(float value, IMsgPackWriter writer, MsgPackContext context)
         {
             var binary = new FloatBinary(value);
-            stream.WriteByte((byte) DataTypes.Single);
+            writer.Write(DataTypes.Single);
             if (BitConverter.IsLittleEndian)
             {
-                stream.WriteByte(binary.byte3);
-                stream.WriteByte(binary.byte2);
-                stream.WriteByte(binary.byte1);
-                stream.WriteByte(binary.byte0);
+                writer.Write(binary.byte3);
+                writer.Write(binary.byte2);
+                writer.Write(binary.byte1);
+                writer.Write(binary.byte0);
             }
             else
             {
-                stream.WriteByte(binary.byte0);
-                stream.WriteByte(binary.byte1);
-                stream.WriteByte(binary.byte2);
-                stream.WriteByte(binary.byte3);
+                writer.Write(binary.byte0);
+                writer.Write(binary.byte1);
+                writer.Write(binary.byte2);
+                writer.Write(binary.byte3);
             }
         }
 
-        float IMsgPackConverter<float>.Read(Stream stream, MsgPackContext context, Func<float> creator)
+        float IMsgPackConverter<float>.Read(IMsgPackReader reader, MsgPackContext context, Func<float> creator)
         {
-            var type = (DataTypes) stream.ReadByte();
+            var type = (DataTypes)reader.ReadByte();
 
             if (type != DataTypes.Single)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single);
 
-            return ReadFloat(stream);
+            return ReadFloat(reader);
         }
 
-        private static float ReadFloat(Stream stream)
+        private static float ReadFloat(IMsgPackReader reader)
         {
-            var bytes = ReadBytes(stream, 4);
+            var bytes = ReadBytes(reader, 4);
 
             return new FloatBinary(bytes).value;
         }
 
-        private static byte[] ReadBytes(Stream stream, int floatLength)
+        private static byte[] ReadBytes(IMsgPackReader reader, int length)
         {
-            var bytes = new byte[floatLength];
-            var read = stream.Read(bytes, 0, floatLength);
-            if (read != floatLength)
-                throw ExceptionUtils.NotEnoughBytes(read, floatLength);
+            var bytes = new byte[length];
+            reader.ReadBytes(bytes);
             return bytes;
         }
 
         [StructLayout(LayoutKind.Explicit)]
         private struct FloatBinary
         {
-            [FieldOffset(0)] public readonly float value;
+            [FieldOffset(0)]
+            public readonly float value;
 
-            [FieldOffset(0)] public readonly byte byte0;
+            [FieldOffset(0)]
+            public readonly byte byte0;
 
-            [FieldOffset(1)] public readonly byte byte1;
+            [FieldOffset(1)]
+            public readonly byte byte1;
 
-            [FieldOffset(2)] public readonly byte byte2;
+            [FieldOffset(2)]
+            public readonly byte byte2;
 
-            [FieldOffset(3)] public readonly byte byte3;
+            [FieldOffset(3)]
+            public readonly byte byte3;
 
             public FloatBinary(float f)
             {
@@ -139,23 +141,32 @@ namespace TarantoolDnx.MsgPack
         [StructLayout(LayoutKind.Explicit)]
         private struct DoubleBinary
         {
-            [FieldOffset(0)] public readonly double value;
+            [FieldOffset(0)]
+            public readonly double value;
 
-            [FieldOffset(0)] public readonly byte byte0;
+            [FieldOffset(0)]
+            public readonly byte byte0;
 
-            [FieldOffset(1)] public readonly byte byte1;
+            [FieldOffset(1)]
+            public readonly byte byte1;
 
-            [FieldOffset(2)] public readonly byte byte2;
+            [FieldOffset(2)]
+            public readonly byte byte2;
 
-            [FieldOffset(3)] public readonly byte byte3;
+            [FieldOffset(3)]
+            public readonly byte byte3;
 
-            [FieldOffset(4)] public readonly byte byte4;
+            [FieldOffset(4)]
+            public readonly byte byte4;
 
-            [FieldOffset(5)] public readonly byte byte5;
+            [FieldOffset(5)]
+            public readonly byte byte5;
 
-            [FieldOffset(6)] public readonly byte byte6;
+            [FieldOffset(6)]
+            public readonly byte byte6;
 
-            [FieldOffset(7)] public readonly byte byte7;
+            [FieldOffset(7)]
+            public readonly byte byte7;
 
             public DoubleBinary(double f)
             {

@@ -16,11 +16,14 @@ namespace TarantoolDnx.MsgPack
 
         public static byte[] Serialize<T>(T data, [NotNull]MsgPackContext context)
         {
-            var stream = new MemoryStream();
-            var converter = GetConverter<T>(context);
+            var memoryStream = new MemoryStream();
+            using (var wrapper = new StreamWrapper(memoryStream))
+            {
+                var converter = GetConverter<T>(context);
 
-            converter.Write(data, stream, context);
-            return stream.ToArray();
+                converter.Write(data, wrapper, context);
+                return memoryStream.ToArray();
+            }
         }
 
         public static T Deserialize<T>(byte[] data)
@@ -35,10 +38,13 @@ namespace TarantoolDnx.MsgPack
 
         private static T Deserialize<T>(byte[] data, [NotNull]MsgPackContext context, Func<T> creator)
         {
-            var stream = new MemoryStream(data);
-            var converter = GetConverter<T>(context);
+            var memoryStream = new MemoryStream(data);
+            using (var wrapper = new StreamWrapper(memoryStream))
+            {
+                var converter = GetConverter<T>(context);
 
-            return converter.Read(stream, context, creator);
+                return converter.Read(wrapper, context, creator);
+            }
         }
 
         [NotNull]

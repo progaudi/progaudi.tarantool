@@ -10,9 +10,6 @@ assembly_info:
 nuget:
   disable_publish_on_pr: true
 
-build:
-  verbosity: minimal
-
 configuration:
   - Debug
   - Release
@@ -22,7 +19,7 @@ matrix:
 
 init:
   - git config --global core.autocrlf true
-  
+
 install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
   - ps: "&{$Branch='dev';iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.ps1'))}"
@@ -34,6 +31,11 @@ install:
 
 before_build:
   - ps: dnu restore
+
+build:
+  parallel: true
+  project: tarantool-dnx.sln
+  verbosity: minimal
 
 test_script:
   - ps: dnx -p tests/msgpack.tests test
