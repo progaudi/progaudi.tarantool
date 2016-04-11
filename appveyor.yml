@@ -10,9 +10,6 @@ assembly_info:
 nuget:
   disable_publish_on_pr: true
 
-build:
-  verbosity: minimal
-
 configuration:
   - Debug
   - Release
@@ -38,6 +35,7 @@ before_build:
 build:
   parallel: true
   project: tarantool-dnx.sln
+  verbosity: minimal
 
 test_script:
   - ps: dnx -p tests/msgpack.tests test
