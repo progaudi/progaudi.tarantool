@@ -1,8 +1,8 @@
-﻿namespace iproto.Data
+﻿namespace iproto.Data.Packets
 {
-    public class Packet
+    public class UnifiedPacket
     {
-        public Packet(Header header, Body body)
+        public UnifiedPacket(Header header, Body body)
         {
             Header = header;
             Body = body;
