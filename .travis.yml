@@ -16,8 +16,7 @@ addons:
       - curl
 
 before_install:
-  - brew update
-  - brew install curl
+  - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install curl; fi
 
 install:
   - curl -sSL https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.sh | sh && source ~/.dnx/dnvm/dnvm.sh && dnvm upgrade
