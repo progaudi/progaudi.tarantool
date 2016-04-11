@@ -1,35 +1,35 @@
-﻿using Xunit;
+﻿using System.Collections.Generic;
+
+using Shouldly;
+
+using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader
 {
-    public class Null:BaseReaderTest
+    public class Null
     {
         [Fact]
-        public void ReadString()
+        public void WriteNullArray()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadString());
+            MsgPackConverter.Serialize((int[]) null).ShouldBe(new[] {(byte) DataTypes.Null});
         }
 
         [Fact]
-        public void ReadBinary()
+        public void WriteNullByteArray()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadBinary());
+            MsgPackConverter.Serialize((byte[]) null).ShouldBe(new[] {(byte) DataTypes.Null});
         }
 
         [Fact]
-        public void ReadArray()
+        public void WriteNullMap()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadArray<int>());
+            MsgPackConverter.Serialize((IDictionary<int, int>) null).ShouldBe(new[] {(byte) DataTypes.Null});
         }
 
         [Fact]
-        public void ReadDictionary()
+        public void WriteNullString()
         {
-            var msgPackReader = CreateReader(new byte[] { 0xc0 });
-            Assert.Null(msgPackReader.ReadMap<int,int>());
+            MsgPackConverter.Serialize((string) null).ShouldBe(new[] {(byte) DataTypes.Null});
         }
     }
 }
