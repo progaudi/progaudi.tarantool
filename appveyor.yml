@@ -22,7 +22,7 @@ matrix:
 
 init:
   - git config --global core.autocrlf true
-  
+
 install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
   - ps: "&{$Branch='dev';iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.ps1'))}"
@@ -34,6 +34,10 @@ install:
 
 before_build:
   - ps: dnu restore
+
+build:
+  parallel: true
+  project: tarantool-dnx.sln
 
 test_script:
   - ps: dnx -p tests/msgpack.tests test
