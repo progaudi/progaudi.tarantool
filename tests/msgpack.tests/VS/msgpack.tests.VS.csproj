@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TarantoolDnx.MsgPack.Tests</RootNamespace>
+    <AssemblyName>TarantoolDnx.MsgPack.Tests.VS</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <OutputPath>..\..\..\artifacts\bin\$(MSBuildProjectName)\</OutputPath>
+    <IntermediateOutputPath>..\..\..\artifacts\obj\$(MSBuildProjectName)\</IntermediateOutputPath>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Reader\Array.cs">
+      <Link>Reader\Array.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\Binary.cs">
+      <Link>Reader\Binary.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\Boolean.cs">
+      <Link>Reader\Boolean.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\Double.cs">
+      <Link>Reader\Double.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\Helpers.cs">
+      <Link>Reader\Helpers.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\Integers.cs">
+      <Link>Reader\Integers.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\Map.cs">
+      <Link>Reader\Map.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\Null.cs">
+      <Link>Reader\Null.cs</Link>
+    </Compile>
+    <Compile Include="..\Reader\String.cs">
+      <Link>Reader\String.cs</Link>
+    </Compile>
+    <Compile Include="..\TestReflectionConverter.cs">
+      <Link>TestReflectionConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Array.cs">
+      <Link>Writer\Array.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Binary.cs">
+      <Link>Writer\Binary.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Boolean.cs">
+      <Link>Writer\Boolean.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Double.cs">
+      <Link>Writer\Double.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Helpers.cs">
+      <Link>Writer\Helpers.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Integers.cs">
+      <Link>Writer\Integers.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Map.cs">
+      <Link>Writer\Map.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\Null.cs">
+      <Link>Writer\Null.cs</Link>
+    </Compile>
+    <Compile Include="..\Writer\String.cs">
+      <Link>Writer\String.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\msgpack\VS\msgpack.VS.csproj">
+      <Project>{2f96bc33-6b63-464d-82b8-a99c90ccf33f}</Project>
+      <Name>msgpack.VS</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

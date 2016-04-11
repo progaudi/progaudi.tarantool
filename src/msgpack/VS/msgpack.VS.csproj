@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2F96BC33-6B63-464D-82B8-A99C90CCF33F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TarantoolDnx.MsgPack</RootNamespace>
+    <AssemblyName>TarantoolDnx.MsgPack.VS</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <OutputPath>..\..\..\artifacts\bin\$(MSBuildProjectName)\</OutputPath>
+    <IntermediateOutputPath>..\..\..\artifacts\obj\$(MSBuildProjectName)\</IntermediateOutputPath>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\ArrayConverter.cs">
+      <Link>ArrayConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\ArrayConverterBase.cs">
+      <Link>ArrayConverterBase.cs</Link>
+    </Compile>
+    <Compile Include="..\BinaryConverter.cs">
+      <Link>BinaryConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\BoolConverter.cs">
+      <Link>BoolConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\DataTypes.cs">
+      <Link>DataTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\ExceptionUtils.cs">
+      <Link>ExceptionUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\FloatConverter.cs">
+      <Link>FloatConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\IMsgPackConverter.cs">
+      <Link>IMsgPackConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\IntConverter.cs">
+      <Link>IntConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\IntFormatTypeExtensions.cs">
+      <Link>IntFormatTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\MapConverter.cs">
+      <Link>MapConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MapConverterBase.cs">
+      <Link>MapConverterBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MsgPackContext.cs">
+      <Link>MsgPackContext.cs</Link>
+    </Compile>
+    <Compile Include="..\MsgPackConverter.cs">
+      <Link>MsgPackConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\NullConverter.cs">
+      <Link>NullConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\ReadOnlyListConverter.cs">
+      <Link>ReadOnlyListConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\ReadOnlyMapConverter.cs">
+      <Link>ReadOnlyMapConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\StringConverter.cs">
+      <Link>StringConverter.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
