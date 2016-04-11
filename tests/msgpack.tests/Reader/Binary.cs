@@ -82,7 +82,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         })]
         public void Test(byte[] value, byte[] data)
         {
-            MsgPackConverter.Serialize(value).ShouldBe(data);
+            MsgPackConverter.Deserialize<byte[]>(data).ShouldBe(value);
         }
     }
 }

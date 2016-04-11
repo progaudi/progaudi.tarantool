@@ -12,7 +12,11 @@ namespace TarantoolDnx.MsgPack
 
         public object Read(Stream stream, MsgPackSettings settings, Func<object> creator)
         {
-            throw new System.NotImplementedException();
+            var type = (DataTypes) stream.ReadByte();
+            if (type == DataTypes.Null)
+                return null;
+
+            throw ExceptionUtils.BadTypeException(type, DataTypes.Null);
         }
     }
 }
