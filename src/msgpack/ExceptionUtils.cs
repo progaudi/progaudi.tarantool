@@ -19,5 +19,15 @@ namespace TarantoolDnx.MsgPack
         {
             return new SerializationException($"Can't deserialize into read-only collection {type.Name}. Create a specialized converter for that.");
         }
+
+        public static Exception NoConverterForCollectionElement(Type type, string elementName)
+        {
+            return new SerializationException($"Provide converter for {elementName}: {type.Name}");
+        }
+
+        public static Exception IntDeserializationFailure(DataTypes type)
+        {
+            return new SerializationException($"Waited for an int, got {type:G} (0x{type:X})");
+        }
     }
 }

@@ -60,7 +60,7 @@ namespace TarantoolDnx.MsgPack
                     return (byte)ReadInt8(stream);
 
                 default:
-                    throw new SerializationException($"Waited for an int, got {type:G} (0x{type:X})");
+                    throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
 
@@ -139,7 +139,7 @@ namespace TarantoolDnx.MsgPack
                     return ReadInt32(stream);
 
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+                    throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
 
@@ -232,7 +232,7 @@ namespace TarantoolDnx.MsgPack
                     return ReadInt64(stream);
 
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+                    throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
 
@@ -282,7 +282,7 @@ namespace TarantoolDnx.MsgPack
                 return ReadInt8(stream);
             }
 
-            throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+            throw ExceptionUtils.IntDeserializationFailure(type);
         }
 
         public void Write(short value, Stream stream, MsgPackContext context)
@@ -346,7 +346,7 @@ namespace TarantoolDnx.MsgPack
                     return ReadInt16(stream);
 
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+                    throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
 
@@ -428,7 +428,7 @@ namespace TarantoolDnx.MsgPack
                     return (uint)ReadInt32(stream);
 
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+                    throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
 
@@ -524,7 +524,7 @@ namespace TarantoolDnx.MsgPack
                     return (ulong)ReadInt64(stream);
 
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+                    throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
 
@@ -592,7 +592,7 @@ namespace TarantoolDnx.MsgPack
                     return (ushort)ReadInt16(stream);
 
                 default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+                    throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
 
