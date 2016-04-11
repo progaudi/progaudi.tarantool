@@ -3,7 +3,7 @@ dist: trusty
 env:
   - MONO_THREADS_PER_CPU=2000
 mono:
-  - 4.0.5
+  - latest
 os:
   - linux
   - osx
