@@ -52,17 +52,17 @@ namespace TarantoolDnx.MsgPack
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
         {
-            var mapInterface = GetGenericInterface(type, typeof(IReadOnlyDictionary<,>));
-            if (mapInterface != null)
-            {
-                var converterType = typeof(ReadOnlyMapConverter<,,>).MakeGenericType(type, mapInterface.GenericTypeArguments[0], mapInterface.GenericTypeArguments[1]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
-            }
-
-            mapInterface = GetGenericInterface(type, typeof(IDictionary<,>));
+            var mapInterface = GetGenericInterface(type, typeof(IDictionary<,>));
             if (mapInterface != null)
             {
                 var converterType = typeof(MapConverter<,,>).MakeGenericType(type, mapInterface.GenericTypeArguments[0], mapInterface.GenericTypeArguments[1]);
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
+            }
+
+            mapInterface = GetGenericInterface(type, typeof(IReadOnlyDictionary<,>));
+            if (mapInterface != null)
+            {
+                var converterType = typeof(ReadOnlyMapConverter<,,>).MakeGenericType(type, mapInterface.GenericTypeArguments[0], mapInterface.GenericTypeArguments[1]);
                 return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
             }
 
@@ -71,17 +71,17 @@ namespace TarantoolDnx.MsgPack
 
         private IMsgPackConverter TryGenerateArrayConverter(Type type)
         {
-            var arrayInterface = GetGenericInterface(type, typeof(IReadOnlyList<>));
-            if (arrayInterface != null)
-            {
-                var converterType = typeof(ReadOnlyArrayConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
-            }
-
-            arrayInterface = GetGenericInterface(type, typeof(IList<>));
+            var arrayInterface = GetGenericInterface(type, typeof(IList<>));
             if (arrayInterface != null)
             {
                 var converterType = typeof(ArrayConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
+            }
+
+            arrayInterface = GetGenericInterface(type, typeof(IReadOnlyList<>));
+            if (arrayInterface != null)
+            {
+                var converterType = typeof(ReadOnlyArrayConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
                 return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
             }
 
@@ -103,13 +103,13 @@ namespace TarantoolDnx.MsgPack
 
         private static TypeInfo GetGenericInterface(Type type, Type genericInterfaceType)
         {
-            if (type.IsInterface && type.IsGenericType && type.GetGenericTypeDefinition() == genericInterfaceType)
+            var info = type.GetTypeInfo();
+            if (info.IsInterface && info.IsGenericType && info.GetGenericTypeDefinition() == genericInterfaceType)
             {
-                return type.GetTypeInfo();
+                return info;
             }
 
-            return type
-                .GetTypeInfo()
+            return info
                 .ImplementedInterfaces
                 .Select(x => x.GetTypeInfo())
                 .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericInterfaceType);

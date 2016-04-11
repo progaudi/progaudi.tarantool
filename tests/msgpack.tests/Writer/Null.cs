@@ -9,25 +9,25 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [Fact]
         public void WriteNullString()
         {
-            MsgPackConverter.Convert((string)null).ShouldBe(new [] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize((string)null).ShouldBe(new [] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullByteArray()
         {
-            MsgPackConverter.Convert((byte[])null).ShouldBe(new [] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize((byte[])null).ShouldBe(new [] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullArray()
         {
-            MsgPackConverter.Convert((int[])null).ShouldBe(new [] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize((int[])null).ShouldBe(new [] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullMap()
         {
-            MsgPackConverter.Convert((IDictionary<int, int>)null).ShouldBe(new [] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize((IDictionary<int, int>)null).ShouldBe(new [] { (byte)DataTypes.Null });
         }
     }
 }

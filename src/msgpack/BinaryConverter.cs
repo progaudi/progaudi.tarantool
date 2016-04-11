@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace TarantoolDnx.MsgPack
@@ -15,6 +16,11 @@ namespace TarantoolDnx.MsgPack
             WriteBinaryHeaderAndLength(value.Length, stream);
 
             stream.Write(value, 0, value.Length);
+        }
+
+        public byte[] Read(Stream stream, MsgPackSettings settings, Func<byte[]> creator)
+        {
+            throw new System.NotImplementedException();
         }
 
         private void WriteBinaryHeaderAndLength(int length, Stream stream)

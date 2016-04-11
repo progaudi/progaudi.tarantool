@@ -12,6 +12,7 @@ namespace TarantoolDnx.MsgPack
         UInt32 = 0xce,
         UInt64 = 0xcf,
         NegativeFixnum = 0xe0, //last 5 bits is value
+        PositiveFixNum = 0x7f,
         Int8 = 0xd0,
         Int16 = 0xd1,
         Int32 = 0xd2,

@@ -1,8 +1,9 @@
+using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace TarantoolDnx.MsgPack.Tests.Writer
+namespace TarantoolDnx.MsgPack.Tests
 {
     public class TestReflectionConverter : IMsgPackConverter<object>
     {
@@ -23,6 +24,11 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
                 new[] {value.GetType(), typeof(Stream), typeof(MsgPackSettings)});
 
             methodDefinition.Invoke(converter, new[] {value, stream, settings});
+        }
+
+        public object Read(Stream stream, MsgPackSettings settings, Func<object> creator)
+        {
+            throw new System.NotImplementedException();
         }
 
         private static object GetConverter(object value, MsgPackSettings settings)

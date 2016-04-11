@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 
@@ -18,6 +19,11 @@ namespace TarantoolDnx.MsgPack
             WriteStringHeaderAndLength(stream, data.Length);
 
             stream.Write(data, 0, data.Length);
+        }
+
+        public string Read(Stream stream, MsgPackSettings settings, Func<string> creator)
+        {
+            throw new System.NotImplementedException();
         }
 
         private void WriteStringHeaderAndLength(Stream stream, int length)

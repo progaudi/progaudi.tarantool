@@ -4,7 +4,7 @@ using TarantoolDnx.MsgPack.Interfaces;
 
 namespace TarantoolDnx.MsgPack
 {
-    internal sealed class BytesReader : IBytesReader
+    internal sealed class BytesReader
     {
         private readonly Stream _innerStream;
 

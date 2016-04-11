@@ -8,13 +8,13 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [Fact]
         public void True()
         {
-            MsgPackConverter.Convert(true).ShouldBe(new[] { (byte)DataTypes.True });
+            MsgPackConverter.Serialize(true).ShouldBe(new[] { (byte)DataTypes.True });
         }
 
         [Fact]
         public void False()
         {
-            MsgPackConverter.Convert(false).ShouldBe(new[] { (byte)DataTypes.False });
+            MsgPackConverter.Serialize(false).ShouldBe(new[] { (byte)DataTypes.False });
         }
     }
 }

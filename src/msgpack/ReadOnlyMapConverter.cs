@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -25,6 +26,11 @@ namespace TarantoolDnx.MsgPack
                 keyConverter.Write(element.Key, stream, settings);
                 valueConverter.Write(element.Value, stream, settings);
             }
+        }
+
+        public override TMap Read(Stream stream, MsgPackSettings settings, Func<TMap> creator)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

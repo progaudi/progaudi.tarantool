@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -22,6 +23,11 @@ namespace TarantoolDnx.MsgPack
             {
                 elementConverter.Write(element, stream, settings);
             }
+        }
+
+        public override TArray Read(Stream stream, MsgPackSettings settings, Func<TArray> creator)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

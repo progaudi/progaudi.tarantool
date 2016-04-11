@@ -2,7 +2,7 @@
 using Shouldly;
 using Xunit;
 
-namespace TarantoolDnx.MsgPack.Tests.Writer
+namespace TarantoolDnx.MsgPack.Tests.Reader
 {
     public class Map
     {
