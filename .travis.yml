@@ -9,8 +9,18 @@ os:
   - osx
 solution: tarantool-dnx.sln
 
+addons:
+  apt:
+    packages:
+      - unzip
+      - curl
+
+before_install:
+  - brew update
+  - brew install curl
+
 install:
-  - "&{$Branch='dev';iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.ps1'))}"
+  - curl -sSL https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.sh | sh && source ~/.dnx/dnvm/dnvm.sh && dnvm upgrade
   - dnvm update-self
   - dnvm upgrade
   - dnvm install 1.0.0-rc1-update1
