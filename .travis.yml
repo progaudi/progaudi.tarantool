@@ -1,0 +1,20 @@
+language: csharp
+dist: trusty
+env:
+  - MONO_THREADS_PER_CPU=2000
+mono:
+  - 4.0.5
+os:
+  - linux
+  - osx
+solution: tarantool-dnx.sln
+
+install:
+  - "&{$Branch='dev';iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.ps1'))}"
+  - dnvm update-self
+  - dnvm upgrade
+  - dnvm install 1.0.0-rc1-update1
+  - dnvm list
+  - dnvm use 1.0.0-rc1-update1
+before_script:
+  - dnu restore
