@@ -27,3 +27,5 @@ install:
   - dnvm use 1.0.0-rc1-update1
 before_script:
   - dnu restore
+script:
+  - dnu -p tests/msgpack.tests test
