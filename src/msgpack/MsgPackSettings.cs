@@ -12,21 +12,19 @@ namespace TarantoolDnx.MsgPack
     {
         private static readonly IReadOnlyDictionary<Type, IMsgPackConverter> DefaultConverters = new Dictionary<Type, IMsgPackConverter>
         {
-            { typeof(bool), new BoolConverter() },
-            { typeof(string), new StringConverter() },
-            { typeof(byte[]), new BinaryConverter() },
-
-            { typeof(float), new FloatConverter() },
-            { typeof(double), new FloatConverter() },
-
-            { typeof(byte), new IntConverter() },
-            { typeof(sbyte), new IntConverter() },
-            { typeof(short), new IntConverter() },
-            { typeof(ushort), new IntConverter() },
-            { typeof(int), new IntConverter() },
-            { typeof(uint), new IntConverter() },
-            { typeof(long), new IntConverter() },
-            { typeof(ulong), new IntConverter() },
+            {typeof(bool), new BoolConverter()},
+            {typeof(string), new StringConverter()},
+            {typeof(byte[]), new BinaryConverter()},
+            {typeof(float), new FloatConverter()},
+            {typeof(double), new FloatConverter()},
+            {typeof(byte), new IntConverter()},
+            {typeof(sbyte), new IntConverter()},
+            {typeof(short), new IntConverter()},
+            {typeof(ushort), new IntConverter()},
+            {typeof(int), new IntConverter()},
+            {typeof(uint), new IntConverter()},
+            {typeof(long), new IntConverter()},
+            {typeof(ulong), new IntConverter()}
         };
 
         private static readonly ConcurrentDictionary<Type, IMsgPackConverter> GeneratedConverters = new ConcurrentDictionary<Type, IMsgPackConverter>();
@@ -47,7 +45,7 @@ namespace TarantoolDnx.MsgPack
             var type = typeof(T);
             return (IMsgPackConverter<T>) (GetConverterFromCache(type) ??
                 TryGenerateArrayConverter(type) ??
-                TryGenerateMapConverter(type));
+                    TryGenerateMapConverter(type));
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
@@ -56,14 +54,17 @@ namespace TarantoolDnx.MsgPack
             if (mapInterface != null)
             {
                 var converterType = typeof(MapConverter<,,>).MakeGenericType(type, mapInterface.GenericTypeArguments[0], mapInterface.GenericTypeArguments[1]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
             }
 
             mapInterface = GetGenericInterface(type, typeof(IReadOnlyDictionary<,>));
             if (mapInterface != null)
             {
-                var converterType = typeof(ReadOnlyMapConverter<,,>).MakeGenericType(type, mapInterface.GenericTypeArguments[0], mapInterface.GenericTypeArguments[1]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
+                var converterType = typeof(ReadOnlyMapConverter<,,>).MakeGenericType(
+                    type,
+                    mapInterface.GenericTypeArguments[0],
+                    mapInterface.GenericTypeArguments[1]);
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
             }
 
             return null;
@@ -75,14 +76,14 @@ namespace TarantoolDnx.MsgPack
             if (arrayInterface != null)
             {
                 var converterType = typeof(ArrayConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
             }
 
             arrayInterface = GetGenericInterface(type, typeof(IReadOnlyList<>));
             if (arrayInterface != null)
             {
                 var converterType = typeof(ReadOnlyListConverter<,>).MakeGenericType(type, arrayInterface.GenericTypeArguments[0]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)Activator.CreateInstance(converterType));
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
             }
 
             return null;

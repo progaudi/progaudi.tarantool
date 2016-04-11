@@ -7,12 +7,12 @@ namespace TarantoolDnx.MsgPack
     {
         public void Write(bool value, Stream stream, MsgPackSettings settings)
         {
-            stream.WriteByte((byte)(value ? DataTypes.True : DataTypes.False));
+            stream.WriteByte((byte) (value ? DataTypes.True : DataTypes.False));
         }
 
         public bool Read(Stream stream, MsgPackSettings settings, Func<bool> creator)
         {
-            var header = (DataTypes)stream.ReadByte();
+            var header = (DataTypes) stream.ReadByte();
             switch (header)
             {
                 case DataTypes.True:

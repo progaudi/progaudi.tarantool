@@ -5,10 +5,14 @@ using System.Runtime.Serialization;
 namespace TarantoolDnx.MsgPack
 {
     internal class IntConverter :
-        IMsgPackConverter<byte>, IMsgPackConverter<sbyte>,
-        IMsgPackConverter<short>, IMsgPackConverter<ushort>,
-        IMsgPackConverter<int>, IMsgPackConverter<uint>,
-        IMsgPackConverter<long>, IMsgPackConverter<ulong>
+        IMsgPackConverter<byte>,
+        IMsgPackConverter<sbyte>,
+        IMsgPackConverter<short>,
+        IMsgPackConverter<ushort>,
+        IMsgPackConverter<int>,
+        IMsgPackConverter<uint>,
+        IMsgPackConverter<long>,
+        IMsgPackConverter<ulong>
     {
         public void Write(byte value, Stream stream, MsgPackSettings settings)
         {
@@ -57,6 +61,178 @@ namespace TarantoolDnx.MsgPack
 
                 default:
                     throw new SerializationException($"Waited for an int, got {type:G} (0x{type:X})");
+            }
+        }
+
+        public void Write(int value, Stream stream, MsgPackSettings settings)
+        {
+            switch (value.GetFormatType())
+            {
+                case IntFormatType.PositiveFixNum:
+                    WritePositiveFixNum((byte)value, stream);
+                    break;
+
+                case IntFormatType.NegativeFixNum:
+                    WriteNegativeFixNum((sbyte)value, stream);
+                    break;
+
+                case IntFormatType.UInt8:
+                    WriteMPackValue((byte)value, stream);
+                    break;
+
+                case IntFormatType.Int8:
+                    WriteMPackValue((sbyte)value, stream);
+                    break;
+
+                case IntFormatType.UInt16:
+                    WriteMPackValue((ushort)value, stream);
+                    break;
+
+                case IntFormatType.Int16:
+                    WriteMPackValue((short)value, stream);
+                    break;
+
+                case IntFormatType.UInt32:
+                    WriteMPackValue((uint)value, stream);
+                    break;
+
+                case IntFormatType.Int32:
+                    WriteMPackValue(value, stream);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        int IMsgPackConverter<int>.Read(Stream stream, MsgPackSettings settings, Func<int> creator)
+        {
+            var type = (DataTypes)stream.ReadByte();
+
+            byte temp;
+            if (TryGetFixPositiveNumber(type, out temp))
+            {
+                return temp;
+            }
+
+            sbyte tempInt8;
+            if (TryGetNegativeNumber(type, out tempInt8))
+            {
+                return tempInt8;
+            }
+
+            switch (type)
+            {
+                case DataTypes.UInt8:
+                    return ReadUInt8(stream);
+
+                case DataTypes.UInt16:
+                    return ReadUInt16(stream);
+
+                case DataTypes.Int8:
+                    return ReadInt8(stream);
+
+                case DataTypes.Int16:
+                    return ReadInt16(stream);
+
+                case DataTypes.Int32:
+                    return ReadInt32(stream);
+
+                default:
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+            }
+        }
+
+        public void Write(long value, Stream stream, MsgPackSettings settings)
+        {
+            switch (value.GetFormatType())
+            {
+                case IntFormatType.PositiveFixNum:
+                    WritePositiveFixNum((byte)value, stream);
+                    break;
+
+                case IntFormatType.NegativeFixNum:
+                    WriteNegativeFixNum((sbyte)value, stream);
+                    break;
+
+                case IntFormatType.UInt8:
+                    WriteMPackValue((byte)value, stream);
+                    break;
+
+                case IntFormatType.Int8:
+                    WriteMPackValue((sbyte)value, stream);
+                    break;
+
+                case IntFormatType.UInt16:
+                    WriteMPackValue((ushort)value, stream);
+                    break;
+
+                case IntFormatType.Int16:
+                    WriteMPackValue((short)value, stream);
+                    break;
+
+                case IntFormatType.UInt32:
+                    WriteMPackValue((uint)value, stream);
+                    break;
+
+                case IntFormatType.Int32:
+                    WriteMPackValue((int)value, stream);
+                    break;
+
+                case IntFormatType.UInt64:
+                    WriteMPackValue((ulong)value, stream);
+                    break;
+
+                case IntFormatType.Int64:
+                    WriteMPackValue(value, stream);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        long IMsgPackConverter<long>.Read(Stream stream, MsgPackSettings settings, Func<long> creator)
+        {
+            var type = (DataTypes)stream.ReadByte();
+
+            byte tempUInt8;
+            if (TryGetFixPositiveNumber(type, out tempUInt8))
+            {
+                return tempUInt8;
+            }
+
+            sbyte tempInt8;
+            if (TryGetNegativeNumber(type, out tempInt8))
+            {
+                return tempInt8;
+            }
+
+            switch (type)
+            {
+                case DataTypes.UInt8:
+                    return ReadUInt8(stream);
+
+                case DataTypes.UInt16:
+                    return ReadUInt16(stream);
+
+                case DataTypes.UInt32:
+                    return ReadUInt32(stream);
+
+                case DataTypes.Int8:
+                    return ReadInt8(stream);
+
+                case DataTypes.Int16:
+                    return ReadInt16(stream);
+
+                case DataTypes.Int32:
+                    return ReadInt32(stream);
+
+                case DataTypes.Int64:
+                    return ReadInt64(stream);
+
+                default:
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
             }
         }
 
@@ -174,153 +350,6 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void Write(ushort value, Stream stream, MsgPackSettings settings)
-        {
-            switch (value.GetFormatType())
-            {
-                case IntFormatType.PositiveFixNum:
-                    WritePositiveFixNum((byte)value, stream);
-                    break;
-
-                case IntFormatType.NegativeFixNum:
-                    WriteNegativeFixNum((sbyte)value, stream);
-                    break;
-
-                case IntFormatType.UInt8:
-                    WriteMPackValue((byte)value, stream);
-                    break;
-
-                case IntFormatType.Int8:
-                    WriteMPackValue((sbyte)value, stream);
-                    break;
-
-                case IntFormatType.UInt16:
-                    WriteMPackValue(value, stream);
-                    break;
-
-                case IntFormatType.Int16:
-                    WriteMPackValue((short)value, stream);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        ushort IMsgPackConverter<ushort>.Read(Stream stream, MsgPackSettings settings, Func<ushort> creator)
-        {
-            var type = (DataTypes)stream.ReadByte();
-
-            byte temp;
-            if (TryGetFixPositiveNumber(type, out temp))
-            {
-                return temp;
-            }
-
-            sbyte tempInt8;
-            if (TryGetNegativeNumber(type, out tempInt8))
-            {
-                return (ushort)tempInt8;
-            }
-
-            switch (type)
-            {
-                case DataTypes.UInt8:
-                    return ReadUInt8(stream);
-
-                case DataTypes.UInt16:
-                    return ReadUInt16(stream);
-
-                case DataTypes.Int8:
-                    return (ushort)ReadInt8(stream);
-
-                case DataTypes.Int16:
-                    return (ushort)ReadInt16(stream);
-
-                default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
-            }
-        }
-
-        public void Write(int value, Stream stream, MsgPackSettings settings)
-        {
-            switch (value.GetFormatType())
-            {
-                case IntFormatType.PositiveFixNum:
-                    WritePositiveFixNum((byte)value, stream);
-                    break;
-
-                case IntFormatType.NegativeFixNum:
-                    WriteNegativeFixNum((sbyte)value, stream);
-                    break;
-
-                case IntFormatType.UInt8:
-                    WriteMPackValue((byte)value, stream);
-                    break;
-
-                case IntFormatType.Int8:
-                    WriteMPackValue((sbyte)value, stream);
-                    break;
-
-                case IntFormatType.UInt16:
-                    WriteMPackValue((ushort)value, stream);
-                    break;
-
-                case IntFormatType.Int16:
-                    WriteMPackValue((short)value, stream);
-                    break;
-
-                case IntFormatType.UInt32:
-                    WriteMPackValue((uint)value, stream);
-                    break;
-
-                case IntFormatType.Int32:
-                    WriteMPackValue(value, stream);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        int IMsgPackConverter<int>.Read(Stream stream, MsgPackSettings settings, Func<int> creator)
-        {
-            var type = (DataTypes)stream.ReadByte();
-
-            byte temp;
-            if (TryGetFixPositiveNumber(type, out temp))
-            {
-                return temp;
-            }
-
-            sbyte tempInt8;
-            if (TryGetNegativeNumber(type, out tempInt8))
-            {
-                return tempInt8;
-            }
-
-            switch (type)
-            {
-                case DataTypes.UInt8:
-                    return ReadUInt8(stream);
-
-                case DataTypes.UInt16:
-                    return ReadUInt16(stream);
-
-                case DataTypes.Int8:
-                    return ReadInt8(stream);
-
-                case DataTypes.Int16:
-                    return ReadInt16(stream);
-
-                case DataTypes.Int32:
-                    return ReadInt32(stream);
-
-                default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
-            }
-        }
-
         public void Write(uint value, Stream stream, MsgPackSettings settings)
         {
             switch (value.GetFormatType())
@@ -397,99 +426,6 @@ namespace TarantoolDnx.MsgPack
 
                 case DataTypes.Int32:
                     return (uint)ReadInt32(stream);
-
-                default:
-                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
-            }
-        }
-
-        public void Write(long value, Stream stream, MsgPackSettings settings)
-        {
-            switch (value.GetFormatType())
-            {
-                case IntFormatType.PositiveFixNum:
-                    WritePositiveFixNum((byte)value, stream);
-                    break;
-
-                case IntFormatType.NegativeFixNum:
-                    WriteNegativeFixNum((sbyte)value, stream);
-                    break;
-
-                case IntFormatType.UInt8:
-                    WriteMPackValue((byte)value, stream);
-                    break;
-
-                case IntFormatType.Int8:
-                    WriteMPackValue((sbyte)value, stream);
-                    break;
-
-                case IntFormatType.UInt16:
-                    WriteMPackValue((ushort)value, stream);
-                    break;
-
-                case IntFormatType.Int16:
-                    WriteMPackValue((short)value, stream);
-                    break;
-
-                case IntFormatType.UInt32:
-                    WriteMPackValue((uint)value, stream);
-                    break;
-
-                case IntFormatType.Int32:
-                    WriteMPackValue((int)value, stream);
-                    break;
-
-                case IntFormatType.UInt64:
-                    WriteMPackValue((ulong)value, stream);
-                    break;
-
-                case IntFormatType.Int64:
-                    WriteMPackValue(value, stream);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        long IMsgPackConverter<long>.Read(Stream stream, MsgPackSettings settings, Func<long> creator)
-        {
-            var type = (DataTypes)stream.ReadByte();
-
-            byte tempUInt8;
-            if (TryGetFixPositiveNumber(type, out tempUInt8))
-            {
-                return tempUInt8;
-            }
-
-            sbyte tempInt8;
-            if (TryGetNegativeNumber(type, out tempInt8))
-            {
-                return tempInt8;
-            }
-
-            switch (type)
-            {
-                case DataTypes.UInt8:
-                    return ReadUInt8(stream);
-
-                case DataTypes.UInt16:
-                    return ReadUInt16(stream);
-
-                case DataTypes.UInt32:
-                    return ReadUInt32(stream);
-
-                case DataTypes.Int8:
-                    return ReadInt8(stream);
-
-                case DataTypes.Int16:
-                    return ReadInt16(stream);
-
-                case DataTypes.Int32:
-                    return ReadInt32(stream);
-
-                case DataTypes.Int64:
-                    return ReadInt64(stream);
 
                 default:
                     throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
@@ -586,6 +522,74 @@ namespace TarantoolDnx.MsgPack
 
                 case DataTypes.Int64:
                     return (ulong)ReadInt64(stream);
+
+                default:
+                    throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
+            }
+        }
+
+        public void Write(ushort value, Stream stream, MsgPackSettings settings)
+        {
+            switch (value.GetFormatType())
+            {
+                case IntFormatType.PositiveFixNum:
+                    WritePositiveFixNum((byte)value, stream);
+                    break;
+
+                case IntFormatType.NegativeFixNum:
+                    WriteNegativeFixNum((sbyte)value, stream);
+                    break;
+
+                case IntFormatType.UInt8:
+                    WriteMPackValue((byte)value, stream);
+                    break;
+
+                case IntFormatType.Int8:
+                    WriteMPackValue((sbyte)value, stream);
+                    break;
+
+                case IntFormatType.UInt16:
+                    WriteMPackValue(value, stream);
+                    break;
+
+                case IntFormatType.Int16:
+                    WriteMPackValue((short)value, stream);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        ushort IMsgPackConverter<ushort>.Read(Stream stream, MsgPackSettings settings, Func<ushort> creator)
+        {
+            var type = (DataTypes)stream.ReadByte();
+
+            byte temp;
+            if (TryGetFixPositiveNumber(type, out temp))
+            {
+                return temp;
+            }
+
+            sbyte tempInt8;
+            if (TryGetNegativeNumber(type, out tempInt8))
+            {
+                return (ushort)tempInt8;
+            }
+
+            switch (type)
+            {
+                case DataTypes.UInt8:
+                    return ReadUInt8(stream);
+
+                case DataTypes.UInt16:
+                    return ReadUInt16(stream);
+
+                case DataTypes.Int8:
+                    return (ushort)ReadInt8(stream);
+
+                case DataTypes.Int16:
+                    return (ushort)ReadInt16(stream);
 
                 default:
                     throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");

@@ -62,7 +62,7 @@ namespace TarantoolDnx.MsgPack
 
             ValidateConverters(keyConverter, valueConverter);
 
-            var map = creator == null ? (TMap)Activator.CreateInstance(typeof(TMap)) : creator();
+            var map = creator == null ? (TMap) Activator.CreateInstance(typeof(TMap)) : creator();
 
             for (var i = 0u; i < length; i++)
             {

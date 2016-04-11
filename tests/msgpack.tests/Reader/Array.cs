@@ -1,5 +1,7 @@
-﻿using Shouldly;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using Shouldly;
+
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader
@@ -15,7 +17,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
                 "b",
                 "c",
                 "d",
-                "e",
+                "e"
             };
 
             var bytes = new byte[]
@@ -40,9 +42,9 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
                 50505,
                 float.NaN,
                 float.MaxValue,
-                new [] { true, false, true },
+                new[] {true, false, true},
                 null,
-                new Dictionary<object, object> { { "Ball", "Soccer" } }
+                new Dictionary<object, object> {{"Ball", "Soccer"}}
             };
 
             var data = new byte[]

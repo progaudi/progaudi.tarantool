@@ -35,7 +35,7 @@ namespace TarantoolDnx.MsgPack
 
         public override TArray Read(Stream stream, MsgPackSettings settings, Func<TArray> creator)
         {
-            var type = (DataTypes)stream.ReadByte();
+            var type = (DataTypes) stream.ReadByte();
 
             uint length;
             if (TryGetLengthFromFixArray(type, out length))
@@ -77,7 +77,7 @@ namespace TarantoolDnx.MsgPack
 
         private TArray ReadArray(Stream stream, MsgPackSettings settings, uint length, IMsgPackConverter<TElement> converter)
         {
-            var result = (TArray)(object)new TElement[length];
+            var result = (TArray) new TElement[length];
 
             for (var i = 0; i < length; i++)
             {
@@ -87,10 +87,14 @@ namespace TarantoolDnx.MsgPack
             return result;
         }
 
-        private static TArray ReadList(Stream stream, MsgPackSettings settings, Func<TArray> creator, uint length,
+        private static TArray ReadList(
+            Stream stream,
+            MsgPackSettings settings,
+            Func<TArray> creator,
+            uint length,
             IMsgPackConverter<TElement> converter)
         {
-            var array = creator == null ? (TArray)Activator.CreateInstance(typeof(TArray)) : creator();
+            var array = creator == null ? (TArray) Activator.CreateInstance(typeof(TArray)) : creator();
 
             for (var i = 0u; i < length; i++)
             {

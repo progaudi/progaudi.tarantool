@@ -1,6 +1,9 @@
 using System;
+
 using Int8 = System.SByte;
 using UInt8 = System.Byte;
+
+// ReSharper disable BuiltInTypeReferenceStyle
 
 namespace TarantoolDnx.MsgPack
 {
@@ -61,7 +64,7 @@ namespace TarantoolDnx.MsgPack
             if (value > long.MaxValue)
                 return IntFormatType.UInt64;
 
-            return ((long) value).GetFormatType();
+            return ((long)value).GetFormatType();
         }
 
         public static IntFormatType GetFormatType(this int value)

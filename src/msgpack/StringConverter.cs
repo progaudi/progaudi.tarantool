@@ -23,7 +23,7 @@ namespace TarantoolDnx.MsgPack
 
         public string Read(Stream stream, MsgPackSettings settings, Func<string> creator)
         {
-            var type = (DataTypes)stream.ReadByte();
+            var type = (DataTypes) stream.ReadByte();
 
             uint length;
             if (TryGetFixstrLength(type, out length))
@@ -63,26 +63,26 @@ namespace TarantoolDnx.MsgPack
         {
             if (length <= 31)
             {
-                stream.WriteByte((byte)(((byte)DataTypes.FixStr + length) % 256));
+                stream.WriteByte((byte) (((byte) DataTypes.FixStr + length) % 256));
                 return;
             }
 
             if (length <= byte.MaxValue)
             {
-                stream.WriteByte((byte)DataTypes.Str8);
-                IntConverter.WriteValue((byte)length, stream);
+                stream.WriteByte((byte) DataTypes.Str8);
+                IntConverter.WriteValue((byte) length, stream);
                 return;
             }
 
             if (length <= ushort.MaxValue)
             {
-                stream.WriteByte((byte)DataTypes.Str16);
-                IntConverter.WriteValue((ushort)length, stream);
+                stream.WriteByte((byte) DataTypes.Str16);
+                IntConverter.WriteValue((ushort) length, stream);
             }
             else
             {
-                stream.WriteByte((byte)DataTypes.Str32);
-                IntConverter.WriteValue((uint)length, stream);
+                stream.WriteByte((byte) DataTypes.Str32);
+                IntConverter.WriteValue((uint) length, stream);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Shouldly;
+
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader
@@ -6,15 +7,15 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
     public class Boolean
     {
         [Fact]
-        public void True()
+        public void False()
         {
-            MsgPackConverter.Deserialize<bool>(new[] { (byte)DataTypes.True }).ShouldBeTrue();
+            MsgPackConverter.Deserialize<bool>(new[] {(byte) DataTypes.False}).ShouldBeFalse();
         }
 
         [Fact]
-        public void False()
+        public void True()
         {
-            MsgPackConverter.Deserialize<bool>(new[] { (byte)DataTypes.False }).ShouldBeFalse();
+            MsgPackConverter.Deserialize<bool>(new[] {(byte) DataTypes.True}).ShouldBeTrue();
         }
     }
 }

@@ -1,8 +1,8 @@
 {
     "version": "0.0.1",
     "description": "MsgPackLite library for tarantool-dnx project",
-    "authors": [ "aensidhe", "roman-kozachenko" ],
-    "tags": [ "" ],
+    "authors": ["aensidhe", "roman-kozachenko"],
+    "tags": [""],
     "projectUrl": "",
     "licenseUrl": "",
     "compilationOptions": {
@@ -10,6 +10,7 @@
     },
     "frameworks": {
         "dnx451": {
+        
         },
         "dnxcore50": {
             "dependencies": {

@@ -21,7 +21,7 @@ namespace TarantoolDnx.MsgPack
         // We will have problem with binary blobs greater than int.MaxValue bytes.
         public byte[] Read(Stream stream, MsgPackSettings settings, Func<byte[]> creator)
         {
-            var type = (DataTypes)stream.ReadByte();
+            var type = (DataTypes) stream.ReadByte();
 
             uint length;
             switch (type)
@@ -58,20 +58,20 @@ namespace TarantoolDnx.MsgPack
         {
             if (length <= byte.MaxValue)
             {
-                stream.WriteByte((byte)DataTypes.Bin8);
+                stream.WriteByte((byte) DataTypes.Bin8);
                 IntConverter.WriteValue((byte) length, stream);
                 return;
             }
 
             if (length <= ushort.MaxValue)
             {
-                stream.WriteByte((byte)DataTypes.Bin16);
-                IntConverter.WriteValue((ushort)length, stream);
+                stream.WriteByte((byte) DataTypes.Bin16);
+                IntConverter.WriteValue((ushort) length, stream);
             }
             else
             {
-                stream.WriteByte((byte)DataTypes.Bin32);
-                IntConverter.WriteValue((uint)length, stream);
+                stream.WriteByte((byte) DataTypes.Bin32);
+                IntConverter.WriteValue((uint) length, stream);
             }
         }
     }

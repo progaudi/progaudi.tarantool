@@ -1,36 +1,11 @@
-﻿using System.Collections.Generic;
-using Shouldly;
+﻿using Shouldly;
+using System.Collections.Generic;
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Writer
 {
     public class Map
     {
-        [Fact]
-        public void SimpleDictionary()
-        {
-            var test = new Dictionary<int, string>
-            {
-                { 1, "a" },
-                { 2, "b" },
-                { 3, "c" },
-                { 4, "d" },
-                { 5, "e" },
-            };
-
-            var bytes = new byte[]
-            {
-                133,
-                1, 161, 97,
-                2, 161, 98,
-                3, 161, 99,
-                4, 161, 100,
-                5, 161, 101
-            };
-
-            MsgPackConverter.Serialize(test).ShouldBe(bytes);
-        }
-
         [Fact]
         public void ComplexDictionary()
         {
@@ -42,7 +17,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
                     {
                         "array1_value1",
                         "array1_value2",
-                        "array1_value3",
+                        "array1_value3"
                     }
                 },
                 {"bool1", true},
@@ -52,13 +27,12 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
                 {"int2", 50},
                 {3.14f, 3.14},
                 {42, 42},
-                { new Dictionary<int, int> { { 1, 2 } }, null },
-                { new [] { 1, 2 }, null }
+                {new Dictionary<int, int> {{1, 2}}, null},
+                {new[] {1, 2}, null}
             };
 
             var data = new byte[]
             {
-                138,
                 166, 97, 114, 114, 97, 121, 49,
                     147,
                     173, 97, 114, 114, 97, 121, 49, 95, 118, 97, 108, 117, 101, 49,
@@ -78,6 +52,31 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
             var settings = new MsgPackSettings();
             settings.RegisterConverter(new TestReflectionConverter());
             MsgPackConverter.Serialize(tests, settings).ShouldBe(data);
+        }
+
+        [Fact]
+        public void SimpleDictionary()
+        {
+            var test = new Dictionary<int, string>
+            {
+                {1, "a"},
+                {2, "b"},
+                {3, "c"},
+                {4, "d"},
+                {5, "e"}
+            };
+
+            var bytes = new byte[]
+            {
+                133,
+                1, 161, 97,
+                2, 161, 98,
+                3, 161, 99,
+                4, 161, 100,
+                5, 161, 101
+            };
+
+            MsgPackConverter.Serialize(test).ShouldBe(bytes);
         }
     }
 }

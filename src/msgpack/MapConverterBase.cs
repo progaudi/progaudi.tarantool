@@ -14,19 +14,19 @@ namespace TarantoolDnx.MsgPack
         {
             if (length <= 15)
             {
-                IntConverter.WriteValue((byte)((byte)DataTypes.FixMap + length), stream);
+                IntConverter.WriteValue((byte) ((byte) DataTypes.FixMap + length), stream);
                 return;
             }
 
             if (length <= ushort.MaxValue)
             {
-                stream.WriteByte((byte)DataTypes.Map16);
-                IntConverter.WriteValue((ushort)length, stream);
+                stream.WriteByte((byte) DataTypes.Map16);
+                IntConverter.WriteValue((ushort) length, stream);
             }
             else
             {
-                stream.WriteByte((byte)DataTypes.Map32);
-                IntConverter.WriteValue((uint)length, stream);
+                stream.WriteByte((byte) DataTypes.Map32);
+                IntConverter.WriteValue((uint) length, stream);
             }
         }
 

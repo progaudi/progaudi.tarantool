@@ -1,11 +1,11 @@
-using JetBrains.Annotations;
+// ReSharper disable once RedundantUsingDirective
 using System;
 using System.Collections.Generic;
 using System.IO;
-
-// ReSharper disable once RedundantUsingDirective
 using System.Reflection;
 using System.Runtime.Serialization;
+
+using JetBrains.Annotations;
 
 namespace TarantoolDnx.MsgPack.Tests
 {
@@ -23,14 +23,14 @@ namespace TarantoolDnx.MsgPack.Tests
 
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(value.GetType()).GetMethod(
                 "Write",
-                new[] { value.GetType(), typeof(Stream), typeof(MsgPackSettings) });
+                new[] {value.GetType(), typeof(Stream), typeof(MsgPackSettings)});
 
-            methodDefinition.Invoke(converter, new[] { value, stream, settings });
+            methodDefinition.Invoke(converter, new[] {value, stream, settings});
         }
 
         public object Read(Stream stream, MsgPackSettings settings, Func<object> creator)
         {
-            var msgPackType = (DataTypes)stream.ReadByte();
+            var msgPackType = (DataTypes) stream.ReadByte();
 
             Type type;
             switch (msgPackType)
@@ -133,9 +133,9 @@ namespace TarantoolDnx.MsgPack.Tests
             var converter = GetConverter(settings, type);
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(type).GetMethod(
                 "Read",
-                new[] { typeof(Stream), typeof(MsgPackSettings), typeof(Func<>).MakeGenericType(type) });
+                new[] {typeof(Stream), typeof(MsgPackSettings), typeof(Func<>).MakeGenericType(type)});
 
-            return methodDefinition.Invoke(converter, new object[] { stream, settings, null });
+            return methodDefinition.Invoke(converter, new object[] {stream, settings, null});
         }
 
         private Type TryInferFromFixedLength(DataTypes msgPackType)

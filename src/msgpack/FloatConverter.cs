@@ -6,36 +6,6 @@ namespace TarantoolDnx.MsgPack
 {
     internal class FloatConverter : IMsgPackConverter<float>, IMsgPackConverter<double>
     {
-        public void Write(float value, Stream stream, MsgPackSettings settings)
-        {
-            var binary = new FloatBinary(value);
-            stream.WriteByte((byte) DataTypes.Single);
-            if (BitConverter.IsLittleEndian)
-            {
-                stream.WriteByte(binary.byte3);
-                stream.WriteByte(binary.byte2);
-                stream.WriteByte(binary.byte1);
-                stream.WriteByte(binary.byte0);
-            }
-            else
-            {
-                stream.WriteByte(binary.byte0);
-                stream.WriteByte(binary.byte1);
-                stream.WriteByte(binary.byte2);
-                stream.WriteByte(binary.byte3);
-            }
-        }
-
-        float IMsgPackConverter<float>.Read(Stream stream, MsgPackSettings settings, Func<float> creator)
-        {
-            var type = (DataTypes)stream.ReadByte();
-
-            if (type != DataTypes.Single)
-                throw ExceptionUtils.BadTypeException(type, DataTypes.Single);
-
-            return ReadFloat(stream);
-        }
-
         public void Write(double value, Stream stream, MsgPackSettings settings)
         {
             var binary = new DoubleBinary(value);
@@ -66,7 +36,7 @@ namespace TarantoolDnx.MsgPack
 
         double IMsgPackConverter<double>.Read(Stream stream, MsgPackSettings settings, Func<double> creator)
         {
-            var type = (DataTypes)stream.ReadByte();
+            var type = (DataTypes) stream.ReadByte();
 
             if (type != DataTypes.Single && type != DataTypes.Double)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single, DataTypes.Double);
@@ -79,6 +49,36 @@ namespace TarantoolDnx.MsgPack
             var bytes = ReadBytes(stream, 8);
 
             return new DoubleBinary(bytes).value;
+        }
+
+        public void Write(float value, Stream stream, MsgPackSettings settings)
+        {
+            var binary = new FloatBinary(value);
+            stream.WriteByte((byte) DataTypes.Single);
+            if (BitConverter.IsLittleEndian)
+            {
+                stream.WriteByte(binary.byte3);
+                stream.WriteByte(binary.byte2);
+                stream.WriteByte(binary.byte1);
+                stream.WriteByte(binary.byte0);
+            }
+            else
+            {
+                stream.WriteByte(binary.byte0);
+                stream.WriteByte(binary.byte1);
+                stream.WriteByte(binary.byte2);
+                stream.WriteByte(binary.byte3);
+            }
+        }
+
+        float IMsgPackConverter<float>.Read(Stream stream, MsgPackSettings settings, Func<float> creator)
+        {
+            var type = (DataTypes) stream.ReadByte();
+
+            if (type != DataTypes.Single)
+                throw ExceptionUtils.BadTypeException(type, DataTypes.Single);
+
+            return ReadFloat(stream);
         }
 
         private static float ReadFloat(Stream stream)
@@ -103,8 +103,11 @@ namespace TarantoolDnx.MsgPack
             [FieldOffset(0)] public readonly float value;
 
             [FieldOffset(0)] public readonly byte byte0;
+
             [FieldOffset(1)] public readonly byte byte1;
+
             [FieldOffset(2)] public readonly byte byte2;
+
             [FieldOffset(3)] public readonly byte byte3;
 
             public FloatBinary(float f)
@@ -139,12 +142,19 @@ namespace TarantoolDnx.MsgPack
             [FieldOffset(0)] public readonly double value;
 
             [FieldOffset(0)] public readonly byte byte0;
+
             [FieldOffset(1)] public readonly byte byte1;
+
             [FieldOffset(2)] public readonly byte byte2;
+
             [FieldOffset(3)] public readonly byte byte3;
+
             [FieldOffset(4)] public readonly byte byte4;
+
             [FieldOffset(5)] public readonly byte byte5;
+
             [FieldOffset(6)] public readonly byte byte6;
+
             [FieldOffset(7)] public readonly byte byte7;
 
             public DoubleBinary(double f)
