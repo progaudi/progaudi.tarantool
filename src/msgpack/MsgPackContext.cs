@@ -8,7 +8,7 @@ using System.Reflection;
 namespace TarantoolDnx.MsgPack
 {
     [DebuggerStepThrough]
-    public class MsgPackSettings
+    public class MsgPackContext
     {
         private static readonly IReadOnlyDictionary<Type, IMsgPackConverter> DefaultConverters = new Dictionary<Type, IMsgPackConverter>
         {
@@ -29,23 +29,23 @@ namespace TarantoolDnx.MsgPack
 
         private static readonly ConcurrentDictionary<Type, IMsgPackConverter> GeneratedConverters = new ConcurrentDictionary<Type, IMsgPackConverter>();
 
-        private static readonly IMsgPackConverter<object> nullConverter = new NullConverter();
+        private static readonly IMsgPackConverter<object> SharedNullConverter = new NullConverter();
 
-        private readonly Dictionary<Type, IMsgPackConverter> converters = new Dictionary<Type, IMsgPackConverter>();
+        private readonly Dictionary<Type, IMsgPackConverter> _converters = new Dictionary<Type, IMsgPackConverter>();
 
-        public IMsgPackConverter<object> NullConverter => nullConverter;
+        public IMsgPackConverter<object> NullConverter => SharedNullConverter;
 
         public void RegisterConverter<T>(IMsgPackConverter<T> converter)
         {
-            converters[typeof(T)] = converter;
+            _converters[typeof(T)] = converter;
         }
 
         public IMsgPackConverter<T> GetConverter<T>()
         {
             var type = typeof(T);
-            return (IMsgPackConverter<T>) (GetConverterFromCache(type) ??
-                TryGenerateArrayConverter(type) ??
-                    TryGenerateMapConverter(type));
+            return (IMsgPackConverter<T>) (GetConverterFromCache(type)
+                ?? TryGenerateArrayConverter(type)
+                ?? TryGenerateMapConverter(type));
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
@@ -53,7 +53,10 @@ namespace TarantoolDnx.MsgPack
             var mapInterface = GetGenericInterface(type, typeof(IDictionary<,>));
             if (mapInterface != null)
             {
-                var converterType = typeof(MapConverter<,,>).MakeGenericType(type, mapInterface.GenericTypeArguments[0], mapInterface.GenericTypeArguments[1]);
+                var converterType = typeof(MapConverter<,,>).MakeGenericType(
+                    type,
+                    mapInterface.GenericTypeArguments[0],
+                    mapInterface.GenericTypeArguments[1]);
                 return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) Activator.CreateInstance(converterType));
             }
 
@@ -93,7 +96,7 @@ namespace TarantoolDnx.MsgPack
         {
             IMsgPackConverter temp;
 
-            if (converters.TryGetValue(type, out temp))
+            if (_converters.TryGetValue(type, out temp))
                 return temp;
 
             if (DefaultConverters.TryGetValue(type, out temp))

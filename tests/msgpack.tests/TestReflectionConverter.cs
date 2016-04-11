@@ -11,24 +11,24 @@ namespace TarantoolDnx.MsgPack.Tests
 {
     public class TestReflectionConverter : IMsgPackConverter<object>
     {
-        public void Write(object value, Stream stream, MsgPackSettings settings)
+        public void Write(object value, Stream stream, MsgPackContext context)
         {
             if (value == null)
             {
-                settings.NullConverter.Write(value, stream, settings);
+                context.NullConverter.Write(value, stream, context);
                 return;
             }
 
-            var converter = GetConverter(settings, value.GetType());
+            var converter = GetConverter(context, value.GetType());
 
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(value.GetType()).GetMethod(
                 "Write",
-                new[] {value.GetType(), typeof(Stream), typeof(MsgPackSettings)});
+                new[] {value.GetType(), typeof(Stream), typeof(MsgPackContext)});
 
-            methodDefinition.Invoke(converter, new[] {value, stream, settings});
+            methodDefinition.Invoke(converter, new[] {value, stream, context});
         }
 
-        public object Read(Stream stream, MsgPackSettings settings, Func<object> creator)
+        public object Read(Stream stream, MsgPackContext context, Func<object> creator)
         {
             var msgPackType = (DataTypes) stream.ReadByte();
 
@@ -130,12 +130,12 @@ namespace TarantoolDnx.MsgPack.Tests
             }
 
             stream.Seek(-1, SeekOrigin.Current);
-            var converter = GetConverter(settings, type);
+            var converter = GetConverter(context, type);
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(type).GetMethod(
                 "Read",
-                new[] {typeof(Stream), typeof(MsgPackSettings), typeof(Func<>).MakeGenericType(type)});
+                new[] {typeof(Stream), typeof(MsgPackContext), typeof(Func<>).MakeGenericType(type)});
 
-            return methodDefinition.Invoke(converter, new object[] {stream, settings, null});
+            return methodDefinition.Invoke(converter, new object[] {stream, context, null});
         }
 
         private Type TryInferFromFixedLength(DataTypes msgPackType)
@@ -143,7 +143,7 @@ namespace TarantoolDnx.MsgPack.Tests
             if ((msgPackType & DataTypes.PositiveFixNum) == msgPackType)
                 return typeof(byte);
 
-            if ((msgPackType & DataTypes.NegativeFixnum) == DataTypes.NegativeFixnum)
+            if ((msgPackType & DataTypes.NegativeFixNum) == DataTypes.NegativeFixNum)
                 return typeof(sbyte);
 
             if ((msgPackType & DataTypes.FixArray) == DataTypes.FixArray)
@@ -159,11 +159,11 @@ namespace TarantoolDnx.MsgPack.Tests
         }
 
         [NotNull]
-        private static object GetConverter(MsgPackSettings settings, Type type)
+        private static object GetConverter(MsgPackContext context, Type type)
         {
-            var methodDefinition = typeof(MsgPackSettings).GetMethod(nameof(MsgPackSettings.GetConverter));
+            var methodDefinition = typeof(MsgPackContext).GetMethod(nameof(MsgPackContext.GetConverter));
             var concreteMethod = methodDefinition.MakeGenericMethod(type);
-            var converter = concreteMethod.Invoke(settings, null);
+            var converter = concreteMethod.Invoke(context, null);
             if (converter == null)
                 throw new SerializationException($"Please, provide convertor for {type.Name}");
             return converter;

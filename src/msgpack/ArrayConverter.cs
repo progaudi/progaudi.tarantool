@@ -15,31 +15,31 @@ namespace TarantoolDnx.MsgPack
             IsSingleDimensionArray = type.IsArray && type.GetArrayRank() == 1 && type.GetElementType() == typeof(TElement);
         }
 
-        public override void Write(TArray value, Stream stream, MsgPackSettings settings)
+        public override void Write(TArray value, Stream stream, MsgPackContext context)
         {
             if (value == null)
             {
-                settings.NullConverter.Write(value, stream, settings);
+                context.NullConverter.Write(value, stream, context);
                 return;
             }
 
             WriteArrayHeaderAndLength(value.Count, stream);
-            var elementConverter = settings.GetConverter<TElement>();
+            var elementConverter = context.GetConverter<TElement>();
             ValidateConverter(elementConverter);
 
             foreach (var element in value)
             {
-                elementConverter.Write(element, stream, settings);
+                elementConverter.Write(element, stream, context);
             }
         }
 
-        public override TArray Read(Stream stream, MsgPackSettings settings, Func<TArray> creator)
+        public override TArray Read(Stream stream, MsgPackContext context, Func<TArray> creator)
         {
-            var type = (DataTypes) stream.ReadByte();
+            var type = (DataTypes)stream.ReadByte();
 
             uint length;
             if (TryGetLengthFromFixArray(type, out length))
-                return ReadArray(stream, settings, creator, length);
+                return ReadArray(stream, context, creator, length);
 
             switch (type)
             {
@@ -47,10 +47,10 @@ namespace TarantoolDnx.MsgPack
                     return default(TArray);
 
                 case DataTypes.Array16:
-                    return ReadArray(stream, settings, creator, IntConverter.ReadUInt16(stream));
+                    return ReadArray(stream, context, creator, IntConverter.ReadUInt16(stream));
 
                 case DataTypes.Array32:
-                    return ReadArray(stream, settings, creator, IntConverter.ReadUInt32(stream));
+                    return ReadArray(stream, context, creator, IntConverter.ReadUInt32(stream));
 
                 default:
                     throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
@@ -63,25 +63,26 @@ namespace TarantoolDnx.MsgPack
             return (type & DataTypes.FixArray) == DataTypes.FixArray;
         }
 
-        private TArray ReadArray(Stream stream, MsgPackSettings settings, Func<TArray> creator, uint length)
+        private TArray ReadArray(Stream stream, MsgPackContext context, Func<TArray> creator, uint length)
         {
-            var converter = settings.GetConverter<TElement>();
+            var converter = context.GetConverter<TElement>();
 
             ValidateConverter(converter);
 
             if (IsSingleDimensionArray && creator == null)
-                return ReadArray(stream, settings, length, converter);
+                return ReadArray(stream, context, length, converter);
 
-            return ReadList(stream, settings, creator, length, converter);
+            return ReadList(stream, context, creator, length, converter);
         }
 
-        private TArray ReadArray(Stream stream, MsgPackSettings settings, uint length, IMsgPackConverter<TElement> converter)
+        private TArray ReadArray(Stream stream, MsgPackContext context, uint length, IMsgPackConverter<TElement> converter)
         {
-            var result = (TArray) new TElement[length];
+            // ReSharper disable once RedundantCast
+            var result = (TArray)(object)new TElement[length];
 
             for (var i = 0; i < length; i++)
             {
-                result[i] = converter.Read(stream, settings, null);
+                result[i] = converter.Read(stream, context, null);
             }
 
             return result;
@@ -89,16 +90,16 @@ namespace TarantoolDnx.MsgPack
 
         private static TArray ReadList(
             Stream stream,
-            MsgPackSettings settings,
+            MsgPackContext context,
             Func<TArray> creator,
             uint length,
             IMsgPackConverter<TElement> converter)
         {
-            var array = creator == null ? (TArray) Activator.CreateInstance(typeof(TArray)) : creator();
+            var array = creator == null ? (TArray)Activator.CreateInstance(typeof(TArray)) : creator();
 
             for (var i = 0u; i < length; i++)
             {
-                array.Add(converter.Read(stream, settings, null));
+                array.Add(converter.Read(stream, context, null));
             }
 
             return array;

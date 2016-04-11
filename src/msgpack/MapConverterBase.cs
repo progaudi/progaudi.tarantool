@@ -6,9 +6,9 @@ namespace TarantoolDnx.MsgPack
 {
     internal abstract class MapConverterBase<TMap, TKey, TValue> : IMsgPackConverter<TMap>
     {
-        public abstract void Write(TMap value, Stream stream, MsgPackSettings settings);
+        public abstract void Write(TMap value, Stream stream, MsgPackContext context);
 
-        public abstract TMap Read(Stream stream, MsgPackSettings settings, Func<TMap> creator);
+        public abstract TMap Read(Stream stream, MsgPackContext context, Func<TMap> creator);
 
         protected void WriteMapHeaderAndLength(int length, Stream stream)
         {

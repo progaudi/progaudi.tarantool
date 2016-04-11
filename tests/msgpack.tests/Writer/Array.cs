@@ -63,7 +63,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
                     164, 66, 97, 108, 108, 166, 83, 111, 99, 99, 101, 114
             };
 
-            var settings = new MsgPackSettings();
+            var settings = new MsgPackContext();
             settings.RegisterConverter(new TestReflectionConverter());
             MsgPackConverter.Serialize(tests, settings).ShouldBe(data);
         }

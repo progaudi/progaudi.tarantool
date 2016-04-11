@@ -7,25 +7,25 @@ namespace TarantoolDnx.MsgPack
     internal class ReadOnlyListConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
         where TArray : IReadOnlyList<TElement>
     {
-        public override void Write(TArray value, Stream stream, MsgPackSettings settings)
+        public override void Write(TArray value, Stream stream, MsgPackContext context)
         {
             if (value == null)
             {
-                settings.NullConverter.Write(value, stream, settings);
+                context.NullConverter.Write(value, stream, context);
                 return;
             }
 
             WriteArrayHeaderAndLength(value.Count, stream);
-            var elementConverter = settings.GetConverter<TElement>();
+            var elementConverter = context.GetConverter<TElement>();
             ValidateConverter(elementConverter);
 
             foreach (var element in value)
             {
-                elementConverter.Write(element, stream, settings);
+                elementConverter.Write(element, stream, context);
             }
         }
 
-        public override TArray Read(Stream stream, MsgPackSettings settings, Func<TArray> creator)
+        public override TArray Read(Stream stream, MsgPackContext context, Func<TArray> creator)
         {
             throw ExceptionUtils.CantReadReadOnlyCollection(typeof(TArray));
         }

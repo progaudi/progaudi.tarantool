@@ -14,19 +14,19 @@ namespace TarantoolDnx.MsgPack
         IMsgPackConverter<long>,
         IMsgPackConverter<ulong>
     {
-        public void Write(byte value, Stream stream, MsgPackSettings settings)
+        public void Write(byte value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum(value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue(value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
 
@@ -35,7 +35,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        byte IMsgPackConverter<byte>.Read(Stream stream, MsgPackSettings settings, Func<byte> creator)
+        byte IMsgPackConverter<byte>.Read(Stream stream, MsgPackContext context, Func<byte> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -64,39 +64,39 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void Write(int value, Stream stream, MsgPackSettings settings)
+        public void Write(int value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
 
-                case IntFormatType.NegativeFixNum:
+                case DataTypes.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt16:
+                case DataTypes.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
 
-                case IntFormatType.Int16:
+                case DataTypes.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
 
-                case IntFormatType.UInt32:
+                case DataTypes.UInt32:
                     WriteMPackValue((uint)value, stream);
                     break;
 
-                case IntFormatType.Int32:
+                case DataTypes.Int32:
                     WriteMPackValue(value, stream);
                     break;
 
@@ -105,7 +105,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        int IMsgPackConverter<int>.Read(Stream stream, MsgPackSettings settings, Func<int> creator)
+        int IMsgPackConverter<int>.Read(Stream stream, MsgPackContext context, Func<int> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -143,47 +143,47 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void Write(long value, Stream stream, MsgPackSettings settings)
+        public void Write(long value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
 
-                case IntFormatType.NegativeFixNum:
+                case DataTypes.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt16:
+                case DataTypes.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
 
-                case IntFormatType.Int16:
+                case DataTypes.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
 
-                case IntFormatType.UInt32:
+                case DataTypes.UInt32:
                     WriteMPackValue((uint)value, stream);
                     break;
 
-                case IntFormatType.Int32:
+                case DataTypes.Int32:
                     WriteMPackValue((int)value, stream);
                     break;
 
-                case IntFormatType.UInt64:
+                case DataTypes.UInt64:
                     WriteMPackValue((ulong)value, stream);
                     break;
 
-                case IntFormatType.Int64:
+                case DataTypes.Int64:
                     WriteMPackValue(value, stream);
                     break;
 
@@ -192,7 +192,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        long IMsgPackConverter<long>.Read(Stream stream, MsgPackSettings settings, Func<long> creator)
+        long IMsgPackConverter<long>.Read(Stream stream, MsgPackContext context, Func<long> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -236,23 +236,23 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void Write(sbyte value, Stream stream, MsgPackSettings settings)
+        public void Write(sbyte value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
 
-                case IntFormatType.NegativeFixNum:
+                case DataTypes.NegativeFixNum:
                     WriteNegativeFixNum(value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue(value, stream);
                     break;
 
@@ -261,7 +261,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        sbyte IMsgPackConverter<sbyte>.Read(Stream stream, MsgPackSettings settings, Func<sbyte> creator)
+        sbyte IMsgPackConverter<sbyte>.Read(Stream stream, MsgPackContext context, Func<sbyte> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -285,31 +285,31 @@ namespace TarantoolDnx.MsgPack
             throw new SerializationException($"Waited for an int, got ${type:G} (0x{type:X})");
         }
 
-        public void Write(short value, Stream stream, MsgPackSettings settings)
+        public void Write(short value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
 
-                case IntFormatType.NegativeFixNum:
+                case DataTypes.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt16:
+                case DataTypes.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
 
-                case IntFormatType.Int16:
+                case DataTypes.Int16:
                     WriteMPackValue(value, stream);
                     break;
 
@@ -318,7 +318,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        short IMsgPackConverter<short>.Read(Stream stream, MsgPackSettings settings, Func<short> creator)
+        short IMsgPackConverter<short>.Read(Stream stream, MsgPackContext context, Func<short> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -350,39 +350,39 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void Write(uint value, Stream stream, MsgPackSettings settings)
+        public void Write(uint value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
 
-                case IntFormatType.NegativeFixNum:
+                case DataTypes.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt16:
+                case DataTypes.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
 
-                case IntFormatType.Int16:
+                case DataTypes.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
 
-                case IntFormatType.UInt32:
+                case DataTypes.UInt32:
                     WriteMPackValue(value, stream);
                     break;
 
-                case IntFormatType.Int32:
+                case DataTypes.Int32:
                     WriteMPackValue((int)value, stream);
                     break;
 
@@ -391,7 +391,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        uint IMsgPackConverter<uint>.Read(Stream stream, MsgPackSettings settings, Func<uint> creator)
+        uint IMsgPackConverter<uint>.Read(Stream stream, MsgPackContext context, Func<uint> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -432,47 +432,47 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void Write(ulong value, Stream stream, MsgPackSettings settings)
+        public void Write(ulong value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
 
-                case IntFormatType.NegativeFixNum:
+                case DataTypes.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt16:
+                case DataTypes.UInt16:
                     WriteMPackValue((ushort)value, stream);
                     break;
 
-                case IntFormatType.Int16:
+                case DataTypes.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
 
-                case IntFormatType.UInt32:
+                case DataTypes.UInt32:
                     WriteMPackValue((uint)value, stream);
                     break;
 
-                case IntFormatType.Int32:
+                case DataTypes.Int32:
                     WriteMPackValue((int)value, stream);
                     break;
 
-                case IntFormatType.UInt64:
+                case DataTypes.UInt64:
                     WriteMPackValue(value, stream);
                     break;
 
-                case IntFormatType.Int64:
+                case DataTypes.Int64:
                     WriteMPackValue((long)value, stream);
                     break;
 
@@ -481,7 +481,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        ulong IMsgPackConverter<ulong>.Read(Stream stream, MsgPackSettings settings, Func<ulong> creator)
+        ulong IMsgPackConverter<ulong>.Read(Stream stream, MsgPackContext context, Func<ulong> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -528,31 +528,31 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void Write(ushort value, Stream stream, MsgPackSettings settings)
+        public void Write(ushort value, Stream stream, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
-                case IntFormatType.PositiveFixNum:
+                case DataTypes.PositiveFixNum:
                     WritePositiveFixNum((byte)value, stream);
                     break;
 
-                case IntFormatType.NegativeFixNum:
+                case DataTypes.NegativeFixNum:
                     WriteNegativeFixNum((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt8:
+                case DataTypes.UInt8:
                     WriteMPackValue((byte)value, stream);
                     break;
 
-                case IntFormatType.Int8:
+                case DataTypes.Int8:
                     WriteMPackValue((sbyte)value, stream);
                     break;
 
-                case IntFormatType.UInt16:
+                case DataTypes.UInt16:
                     WriteMPackValue(value, stream);
                     break;
 
-                case IntFormatType.Int16:
+                case DataTypes.Int16:
                     WriteMPackValue((short)value, stream);
                     break;
 
@@ -561,7 +561,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        ushort IMsgPackConverter<ushort>.Read(Stream stream, MsgPackSettings settings, Func<ushort> creator)
+        ushort IMsgPackConverter<ushort>.Read(Stream stream, MsgPackContext context, Func<ushort> creator)
         {
             var type = (DataTypes)stream.ReadByte();
 
@@ -610,7 +610,7 @@ namespace TarantoolDnx.MsgPack
 
         private bool TryGetNegativeNumber(DataTypes type, out sbyte temp)
         {
-            if ((type & DataTypes.NegativeFixnum) == DataTypes.NegativeFixnum)
+            if ((type & DataTypes.NegativeFixNum) == DataTypes.NegativeFixNum)
             {
                 temp = (sbyte)((byte)type - 1 - byte.MaxValue);
                 return true;

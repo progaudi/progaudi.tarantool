@@ -11,8 +11,8 @@ namespace TarantoolDnx.MsgPack
 
     public interface IMsgPackConverter<T> : IMsgPackConverter
     {
-        void Write([CanBeNull] T value, [NotNull] Stream stream, [NotNull] MsgPackSettings settings);
+        void Write([CanBeNull] T value, [NotNull] Stream stream, [NotNull] MsgPackContext context);
 
-        T Read([NotNull] Stream stream, [NotNull] MsgPackSettings settings, Func<T> creator);
+        T Read([NotNull] Stream stream, [NotNull] MsgPackContext context, Func<T> creator);
     }
 }

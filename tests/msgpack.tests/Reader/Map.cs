@@ -50,7 +50,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
                 146, 1, 2, 192
             };
 
-            var settings = new MsgPackSettings();
+            var settings = new MsgPackContext();
             settings.RegisterConverter(new TestReflectionConverter());
             MsgPackConverter.Serialize(tests, settings).ShouldBe(data);
         }

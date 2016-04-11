@@ -5,11 +5,11 @@ namespace TarantoolDnx.MsgPack
 {
     internal class BinaryConverter : IMsgPackConverter<byte[]>
     {
-        public void Write(byte[] value, Stream stream, MsgPackSettings settings)
+        public void Write(byte[] value, Stream stream, MsgPackContext context)
         {
             if (value == null)
             {
-                settings.NullConverter.Write(value, stream, settings);
+                context.NullConverter.Write(value, stream, context);
                 return;
             }
 
@@ -19,7 +19,7 @@ namespace TarantoolDnx.MsgPack
         }
 
         // We will have problem with binary blobs greater than int.MaxValue bytes.
-        public byte[] Read(Stream stream, MsgPackSettings settings, Func<byte[]> creator)
+        public byte[] Read(Stream stream, MsgPackContext context, Func<byte[]> creator)
         {
             var type = (DataTypes) stream.ReadByte();
 

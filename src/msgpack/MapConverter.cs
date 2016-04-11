@@ -7,43 +7,46 @@ namespace TarantoolDnx.MsgPack
     internal class MapConverter<TMap, TKey, TValue> : MapConverterBase<TMap, TKey, TValue>
         where TMap : IDictionary<TKey, TValue>
     {
-        public override void Write(TMap value, Stream stream, MsgPackSettings settings)
+        public override void Write(TMap value, Stream stream, MsgPackContext context)
         {
             if (value == null)
             {
-                settings.NullConverter.Write(value, stream, settings);
+                context.NullConverter.Write(value, stream, context);
                 return;
             }
 
             WriteMapHeaderAndLength(value.Count, stream);
-            var keyConverter = settings.GetConverter<TKey>();
-            var valueConverter = settings.GetConverter<TValue>();
+            var keyConverter = context.GetConverter<TKey>();
+            var valueConverter = context.GetConverter<TValue>();
 
             ValidateConverters(keyConverter, valueConverter);
 
             foreach (var element in value)
             {
-                keyConverter.Write(element.Key, stream, settings);
-                valueConverter.Write(element.Value, stream, settings);
+                keyConverter.Write(element.Key, stream, context);
+                valueConverter.Write(element.Value, stream, context);
             }
         }
 
-        public override TMap Read(Stream stream, MsgPackSettings settings, Func<TMap> creator)
+        public override TMap Read(Stream stream, MsgPackContext context, Func<TMap> creator)
         {
-            var type = (DataTypes) stream.ReadByte();
+            var type = (DataTypes)stream.ReadByte();
 
             uint length;
             if (TryGetLengthFromFixMap(type, out length))
-                return ReadMap(stream, settings, creator, length);
+                return ReadMap(stream, context, creator, length);
 
             switch (type)
             {
                 case DataTypes.Null:
                     return default(TMap);
+
                 case DataTypes.Map16:
-                    return ReadMap(stream, settings, creator, IntConverter.ReadUInt16(stream));
+                    return ReadMap(stream, context, creator, IntConverter.ReadUInt16(stream));
+
                 case DataTypes.Map32:
-                    return ReadMap(stream, settings, creator, IntConverter.ReadUInt32(stream));
+                    return ReadMap(stream, context, creator, IntConverter.ReadUInt32(stream));
+
                 default:
                     throw ExceptionUtils.BadTypeException(type, DataTypes.Map16, DataTypes.Map32, DataTypes.FixMap);
             }
@@ -55,19 +58,19 @@ namespace TarantoolDnx.MsgPack
             return (type & DataTypes.FixMap) == DataTypes.FixMap;
         }
 
-        private TMap ReadMap(Stream stream, MsgPackSettings settings, Func<TMap> creator, uint length)
+        private TMap ReadMap(Stream stream, MsgPackContext context, Func<TMap> creator, uint length)
         {
-            var keyConverter = settings.GetConverter<TKey>();
-            var valueConverter = settings.GetConverter<TValue>();
+            var keyConverter = context.GetConverter<TKey>();
+            var valueConverter = context.GetConverter<TValue>();
 
             ValidateConverters(keyConverter, valueConverter);
 
-            var map = creator == null ? (TMap) Activator.CreateInstance(typeof(TMap)) : creator();
+            var map = creator == null ? (TMap)Activator.CreateInstance(typeof(TMap)) : creator();
 
             for (var i = 0u; i < length; i++)
             {
-                var key = keyConverter.Read(stream, settings, null);
-                var value = valueConverter.Read(stream, settings, null);
+                var key = keyConverter.Read(stream, context, null);
+                var value = valueConverter.Read(stream, context, null);
 
                 map[key] = value;
             }

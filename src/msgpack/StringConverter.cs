@@ -6,11 +6,11 @@ namespace TarantoolDnx.MsgPack
 {
     internal class StringConverter : IMsgPackConverter<string>
     {
-        public void Write(string value, Stream stream, MsgPackSettings settings)
+        public void Write(string value, Stream stream, MsgPackContext context)
         {
             if (value == null)
             {
-                settings.NullConverter.Write(value, stream, settings);
+                context.NullConverter.Write(value, stream, context);
                 return;
             }
 
@@ -21,7 +21,7 @@ namespace TarantoolDnx.MsgPack
             stream.Write(data, 0, data.Length);
         }
 
-        public string Read(Stream stream, MsgPackSettings settings, Func<string> creator)
+        public string Read(Stream stream, MsgPackContext context, Func<string> creator)
         {
             var type = (DataTypes) stream.ReadByte();
 

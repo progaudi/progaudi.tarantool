@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,39 +11,40 @@ namespace TarantoolDnx.MsgPack
     {
         public static byte[] Serialize<T>(T data)
         {
-            return Serialize(data, new MsgPackSettings());
+            return Serialize(data, new MsgPackContext());
         }
 
-        public static byte[] Serialize<T>(T data, MsgPackSettings settings)
+        public static byte[] Serialize<T>(T data, [NotNull]MsgPackContext context)
         {
             var stream = new MemoryStream();
-            var converter = GetConverter<T>(settings);
+            var converter = GetConverter<T>(context);
 
-            converter.Write(data, stream, settings);
+            converter.Write(data, stream, context);
             return stream.ToArray();
         }
 
         public static T Deserialize<T>(byte[] data)
         {
-            return Deserialize<T>(data, new MsgPackSettings());
+            return Deserialize<T>(data, new MsgPackContext());
         }
 
-        public static T Deserialize<T>(byte[] data, MsgPackSettings settings)
+        public static T Deserialize<T>(byte[] data, [NotNull]MsgPackContext context)
         {
-            return Deserialize<T>(data, settings, null);
+            return Deserialize<T>(data, context, null);
         }
 
-        private static T Deserialize<T>(byte[] data, MsgPackSettings settings, Func<T> creator)
+        private static T Deserialize<T>(byte[] data, [NotNull]MsgPackContext context, Func<T> creator)
         {
             var stream = new MemoryStream(data);
-            var converter = GetConverter<T>(settings);
+            var converter = GetConverter<T>(context);
 
-            return converter.Read(stream, settings, creator);
+            return converter.Read(stream, context, creator);
         }
 
-        private static IMsgPackConverter<T> GetConverter<T>(MsgPackSettings settings)
+        [NotNull]
+        private static IMsgPackConverter<T> GetConverter<T>(MsgPackContext context)
         {
-            var converter = settings.GetConverter<T>();
+            var converter = context.GetConverter<T>();
 
             if (converter == null)
             {

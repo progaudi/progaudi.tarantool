@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-
-using Shouldly;
-
+﻿using Shouldly;
+using System.Collections.Generic;
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader
@@ -63,7 +61,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
                     164, 66, 97, 108, 108, 166, 83, 111, 99, 99, 101, 114
             };
 
-            var settings = new MsgPackSettings();
+            var settings = new MsgPackContext();
             settings.RegisterConverter(new TestReflectionConverter());
 
             MsgPackConverter.Deserialize<object[]>(data, settings).ShouldBe(expected);

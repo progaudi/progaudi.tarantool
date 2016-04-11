@@ -6,7 +6,7 @@ namespace TarantoolDnx.MsgPack
 {
     internal class FloatConverter : IMsgPackConverter<float>, IMsgPackConverter<double>
     {
-        public void Write(double value, Stream stream, MsgPackSettings settings)
+        public void Write(double value, Stream stream, MsgPackContext context)
         {
             var binary = new DoubleBinary(value);
             stream.WriteByte((byte) DataTypes.Double);
@@ -34,7 +34,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        double IMsgPackConverter<double>.Read(Stream stream, MsgPackSettings settings, Func<double> creator)
+        double IMsgPackConverter<double>.Read(Stream stream, MsgPackContext context, Func<double> creator)
         {
             var type = (DataTypes) stream.ReadByte();
 
@@ -51,7 +51,7 @@ namespace TarantoolDnx.MsgPack
             return new DoubleBinary(bytes).value;
         }
 
-        public void Write(float value, Stream stream, MsgPackSettings settings)
+        public void Write(float value, Stream stream, MsgPackContext context)
         {
             var binary = new FloatBinary(value);
             stream.WriteByte((byte) DataTypes.Single);
@@ -71,7 +71,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        float IMsgPackConverter<float>.Read(Stream stream, MsgPackSettings settings, Func<float> creator)
+        float IMsgPackConverter<float>.Read(Stream stream, MsgPackContext context, Func<float> creator)
         {
             var type = (DataTypes) stream.ReadByte();
 

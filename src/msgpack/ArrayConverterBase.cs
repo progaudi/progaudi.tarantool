@@ -6,9 +6,9 @@ namespace TarantoolDnx.MsgPack
 {
     internal abstract class ArrayConverterBase<TArray, TElement> : IMsgPackConverter<TArray>
     {
-        public abstract void Write(TArray value, Stream stream, MsgPackSettings settings);
+        public abstract void Write(TArray value, Stream stream, MsgPackContext context);
 
-        public abstract TArray Read(Stream stream, MsgPackSettings settings, Func<TArray> creator);
+        public abstract TArray Read(Stream stream, MsgPackContext context, Func<TArray> creator);
 
         protected void WriteArrayHeaderAndLength(int length, Stream stream)
         {
