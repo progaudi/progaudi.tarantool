@@ -94,7 +94,7 @@ namespace TarantoolDnx.MsgPack
             uint length,
             IMsgPackConverter<TElement> converter)
         {
-            var array = creator == null ? context.GetObjectActivator<TArray>(typeof (TArray))() : creator();
+            var array = creator == null ? (TArray)context.GetObjectActivator(typeof (TArray))() : creator();
 
             for (var i = 0u; i < length; i++)
             {

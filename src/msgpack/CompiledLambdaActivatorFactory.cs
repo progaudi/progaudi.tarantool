@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Linq.Expressions;
-#if DNXCORE50
+// ReSharper disable once RedundantUsingDirective
 using System.Reflection;
-#endif
 
 namespace TarantoolDnx.MsgPack
 {
     public class CompiledLambdaActivatorFactory
     {
-        public delegate T ObjectActivator<out T>();
+        public delegate object ObjectActivator();
 
-        public static ObjectActivator<T> GetActivator<T>(Type type)
+        public static ObjectActivator GetActivator(Type type)
         {
             var ctor = type.GetConstructor(Type.EmptyTypes);
 
@@ -21,10 +20,10 @@ namespace TarantoolDnx.MsgPack
             //create a lambda with the New
             //Expression as body and our param object[] as arg
             var lambda =
-                Expression.Lambda(typeof(ObjectActivator<T>), newExp);
-
+                Expression.Lambda(typeof(ObjectActivator), newExp);
+                
             //compile it
-            var compiled = (ObjectActivator<T>)lambda.Compile();
+            var compiled = (ObjectActivator)lambda.Compile();
             return compiled;
         }
     }
