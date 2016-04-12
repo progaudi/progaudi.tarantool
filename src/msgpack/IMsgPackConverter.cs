@@ -13,4 +13,10 @@ namespace TarantoolDnx.MsgPack
 
         T Read([NotNull] IMsgPackReader reader, [NotNull] MsgPackContext context, Func<T> creator);
     }
+
+    public interface IMsgPackStructConverter<T> : IMsgPackConverter<T>
+        where T : struct
+    {
+        T ReadWithoutTypeReading(DataTypes type, [NotNull] IMsgPackReader reader, [NotNull] MsgPackContext context, Func<T> creator);
+    }
 }

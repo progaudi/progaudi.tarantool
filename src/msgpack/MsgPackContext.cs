@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
+using TarantoolDnx.MsgPack.Convertes;
+
 namespace TarantoolDnx.MsgPack
 {
     [DebuggerStepThrough]
@@ -12,19 +14,31 @@ namespace TarantoolDnx.MsgPack
     {
         private static readonly IReadOnlyDictionary<Type, IMsgPackConverter> DefaultConverters = new Dictionary<Type, IMsgPackConverter>
         {
-            {typeof(bool), new BoolConverter()},
-            {typeof(string), new StringConverter()},
-            {typeof(byte[]), new BinaryConverter()},
-            {typeof(float), new FloatConverter()},
-            {typeof(double), new FloatConverter()},
-            {typeof(byte), new IntConverter()},
-            {typeof(sbyte), new IntConverter()},
-            {typeof(short), new IntConverter()},
-            {typeof(ushort), new IntConverter()},
-            {typeof(int), new IntConverter()},
-            {typeof(uint), new IntConverter()},
-            {typeof(long), new IntConverter()},
-            {typeof(ulong), new IntConverter()}
+            {typeof (bool), new BoolConverter()},
+            {typeof (string), new StringConverter()},
+            {typeof (byte[]), new BinaryConverter()},
+            {typeof (float), new FloatConverter()},
+            {typeof (double), new FloatConverter()},
+            {typeof (byte), new IntConverter()},
+            {typeof (sbyte), new IntConverter()},
+            {typeof (short), new IntConverter()},
+            {typeof (ushort), new IntConverter()},
+            {typeof (int), new IntConverter()},
+            {typeof (uint), new IntConverter()},
+            {typeof (long), new IntConverter()},
+            {typeof (ulong), new IntConverter()},
+
+            {typeof (bool?), new NullableConverter<bool>()},
+            {typeof (float?), new NullableConverter<float>()},
+            {typeof (double?), new NullableConverter<double>()},
+            {typeof (byte?), new NullableConverter<byte>()},
+            {typeof (sbyte?), new NullableConverter<sbyte>()},
+            {typeof (short?), new NullableConverter<short>()},
+            {typeof (ushort?), new NullableConverter<ushort>()},
+            {typeof (int?), new NullableConverter<int>()},
+            {typeof (uint?), new NullableConverter<uint>()},
+            {typeof (long?), new NullableConverter<long>()},
+            {typeof (ulong?), new NullableConverter<ulong>()}
         };
 
         private static readonly ConcurrentDictionary<Type, IMsgPackConverter> GeneratedConverters = new ConcurrentDictionary<Type, IMsgPackConverter>();
@@ -46,6 +60,12 @@ namespace TarantoolDnx.MsgPack
             return (IMsgPackConverter<T>) (GetConverterFromCache(type)
                 ?? TryGenerateArrayConverter(type)
                 ?? TryGenerateMapConverter(type));
+        }
+
+        public IMsgPackStructConverter<T> GetStructConverter<T>() where T : struct 
+        {
+            var type = typeof(T);
+            return (IMsgPackStructConverter<T>) GetConverterFromCache(type);
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)

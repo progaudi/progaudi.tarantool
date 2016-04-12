@@ -1,5 +1,7 @@
 ﻿using Shouldly;
 
+using TarantoolDnx.MsgPack.Convertes;
+
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader

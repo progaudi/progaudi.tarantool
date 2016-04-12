@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace TarantoolDnx.MsgPack
+namespace TarantoolDnx.MsgPack.Convertes
 {
-    internal class FloatConverter : IMsgPackConverter<float>, IMsgPackConverter<double>
+    internal class FloatConverter : IMsgPackStructConverter<float>, IMsgPackStructConverter<double>
     {
         public void Write(double value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -35,8 +35,11 @@ namespace TarantoolDnx.MsgPack
 
         double IMsgPackConverter<double>.Read(IMsgPackReader reader, MsgPackContext context, Func<double> creator)
         {
-            var type = (DataTypes)reader.ReadByte();
+            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
+        }
 
+        public double ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<double> creator)
+        {
             if (type != DataTypes.Single && type != DataTypes.Double)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single, DataTypes.Double);
 
@@ -72,8 +75,11 @@ namespace TarantoolDnx.MsgPack
 
         float IMsgPackConverter<float>.Read(IMsgPackReader reader, MsgPackContext context, Func<float> creator)
         {
-            var type = (DataTypes)reader.ReadByte();
+            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
+        }
 
+        public float ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<float> creator)
+        {
             if (type != DataTypes.Single)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single);
 
