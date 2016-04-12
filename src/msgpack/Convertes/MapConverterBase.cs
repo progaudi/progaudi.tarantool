@@ -1,6 +1,6 @@
 using System;
 
-namespace TarantoolDnx.MsgPack
+namespace TarantoolDnx.MsgPack.Convertes
 {
     internal abstract class MapConverterBase<TMap, TKey, TValue> : IMsgPackConverter<TMap>
     {
