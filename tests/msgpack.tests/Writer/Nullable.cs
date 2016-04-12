@@ -1,7 +1,8 @@
 ﻿using System;
 
 using Shouldly;
-using TarantoolDnx.MsgPack.Convertes;
+
+using TarantoolDnx.MsgPack.Converters;
 
 using Xunit;
 
@@ -12,67 +13,67 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [Fact]
         public void WriteNullAsNullableBool()
         {
-            MsgPackConverter.Serialize((bool?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(bool?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableFloat()
         {
-            MsgPackConverter.Serialize((float?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(float?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableDouble()
         {
-            MsgPackConverter.Serialize((double?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(double?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableByte()
         {
-            MsgPackConverter.Serialize((byte?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(byte?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableSbyte()
         {
-            MsgPackConverter.Serialize((sbyte?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(sbyte?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableShort()
         {
-            MsgPackConverter.Serialize((short?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(short?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableUshort()
         {
-            MsgPackConverter.Serialize((ushort?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(ushort?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableInt()
         {
-            MsgPackConverter.Serialize((int?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(int?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableUint()
         {
-            MsgPackConverter.Serialize((uint?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(uint?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableLong()
         {
-            MsgPackConverter.Serialize((long?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(long?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableUlong()
         {
-            MsgPackConverter.Serialize((ulong?)null).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackConverter.Serialize(default(ulong?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]

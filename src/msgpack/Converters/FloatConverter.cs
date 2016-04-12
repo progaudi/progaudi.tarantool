@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace TarantoolDnx.MsgPack.Convertes
+namespace TarantoolDnx.MsgPack.Converters
 {
-    internal class FloatConverter : IMsgPackStructConverter<float>, IMsgPackStructConverter<double>
+    internal class FloatConverter : IMsgPackConverter<float>, IMsgPackConverter<double>
     {
         public void Write(double value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -33,13 +33,10 @@ namespace TarantoolDnx.MsgPack.Convertes
             }
         }
 
-        double IMsgPackConverter<double>.Read(IMsgPackReader reader, MsgPackContext context, Func<double> creator)
+        public double Read(IMsgPackReader reader, MsgPackContext context, Func<double> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public double ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<double> creator)
-        {
             if (type != DataTypes.Single && type != DataTypes.Double)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single, DataTypes.Double);
 
@@ -52,7 +49,7 @@ namespace TarantoolDnx.MsgPack.Convertes
 
             return new DoubleBinary(bytes).value;
         }
-
+        
         public void Write(float value, IMsgPackWriter writer, MsgPackContext context)
         {
             var binary = new FloatBinary(value);
@@ -75,11 +72,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         float IMsgPackConverter<float>.Read(IMsgPackReader reader, MsgPackContext context, Func<float> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public float ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<float> creator)
-        {
             if (type != DataTypes.Single)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single);
 

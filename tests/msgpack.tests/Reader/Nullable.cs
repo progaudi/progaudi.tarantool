@@ -1,7 +1,8 @@
 ﻿using System;
 
 using Shouldly;
-using TarantoolDnx.MsgPack.Convertes;
+
+using TarantoolDnx.MsgPack.Converters;
 
 using Xunit;
 

@@ -1,8 +1,8 @@
 using System;
 
-namespace TarantoolDnx.MsgPack.Convertes
+namespace TarantoolDnx.MsgPack.Converters
 {
-    internal class BoolConverter : IMsgPackStructConverter<bool>
+    internal class BoolConverter : IMsgPackConverter<bool>
     {
         public void Write(bool value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -11,11 +11,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public bool Read(IMsgPackReader reader, MsgPackContext context, Func<bool> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public bool ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<bool> creator)
-        {
             switch (type)
             {
                 case DataTypes.True:

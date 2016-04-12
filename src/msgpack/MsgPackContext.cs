@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-using TarantoolDnx.MsgPack.Convertes;
+using TarantoolDnx.MsgPack.Converters;
 
 namespace TarantoolDnx.MsgPack
 {
@@ -67,12 +67,6 @@ namespace TarantoolDnx.MsgPack
         public CompiledLambdaActivatorFactory.ObjectActivator GetObjectActivator(Type type)
         {
             return (CompiledLambdaActivatorFactory.ObjectActivator)ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
-        }
-
-        public IMsgPackStructConverter<T> GetStructConverter<T>() where T : struct 
-        {
-            var type = typeof(T);
-            return (IMsgPackStructConverter<T>) GetConverterFromCache(type);
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
