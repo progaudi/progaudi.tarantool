@@ -1,0 +1,24 @@
+﻿{
+    "version": "0.0.1",
+    "description": "MsgPackLite.Tests Class Library",
+    "authors": ["aensidhe"],
+    "tags": [""],
+    "projectUrl": "",
+    "licenseUrl": "",
+
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+
+    "dependencies": {
+        "JetBrains.Annotations": "10.1.4"
+    },
+
+    "frameworks": {
+        "net451": {}
+    },
+
+    "runtimes": {
+        "win": {}
+    }
+}

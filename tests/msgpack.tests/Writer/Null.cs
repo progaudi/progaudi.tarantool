@@ -1,34 +1,35 @@
 ﻿using System.Collections.Generic;
+
+using Shouldly;
+
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Writer
 {
-    public class Null : BaseWriterTest
+    public class Null
     {
         [Fact]
-        public void WriteNullString()
+        public void WriteNullArray()
         {
-            Writer.Write((string)null);
-            AssertStreamContent(new byte[] { 0xc0 });
+            MsgPackConverter.Serialize((int[]) null).ShouldBe(new[] {(byte) DataTypes.Null});
         }
 
         [Fact]
         public void WriteNullByteArray()
         {
-            Writer.Write((byte[])null);
-            AssertStreamContent(new byte[] { 0xc0 });
+            MsgPackConverter.Serialize((byte[]) null).ShouldBe(new[] {(byte) DataTypes.Null});
         }
-        [Fact]
-        public void WriteNullArray()
-        {
-            Writer.Write((int[])null);
-            AssertStreamContent(new byte[] { 0xc0 });
-        }
+
         [Fact]
         public void WriteNullMap()
         {
-            Writer.Write((IDictionary<int,int>)null);
-            AssertStreamContent(new byte[] { 0xc0 });
+            MsgPackConverter.Serialize((IDictionary<int, int>) null).ShouldBe(new[] {(byte) DataTypes.Null});
+        }
+
+        [Fact]
+        public void WriteNullString()
+        {
+            MsgPackConverter.Serialize((string) null).ShouldBe(new[] {(byte) DataTypes.Null});
         }
     }
 }

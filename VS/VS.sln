@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgpack.VS", "..\src\msgpack\VS\msgpack.VS.csproj", "{2F96BC33-6B63-464D-82B8-A99C90CCF33F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgpack.tests.VS", "..\tests\msgpack.tests\VS\msgpack.tests.VS.csproj", "{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F96BC33-6B63-464D-82B8-A99C90CCF33F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
