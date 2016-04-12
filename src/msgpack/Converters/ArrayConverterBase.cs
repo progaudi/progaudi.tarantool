@@ -1,6 +1,6 @@
 using System;
 
-namespace TarantoolDnx.MsgPack.Convertes
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal abstract class ArrayConverterBase<TArray, TElement> : IMsgPackConverter<TArray>
     {

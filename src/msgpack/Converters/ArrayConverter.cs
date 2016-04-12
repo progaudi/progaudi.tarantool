@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TarantoolDnx.MsgPack.Convertes
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal class ArrayConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
         where TArray : IList<TElement>

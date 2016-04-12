@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 using JetBrains.Annotations;
 
-namespace TarantoolDnx.MsgPack.Convertes
+namespace TarantoolDnx.MsgPack.Converters
 {
     [DebuggerStepThrough]
     public static class MsgPackConverter

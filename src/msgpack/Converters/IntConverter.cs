@@ -1,16 +1,16 @@
 using System;
 
-namespace TarantoolDnx.MsgPack.Convertes
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal class IntConverter :
-        IMsgPackStructConverter<byte>,
-        IMsgPackStructConverter<sbyte>,
-        IMsgPackStructConverter<short>,
-        IMsgPackStructConverter<ushort>,
-        IMsgPackStructConverter<int>,
-        IMsgPackStructConverter<uint>,
-        IMsgPackStructConverter<long>,
-        IMsgPackStructConverter<ulong>
+        IMsgPackConverter<byte>,
+        IMsgPackConverter<sbyte>,
+        IMsgPackConverter<short>,
+        IMsgPackConverter<ushort>,
+        IMsgPackConverter<int>,
+        IMsgPackConverter<uint>,
+        IMsgPackConverter<long>,
+        IMsgPackConverter<ulong>
     {
         public void Write(byte value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -35,11 +35,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public byte Read(IMsgPackReader reader, MsgPackContext context, Func<byte> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public byte ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<byte> creator)
-        {
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
@@ -108,11 +105,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public int Read(IMsgPackReader reader, MsgPackContext context, Func<int> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public int ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<int> creator)
-        {
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
@@ -198,11 +192,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public long Read(IMsgPackReader reader, MsgPackContext context, Func<long> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public long ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<long> creator)
-        {
             byte tempUInt8;
             if (TryGetFixPositiveNumber(type, out tempUInt8))
             {
@@ -270,11 +261,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public sbyte Read(IMsgPackReader reader, MsgPackContext context, Func<sbyte> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public sbyte ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<sbyte> creator)
-        {
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
@@ -294,7 +282,7 @@ namespace TarantoolDnx.MsgPack.Convertes
 
             throw ExceptionUtils.IntDeserializationFailure(type);
         }
-
+        
         public void Write(short value, IMsgPackWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
@@ -330,11 +318,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public short Read(IMsgPackReader reader, MsgPackContext context, Func<short> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public short ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<short> creator)
-        {
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
@@ -406,11 +391,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public uint Read(IMsgPackReader reader, MsgPackContext context, Func<uint> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public uint ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<uint> creator)
-        {
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
@@ -499,11 +481,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public ulong Read(IMsgPackReader reader, MsgPackContext context, Func<ulong> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public ulong ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<ulong> creator)
-        {
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
@@ -546,7 +525,7 @@ namespace TarantoolDnx.MsgPack.Convertes
                     throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
-
+        
         public void Write(ushort value, IMsgPackWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
@@ -582,11 +561,8 @@ namespace TarantoolDnx.MsgPack.Convertes
 
         public ushort Read(IMsgPackReader reader, MsgPackContext context, Func<ushort> creator)
         {
-            return ReadWithoutTypeReading(reader.ReadDataType(), reader, context, creator);
-        }
+            var type = reader.ReadDataType();
 
-        public ushort ReadWithoutTypeReading(DataTypes type, IMsgPackReader reader, MsgPackContext context, Func<ushort> creator)
-        {
             byte temp;
             if (TryGetFixPositiveNumber(type, out temp))
             {
@@ -617,7 +593,7 @@ namespace TarantoolDnx.MsgPack.Convertes
                     throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
-
+        
         private bool TryGetFixPositiveNumber(DataTypes type, out byte temp)
         {
             if ((type & DataTypes.PositiveFixNum) == type)

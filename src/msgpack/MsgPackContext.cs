@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-using TarantoolDnx.MsgPack.Convertes;
+using TarantoolDnx.MsgPack.Converters;
 
 namespace TarantoolDnx.MsgPack
 {
@@ -61,13 +61,7 @@ namespace TarantoolDnx.MsgPack
                 ?? TryGenerateArrayConverter(type)
                 ?? TryGenerateMapConverter(type));
         }
-
-        public IMsgPackStructConverter<T> GetStructConverter<T>() where T : struct 
-        {
-            var type = typeof(T);
-            return (IMsgPackStructConverter<T>) GetConverterFromCache(type);
-        }
-
+        
         private IMsgPackConverter TryGenerateMapConverter(Type type)
         {
             var mapInterface = GetGenericInterface(type, typeof(IDictionary<,>));
