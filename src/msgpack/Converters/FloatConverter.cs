@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace TarantoolDnx.MsgPack
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal class FloatConverter : IMsgPackConverter<float>, IMsgPackConverter<double>
     {
@@ -33,9 +33,9 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        double IMsgPackConverter<double>.Read(IMsgPackReader reader, MsgPackContext context, Func<double> creator)
+        public double Read(IMsgPackReader reader, MsgPackContext context, Func<double> creator)
         {
-            var type = (DataTypes)reader.ReadByte();
+            var type = reader.ReadDataType();
 
             if (type != DataTypes.Single && type != DataTypes.Double)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single, DataTypes.Double);
@@ -49,7 +49,7 @@ namespace TarantoolDnx.MsgPack
 
             return new DoubleBinary(bytes).value;
         }
-
+        
         public void Write(float value, IMsgPackWriter writer, MsgPackContext context)
         {
             var binary = new FloatBinary(value);
@@ -72,7 +72,7 @@ namespace TarantoolDnx.MsgPack
 
         float IMsgPackConverter<float>.Read(IMsgPackReader reader, MsgPackContext context, Func<float> creator)
         {
-            var type = (DataTypes)reader.ReadByte();
+            var type = reader.ReadDataType();
 
             if (type != DataTypes.Single)
                 throw ExceptionUtils.BadTypeException(type, DataTypes.Single);

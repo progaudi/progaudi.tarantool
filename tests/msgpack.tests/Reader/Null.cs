@@ -2,6 +2,8 @@
 
 using Shouldly;
 
+using TarantoolDnx.MsgPack.Converters;
+
 using Xunit;
 
 namespace TarantoolDnx.MsgPack.Tests.Reader

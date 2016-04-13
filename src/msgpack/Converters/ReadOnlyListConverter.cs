@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TarantoolDnx.MsgPack
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal class ReadOnlyListConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
         where TArray : IReadOnlyList<TElement>

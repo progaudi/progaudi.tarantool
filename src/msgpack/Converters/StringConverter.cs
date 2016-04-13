@@ -1,8 +1,7 @@
 using System;
-using System.IO;
 using System.Text;
 
-namespace TarantoolDnx.MsgPack
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal class StringConverter : IMsgPackConverter<string>
     {

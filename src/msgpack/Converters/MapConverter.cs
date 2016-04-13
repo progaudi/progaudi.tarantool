@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TarantoolDnx.MsgPack
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal class MapConverter<TMap, TKey, TValue> : MapConverterBase<TMap, TKey, TValue>
         where TMap : IDictionary<TKey, TValue>

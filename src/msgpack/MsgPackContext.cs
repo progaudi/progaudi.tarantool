@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
+using TarantoolDnx.MsgPack.Converters;
+
 namespace TarantoolDnx.MsgPack
 {
     [DebuggerStepThrough]
@@ -12,24 +14,36 @@ namespace TarantoolDnx.MsgPack
     {
         private static readonly IReadOnlyDictionary<Type, IMsgPackConverter> DefaultConverters = new Dictionary<Type, IMsgPackConverter>
         {
-            {typeof(bool), new BoolConverter()},
-            {typeof(string), new StringConverter()},
-            {typeof(byte[]), new BinaryConverter()},
-            {typeof(float), new FloatConverter()},
-            {typeof(double), new FloatConverter()},
-            {typeof(byte), new IntConverter()},
-            {typeof(sbyte), new IntConverter()},
-            {typeof(short), new IntConverter()},
-            {typeof(ushort), new IntConverter()},
-            {typeof(int), new IntConverter()},
-            {typeof(uint), new IntConverter()},
-            {typeof(long), new IntConverter()},
-            {typeof(ulong), new IntConverter()}
+            {typeof (bool), new BoolConverter()},
+            {typeof (string), new StringConverter()},
+            {typeof (byte[]), new BinaryConverter()},
+            {typeof (float), new FloatConverter()},
+            {typeof (double), new FloatConverter()},
+            {typeof (byte), new IntConverter()},
+            {typeof (sbyte), new IntConverter()},
+            {typeof (short), new IntConverter()},
+            {typeof (ushort), new IntConverter()},
+            {typeof (int), new IntConverter()},
+            {typeof (uint), new IntConverter()},
+            {typeof (long), new IntConverter()},
+            {typeof (ulong), new IntConverter()},
+
+            {typeof (bool?), new NullableConverter<bool>()},
+            {typeof (float?), new NullableConverter<float>()},
+            {typeof (double?), new NullableConverter<double>()},
+            {typeof (byte?), new NullableConverter<byte>()},
+            {typeof (sbyte?), new NullableConverter<sbyte>()},
+            {typeof (short?), new NullableConverter<short>()},
+            {typeof (ushort?), new NullableConverter<ushort>()},
+            {typeof (int?), new NullableConverter<int>()},
+            {typeof (uint?), new NullableConverter<uint>()},
+            {typeof (long?), new NullableConverter<long>()},
+            {typeof (ulong?), new NullableConverter<ulong>()}
         };
 
         private static readonly ConcurrentDictionary<Type, IMsgPackConverter> GeneratedConverters = new ConcurrentDictionary<Type, IMsgPackConverter>();
 
-        private static readonly ConcurrentDictionary<Type, object> ObjectActivators = new ConcurrentDictionary<Type, object>();
+        private static readonly ConcurrentDictionary<Type, Func<object>> ObjectActivators = new ConcurrentDictionary<Type, Func<object>>();
 
         private static readonly IMsgPackConverter<object> SharedNullConverter = new NullConverter();
 
@@ -45,14 +59,16 @@ namespace TarantoolDnx.MsgPack
         public IMsgPackConverter<T> GetConverter<T>()
         {
             var type = typeof(T);
-            return (IMsgPackConverter<T>)(GetConverterFromCache(type)
+            return (IMsgPackConverter<T>)
+                (GetConverterFromCache(type)
                 ?? TryGenerateArrayConverter(type)
-                ?? TryGenerateMapConverter(type));
+                ?? TryGenerateMapConverter(type)
+                ?? TryGenerateNullableConverter(type));
         }
 
-        public CompiledLambdaActivatorFactory.ObjectActivator GetObjectActivator(Type type)
+        public Func<object> GetObjectActivator(Type type)
         {
-            return (CompiledLambdaActivatorFactory.ObjectActivator)ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
+            return ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
@@ -64,7 +80,7 @@ namespace TarantoolDnx.MsgPack
                     type,
                     mapInterface.GenericTypeArguments[0],
                     mapInterface.GenericTypeArguments[1]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) GetObjectActivator(x)());
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)GetObjectActivator(x)());
             }
 
             mapInterface = GetGenericInterface(type, typeof(IReadOnlyDictionary<,>));
@@ -78,6 +94,18 @@ namespace TarantoolDnx.MsgPack
             }
 
             return null;
+        }
+
+        private IMsgPackConverter TryGenerateNullableConverter(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericType || typeInfo.GetGenericTypeDefinition() != typeof (Nullable<>))
+            {
+                return null;
+            }
+
+            var converterType = typeof(NullableConverter<>).MakeGenericType(typeInfo.GenericTypeArguments[0]);
+            return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)GetObjectActivator(x)());
         }
 
         private IMsgPackConverter TryGenerateArrayConverter(Type type)

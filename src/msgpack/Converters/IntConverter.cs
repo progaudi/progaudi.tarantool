@@ -1,6 +1,6 @@
 using System;
 
-namespace TarantoolDnx.MsgPack
+namespace TarantoolDnx.MsgPack.Converters
 {
     internal class IntConverter :
         IMsgPackConverter<byte>,
@@ -33,7 +33,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        byte IMsgPackConverter<byte>.Read(IMsgPackReader reader, MsgPackContext context, Func<byte> creator)
+        public byte Read(IMsgPackReader reader, MsgPackContext context, Func<byte> creator)
         {
             var type = reader.ReadDataType();
 
@@ -103,7 +103,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        int IMsgPackConverter<int>.Read(IMsgPackReader reader, MsgPackContext context, Func<int> creator)
+        public int Read(IMsgPackReader reader, MsgPackContext context, Func<int> creator)
         {
             var type = reader.ReadDataType();
 
@@ -190,7 +190,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        long IMsgPackConverter<long>.Read(IMsgPackReader reader, MsgPackContext context, Func<long> creator)
+        public long Read(IMsgPackReader reader, MsgPackContext context, Func<long> creator)
         {
             var type = reader.ReadDataType();
 
@@ -259,7 +259,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        sbyte IMsgPackConverter<sbyte>.Read(IMsgPackReader reader, MsgPackContext context, Func<sbyte> creator)
+        public sbyte Read(IMsgPackReader reader, MsgPackContext context, Func<sbyte> creator)
         {
             var type = reader.ReadDataType();
 
@@ -282,7 +282,7 @@ namespace TarantoolDnx.MsgPack
 
             throw ExceptionUtils.IntDeserializationFailure(type);
         }
-
+        
         public void Write(short value, IMsgPackWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
@@ -316,7 +316,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        short IMsgPackConverter<short>.Read(IMsgPackReader reader, MsgPackContext context, Func<short> creator)
+        public short Read(IMsgPackReader reader, MsgPackContext context, Func<short> creator)
         {
             var type = reader.ReadDataType();
 
@@ -389,7 +389,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        uint IMsgPackConverter<uint>.Read(IMsgPackReader reader, MsgPackContext context, Func<uint> creator)
+        public uint Read(IMsgPackReader reader, MsgPackContext context, Func<uint> creator)
         {
             var type = reader.ReadDataType();
 
@@ -479,7 +479,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        ulong IMsgPackConverter<ulong>.Read(IMsgPackReader reader, MsgPackContext context, Func<ulong> creator)
+        public ulong Read(IMsgPackReader reader, MsgPackContext context, Func<ulong> creator)
         {
             var type = reader.ReadDataType();
 
@@ -525,7 +525,7 @@ namespace TarantoolDnx.MsgPack
                     throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
-
+        
         public void Write(ushort value, IMsgPackWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
@@ -559,7 +559,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        ushort IMsgPackConverter<ushort>.Read(IMsgPackReader reader, MsgPackContext context, Func<ushort> creator)
+        public ushort Read(IMsgPackReader reader, MsgPackContext context, Func<ushort> creator)
         {
             var type = reader.ReadDataType();
 
@@ -593,7 +593,7 @@ namespace TarantoolDnx.MsgPack
                     throw ExceptionUtils.IntDeserializationFailure(type);
             }
         }
-
+        
         private bool TryGetFixPositiveNumber(DataTypes type, out byte temp)
         {
             if ((type & DataTypes.PositiveFixNum) == type)
