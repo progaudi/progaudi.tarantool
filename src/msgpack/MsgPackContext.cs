@@ -63,7 +63,7 @@ namespace TarantoolDnx.MsgPack
                 (GetConverterFromCache(type)
                 ?? TryGenerateArrayConverter(type)
                 ?? TryGenerateMapConverter(type)
-                ?? TryGenerateNullableConverter<T>(type));
+                ?? TryGenerateNullableConverter(type));
         }
 
         public Func<object> GetObjectActivator(Type type)
@@ -96,14 +96,15 @@ namespace TarantoolDnx.MsgPack
             return null;
         }
 
-        private IMsgPackConverter TryGenerateNullableConverter<T>(Type type)
+        private IMsgPackConverter TryGenerateNullableConverter(Type type)
         {
-            if (!type.GetTypeInfo().IsValueType)
+            var typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericType || typeInfo.GetGenericTypeDefinition() != typeof (Nullable<>))
             {
                 return null;
             }
 
-            var converterType = typeof(NullableConverter<>).MakeGenericType(type);
+            var converterType = typeof(NullableConverter<>).MakeGenericType(typeInfo.GenericTypeArguments[0]);
             return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)GetObjectActivator(x)());
         }
 
