@@ -27,6 +27,8 @@ namespace TarantoolDnx.MsgPack
             {typeof (uint), new IntConverter()},
             {typeof (long), new IntConverter()},
             {typeof (ulong), new IntConverter()},
+            {typeof (DateTime), new DateTimeConverter()},
+            {typeof (DateTimeOffset), new DateTimeConverter()},
 
             {typeof (bool?), new NullableConverter<bool>()},
             {typeof (float?), new NullableConverter<float>()},
@@ -38,7 +40,9 @@ namespace TarantoolDnx.MsgPack
             {typeof (int?), new NullableConverter<int>()},
             {typeof (uint?), new NullableConverter<uint>()},
             {typeof (long?), new NullableConverter<long>()},
-            {typeof (ulong?), new NullableConverter<ulong>()}
+            {typeof (ulong?), new NullableConverter<ulong>()},
+            {typeof (DateTime?), new NullableConverter<DateTime>()},
+            {typeof (DateTimeOffset?), new NullableConverter<DateTimeOffset>()}
         };
 
         private static readonly ConcurrentDictionary<Type, IMsgPackConverter> GeneratedConverters = new ConcurrentDictionary<Type, IMsgPackConverter>();
