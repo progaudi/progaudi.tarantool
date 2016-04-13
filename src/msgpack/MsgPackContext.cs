@@ -43,7 +43,7 @@ namespace TarantoolDnx.MsgPack
 
         private static readonly ConcurrentDictionary<Type, IMsgPackConverter> GeneratedConverters = new ConcurrentDictionary<Type, IMsgPackConverter>();
 
-        private static readonly ConcurrentDictionary<Type, object> ObjectActivators = new ConcurrentDictionary<Type, object>();
+        private static readonly ConcurrentDictionary<Type, Func<object>> ObjectActivators = new ConcurrentDictionary<Type, Func<object>>();
 
         private static readonly IMsgPackConverter<object> SharedNullConverter = new NullConverter();
 
@@ -59,14 +59,16 @@ namespace TarantoolDnx.MsgPack
         public IMsgPackConverter<T> GetConverter<T>()
         {
             var type = typeof(T);
-            return (IMsgPackConverter<T>)(GetConverterFromCache(type)
+            return (IMsgPackConverter<T>)
+                (GetConverterFromCache(type)
                 ?? TryGenerateArrayConverter(type)
-                ?? TryGenerateMapConverter(type));
+                ?? TryGenerateMapConverter(type)
+                ?? TryGenerateNullableConverter<T>(type));
         }
 
-        public CompiledLambdaActivatorFactory.ObjectActivator GetObjectActivator(Type type)
+        public Func<object> GetObjectActivator(Type type)
         {
-            return (CompiledLambdaActivatorFactory.ObjectActivator)ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
+            return ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
@@ -78,7 +80,7 @@ namespace TarantoolDnx.MsgPack
                     type,
                     mapInterface.GenericTypeArguments[0],
                     mapInterface.GenericTypeArguments[1]);
-                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter) GetObjectActivator(x)());
+                return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)GetObjectActivator(x)());
             }
 
             mapInterface = GetGenericInterface(type, typeof(IReadOnlyDictionary<,>));
@@ -92,6 +94,17 @@ namespace TarantoolDnx.MsgPack
             }
 
             return null;
+        }
+
+        private IMsgPackConverter TryGenerateNullableConverter<T>(Type type)
+        {
+            if (!type.GetTypeInfo().IsValueType)
+            {
+                return null;
+            }
+
+            var converterType = typeof(NullableConverter<>).MakeGenericType(type);
+            return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)GetObjectActivator(x)());
         }
 
         private IMsgPackConverter TryGenerateArrayConverter(Type type)

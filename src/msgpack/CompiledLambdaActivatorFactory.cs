@@ -7,9 +7,7 @@ namespace TarantoolDnx.MsgPack
 {
     public class CompiledLambdaActivatorFactory
     {
-        public delegate object ObjectActivator();
-
-        public static ObjectActivator GetActivator(Type type)
+        public static Func<object> GetActivator(Type type)
         {
             var ctor = type.GetConstructor(Type.EmptyTypes);
 
@@ -20,10 +18,10 @@ namespace TarantoolDnx.MsgPack
             //create a lambda with the New
             //Expression as body and our param object[] as arg
             var lambda =
-                Expression.Lambda(typeof(ObjectActivator), newExp);
+                Expression.Lambda(typeof(Func<object>), newExp);
                 
             //compile it
-            var compiled = (ObjectActivator)lambda.Compile();
+            var compiled = (Func<object>)lambda.Compile();
             return compiled;
         }
     }
