@@ -54,7 +54,7 @@ namespace TarantoolDnx.MsgPack.Converters
         private bool TryGetLengthFromFixMap(DataTypes type, out uint length)
         {
             length = type - DataTypes.FixMap;
-            return (type & DataTypes.FixMap) == DataTypes.FixMap;
+            return type.GetHighBits(4) == DataTypes.FixMap.GetHighBits(4);
         }
 
         private TMap ReadMap(IMsgPackReader reader, MsgPackContext context, Func<TMap> creator, uint length)

@@ -59,7 +59,7 @@ namespace TarantoolDnx.MsgPack.Converters
         private bool TryGetFixstrLength(DataTypes type, out uint length)
         {
             length = type - DataTypes.FixStr;
-            return (type & DataTypes.FixStr) == DataTypes.FixStr;
+            return type.GetHighBits(3) == DataTypes.FixStr.GetHighBits(3);
         }
 
         private void WriteStringHeaderAndLength(IMsgPackWriter writer, int length)

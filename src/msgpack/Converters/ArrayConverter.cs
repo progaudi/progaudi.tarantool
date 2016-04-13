@@ -59,7 +59,7 @@ namespace TarantoolDnx.MsgPack.Converters
         private bool TryGetLengthFromFixArray(DataTypes type, out uint length)
         {
             length = type - DataTypes.FixArray;
-            return (type & DataTypes.FixArray) == DataTypes.FixArray;
+            return type.GetHighBits(4) == DataTypes.FixArray.GetHighBits(4);
         }
 
         private TArray ReadArray(IMsgPackReader reader, MsgPackContext context, Func<TArray> creator, uint length)
