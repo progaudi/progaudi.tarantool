@@ -36,10 +36,6 @@ namespace TarantoolDnx.MsgPack.Converters
         {
             var type = reader.ReadDataType();
 
-            uint length;
-            if (TryGetLengthFromFixArray(type, out length))
-                return ReadArray(reader, context, creator, length);
-
             switch (type)
             {
                 case DataTypes.Null:
@@ -50,10 +46,15 @@ namespace TarantoolDnx.MsgPack.Converters
 
                 case DataTypes.Array32:
                     return ReadArray(reader, context, creator, IntConverter.ReadUInt32(reader));
-
-                default:
-                    throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
             }
+
+            uint length;
+            if (TryGetLengthFromFixArray(type, out length))
+            {
+                return ReadArray(reader, context, creator, length);
+            }
+
+            throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
         }
 
         private bool TryGetLengthFromFixArray(DataTypes type, out uint length)

@@ -31,10 +31,6 @@ namespace TarantoolDnx.MsgPack.Converters
         {
             var type = reader.ReadDataType();
 
-            uint length;
-            if (TryGetLengthFromFixMap(type, out length))
-                return ReadMap(reader, context, creator, length);
-
             switch (type)
             {
                 case DataTypes.Null:
@@ -45,10 +41,13 @@ namespace TarantoolDnx.MsgPack.Converters
 
                 case DataTypes.Map32:
                     return ReadMap(reader, context, creator, IntConverter.ReadUInt32(reader));
-
-                default:
-                    throw ExceptionUtils.BadTypeException(type, DataTypes.Map16, DataTypes.Map32, DataTypes.FixMap);
             }
+
+            uint length;
+            if (TryGetLengthFromFixMap(type, out length))
+                return ReadMap(reader, context, creator, length);
+
+            throw ExceptionUtils.BadTypeException(type, DataTypes.Map16, DataTypes.Map32, DataTypes.FixMap);
         }
 
         private bool TryGetLengthFromFixMap(DataTypes type, out uint length)
