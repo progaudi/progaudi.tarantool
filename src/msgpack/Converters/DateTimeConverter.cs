@@ -6,7 +6,7 @@ namespace TarantoolDnx.MsgPack.Converters
     {
         public void Write(DateTime value, IMsgPackWriter writer, MsgPackContext context)
         {
-            var longValue = value.Ticks;
+            var longValue = DateTimeUtils.FromDateTime(value);
             var longConverter = context.GetConverter<long>();
 
             longConverter.Write(longValue, writer, context);
@@ -16,7 +16,7 @@ namespace TarantoolDnx.MsgPack.Converters
         {
             var longConverter = context.GetConverter<long>();
             var longValue = longConverter.Read(reader, context, null);
-            return new DateTime(longValue);
+            return DateTimeUtils.ToDateTime(longValue);
         }
 
         public void Write(DateTimeOffset value, IMsgPackWriter writer, MsgPackContext context)

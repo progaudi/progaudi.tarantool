@@ -15,5 +15,15 @@ namespace TarantoolDnx.MsgPack
         {
             return value.ToUniversalTime().Subtract(UnixEpocUtc).Ticks;
         }
+
+        public static DateTime ToDateTime(long value)
+        {
+            return UnixEpocUtc.AddTicks(value);
+        }
+
+        public static long FromDateTime(DateTime value)
+        {
+            return value.ToUniversalTime().Subtract(UnixEpocUtc).Ticks;
+        }
     }
 }
