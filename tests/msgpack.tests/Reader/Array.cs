@@ -69,5 +69,31 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
 
             MsgPackConverter.Deserialize<object[]>(data, settings).ShouldBe(expected);
         }
+
+        [Fact]
+        public void TestNonFixedArray()
+        {
+            var array = new[]
+               {
+                    1, 2, 3, 4, 5,
+                    1, 2, 3, 4, 5,
+                    1, 2, 3, 4, 5,
+                    1, 2, 3, 4, 5,
+                };
+
+            var bytes = new byte[]
+            {
+                0xdc,
+                0x00,
+                0x14,
+
+                0x01, 0x02, 0x03, 0x04, 0x05,
+                0x01, 0x02, 0x03, 0x04, 0x05,
+                0x01, 0x02, 0x03, 0x04, 0x05,
+                0x01, 0x02, 0x03, 0x04, 0x05,
+            };
+
+            MsgPackConverter.Deserialize<int[]>(bytes).ShouldBe(array);
+        }
     }
 }
