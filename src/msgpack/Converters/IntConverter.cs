@@ -596,26 +596,15 @@ namespace TarantoolDnx.MsgPack.Converters
         
         private bool TryGetFixPositiveNumber(DataTypes type, out byte temp)
         {
-            if ((type & DataTypes.PositiveFixNum) == type)
-            {
-                temp = (byte)type;
-                return true;
-            }
-
-            temp = 0;
-            return false;
+            temp = (byte)type;
+            return type.GetHighBits(1) == DataTypes.PositiveFixNum.GetHighBits(1);
         }
 
         private bool TryGetNegativeNumber(DataTypes type, out sbyte temp)
         {
-            if ((type & DataTypes.NegativeFixNum) == DataTypes.NegativeFixNum)
-            {
-                temp = (sbyte)((byte)type - 1 - byte.MaxValue);
-                return true;
-            }
+            temp = (sbyte)((byte)type - 1 - byte.MaxValue);
 
-            temp = 0;
-            return false;
+            return type.GetHighBits(3) == DataTypes.NegativeFixNum.GetHighBits(3);
         }
 
         private static void WriteNegativeFixNum(sbyte item, IMsgPackWriter writer)

@@ -24,12 +24,6 @@ namespace TarantoolDnx.MsgPack.Converters
         {
             var type = reader.ReadDataType();
 
-            uint length;
-            if (TryGetFixstrLength(type, out length))
-            {
-                return ReadString(reader, length);
-            }
-
             switch (type)
             {
                 case DataTypes.Null:
@@ -43,10 +37,15 @@ namespace TarantoolDnx.MsgPack.Converters
 
                 case DataTypes.Str32:
                     return ReadString(reader, IntConverter.ReadUInt32(reader));
-
-                default:
-                    throw ExceptionUtils.BadTypeException(type, DataTypes.FixStr, DataTypes.Str8, DataTypes.Str16, DataTypes.Str32);
             }
+
+            uint length;
+            if (TryGetFixstrLength(type, out length))
+            {
+                return ReadString(reader, length);
+            }
+
+            throw ExceptionUtils.BadTypeException(type, DataTypes.FixStr, DataTypes.Str8, DataTypes.Str16, DataTypes.Str32);
         }
 
         private string ReadString(IMsgPackReader reader, uint length)
@@ -59,7 +58,7 @@ namespace TarantoolDnx.MsgPack.Converters
         private bool TryGetFixstrLength(DataTypes type, out uint length)
         {
             length = type - DataTypes.FixStr;
-            return (type & DataTypes.FixStr) == DataTypes.FixStr;
+            return type.GetHighBits(3) == DataTypes.FixStr.GetHighBits(3);
         }
 
         private void WriteStringHeaderAndLength(IMsgPackWriter writer, int length)
