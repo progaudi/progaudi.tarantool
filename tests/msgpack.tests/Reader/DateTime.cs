@@ -16,15 +16,15 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         {
             var tests = new List<KeyValuePair<byte[], System.DateTime>>()
             {
-                new KeyValuePair<byte[], DateTime>(new byte[] {211, 247, 96, 128, 10, 8, 74, 128, 0,}, DateTime.MinValue),
-                new KeyValuePair<byte[], DateTime>(new byte[] {211, 35, 42, 168, 102, 215, 52, 135, 255,}, DateTime.MaxValue),
-                new KeyValuePair<byte[], DateTime>(new byte[] {211, 0, 51, 110, 210, 236, 93, 200, 0,}, new DateTime(2015, 11, 17)),
+                new KeyValuePair<byte[], DateTime>(new byte[] {211, 247, 96, 128, 10, 8, 74, 128, 0,}, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)),
+                new KeyValuePair<byte[], DateTime>(new byte[] {211, 35, 42, 168, 127, 252, 129, 152, 240,}, new DateTime(9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Utc)),
+                new KeyValuePair<byte[], DateTime>(new byte[] {211, 0, 51, 110, 236, 17, 171, 0, 0,}, new DateTime(2015, 11, 17, 0, 0, 0, 0, DateTimeKind.Utc)),
                 new KeyValuePair<byte[], DateTime>(new byte[] {211, 247, 96, 154, 26, 189, 97, 197, 0,}, new DateTime(1, 2, 3, 4, 5, 6, DateTimeKind.Utc)),
             };
 
             foreach (var test in tests)
             {
-                MsgPackConverter.Deserialize<System.DateTime>(test.Key).ShouldBe(test.Value.ToUniversalTime());
+                MsgPackConverter.Deserialize<System.DateTime>(test.Key).ShouldBe(test.Value);
             }
         }
 
