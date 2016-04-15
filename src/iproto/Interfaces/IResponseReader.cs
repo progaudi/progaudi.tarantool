@@ -2,8 +2,10 @@
 
 namespace iproto.Interfaces
 {
-    public interface IResponseReader<T>
+    public interface IResponseReader
     {
         UnifiedPacket ReadResponse(byte[] response);
+
+        GreetingsPacket ReadGreetings(byte[] response);
     }
 }
