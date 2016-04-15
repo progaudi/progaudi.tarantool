@@ -1,6 +1,8 @@
-﻿namespace TarantoolDnx.MsgPack
+﻿using System;
+
+namespace TarantoolDnx.MsgPack
 {
-    public interface IMsgPackWriter
+    public interface IMsgPackWriter : IDisposable
     {
         void Write(DataTypes dataType);
 
