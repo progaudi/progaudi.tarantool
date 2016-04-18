@@ -1,8 +1,9 @@
+using System;
 using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
-    public interface IMsgPackReader
+    public interface IMsgPackReader : IDisposable
     {
         DataTypes ReadDataType();
 
