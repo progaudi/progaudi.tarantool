@@ -11,7 +11,7 @@ namespace TarantoolDnx.MsgPack.Tests
         private const string UserName = "user";
         private const string Password = "password";
 
-        [Fact]
+        [Fact(Skip = "Manual run only")]
         public void TestGreetings()
         {
             var asyncClient = new AsyncTarantoolClient();

@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgpack.VS", "..\src\msgpac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgpack.tests.VS", "..\tests\msgpack.tests\VS\msgpack.tests.VS.csproj", "{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iproto.VS", "..\src\iproto\VS\iproto.VS.csproj", "{069C0303-362B-4E81-9775-33F99BD4B20D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tarantool-client.VS", "..\src\tarantool-client\VS\tarantool-client.VS.csproj", "{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBCC133C-83D3-42B8-92DB-B9ACDE475BE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{069C0303-362B-4E81-9775-33F99BD4B20D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{069C0303-362B-4E81-9775-33F99BD4B20D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{069C0303-362B-4E81-9775-33F99BD4B20D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{069C0303-362B-4E81-9775-33F99BD4B20D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
