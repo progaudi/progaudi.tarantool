@@ -37,68 +37,8 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\ArrayConverter.cs">
-      <Link>ArrayConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\ArrayConverterBase.cs">
-      <Link>ArrayConverterBase.cs</Link>
-    </Compile>
-    <Compile Include="..\BinaryConverter.cs">
-      <Link>BinaryConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\BoolConverter.cs">
-      <Link>BoolConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\DataTypes.cs">
-      <Link>DataTypes.cs</Link>
-    </Compile>
-    <Compile Include="..\ExceptionUtils.cs">
-      <Link>ExceptionUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\FloatConverter.cs">
-      <Link>FloatConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\IMsgPackConverter.cs">
-      <Link>IMsgPackConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\IMsgPackReader.cs">
-      <Link>IMsgPackReader.cs</Link>
-    </Compile>
-    <Compile Include="..\IMsgPackWriter.cs">
-      <Link>IMsgPackWriter.cs</Link>
-    </Compile>
-    <Compile Include="..\IntConverter.cs">
-      <Link>IntConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\IntFormatTypeExtensions.cs">
-      <Link>IntFormatTypeExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\MapConverter.cs">
-      <Link>MapConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\MapConverterBase.cs">
-      <Link>MapConverterBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MsgPackContext.cs">
-      <Link>MsgPackContext.cs</Link>
-    </Compile>
-    <Compile Include="..\MsgPackConverter.cs">
-      <Link>MsgPackConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\NullConverter.cs">
-      <Link>NullConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\ReadOnlyListConverter.cs">
-      <Link>ReadOnlyListConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\ReadOnlyMapConverter.cs">
-      <Link>ReadOnlyMapConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\StreamWrapper.cs">
-      <Link>StreamWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\StringConverter.cs">
-      <Link>StringConverter.cs</Link>
+    <Compile Include="..\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
