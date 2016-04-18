@@ -1,10 +1,12 @@
-﻿namespace iproto.Data.Packets
+﻿using iproto.Data.Bodies;
+
+namespace iproto.Data.Packets
 {
     public class OkResponse<T>: UnifiedPacket
     {
         public T Data { get; }
 
-        internal OkResponse(Header header, Body body) : base(header, body)
+        internal OkResponse(Header header, IBody body) : base(header, body)
         {
         }
     }

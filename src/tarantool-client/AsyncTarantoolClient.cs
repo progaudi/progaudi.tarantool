@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.IO;
 using System.Net;
-using System.Text;
 
 using iproto.Data.Packets;
 using iproto.Interfaces;
 using iproto.Services;
+
+using TarantoolDnx.MsgPack;
 
 namespace tarantool_client
 {
@@ -20,12 +20,14 @@ namespace tarantool_client
 
         private readonly IRequestFactory _requestFactory;
 
+        private readonly MsgPackContext _msgPackContext;
         
         public AsyncTarantoolClient()
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _responseReader = new ResponseReader();
             _requestFactory = new RequestFactory();
+            _msgPackContext = MsgPackContextFactory.Create();
         }
 
         public void Connect(string ipAddress, int port)
@@ -44,12 +46,15 @@ namespace tarantool_client
             var greetingsBytes = Send(new byte[0]);
             var greetings = _responseReader.ReadGreetings(greetingsBytes);
             var authenticateRequest = _requestFactory.CreateAuthentication(greetings, userName, password);
-            Send(authenticateRequest);
+            var loginResponse = Send(authenticateRequest);
+
+            var response = _responseReader.ReadResponse(loginResponse, _msgPackContext);
         }
 
-        private void Send(UnifiedPacket authenticateRequest)
+        private byte[] Send(UnifiedPacket authenticateRequest)
         {
-            throw new NotImplementedException();
+            var serializedRequest = authenticateRequest.Serialize(_msgPackContext);
+           return Send(serializedRequest);
         }
 
         private byte[] Send(byte[] request)

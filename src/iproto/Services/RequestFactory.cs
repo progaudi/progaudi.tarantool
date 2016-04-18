@@ -1,6 +1,6 @@
 ﻿using System;
-
 using iproto.Data;
+using iproto.Data.Bodies;
 using iproto.Data.Packets;
 using iproto.Data.UpdateOperations;
 using iproto.Interfaces;
@@ -11,8 +11,13 @@ namespace iproto.Services
     {
         public UnifiedPacket CreateAuthentication(GreetingsPacket greetings, string username, string password)
         {
-            throw new NotImplementedException();
+            var scrable = GetScrable(greetings, password);
+            var header = new Header(CommandCode.Auth, 0, 0);
+            var body = new AuthenticationBody(username, scrable);
+            var authenticationPacket = new UnifiedPacket(header, body);
+            return authenticationPacket;
         }
+
 
         public UnifiedPacket CreateSelect<T>(int spaceId, int indexId, int limit, int offset, Iterator iterator, SelectKey<T> selectKey)
         {
@@ -237,6 +242,21 @@ namespace iproto.Services
         public UnifiedPacket CreateSubscribe(string serverUuid, string clusterUuid, int vclock)
         {
             throw new NotImplementedException();
+        }
+
+
+        private static byte[] GetScrable(GreetingsPacket greetings, string password)
+        {
+            var decodedSalt = greetings.Salt;
+            var first20SaltBytes = new byte[20];
+            Array.Copy(decodedSalt, first20SaltBytes, 20);
+
+            var step1 = Sha1Utils.Hash(password);
+            var step2 = Sha1Utils.Hash(step1);
+            var step3 = Sha1Utils.Hash(first20SaltBytes, step2);
+            var scrambleBytes = Sha1Utils.Xor(step1, step3);
+
+            return scrambleBytes;
         }
     }
 }

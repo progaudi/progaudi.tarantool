@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{E3C33D51-B6D1-4038-8354-C6C7197882ED}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>tarantool_client.VS</RootNamespace>
-    <AssemblyName>tarantool-client.VS</AssemblyName>
+    <RootNamespace>tarantool_client.test</RootNamespace>
+    <AssemblyName>tarantool-client.test</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>C:\Users\roman\.nuget\packages\JetBrains.Annotations\10.1.4\lib\net20\JetBrains.Annotations.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,23 +43,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\**\*.cs">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\iproto\VS\iproto.VS.csproj">
-      <Project>{069C0303-362B-4E81-9775-33F99BD4B20D}</Project>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\iproto\VS\iproto.VS.csproj">
+      <Project>{069c0303-362b-4e81-9775-33f99bd4b20d}</Project>
       <Name>iproto.VS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\msgpack\VS\msgpack.VS.csproj">
-      <Project>{2F96BC33-6B63-464D-82B8-A99C90CCF33F}</Project>
+    <ProjectReference Include="..\..\src\msgpack\VS\msgpack.VS.csproj">
+      <Project>{2f96bc33-6b63-464d-82b8-a99c90ccf33f}</Project>
       <Name>msgpack.VS</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="VS\obj\Debug\" />
-    <Folder Include="VS\Properties\" />
+    <ProjectReference Include="..\..\src\tarantool-client\VS\tarantool-client.VS.csproj">
+      <Project>{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}</Project>
+      <Name>tarantool-client.VS</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
