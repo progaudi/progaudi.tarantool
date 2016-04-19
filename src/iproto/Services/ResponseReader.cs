@@ -15,19 +15,12 @@ namespace iproto.Services
         private const int GreetingsMessageLength = 64;
         private const int GreetingsSaltLength = 44;
 
-        public UnifiedPacket ReadResponse(byte[] response, MsgPackContext msgPackContext)
+        public UnifiedPacket ReadResponse(IMsgPackReader reader)
         {
-            var bodyAndHeaderSizeBuffer = new byte[5];
-            var headerBuffer = new byte[23];
-            var bodyBuffer = new byte[response.Length - bodyAndHeaderSizeBuffer.Length - headerBuffer.Length];
+            var bodyAndHeaderSize = reader.Read<ulong>();
 
-            Array.Copy(response, bodyAndHeaderSizeBuffer, bodyAndHeaderSizeBuffer.Length);
-            Array.Copy(response, bodyAndHeaderSizeBuffer.Length, headerBuffer, 0, headerBuffer.Length);
-            Array.Copy(response, bodyAndHeaderSizeBuffer.Length + headerBuffer.Length, bodyBuffer, 0, bodyBuffer.Length);
-
-            var bodyAndHeaderSize = MsgPackConverter.Deserialize<uint>(bodyAndHeaderSizeBuffer, msgPackContext);
-            var headerMap = MsgPackConverter.Deserialize<Dictionary<Key, ulong>>(headerBuffer, msgPackContext);
-            var bodyMap = MsgPackConverter.Deserialize<Dictionary<Key, string>>(bodyBuffer, msgPackContext);
+            var headerMap = reader.Read<Dictionary<Key, ulong>>();
+            var bodyMap = reader.Read<Dictionary<Key, string>>();
 
             var header = new Header(
                 (CommandCode) headerMap[Key.Code],

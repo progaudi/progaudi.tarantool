@@ -4,12 +4,12 @@ namespace TarantoolDnx.MsgPack.Converters
 {
     internal class BoolConverter : IMsgPackConverter<bool>
     {
-        public void Write(bool value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(bool value, IBytesWriter writer, MsgPackContext context)
         {
             writer.Write(value ? DataTypes.True : DataTypes.False);
         }
 
-        public bool Read(IMsgPackReader reader, MsgPackContext context, Func<bool> creator)
+        public bool Read(IBytesReader reader, MsgPackContext context, Func<bool> creator)
         {
             var type = reader.ReadDataType();
 

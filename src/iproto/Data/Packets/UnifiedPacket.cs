@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+
 using iproto.Data.Bodies;
 using TarantoolDnx.MsgPack;
 using TarantoolDnx.MsgPack.Converters;
@@ -17,19 +19,16 @@ namespace iproto.Data.Packets
 
         public IBody Body { get; }
 
-        public byte[] Serialize(MsgPackContext msgPackContext)
+        public void Serialize(IMsgPackWriter msgPackWriter)
         {
-            var serializedHeader = Header.Serialize(msgPackContext);
-            var serializedBody = Body.Serialize(msgPackContext);
-            var serializedLength = MsgPackConverter.Serialize(serializedBody.Length + serializedHeader.Length);
-
-            var result = new byte[serializedLength.Length + serializedBody.Length + serializedHeader.Length];
-
-            Array.Copy(serializedLength, result, serializedLength.Length);
-            Array.Copy(serializedHeader, 0, result, serializedLength.Length, serializedHeader.Length);
-            Array.Copy(serializedBody, 0, result, serializedLength.Length + serializedHeader.Length, serializedBody.Length);
-
-            return result;
+            using (var headerAndBodyWriter = msgPackWriter.Clone())
+            {
+                Header.WriteTo(headerAndBodyWriter);
+                Body.WriteTo(headerAndBodyWriter);
+                var headeAndBodyBuffer = headerAndBodyWriter.ToArray();
+                msgPackWriter.Write(headeAndBodyBuffer.Length);
+                msgPackWriter.WriteRaw(headeAndBodyBuffer);
+            }
         }
     }
 }

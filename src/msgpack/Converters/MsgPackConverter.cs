@@ -18,7 +18,7 @@ namespace TarantoolDnx.MsgPack.Converters
         public static byte[] Serialize<T>(T data, [NotNull]MsgPackContext context)
         {
             var memoryStream = new MemoryStream();
-            using (var writer = new MsgPackStreamWriter(memoryStream))
+            using (var writer = new BytesStreamWriter(memoryStream))
             {
                 var converter = GetConverter<T>(context);
 
@@ -40,7 +40,7 @@ namespace TarantoolDnx.MsgPack.Converters
         private static T Deserialize<T>(byte[] data, [NotNull]MsgPackContext context, Func<T> creator)
         {
             var memoryStream = new MemoryStream(data);
-            using (var reader = new MsgPackStreamReader(memoryStream))
+            using (var reader = new BytesStreamReader(memoryStream))
             {
                 var converter = GetConverter<T>(context);
 

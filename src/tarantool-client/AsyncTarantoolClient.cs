@@ -40,7 +40,7 @@ namespace tarantool_client
         {
             _socket.Dispose();
         }
-        
+
         public void Login(string userName, string password)
         {
             var greetingsBytes = Send(new byte[0]);
@@ -48,13 +48,29 @@ namespace tarantool_client
             var authenticateRequest = _requestFactory.CreateAuthentication(greetings, userName, password);
             var loginResponse = Send(authenticateRequest);
 
-            var response = _responseReader.ReadResponse(loginResponse, _msgPackContext);
+            using (var reader = CreateReader(loginResponse))
+            {
+                var response = _responseReader.ReadResponse(reader);
+            }
+        }
+
+        private IMsgPackReader CreateReader(byte[] buffer)
+        {
+            return new MsgPackReader(buffer, _msgPackContext);
         }
 
         private byte[] Send(UnifiedPacket authenticateRequest)
         {
-            var serializedRequest = authenticateRequest.Serialize(_msgPackContext);
-           return Send(serializedRequest);
+            using (var writer = CreateWriter())
+            {
+                authenticateRequest.Serialize(writer);
+                return Send(writer.ToArray());
+            }
+        }
+
+        private IMsgPackWriter CreateWriter()
+        {
+            return new MsgPackWriter(_msgPackContext);
         }
 
         private byte[] Send(byte[] request)

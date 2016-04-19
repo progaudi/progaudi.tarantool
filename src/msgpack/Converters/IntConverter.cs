@@ -12,7 +12,7 @@ namespace TarantoolDnx.MsgPack.Converters
         IMsgPackConverter<long>,
         IMsgPackConverter<ulong>
     {
-        public void Write(byte value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(byte value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -33,7 +33,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public byte Read(IMsgPackReader reader, MsgPackContext context, Func<byte> creator)
+        public byte Read(IBytesReader reader, MsgPackContext context, Func<byte> creator)
         {
             var type = reader.ReadDataType();
 
@@ -62,7 +62,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public void Write(int value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(int value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -103,7 +103,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public int Read(IMsgPackReader reader, MsgPackContext context, Func<int> creator)
+        public int Read(IBytesReader reader, MsgPackContext context, Func<int> creator)
         {
             var type = reader.ReadDataType();
 
@@ -141,7 +141,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public void Write(long value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(long value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -190,7 +190,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public long Read(IMsgPackReader reader, MsgPackContext context, Func<long> creator)
+        public long Read(IBytesReader reader, MsgPackContext context, Func<long> creator)
         {
             var type = reader.ReadDataType();
 
@@ -234,7 +234,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public void Write(sbyte value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(sbyte value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -259,7 +259,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public sbyte Read(IMsgPackReader reader, MsgPackContext context, Func<sbyte> creator)
+        public sbyte Read(IBytesReader reader, MsgPackContext context, Func<sbyte> creator)
         {
             var type = reader.ReadDataType();
 
@@ -283,7 +283,7 @@ namespace TarantoolDnx.MsgPack.Converters
             throw ExceptionUtils.IntDeserializationFailure(type);
         }
         
-        public void Write(short value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(short value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -316,7 +316,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public short Read(IMsgPackReader reader, MsgPackContext context, Func<short> creator)
+        public short Read(IBytesReader reader, MsgPackContext context, Func<short> creator)
         {
             var type = reader.ReadDataType();
 
@@ -348,7 +348,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public void Write(uint value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(uint value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -389,7 +389,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public uint Read(IMsgPackReader reader, MsgPackContext context, Func<uint> creator)
+        public uint Read(IBytesReader reader, MsgPackContext context, Func<uint> creator)
         {
             var type = reader.ReadDataType();
 
@@ -430,7 +430,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public void Write(ulong value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(ulong value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -479,7 +479,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public ulong Read(IMsgPackReader reader, MsgPackContext context, Func<ulong> creator)
+        public ulong Read(IBytesReader reader, MsgPackContext context, Func<ulong> creator)
         {
             var type = reader.ReadDataType();
 
@@ -526,7 +526,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
         
-        public void Write(ushort value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(ushort value, IBytesWriter writer, MsgPackContext context)
         {
             switch (value.GetFormatType())
             {
@@ -559,7 +559,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public ushort Read(IMsgPackReader reader, MsgPackContext context, Func<ushort> creator)
+        public ushort Read(IBytesReader reader, MsgPackContext context, Func<ushort> creator)
         {
             var type = reader.ReadDataType();
 
@@ -607,29 +607,29 @@ namespace TarantoolDnx.MsgPack.Converters
             return type.GetHighBits(3) == DataTypes.NegativeFixNum.GetHighBits(3);
         }
 
-        private static void WriteNegativeFixNum(sbyte item, IMsgPackWriter writer)
+        private static void WriteNegativeFixNum(sbyte item, IBytesWriter writer)
         {
             writer.Write((byte)(byte.MaxValue + item + 1));
         }
 
-        private static void WritePositiveFixNum(byte item, IMsgPackWriter writer)
+        private static void WritePositiveFixNum(byte item, IBytesWriter writer)
         {
             writer.Write(item);
         }
 
-        private static void WriteMPackValue(sbyte item, IMsgPackWriter writer)
+        private static void WriteMPackValue(sbyte item, IBytesWriter writer)
         {
             writer.Write(DataTypes.Int8);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(sbyte item, IMsgPackWriter writer)
+        internal static void WriteValue(sbyte item, IBytesWriter writer)
         {
             var value = item >= 0 ? item : byte.MaxValue + item + 1;
             writer.Write((byte)(value % 256));
         }
 
-        internal static sbyte ReadInt8(IMsgPackReader reader)
+        internal static sbyte ReadInt8(IBytesReader reader)
         {
             var temp = reader.ReadByte();
             if (temp <= sbyte.MaxValue)
@@ -638,52 +638,52 @@ namespace TarantoolDnx.MsgPack.Converters
             return (sbyte)(temp - byte.MaxValue - 1);
         }
 
-        private static void WriteMPackValue(byte item, IMsgPackWriter writer)
+        private static void WriteMPackValue(byte item, IBytesWriter writer)
         {
             writer.Write(DataTypes.UInt8);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(byte item, IMsgPackWriter writer)
+        internal static void WriteValue(byte item, IBytesWriter writer)
         {
             writer.Write(item);
         }
 
-        internal static byte ReadUInt8(IMsgPackReader reader)
+        internal static byte ReadUInt8(IBytesReader reader)
         {
             return reader.ReadByte();
         }
 
-        private static void WriteMPackValue(ushort item, IMsgPackWriter writer)
+        private static void WriteMPackValue(ushort item, IBytesWriter writer)
         {
             writer.Write(DataTypes.UInt16);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(ushort item, IMsgPackWriter writer)
+        internal static void WriteValue(ushort item, IBytesWriter writer)
         {
             writer.Write((byte)((item >> 8) % 256));
             writer.Write((byte)(item % 256));
         }
 
-        internal static ushort ReadUInt16(IMsgPackReader reader)
+        internal static ushort ReadUInt16(IBytesReader reader)
         {
             return (ushort)((reader.ReadByte() << 8) + reader.ReadByte());
         }
 
-        private static void WriteMPackValue(short item, IMsgPackWriter writer)
+        private static void WriteMPackValue(short item, IBytesWriter writer)
         {
             writer.Write(DataTypes.Int16);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(short item, IMsgPackWriter writer)
+        internal static void WriteValue(short item, IBytesWriter writer)
         {
             var value = (ushort)(item >= 0 ? item : ushort.MaxValue + item + 1);
             WriteValue(value, writer);
         }
 
-        internal static short ReadInt16(IMsgPackReader reader)
+        internal static short ReadInt16(IBytesReader reader)
         {
             var temp = ReadUInt16(reader);
             if (temp <= short.MaxValue)
@@ -692,19 +692,19 @@ namespace TarantoolDnx.MsgPack.Converters
             return (short)(temp - 1 - ushort.MaxValue);
         }
 
-        private static void WriteMPackValue(int item, IMsgPackWriter writer)
+        private static void WriteMPackValue(int item, IBytesWriter writer)
         {
             writer.Write(DataTypes.Int32);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(int item, IMsgPackWriter writer)
+        internal static void WriteValue(int item, IBytesWriter writer)
         {
             var value = (uint)(item > 0 ? item : uint.MaxValue + item + 1);
             WriteValue(value, writer);
         }
 
-        internal static int ReadInt32(IMsgPackReader reader)
+        internal static int ReadInt32(IBytesReader reader)
         {
             var temp = ReadUInt32(reader);
             if (temp <= int.MaxValue)
@@ -713,13 +713,13 @@ namespace TarantoolDnx.MsgPack.Converters
             return (int)(temp - 1 - uint.MaxValue);
         }
 
-        private static void WriteMPackValue(uint item, IMsgPackWriter writer)
+        private static void WriteMPackValue(uint item, IBytesWriter writer)
         {
             writer.Write(DataTypes.UInt32);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(uint item, IMsgPackWriter writer)
+        internal static void WriteValue(uint item, IBytesWriter writer)
         {
             writer.Write((byte)((item >> 24) % 256));
             writer.Write((byte)((item >> 16) % 256));
@@ -727,7 +727,7 @@ namespace TarantoolDnx.MsgPack.Converters
             writer.Write((byte)(item % 256));
         }
 
-        internal static uint ReadUInt32(IMsgPackReader reader)
+        internal static uint ReadUInt32(IBytesReader reader)
         {
             var temp = (uint)(reader.ReadByte() << 24);
             temp += (uint)reader.ReadByte() << 16;
@@ -737,13 +737,13 @@ namespace TarantoolDnx.MsgPack.Converters
             return temp;
         }
 
-        private static void WriteMPackValue(ulong item, IMsgPackWriter writer)
+        private static void WriteMPackValue(ulong item, IBytesWriter writer)
         {
             writer.Write(DataTypes.UInt64);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(ulong item, IMsgPackWriter writer)
+        internal static void WriteValue(ulong item, IBytesWriter writer)
         {
             writer.Write((byte)((item >> 56) % 256));
             writer.Write((byte)((item >> 48) % 256));
@@ -755,7 +755,7 @@ namespace TarantoolDnx.MsgPack.Converters
             writer.Write((byte)(item % 256));
         }
 
-        internal static ulong ReadUInt64(IMsgPackReader reader)
+        internal static ulong ReadUInt64(IBytesReader reader)
         {
             var temp = (ulong)reader.ReadByte() << 56;
             temp += (ulong)reader.ReadByte() << 48;
@@ -769,19 +769,19 @@ namespace TarantoolDnx.MsgPack.Converters
             return temp;
         }
 
-        private static void WriteMPackValue(long item, IMsgPackWriter writer)
+        private static void WriteMPackValue(long item, IBytesWriter writer)
         {
             writer.Write(DataTypes.Int64);
             WriteValue(item, writer);
         }
 
-        internal static void WriteValue(long item, IMsgPackWriter writer)
+        internal static void WriteValue(long item, IBytesWriter writer)
         {
             var value = item >= 0 ? (ulong)item : ulong.MaxValue + (ulong)item + 1L;
             WriteValue(value, writer);
         }
 
-        internal static long ReadInt64(IMsgPackReader reader)
+        internal static long ReadInt64(IBytesReader reader)
         {
             var temp = ReadUInt64(reader);
             if (temp <= long.MaxValue)

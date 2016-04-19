@@ -4,10 +4,12 @@ namespace TarantoolDnx.MsgPack
 {
     public interface IMsgPackWriter : IDisposable
     {
-        void Write(DataTypes dataType);
+        void Write<T>(T value);
 
-        void Write(byte value);
+        byte[] ToArray();
 
-        void Write(byte[] array);
+        IMsgPackWriter Clone();
+
+        void WriteRaw(byte[] headeAndBodyBuffer);
     }
 }

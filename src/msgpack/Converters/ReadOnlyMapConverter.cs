@@ -6,7 +6,7 @@ namespace TarantoolDnx.MsgPack.Converters
     internal class ReadOnlyMapConverter<TMap, TKey, TValue> : MapConverterBase<TMap, TKey, TValue>
         where TMap : IReadOnlyDictionary<TKey, TValue>
     {
-        public override void Write(TMap value, IMsgPackWriter writer, MsgPackContext context)
+        public override void Write(TMap value, IBytesWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -27,7 +27,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public override TMap Read(IMsgPackReader reader, MsgPackContext context, Func<TMap> creator)
+        public override TMap Read(IBytesReader reader, MsgPackContext context, Func<TMap> creator)
         {
             throw ExceptionUtils.CantReadReadOnlyCollection(typeof(TMap));
         }

@@ -11,7 +11,8 @@ namespace iproto.Data.Bodies
 
         public string ErrorMessage { get; }
 
-        public byte[] Serialize(MsgPackContext msgPackContext)
+
+        public void WriteTo(IMsgPackWriter mspgMsgPackWriter)
         {
             throw new System.NotImplementedException();
         }

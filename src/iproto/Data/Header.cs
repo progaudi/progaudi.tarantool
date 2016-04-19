@@ -21,7 +21,7 @@ namespace iproto.Data
 
         public bool IsError => (Code & CommandCode.ErrorMask) == CommandCode.ErrorMask;
 
-        public byte[] Serialize(MsgPackContext msgPackContext)
+        public void WriteTo(IMsgPackWriter msgPackWriter)
         {
             var headerMap = new Dictionary<Key, ulong>
             {
@@ -30,7 +30,7 @@ namespace iproto.Data
                 {Key.SchemaId, SchemaId}
             };
 
-            return MsgPackConverter.Serialize(headerMap, msgPackContext);
+            msgPackWriter.Write(headerMap);
         }
     }
 }

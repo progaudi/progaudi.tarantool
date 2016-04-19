@@ -4,7 +4,7 @@ namespace TarantoolDnx.MsgPack.Converters
 {
     internal class BinaryConverter : IMsgPackConverter<byte[]>
     {
-        public void Write(byte[] value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(byte[] value, IBytesWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -18,7 +18,7 @@ namespace TarantoolDnx.MsgPack.Converters
         }
 
         // We will have problem with binary blobs greater than int.MaxValue bytes.
-        public byte[] Read(IMsgPackReader reader, MsgPackContext context, Func<byte[]> creator)
+        public byte[] Read(IBytesReader reader, MsgPackContext context, Func<byte[]> creator)
         {
             var type = reader.ReadDataType();
 
@@ -47,7 +47,7 @@ namespace TarantoolDnx.MsgPack.Converters
             return ReadByteArray(reader, length);
         }
 
-        internal static byte[] ReadByteArray(IMsgPackReader reader, uint length)
+        internal static byte[] ReadByteArray(IBytesReader reader, uint length)
         {
             var buffer = new byte[length];
 
@@ -56,7 +56,7 @@ namespace TarantoolDnx.MsgPack.Converters
             return buffer;
         }
 
-        private void WriteBinaryHeaderAndLength(int length, IMsgPackWriter writer)
+        private void WriteBinaryHeaderAndLength(int length, IBytesWriter writer)
         {
             if (length <= byte.MaxValue)
             {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using TarantoolDnx.MsgPack;
-using TarantoolDnx.MsgPack.Converters;
 
 namespace iproto.Data.Bodies
 {
@@ -17,7 +16,7 @@ namespace iproto.Data.Bodies
 
         public byte[] Scramble { get; }
 
-        public byte[] Serialize(MsgPackContext msgPackContext)
+        public void WriteTo(IMsgPackWriter msgPackWriter)
         {
             var bodyMap = new Dictionary<Key, object>()
             {
@@ -32,7 +31,7 @@ namespace iproto.Data.Bodies
                 }
             };
 
-            return MsgPackConverter.Serialize(bodyMap, msgPackContext);
+            msgPackWriter.Write(bodyMap);
         }
     }
 }

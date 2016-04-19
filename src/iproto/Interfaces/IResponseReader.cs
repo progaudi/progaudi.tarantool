@@ -5,7 +5,7 @@ namespace iproto.Interfaces
 {
     public interface IResponseReader
     {
-        UnifiedPacket ReadResponse(byte[] response, MsgPackContext msgPackContext);
+        UnifiedPacket ReadResponse(IMsgPackReader reader);
 
         GreetingsPacket ReadGreetings(byte[] response);
     }

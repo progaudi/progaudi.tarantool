@@ -2,13 +2,13 @@
 
 namespace TarantoolDnx.MsgPack
 {
-    public class MsgPackStreamReader : IMsgPackReader 
+    internal class BytesStreamReader : IBytesReader 
     {
         private readonly Stream _stream;
 
         private readonly bool _disposeStream;
 
-        public MsgPackStreamReader(Stream stream, bool disposeStream = true)
+        public BytesStreamReader(Stream stream, bool disposeStream = true)
         {
             _stream = stream;
             _disposeStream = disposeStream;
