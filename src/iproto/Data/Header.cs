@@ -19,8 +19,6 @@ namespace iproto.Data
 
         public ulong SchemaId { get; }
 
-        public bool IsError => (Code & CommandCode.ErrorMask) == CommandCode.ErrorMask;
-
         public void WriteTo(IMsgPackWriter msgPackWriter)
         {
             var headerMap = new Dictionary<Key, ulong>

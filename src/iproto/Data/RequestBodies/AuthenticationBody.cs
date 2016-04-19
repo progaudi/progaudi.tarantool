@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+
+using iproto.Data.Request;
+
 using TarantoolDnx.MsgPack;
 
 namespace iproto.Data.Bodies
 {
-    public class AuthenticationBody : IBody
+    public class AuthenticationBody : IRequestBody
     {
         public AuthenticationBody(string username, byte[] scramble)
         {

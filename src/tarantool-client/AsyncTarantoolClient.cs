@@ -59,7 +59,7 @@ namespace tarantool_client
             return new MsgPackReader(buffer, _msgPackContext);
         }
 
-        private byte[] Send(UnifiedPacket authenticateRequest)
+        private byte[] Send(RequestPacket authenticateRequest)
         {
             using (var writer = CreateWriter())
             {

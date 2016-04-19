@@ -4,9 +4,8 @@ using iproto.Data.Packets;
 using iproto.Interfaces;
 using System.Text;
 using iproto.Data;
-using iproto.Data.Bodies;
+
 using TarantoolDnx.MsgPack;
-using TarantoolDnx.MsgPack.Converters;
 
 namespace iproto.Services
 {
@@ -15,7 +14,7 @@ namespace iproto.Services
         private const int GreetingsMessageLength = 64;
         private const int GreetingsSaltLength = 44;
 
-        public UnifiedPacket ReadResponse(IMsgPackReader reader)
+        public ResponsePacket ReadResponse(IMsgPackReader reader)
         {
             var bodyAndHeaderSize = reader.Read<ulong>();
 
@@ -27,14 +26,10 @@ namespace iproto.Services
                 headerMap[Key.Sync],
                 headerMap[Key.SchemaId]);
 
-            IBody body = null;
-            if (header.IsError)
-            {
-                body = new ErrorBody(bodyMap[Key.Error]);
-            }
-            return new UnifiedPacket(header, body);
+            return IsErrorResponse(header) ? new ResponsePacket(header, bodyMap[Key.Error], null) : new ResponsePacket(header, null, bodyMap[Key.Data]);
         }
 
+        
         public GreetingsPacket ReadGreetings(byte[] response)
         {
             var message = Encoding.UTF8.GetString(response, 0, GreetingsMessageLength);
@@ -43,6 +38,11 @@ namespace iproto.Services
             var decodedSalt= Convert.FromBase64String(saltString);
 
             return new GreetingsPacket(message, decodedSalt);
+        }
+
+        private bool IsErrorResponse(Header header)
+        {
+            return (header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask;
         }
     }
 }

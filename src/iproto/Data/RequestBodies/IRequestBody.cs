@@ -1,8 +1,8 @@
 ﻿using TarantoolDnx.MsgPack;
 
-namespace iproto.Data.Bodies
+namespace iproto.Data.Request
 {
-    public interface IBody
+    public interface IRequestBody
     {
         void WriteTo(IMsgPackWriter mspgMsgPackWriter);
     }
