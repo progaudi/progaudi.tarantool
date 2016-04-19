@@ -23,7 +23,6 @@
     },
     "dependencies": {
         "msgpack": { "target": "project" },
-        "tarantool-client": { "target": "project" },
         "xUnit": "2.1.0",
         "xunit.runner.dnx": "2.1.0-rc1-build204",
         "Shouldly": "2.7.0"

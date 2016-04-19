@@ -24,6 +24,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "tarantool-client", "src\tar
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "iproto.tests", "tests\iproto.tests\iproto.tests.xproj", "{ECF2BC78-AD7D-4316-B1AB-6534D6F0A5A8}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "tarantool-client.test", "tests\tarantool-client.test\tarantool-client.test.xproj", "{B3DCE87D-E8D6-411B-A521-412EED494AE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{ECF2BC78-AD7D-4316-B1AB-6534D6F0A5A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECF2BC78-AD7D-4316-B1AB-6534D6F0A5A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECF2BC78-AD7D-4316-B1AB-6534D6F0A5A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3DCE87D-E8D6-411B-A521-412EED494AE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3DCE87D-E8D6-411B-A521-412EED494AE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3DCE87D-E8D6-411B-A521-412EED494AE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3DCE87D-E8D6-411B-A521-412EED494AE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +66,6 @@ Global
 		{27FF1E55-3854-4EF5-B8B0-3344C599B14A} = {32A7AB4C-C3C8-446E-8AC8-4DF978111F86}
 		{B0D70F53-CF2F-4B26-841D-B6871FAA84DC} = {32A7AB4C-C3C8-446E-8AC8-4DF978111F86}
 		{ECF2BC78-AD7D-4316-B1AB-6534D6F0A5A8} = {6C17D83C-342E-4EFD-BBCA-D2D41E88AC45}
+		{B3DCE87D-E8D6-411B-A521-412EED494AE4} = {6C17D83C-342E-4EFD-BBCA-D2D41E88AC45}
 	EndGlobalSection
 EndGlobal

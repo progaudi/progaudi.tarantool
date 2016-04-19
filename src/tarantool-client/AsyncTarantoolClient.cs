@@ -41,13 +41,15 @@ namespace tarantool_client
             _socket.Dispose();
         }
 
-        public void Login(string userName, string password)
+        public ResponsePacket Login(string userName, string password)
         {
             var greetingsBytes = ReceiveGreetings();
             var greetings = _responseReader.ReadGreetings(greetingsBytes);
             var authenticateRequest = _requestFactory.CreateAuthentication(greetings, userName, password);
             var responseBytes = SendPacket(authenticateRequest);
             var response = MsgPackConverter.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
+
+            return response;
         }
 
         private byte[] ReceiveGreetings()
