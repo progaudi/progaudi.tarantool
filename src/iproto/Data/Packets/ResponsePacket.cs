@@ -1,15 +1,12 @@
 ﻿namespace iproto.Data.Packets
 {
-    public class ResponsePacket
+    public class ResponsePacket : UnifiedPacket
     {
-        public ResponsePacket(Header header, string errorMessage, object data)
+        public ResponsePacket(Header header, string errorMessage, object data) : base(header)
         {
-            Header = header;
             ErrorMessage = errorMessage;
             Data = data;
         }
-
-        public Header Header { get; }
 
         public string ErrorMessage { get; }
 

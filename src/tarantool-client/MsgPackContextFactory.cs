@@ -1,4 +1,6 @@
-﻿using tarantool_client.Converters;
+﻿using iproto.Data;
+
+using tarantool_client.Converters;
 
 using TarantoolDnx.MsgPack;
 
@@ -8,12 +10,18 @@ namespace tarantool_client
     {
         public static MsgPackContext Create()
         {
-            var resutl = new MsgPackContext();
-            resutl.RegisterConverter(new KeyConverter());
-            resutl.RegisterConverter(new ReflectionConverter());
-            resutl.RegisterConverter(new Tuple1Converter<object[]>());
+            var result = new MsgPackContext();
 
-            return resutl;
+            result.RegisterConverter(new EnumConverter<Key>());
+            result.RegisterConverter(new EnumConverter<CommandCode>());
+            result.RegisterConverter(new ReflectionConverter());
+            result.RegisterConverter(new Tuple1Converter<object[]>());
+            result.RegisterConverter(new HeaderConverter());
+
+            result.RegisterConverter(new AuthenticationPacketConverter());
+            result.RegisterConverter(new ResponsePacketConverter());
+
+            return result;
         } 
     }
 }

@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using TarantoolDnx.MsgPack;
-using TarantoolDnx.MsgPack.Converters;
-
-namespace iproto.Data
+﻿namespace iproto.Data
 {
     public class Header
     {
@@ -18,17 +14,5 @@ namespace iproto.Data
         public ulong Sync { get; }
 
         public ulong SchemaId { get; }
-
-        public void WriteTo(IMsgPackWriter msgPackWriter)
-        {
-            var headerMap = new Dictionary<Key, ulong>
-            {
-                {Key.Code, (ulong) Code},
-                {Key.Sync, Sync},
-                {Key.SchemaId, SchemaId}
-            };
-
-            msgPackWriter.Write(headerMap);
-        }
     }
 }
