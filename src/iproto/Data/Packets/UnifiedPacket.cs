@@ -1,8 +1,8 @@
 ﻿namespace iproto.Data.Packets
 {
-    public class UnifiedPacket
+    public abstract class UnifiedPacket
     {
-        public UnifiedPacket(Header header)
+        protected UnifiedPacket(Header header)
         {
             Header = header;
         }
