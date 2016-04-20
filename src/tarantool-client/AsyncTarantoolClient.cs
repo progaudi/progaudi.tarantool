@@ -3,7 +3,6 @@ using System.Net.Sockets;
 using System.Net;
 
 using iproto.Data.Packets;
-using iproto.Interfaces;
 using iproto.Services;
 
 using TarantoolDnx.MsgPack;
@@ -14,21 +13,13 @@ namespace tarantool_client
 
     public class AsyncTarantoolClient : IDisposable
     {
-        private readonly Socket _socket;
+        private readonly Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-        private readonly IRequestFactory _requestFactory;
+        private readonly AuthenticationRequestFactory _authenticationRequestFactory = new AuthenticationRequestFactory();
 
-        private readonly GreetingsResponseReader _responseReader;
+        private readonly GreetingsResponseReader _responseReader = new GreetingsResponseReader();
 
-        private readonly MsgPackContext _msgPackContext;
-
-        public AsyncTarantoolClient()
-        {
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _requestFactory = new RequestFactory();
-            _responseReader = new GreetingsResponseReader();
-            _msgPackContext = MsgPackContextFactory.Create();
-        }
+        private readonly MsgPackContext _msgPackContext = MsgPackContextFactory.Create();
 
         public void Connect(string ipAddress, int port)
         {
@@ -45,7 +36,7 @@ namespace tarantool_client
         {
             var greetingsBytes = ReceiveGreetings();
             var greetings = _responseReader.ReadGreetings(greetingsBytes);
-            var authenticateRequest = _requestFactory.CreateAuthentication(greetings, userName, password);
+            var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(greetings, userName, password);
             var responseBytes = SendPacket(authenticateRequest);
             var response = MsgPackConverter.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
 
