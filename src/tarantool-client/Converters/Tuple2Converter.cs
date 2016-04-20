@@ -11,15 +11,14 @@ namespace tarantool_client.Converters
             if (value == null)
             {
                 context.NullConverter.Write(null, writer, context);
+                return;
             }
-            else
-            {
-                var t1Converter = context.GetConverter<T1>();
-                var t2Converter = context.GetConverter<T2>();
 
-                t1Converter.Write(value.Item1, writer, context);
-                t2Converter.Write(value.Item2, writer, context);
-            }
+            var t1Converter = context.GetConverter<T1>();
+            var t2Converter = context.GetConverter<T2>();
+
+            t1Converter.Write(value.Item1, writer, context);
+            t2Converter.Write(value.Item2, writer, context);
         }
 
         public Tuple<T1, T2> Read(IBytesReader reader, MsgPackContext context, Func<Tuple<T1, T2>> creator)

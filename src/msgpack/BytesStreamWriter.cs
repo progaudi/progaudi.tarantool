@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using TarantoolDnx.MsgPack.Converters;
+
 namespace TarantoolDnx.MsgPack
 {
     internal class BytesStreamWriter : IBytesWriter
@@ -16,7 +18,7 @@ namespace TarantoolDnx.MsgPack
 
         public void Write(DataTypes dataType)
         {
-            Write((byte)dataType);
+            Write((byte) dataType);
         }
 
         public void Write(byte value)
@@ -33,6 +35,46 @@ namespace TarantoolDnx.MsgPack
         {
             if (_disposeStream)
                 _stream.Dispose();
+        }
+
+        public void WriteArrayHeaderAndLength(int length)
+        {
+            if (length <= 15)
+            {
+                IntConverter.WriteValue((byte) ((byte) DataTypes.FixArray + length), this);
+                return;
+            }
+
+            if (length <= ushort.MaxValue)
+            {
+                Write(DataTypes.Array16);
+                IntConverter.WriteValue((ushort) length, this);
+            }
+            else
+            {
+                Write(DataTypes.Array32);
+                IntConverter.WriteValue((uint) length, this);
+            }
+        }
+
+        public void WriteMapHeaderAndLength(int length)
+        {
+            if (length <= 15)
+            {
+                IntConverter.WriteValue((byte) ((byte) DataTypes.FixMap + length), this);
+                return;
+            }
+
+            if (length <= ushort.MaxValue)
+            {
+                Write(DataTypes.Map16);
+                IntConverter.WriteValue((ushort) length, this);
+            }
+            else
+            {
+                Write(DataTypes.Map32);
+                IntConverter.WriteValue((uint) length, this);
+            }
         }
     }
 }

@@ -14,19 +14,18 @@ namespace tarantool_client.Converters
             if (value == null)
             {
                 context.NullConverter.Write(null, writer, context);
+                return;
             }
-            else
-            {
-                var headerMapConverter = context.GetConverter<Dictionary<Key, ulong>>();
-                var headerMap = new Dictionary<Key, ulong>
-                {
-                    {Key.Code, (ulong)value.Code},
-                    {Key.Sync, value.Sync},
-                    {Key.SchemaId, value.SchemaId}
-                };
 
-                headerMapConverter.Write(headerMap, writer, context);
-            }
+            var headerMapConverter = context.GetConverter<Dictionary<Key, ulong>>();
+            var headerMap = new Dictionary<Key, ulong>
+            {
+                {Key.Code, (ulong)value.Code},
+                {Key.Sync, value.Sync},
+                {Key.SchemaId, value.SchemaId}
+            };
+
+            headerMapConverter.Write(headerMap, writer, context);
         }
 
         public Header Read(IBytesReader reader, MsgPackContext context, Func<Header> creator)

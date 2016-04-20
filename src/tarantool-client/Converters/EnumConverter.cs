@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Reflection;
 
 using TarantoolDnx.MsgPack;
 
@@ -10,7 +11,8 @@ namespace tarantool_client.Converters
     {
         public void Write(T value, IBytesWriter writer, MsgPackContext context)
         {
-            if (!typeof(T).IsEnum)
+            var enumTypeInfo = typeof(T).GetTypeInfo();
+            if (!enumTypeInfo.IsEnum)
             {
                 throw new InvalidOperationException($"Enum expected, but got {typeof(T)}.");
             }
@@ -57,13 +59,16 @@ namespace tarantool_client.Converters
                 var converter = context.GetConverter<ulong>();
                 converter.Write(value.ToUInt64(CultureInfo.InvariantCulture), writer, context);
             }
-
-            throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
+            else
+            {
+                throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
+            }
         }
 
         public T Read(IBytesReader reader, MsgPackContext context, Func<T> creator)
         {
-            if (!typeof(T).IsEnum)
+            var enumTypeInfo = typeof(T).GetTypeInfo();
+            if (!enumTypeInfo.IsEnum)
             {
                 throw new InvalidOperationException($"Enum expected, but got {typeof(T)}.");
             }
@@ -118,8 +123,10 @@ namespace tarantool_client.Converters
                 var readValue = converter.Read(reader, context, null);
                 return (T) Enum.ToObject(typeof(T), readValue);
             }
-
-            throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
+            else
+            {
+                throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
+            }
         }
     }
 }

@@ -8,26 +8,6 @@ namespace TarantoolDnx.MsgPack.Converters
 
         public abstract TMap Read(IBytesReader reader, MsgPackContext context, Func<TMap> creator);
 
-        protected void WriteMapHeaderAndLength(int length, IBytesWriter reader)
-        {
-            if (length <= 15)
-            {
-                IntConverter.WriteValue((byte)((byte)DataTypes.FixMap + length), reader);
-                return;
-            }
-
-            if (length <= ushort.MaxValue)
-            {
-                reader.Write(DataTypes.Map16);
-                IntConverter.WriteValue((ushort)length, reader);
-            }
-            else
-            {
-                reader.Write(DataTypes.Map32);
-                IntConverter.WriteValue((uint)length, reader);
-            }
-        }
-
         protected void ValidateConverters(IMsgPackConverter<TKey> keyConverter, IMsgPackConverter<TValue> valueConverter)
         {
             if (keyConverter == null)

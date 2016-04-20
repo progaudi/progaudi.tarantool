@@ -27,13 +27,10 @@ namespace tarantool_client.Converters
                 var errorBody = errorConverter.Read(reader, context, null);
                 return new ResponsePacket(header, errorBody[Key.Error], null);
             }
-            else
-            {
-                var dataConverter = context.GetConverter<Dictionary<Key, object>>();
-                var dataBody = dataConverter.Read(reader, context, null);
-                return new ResponsePacket(header, null, dataBody[Key.Data]);
-            }
 
+            var dataConverter = context.GetConverter<Dictionary<Key, object>>();
+            var dataBody = dataConverter.Read(reader, context, null);
+            return new ResponsePacket(header, null, dataBody[Key.Data]);
         }
     }
 }
