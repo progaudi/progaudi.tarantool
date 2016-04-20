@@ -1,4 +1,5 @@
 ﻿using System.IO;
+
 using TarantoolDnx.MsgPack.Converters;
 
 namespace TarantoolDnx.MsgPack
@@ -41,51 +42,48 @@ namespace TarantoolDnx.MsgPack
             _stream.Seek(offset, origin);
         }
 
-        public bool ReadArrayLengthOrNull(out uint length)
+        public uint? ReadArrayLengthOrNull()
         {
             var type = ReadDataType();
             switch (type)
             {
                 case DataTypes.Null:
-                    length = 0;
-                    return false;
+                    return null;
                 case DataTypes.Array16:
-                    length = IntConverter.ReadUInt16(this);
-                    return true;
+                    return IntConverter.ReadUInt16(this);
 
                 case DataTypes.Array32:
-                    length = IntConverter.ReadUInt32(this);
-                    return true;
+                    return IntConverter.ReadUInt32(this);
             }
 
-            if (TryGetLengthFromFixArray(type, out length))
+            var length = TryGetLengthFromFixArray(type);
+
+            if (length.HasValue)
             {
-                return true;
+                return length;
             }
 
             throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
         }
 
-        public bool ReadMapLengthOrNull(out uint length)
+        public uint? ReadMapLengthOrNull()
         {
             var type = ReadDataType();
 
             switch (type)
             {
                 case DataTypes.Null:
-                    length = 0;
-                    return false;
+                    return null;
                 case DataTypes.Map16:
-                    length = IntConverter.ReadUInt16(this);
-                    return true;
+                    return IntConverter.ReadUInt16(this);
 
                 case DataTypes.Map32:
-                    length = IntConverter.ReadUInt32(this);
-                    return true;
+                    return IntConverter.ReadUInt32(this);
             }
 
-            if (TryGetLengthFromFixMap(type, out length))
-                return true;
+            var length = TryGetLengthFromFixMap(type);
+            if (length.HasValue)
+                return length.Value;
 
             throw ExceptionUtils.BadTypeException(type, DataTypes.Map16, DataTypes.Map32, DataTypes.FixMap);
         }
@@ -97,16 +95,16 @@ namespace TarantoolDnx.MsgPack
                 _stream.Dispose();
         }
 
-        private static bool TryGetLengthFromFixArray(DataTypes type, out uint length)
+        private static uint? TryGetLengthFromFixArray(DataTypes type)
         {
-            length = type - DataTypes.FixArray;
-            return type.GetHighBits(4) == DataTypes.FixArray.GetHighBits(4);
+            var length = type - DataTypes.FixArray;
+            return type.GetHighBits(4) == DataTypes.FixArray.GetHighBits(4) ? length : (uint?) null;
         }
 
-        private bool TryGetLengthFromFixMap(DataTypes type, out uint length)
+        private static uint? TryGetLengthFromFixMap(DataTypes type)
         {
-            length = type - DataTypes.FixMap;
-            return type.GetHighBits(4) == DataTypes.FixMap.GetHighBits(4);
+            var length = type - DataTypes.FixMap;
+            return type.GetHighBits(4) == DataTypes.FixMap.GetHighBits(4) ? length : (uint?) null;
         }
     }
 }

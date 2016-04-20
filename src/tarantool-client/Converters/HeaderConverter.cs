@@ -40,9 +40,7 @@ namespace tarantool_client.Converters
             var ulongConverter = context.GetConverter<ulong>();
             var codeConverter = context.GetConverter<CommandCode>();
 
-            uint length;
-            reader.ReadMapLengthOrNull(out length).ShouldBe(true);
-            length.ShouldBe(3u);
+            reader.ReadMapLengthOrNull().ShouldBe(3u);
 
             keyConverter.Read(reader, context, null).ShouldBe(Key.Code);
             var code = codeConverter.Read(reader, context, null);

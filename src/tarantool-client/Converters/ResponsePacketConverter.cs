@@ -24,9 +24,7 @@ namespace tarantool_client.Converters
 
             var header = headerConverter.Read(reader, context, null);
 
-            uint length;
-            reader.ReadMapLengthOrNull(out length).ShouldBe(true);
-            length.ShouldBe(1u);
+            reader.ReadMapLengthOrNull().ShouldBe(1u);
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {

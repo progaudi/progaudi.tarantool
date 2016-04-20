@@ -10,8 +10,8 @@ namespace TarantoolDnx.MsgPack
 
         void Write(byte[] array);
 
-        void WriteArrayHeaderAndLength(int length);
+        void WriteArrayHeaderAndLength(uint length);
 
-        void WriteMapHeaderAndLength(int length);
+        void WriteMapHeaderAndLength(uint length);
     }
 }

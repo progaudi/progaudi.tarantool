@@ -13,8 +13,8 @@ namespace TarantoolDnx.MsgPack
 
         void Seek(int offset, SeekOrigin origin);
 
-        bool ReadArrayLengthOrNull(out uint length);
+        uint? ReadArrayLengthOrNull();
 
-        bool ReadMapLengthOrNull(out uint length);
+        uint? ReadMapLengthOrNull();
     }
 }

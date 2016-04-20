@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace TarantoolDnx.MsgPack.Converters
 {
-//    [DebuggerStepThrough]
+    [DebuggerStepThrough]
     public static class MsgPackConverter
     {
         public static byte[] Serialize<T>(T data)

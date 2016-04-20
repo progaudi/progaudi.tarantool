@@ -22,7 +22,7 @@ namespace TarantoolDnx.MsgPack.Converters
                 return;
             }
 
-            writer.WriteArrayHeaderAndLength(value.Count);
+            writer.WriteArrayHeaderAndLength((uint) value.Count);
             var elementConverter = context.GetConverter<TElement>();
             ValidateConverter(elementConverter);
 
@@ -34,8 +34,8 @@ namespace TarantoolDnx.MsgPack.Converters
 
         public override TArray Read(IBytesReader reader, MsgPackContext context, Func<TArray> creator)
         {
-            uint length;
-            return reader.ReadArrayLengthOrNull(out length) ? ReadArray(reader, context, creator, length) : default(TArray);
+            var length = reader.ReadArrayLengthOrNull();
+            return length.HasValue ? ReadArray(reader, context, creator, length.Value) : default(TArray);
         }
 
         private TArray ReadArray(IBytesReader reader, MsgPackContext context, Func<TArray> creator, uint length)

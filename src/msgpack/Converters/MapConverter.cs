@@ -14,7 +14,7 @@ namespace TarantoolDnx.MsgPack.Converters
                 return;
             }
 
-            writer.WriteMapHeaderAndLength(value.Count);
+            writer.WriteMapHeaderAndLength((uint) value.Count);
             var keyConverter = context.GetConverter<TKey>();
             var valueConverter = context.GetConverter<TValue>();
 
@@ -29,9 +29,8 @@ namespace TarantoolDnx.MsgPack.Converters
 
         public override TMap Read(IBytesReader reader, MsgPackContext context, Func<TMap> creator)
         {
-            uint length;
-
-            return reader.ReadMapLengthOrNull(out length) ? ReadMap(reader, context, creator, length) : default(TMap);
+            var length = reader.ReadArrayLengthOrNull();
+            return length.HasValue ? ReadMap(reader, context, creator, length.Value) : default(TMap);
         }
 
         private TMap ReadMap(IBytesReader reader, MsgPackContext context, Func<TMap> creator, uint length)

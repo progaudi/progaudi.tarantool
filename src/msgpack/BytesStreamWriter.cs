@@ -37,7 +37,7 @@ namespace TarantoolDnx.MsgPack
                 _stream.Dispose();
         }
 
-        public void WriteArrayHeaderAndLength(int length)
+        public void WriteArrayHeaderAndLength(uint length)
         {
             if (length <= 15)
             {
@@ -57,7 +57,7 @@ namespace TarantoolDnx.MsgPack
             }
         }
 
-        public void WriteMapHeaderAndLength(int length)
+        public void WriteMapHeaderAndLength(uint length)
         {
             if (length <= 15)
             {

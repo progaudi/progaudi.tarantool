@@ -14,7 +14,7 @@ namespace TarantoolDnx.MsgPack.Converters
                 return;
             }
 
-            writer.WriteArrayHeaderAndLength(value.Count);
+            writer.WriteArrayHeaderAndLength((uint) value.Count);
             var elementConverter = context.GetConverter<TElement>();
             ValidateConverter(elementConverter);
 
