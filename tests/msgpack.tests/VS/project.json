@@ -12,7 +12,8 @@
 
     "dependencies": {
         "xUnit": "2.1.0",
-        "Shouldly": "2.7.0"
+        "Shouldly": "2.7.0",
+        "JetBrains.Annotations": "10.1.4"
     },
 
     "frameworks": {

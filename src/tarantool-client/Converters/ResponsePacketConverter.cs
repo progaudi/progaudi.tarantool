@@ -23,25 +23,32 @@ namespace tarantool_client.Converters
             var keyConverter = context.GetConverter<Key>();
 
             var header = headerConverter.Read(reader, context, null);
+            string errorMessage = null;
+            object data = null;
 
-            reader.ReadMapLengthOrNull().ShouldBe(1u);
+            var length = reader.ReadMapLengthOrNull();
+
+            length.HasValue.ShouldBeTrue();
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
+                length.ShouldBe(1u);
+
                 var stringConverter = context.GetConverter<string>();
 
                 keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
-                var errorMessage = stringConverter.Read(reader, context, null);
-
-                return new ResponsePacket(header, errorMessage, null);
+                errorMessage = stringConverter.Read(reader, context, null);
             }
 
-            var dataConverter = context.GetConverter<object>();
+            if (length.Value > 0u)
+            {
+                var dataConverter = context.GetConverter<object>();
 
-            keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
-            var data = dataConverter.Read(reader, context, null);
+                keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
+                data = dataConverter.Read(reader, context, null);
+            }
 
-            return new ResponsePacket(header, null, data);
+            return new ResponsePacket(header, errorMessage, data);
         }
     }
 }

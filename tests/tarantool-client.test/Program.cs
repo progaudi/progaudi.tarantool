@@ -8,8 +8,8 @@ namespace tarantool_client.test
         {
             var tarantoolClinet = new AsyncTarantoolClient();
             tarantoolClinet.Connect("192.168.99.100", 3301);
-            var response = tarantoolClinet.Login("test", "test");
-            Console.WriteLine(response.ErrorMessage);
+            var response = tarantoolClinet.Login("operator", "operator");
+            Console.WriteLine(response.Data);
         }
     }
 }
