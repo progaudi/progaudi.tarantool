@@ -12,5 +12,9 @@ namespace TarantoolDnx.MsgPack
         void ReadBytes(byte[] buffer);
 
         void Seek(int offset, SeekOrigin origin);
+
+        bool ReadArrayLengthOrNull(out uint length);
+
+        bool ReadMapLengthOrNull(out uint length);
     }
 }

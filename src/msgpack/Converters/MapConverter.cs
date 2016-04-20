@@ -29,31 +29,9 @@ namespace TarantoolDnx.MsgPack.Converters
 
         public override TMap Read(IBytesReader reader, MsgPackContext context, Func<TMap> creator)
         {
-            var type = reader.ReadDataType();
-
-            switch (type)
-            {
-                case DataTypes.Null:
-                    return default(TMap);
-
-                case DataTypes.Map16:
-                    return ReadMap(reader, context, creator, IntConverter.ReadUInt16(reader));
-
-                case DataTypes.Map32:
-                    return ReadMap(reader, context, creator, IntConverter.ReadUInt32(reader));
-            }
-
             uint length;
-            if (TryGetLengthFromFixMap(type, out length))
-                return ReadMap(reader, context, creator, length);
 
-            throw ExceptionUtils.BadTypeException(type, DataTypes.Map16, DataTypes.Map32, DataTypes.FixMap);
-        }
-
-        private bool TryGetLengthFromFixMap(DataTypes type, out uint length)
-        {
-            length = type - DataTypes.FixMap;
-            return type.GetHighBits(4) == DataTypes.FixMap.GetHighBits(4);
+            return reader.ReadMapLengthOrNull(out length) ? ReadMap(reader, context, creator, length) : default(TMap);
         }
 
         private TMap ReadMap(IBytesReader reader, MsgPackContext context, Func<TMap> creator, uint length)
@@ -63,7 +41,7 @@ namespace TarantoolDnx.MsgPack.Converters
 
             ValidateConverters(keyConverter, valueConverter);
 
-            var map = creator == null ? (TMap)context.GetObjectActivator(typeof (TMap))() : creator();
+            var map = creator == null ? (TMap) context.GetObjectActivator(typeof(TMap))() : creator();
 
             for (var i = 0u; i < length; i++)
             {

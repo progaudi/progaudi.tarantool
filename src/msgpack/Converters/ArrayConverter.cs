@@ -34,33 +34,8 @@ namespace TarantoolDnx.MsgPack.Converters
 
         public override TArray Read(IBytesReader reader, MsgPackContext context, Func<TArray> creator)
         {
-            var type = reader.ReadDataType();
-
-            switch (type)
-            {
-                case DataTypes.Null:
-                    return default(TArray);
-
-                case DataTypes.Array16:
-                    return ReadArray(reader, context, creator, IntConverter.ReadUInt16(reader));
-
-                case DataTypes.Array32:
-                    return ReadArray(reader, context, creator, IntConverter.ReadUInt32(reader));
-            }
-
             uint length;
-            if (TryGetLengthFromFixArray(type, out length))
-            {
-                return ReadArray(reader, context, creator, length);
-            }
-
-            throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
-        }
-
-        private bool TryGetLengthFromFixArray(DataTypes type, out uint length)
-        {
-            length = type - DataTypes.FixArray;
-            return type.GetHighBits(4) == DataTypes.FixArray.GetHighBits(4);
+            return reader.ReadArrayLengthOrNull(out length) ? ReadArray(reader, context, creator, length) : default(TArray);
         }
 
         private TArray ReadArray(IBytesReader reader, MsgPackContext context, Func<TArray> creator, uint length)

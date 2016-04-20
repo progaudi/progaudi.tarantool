@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Shouldly;
+
 using iproto.Data;
 using iproto.Data.Packets;
 
@@ -18,19 +20,30 @@ namespace tarantool_client.Converters
         public ResponsePacket Read(IBytesReader reader, MsgPackContext context, Func<ResponsePacket> creator)
         {
             var headerConverter = context.GetConverter<Header>();
+            var keyConverter = context.GetConverter<Key>();
 
             var header = headerConverter.Read(reader, context, null);
 
+            uint length;
+            reader.ReadMapLengthOrNull(out length).ShouldBe(true);
+            length.ShouldBe(1u);
+
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
-                var errorConverter = context.GetConverter<Dictionary<Key, string>>();
-                var errorBody = errorConverter.Read(reader, context, null);
-                return new ResponsePacket(header, errorBody[Key.Error], null);
+                var stringConverter = context.GetConverter<string>();
+
+                keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
+                var errorMessage = stringConverter.Read(reader, context, null);
+
+                return new ResponsePacket(header, errorMessage, null);
             }
 
-            var dataConverter = context.GetConverter<Dictionary<Key, object>>();
-            var dataBody = dataConverter.Read(reader, context, null);
-            return new ResponsePacket(header, null, dataBody[Key.Data]);
+            var dataConverter = context.GetConverter<object>();
+
+            keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
+            var data = dataConverter.Read(reader, context, null);
+
+            return new ResponsePacket(header, null, data);
         }
     }
 }

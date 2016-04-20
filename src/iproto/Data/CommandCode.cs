@@ -1,6 +1,6 @@
 ﻿namespace iproto.Data
 {
-    public enum CommandCode
+    public enum CommandCode : uint
     {
         //User command codes
         Select = 0x01,

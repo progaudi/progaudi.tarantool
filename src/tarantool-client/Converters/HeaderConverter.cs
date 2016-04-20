@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-
+using System.Runtime.Serialization;
 using iproto.Data;
 
 using TarantoolDnx.MsgPack;
+
+using Shouldly;
 
 namespace tarantool_client.Converters
 {
@@ -17,24 +18,42 @@ namespace tarantool_client.Converters
                 return;
             }
 
-            var headerMapConverter = context.GetConverter<Dictionary<Key, ulong>>();
-            var headerMap = new Dictionary<Key, ulong>
-            {
-                {Key.Code, (ulong)value.Code},
-                {Key.Sync, value.Sync},
-                {Key.SchemaId, value.SchemaId}
-            };
+            var keyConverter = context.GetConverter<Key>();
+            var ulongConverter = context.GetConverter<ulong>();
+            var codeConverter = context.GetConverter<CommandCode>();
 
-            headerMapConverter.Write(headerMap, writer, context);
+            writer.WriteMapHeaderAndLength(3);
+
+            keyConverter.Write(Key.Code, writer, context);
+            codeConverter.Write(value.Code, writer, context);
+
+            keyConverter.Write(Key.Sync, writer, context);
+            ulongConverter.Write(value.Sync, writer, context);
+
+            keyConverter.Write(Key.SchemaId, writer, context);
+            ulongConverter.Write(value.SchemaId, writer, context);
         }
 
         public Header Read(IBytesReader reader, MsgPackContext context, Func<Header> creator)
         {
-            var headerMapConverter = context.GetConverter<Dictionary<Key, ulong>>();
-            var headerMap = headerMapConverter.Read(reader, context, null);
+            var keyConverter = context.GetConverter<Key>();
+            var ulongConverter = context.GetConverter<ulong>();
+            var codeConverter = context.GetConverter<CommandCode>();
 
+            uint length;
+            reader.ReadMapLengthOrNull(out length).ShouldBe(true);
+            length.ShouldBe(3u);
 
-            return new Header((CommandCode)headerMap[Key.Code], headerMap[Key.Sync], headerMap[Key.SchemaId]);
+            keyConverter.Read(reader, context, null).ShouldBe(Key.Code);
+            var code = codeConverter.Read(reader, context, null);
+
+            keyConverter.Read(reader, context, null).ShouldBe(Key.Sync);
+            var sync = ulongConverter.Read(reader, context, null);
+
+            keyConverter.Read(reader, context, null).ShouldBe(Key.SchemaId);
+            var schemaId = ulongConverter.Read(reader, context, null);
+
+            return new Header(code, sync, schemaId);
         }
     }
 }

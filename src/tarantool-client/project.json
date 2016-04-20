@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "msgpack": { "target": "project" },
-        "iproto": { "target": "project" }
+        "iproto": { "target": "project" },
+        "Shouldly": "2.7.0"
     }
 }

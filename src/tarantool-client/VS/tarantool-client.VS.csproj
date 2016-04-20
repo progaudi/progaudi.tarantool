@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>C:\Users\roman\.nuget\packages\JetBrains.Annotations\10.1.4\lib\net20\JetBrains.Annotations.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,6 +45,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="project.json"/>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\iproto\VS\iproto.VS.csproj">
       <Project>{069C0303-362B-4E81-9775-33F99BD4B20D}</Project>
       <Name>iproto.VS</Name>
@@ -56,10 +56,6 @@
       <Project>{2F96BC33-6B63-464D-82B8-A99C90CCF33F}</Project>
       <Name>msgpack.VS</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="VS\obj\Debug\" />
-    <Folder Include="VS\Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

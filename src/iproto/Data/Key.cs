@@ -1,6 +1,6 @@
 ﻿namespace iproto.Data
 {
-    public enum Key
+    public enum Key : uint
     {
         //User keys
         Code = 0x00,
