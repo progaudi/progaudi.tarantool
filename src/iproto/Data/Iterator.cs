@@ -1,6 +1,6 @@
 ﻿namespace iproto.Data
 {
-    public enum Iterator
+    public enum Iterator : uint
     {
         Eq,
         Req,

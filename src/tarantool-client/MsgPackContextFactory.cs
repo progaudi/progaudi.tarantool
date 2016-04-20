@@ -14,6 +14,8 @@ namespace tarantool_client
 
             result.RegisterConverter(new EnumConverter<Key>());
             result.RegisterConverter(new EnumConverter<CommandCode>());
+            result.RegisterConverter(new EnumConverter<Iterator>());
+
             result.RegisterConverter(new ReflectionConverter());
             result.RegisterConverter(new Tuple1Converter<object[]>());
             result.RegisterConverter(new HeaderConverter());
