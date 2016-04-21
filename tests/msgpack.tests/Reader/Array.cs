@@ -31,7 +31,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
                 161, 101
             };
 
-            MsgPackConverter.Deserialize<string[]>(bytes).ShouldBe(tests);
+            MsgPackSerializer.Deserialize<string[]>(bytes).ShouldBe(tests);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
             var settings = new MsgPackContext();
             settings.RegisterConverter(new TestReflectionConverter());
 
-            MsgPackConverter.Deserialize<object[]>(data, settings).ShouldBe(expected);
+            MsgPackSerializer.Deserialize<object[]>(data, settings).ShouldBe(expected);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
                 0x01, 0x02, 0x03, 0x04, 0x05,
             };
 
-            MsgPackConverter.Deserialize<int[]>(bytes).ShouldBe(array);
+            MsgPackSerializer.Deserialize<int[]>(bytes).ShouldBe(array);
         }
     }
 }

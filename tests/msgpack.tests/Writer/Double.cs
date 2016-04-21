@@ -27,7 +27,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(double.NegativeInfinity, new byte[] {203, 255, 240, 0, 0, 0, 0, 0, 0})]
         public void TestDouble(double value, byte[] bytes)
         {
-            MsgPackConverter.Serialize(value).ShouldBe(bytes);
+            MsgPackSerializer.Serialize(value).ShouldBe(bytes);
         }
 
         [Theory]
@@ -47,7 +47,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(float.NegativeInfinity, new byte[] {202, 255, 128, 0, 0})]
         public void TestFloat(float value, byte[] bytes)
         {
-            MsgPackConverter.Serialize(value).ShouldBe(bytes);
+            MsgPackSerializer.Serialize(value).ShouldBe(bytes);
         }
     }
 }

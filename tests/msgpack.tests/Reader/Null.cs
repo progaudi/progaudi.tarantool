@@ -13,25 +13,25 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [Fact]
         public void ReadNullArray()
         {
-            MsgPackConverter.Deserialize<int[]>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<int[]>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullByteArray()
         {
-            MsgPackConverter.Deserialize<byte[]>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<byte[]>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullMap()
         {
-            MsgPackConverter.Deserialize<Dictionary<int, int>>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<Dictionary<int, int>>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullString()
         {
-            MsgPackConverter.Deserialize<string>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<string>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
     }
 }

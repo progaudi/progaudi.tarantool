@@ -24,7 +24,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
 
             foreach (var test in tests)
             {
-                MsgPackConverter.Serialize(test.Key).ShouldBe(test.Value);
+                MsgPackSerializer.Serialize(test.Key).ShouldBe(test.Value);
             }
         }
 
@@ -43,7 +43,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
 
             foreach (var test in tests)
             {
-                MsgPackConverter.Serialize(test.Key).ShouldBe(test.Value);
+                MsgPackSerializer.Serialize(test.Key).ShouldBe(test.Value);
             }
         }
     }

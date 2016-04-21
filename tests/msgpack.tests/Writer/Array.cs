@@ -32,7 +32,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
                 161, 101
             };
 
-            MsgPackConverter.Serialize(tests).ShouldBe(bytes);
+            MsgPackSerializer.Serialize(tests).ShouldBe(bytes);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
 
             var settings = new MsgPackContext();
             settings.RegisterConverter(new TestReflectionConverter());
-            MsgPackConverter.Serialize(tests, settings).ShouldBe(data);
+            MsgPackSerializer.Serialize(tests, settings).ShouldBe(data);
         }
     }
 }

@@ -13,79 +13,79 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [Fact]
         public void ReadNullAsNullableBool()
         {
-            MsgPackConverter.Deserialize<bool?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<bool?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableFloat()
         {
-            MsgPackConverter.Deserialize<float?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<float?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableDouble()
         {
-            MsgPackConverter.Deserialize<double?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<double?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableByte()
         {
-            MsgPackConverter.Deserialize<byte?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<byte?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableSbyte()
         {
-            MsgPackConverter.Deserialize<sbyte?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<sbyte?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableShort()
         {
-            MsgPackConverter.Deserialize<short?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<short?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableUshort()
         {
-            MsgPackConverter.Deserialize<ushort?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<ushort?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableInt()
         {
-            MsgPackConverter.Deserialize<int?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<int?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableUint()
         {
-            MsgPackConverter.Deserialize<uint?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<uint?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableLong()
         {
-            MsgPackConverter.Deserialize<long?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<long?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
 
         [Fact]
         public void ReadNullAsNullableUlong()
         {
-            MsgPackConverter.Deserialize<ulong?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
+            MsgPackSerializer.Deserialize<ulong?>(new[] { (byte)DataTypes.Null }).ShouldBe(null);
         }
         
         [Fact]
         public void False()
         {
-            MsgPackConverter.Deserialize<bool?>(new[] { (byte)DataTypes.False }).ShouldBe(false);
+            MsgPackSerializer.Deserialize<bool?>(new[] { (byte)DataTypes.False }).ShouldBe(false);
         }
 
         [Fact]
         public void True()
         {
-            MsgPackConverter.Deserialize<bool?>(new[] { (byte)DataTypes.True }).ShouldBe(true);
+            MsgPackSerializer.Deserialize<bool?>(new[] { (byte)DataTypes.True }).ShouldBe(true);
         }
 
         [Theory]
@@ -105,7 +105,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(double.NegativeInfinity, new byte[] { 203, 255, 240, 0, 0, 0, 0, 0, 0 })]
         public void TestDouble(double value, byte[] bytes)
         {
-            MsgPackConverter.Deserialize<double?>(bytes).ShouldBe(value);
+            MsgPackSerializer.Deserialize<double?>(bytes).ShouldBe(value);
         }
 
         [Theory]
@@ -125,7 +125,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(float.NegativeInfinity, new byte[] { 202, 255, 128, 0, 0 })]
         public void TestFloat(float value, byte[] bytes)
         {
-            MsgPackConverter.Deserialize<float?>(bytes).ShouldBe(value);
+            MsgPackSerializer.Deserialize<float?>(bytes).ShouldBe(value);
         }
 
         [Theory]
@@ -142,7 +142,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(long.MinValue, new byte[] { 211, 128, 0, 0, 0, 0, 0, 0, 0 })]
         public void TestSignedLong(long number, byte[] data)
         {
-            MsgPackConverter.Deserialize<long?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<long?>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -158,7 +158,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(50505, new byte[] { 205, 197, 73 })]
         public void TestSignedInt(int number, byte[] data)
         {
-            MsgPackConverter.Deserialize<int?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<int?>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -171,7 +171,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(short.MaxValue, new byte[] { 209, 127, 0xff })]
         public void TestSignedShort(short number, byte[] data)
         {
-            MsgPackConverter.Deserialize<short?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<short?>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -182,7 +182,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(sbyte.MaxValue, new byte[] { 127 })]
         public void TestSignedByte(sbyte number, byte[] data)
         {
-            MsgPackConverter.Deserialize<sbyte?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<sbyte?>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -194,7 +194,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(ulong.MaxValue, new byte[] { 0xcf, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff })]
         public void TetsUnsignedLong(ulong number, byte[] data)
         {
-            MsgPackConverter.Deserialize<ulong?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<ulong?>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -205,7 +205,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(uint.MaxValue, new byte[] { 0xce, 0xff, 0xff, 0xff, 0xff })]
         public void TetsUnsignedInt(uint number, byte[] data)
         {
-            MsgPackConverter.Deserialize<uint?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<uint?>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -215,7 +215,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(ushort.MaxValue, new byte[] { 0xcd, 0xff, 0xff })]
         public void TetsUnsignedShort(ushort number, byte[] data)
         {
-            MsgPackConverter.Deserialize<ushort?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<ushort?>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -224,7 +224,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(byte.MaxValue, new byte[] { 0xcc, 0xff })]
         public void TetsUnsignedByte(byte number, byte[] data)
         {
-            MsgPackConverter.Deserialize<byte?>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<byte?>(data).ShouldBe(number);
         }
     }
 }

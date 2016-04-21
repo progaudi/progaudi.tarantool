@@ -24,7 +24,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
 
             foreach (var test in tests)
             {
-                MsgPackConverter.Deserialize<System.DateTime>(test.Key).ShouldBe(test.Value);
+                MsgPackSerializer.Deserialize<System.DateTime>(test.Key).ShouldBe(test.Value);
             }
         }
 
@@ -43,7 +43,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
 
             foreach (var test in tests)
             {
-                MsgPackConverter.Deserialize<System.DateTimeOffset>(test.Key).ShouldBe(test.Value);
+                MsgPackSerializer.Deserialize<System.DateTimeOffset>(test.Key).ShouldBe(test.Value);
             }
         }
     }

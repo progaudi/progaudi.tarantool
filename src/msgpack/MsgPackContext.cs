@@ -70,6 +70,15 @@ namespace TarantoolDnx.MsgPack
                 ?? TryGenerateNullableConverter(type));
         }
 
+        public IMsgPackConverter<T> GetConverter<T>(Type type)
+        {
+            return (IMsgPackConverter<T>)
+                (GetConverterFromCache(type)
+                ?? TryGenerateArrayConverter(type)
+                ?? TryGenerateMapConverter(type)
+                ?? TryGenerateNullableConverter(type));
+        }
+
         public Func<object> GetObjectActivator(Type type)
         {
             return ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));

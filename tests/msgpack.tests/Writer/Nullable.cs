@@ -13,79 +13,79 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [Fact]
         public void WriteNullAsNullableBool()
         {
-            MsgPackConverter.Serialize(default(bool?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(bool?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableFloat()
         {
-            MsgPackConverter.Serialize(default(float?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(float?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableDouble()
         {
-            MsgPackConverter.Serialize(default(double?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(double?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableByte()
         {
-            MsgPackConverter.Serialize(default(byte?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(byte?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableSbyte()
         {
-            MsgPackConverter.Serialize(default(sbyte?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(sbyte?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableShort()
         {
-            MsgPackConverter.Serialize(default(short?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(short?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableUshort()
         {
-            MsgPackConverter.Serialize(default(ushort?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(ushort?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableInt()
         {
-            MsgPackConverter.Serialize(default(int?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(int?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableUint()
         {
-            MsgPackConverter.Serialize(default(uint?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(uint?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableLong()
         {
-            MsgPackConverter.Serialize(default(long?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(long?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void WriteNullAsNullableUlong()
         {
-            MsgPackConverter.Serialize(default(ulong?)).ShouldBe(new[] { (byte)DataTypes.Null });
+            MsgPackSerializer.Serialize(default(ulong?)).ShouldBe(new[] { (byte)DataTypes.Null });
         }
 
         [Fact]
         public void False()
         {
-            MsgPackConverter.Serialize((bool?)false).ShouldBe(new[] { (byte)DataTypes.False });
+            MsgPackSerializer.Serialize((bool?)false).ShouldBe(new[] { (byte)DataTypes.False });
         }
 
         [Fact]
         public void True()
         {
-            MsgPackConverter.Serialize((bool?)true).ShouldBe(new[] { (byte)DataTypes.True });
+            MsgPackSerializer.Serialize((bool?)true).ShouldBe(new[] { (byte)DataTypes.True });
         }
 
         [Theory]
@@ -105,7 +105,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(double.NegativeInfinity, new byte[] { 203, 255, 240, 0, 0, 0, 0, 0, 0 })]
         public void TestDouble(double value, byte[] bytes)
         {
-            MsgPackConverter.Serialize((double?)value).ShouldBe(bytes);
+            MsgPackSerializer.Serialize((double?)value).ShouldBe(bytes);
         }
 
         [Theory]
@@ -125,7 +125,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(float.NegativeInfinity, new byte[] { 202, 255, 128, 0, 0 })]
         public void TestFloat(float value, byte[] bytes)
         {
-            MsgPackConverter.Serialize((float?)value).ShouldBe(bytes);
+            MsgPackSerializer.Serialize((float?)value).ShouldBe(bytes);
         }
 
         [Theory]
@@ -142,7 +142,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(long.MinValue, new byte[] { 211, 128, 0, 0, 0, 0, 0, 0, 0 })]
         public void TestSignedLong(long number, byte[] data)
         {
-            MsgPackConverter.Serialize((long?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((long?)number).ShouldBe(data);
         }
 
         [Theory]
@@ -158,7 +158,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(50505, new byte[] { 205, 197, 73 })]
         public void TestSignedInt(int number, byte[] data)
         {
-            MsgPackConverter.Serialize((int?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((int?)number).ShouldBe(data);
         }
 
         [Theory]
@@ -171,7 +171,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(short.MaxValue, new byte[] { 209, 127, 0xff })]
         public void TestSignedShort(short number, byte[] data)
         {
-            MsgPackConverter.Serialize((short?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((short?)number).ShouldBe(data);
         }
 
         [Theory]
@@ -182,7 +182,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(sbyte.MaxValue, new byte[] { 127 })]
         public void TestSignedByte(sbyte number, byte[] data)
         {
-            MsgPackConverter.Serialize((sbyte?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((sbyte?)number).ShouldBe(data);
         }
 
         [Theory]
@@ -194,7 +194,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(ulong.MaxValue, new byte[] { 0xcf, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff })]
         public void TetsUnsignedLong(ulong number, byte[] data)
         {
-            MsgPackConverter.Serialize((ulong?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((ulong?)number).ShouldBe(data);
         }
 
         [Theory]
@@ -205,7 +205,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(uint.MaxValue, new byte[] { 0xce, 0xff, 0xff, 0xff, 0xff })]
         public void TetsUnsignedInt(uint number, byte[] data)
         {
-            MsgPackConverter.Serialize((uint?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((uint?)number).ShouldBe(data);
         }
 
         [Theory]
@@ -215,7 +215,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(ushort.MaxValue, new byte[] { 0xcd, 0xff, 0xff })]
         public void TetsUnsignedShort(ushort number, byte[] data)
         {
-            MsgPackConverter.Serialize((ushort?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((ushort?)number).ShouldBe(data);
         }
 
         [Theory]
@@ -224,7 +224,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(byte.MaxValue, new byte[] { 0xcc, 0xff })]
         public void TetsUnsignedByte(byte number, byte[] data)
         {
-            MsgPackConverter.Serialize((byte?)number).ShouldBe(data);
+            MsgPackSerializer.Serialize((byte?)number).ShouldBe(data);
         }
 
     }

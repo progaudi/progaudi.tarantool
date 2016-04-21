@@ -1,8 +1,10 @@
 ﻿using System.IO;
 
+using TarantoolDnx.MsgPack.Converters;
+
 namespace TarantoolDnx.MsgPack
 {
-    public class MsgPackStreamReader : IMsgPackReader 
+    internal class MsgPackStreamReader : IMsgPackReader
     {
         private readonly Stream _stream;
 
@@ -16,7 +18,7 @@ namespace TarantoolDnx.MsgPack
 
         public DataTypes ReadDataType()
         {
-            return (DataTypes)ReadByte();
+            return (DataTypes) ReadByte();
         }
 
         public byte ReadByte()
@@ -25,7 +27,7 @@ namespace TarantoolDnx.MsgPack
             if (temp == -1)
                 throw ExceptionUtils.NotEnoughBytes(0, 1);
 
-            return (byte)temp;
+            return (byte) temp;
         }
 
         public void ReadBytes(byte[] buffer)
@@ -39,11 +41,70 @@ namespace TarantoolDnx.MsgPack
         {
             _stream.Seek(offset, origin);
         }
-        
+
+        public uint? ReadArrayLength()
+        {
+            var type = ReadDataType();
+            switch (type)
+            {
+                case DataTypes.Null:
+                    return null;
+                case DataTypes.Array16:
+                    return IntConverter.ReadUInt16(this);
+
+                case DataTypes.Array32:
+                    return IntConverter.ReadUInt32(this);
+            }
+
+            var length = TryGetLengthFromFixArray(type);
+
+            if (length.HasValue)
+            {
+                return length;
+            }
+
+            throw ExceptionUtils.BadTypeException(type, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray, DataTypes.Null);
+        }
+
+        public uint? ReadMapLength()
+        {
+            var type = ReadDataType();
+
+            switch (type)
+            {
+                case DataTypes.Null:
+                    return null;
+                case DataTypes.Map16:
+                    return IntConverter.ReadUInt16(this);
+
+                case DataTypes.Map32:
+                    return IntConverter.ReadUInt32(this);
+            }
+
+            var length = TryGetLengthFromFixMap(type);
+            if (length.HasValue)
+                return length.Value;
+
+            throw ExceptionUtils.BadTypeException(type, DataTypes.Map16, DataTypes.Map32, DataTypes.FixMap, DataTypes.Null);
+        }
+
+
         public void Dispose()
         {
             if (_disposeStream)
                 _stream.Dispose();
+        }
+
+        private static uint? TryGetLengthFromFixArray(DataTypes type)
+        {
+            var length = type - DataTypes.FixArray;
+            return type.GetHighBits(4) == DataTypes.FixArray.GetHighBits(4) ? length : (uint?) null;
+        }
+
+        private static uint? TryGetLengthFromFixMap(DataTypes type)
+        {
+            var length = type - DataTypes.FixMap;
+            return type.GetHighBits(4) == DataTypes.FixMap.GetHighBits(4) ? length : (uint?) null;
         }
     }
 }

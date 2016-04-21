@@ -1,0 +1,30 @@
+﻿{
+    "version": "1.0.0-*",
+    "description": "iproto.tests Class Library",
+    "authors": [ "roman-kozachenko" ],
+    "tags": [ "" ],
+    "projectUrl": "",
+    "licenseUrl": "",
+
+    "commands": {
+        "test": "xunit.runner.dnx"
+    },
+
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "frameworks": {
+        "dnx451": { },
+        "dnxcore50": {
+            "dependencies": {
+            }
+        }
+    },
+    "dependencies": {
+        "iproto": { "target": "project" },
+        "tarantool-client": { "target": "project" },
+        "xUnit": "2.1.0",
+        "xunit.runner.dnx": "2.1.0-rc1-build204",
+        "Shouldly": "2.7.0"
+    }
+}

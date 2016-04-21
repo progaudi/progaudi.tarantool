@@ -46,6 +46,10 @@
       <Project>{2f96bc33-6b63-464d-82b8-a99c90ccf33f}</Project>
       <Name>msgpack.VS</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\src\tarantool-client\VS\tarantool-client.VS.csproj">
+      <Project>{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}</Project>
+      <Name>tarantool-client.VS</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -14,7 +14,7 @@ namespace TarantoolDnx.MsgPack.Converters
                 return;
             }
 
-            WriteMapHeaderAndLength(value.Count, writer);
+            writer.WriteMapHeaderAndLength((uint) value.Count);
             var keyConverter = context.GetConverter<TKey>();
             var valueConverter = context.GetConverter<TValue>();
 

@@ -22,7 +22,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(long.MinValue, new byte[] {211, 128, 0, 0, 0, 0, 0, 0, 0})]
         public void TestSignedLong(long number, byte[] data)
         {
-            MsgPackConverter.Deserialize<long>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<long>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -38,7 +38,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(50505, new byte[] {205, 197, 73})]
         public void TestSignedInt(int number, byte[] data)
         {
-            MsgPackConverter.Deserialize<int>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<int>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -51,7 +51,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(short.MaxValue, new byte[] {209, 127, 0xff})]
         public void TestSignedShort(short number, byte[] data)
         {
-            MsgPackConverter.Deserialize<short>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<short>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -62,7 +62,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(sbyte.MaxValue, new byte[] {127})]
         public void TestSignedByte(sbyte number, byte[] data)
         {
-            MsgPackConverter.Deserialize<sbyte>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<sbyte>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -74,7 +74,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         //[InlineData(ulong.MaxValue, new byte[] {0xcf, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff})]
         public void TetsUnsignedLong(ulong number, byte[] data)
         {
-            MsgPackConverter.Deserialize<ulong>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<ulong>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -85,7 +85,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(uint.MaxValue, new byte[] {0xce, 0xff, 0xff, 0xff, 0xff})]
         public void TetsUnsignedInt(uint number, byte[] data)
         {
-            MsgPackConverter.Deserialize<uint>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<uint>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -95,7 +95,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(ushort.MaxValue, new byte[] {0xcd, 0xff, 0xff})]
         public void TetsUnsignedShort(ushort number, byte[] data)
         {
-            MsgPackConverter.Deserialize<ushort>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<ushort>(data).ShouldBe(number);
         }
 
         [Theory]
@@ -104,7 +104,7 @@ namespace TarantoolDnx.MsgPack.Tests.Reader
         [InlineData(byte.MaxValue, new byte[] {0xcc, 0xff})]
         public void TetsUnsignedByte(byte number, byte[] data)
         {
-            MsgPackConverter.Deserialize<byte>(data).ShouldBe(number);
+            MsgPackSerializer.Deserialize<byte>(data).ShouldBe(number);
         }
     }
 }
