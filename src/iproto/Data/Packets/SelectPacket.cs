@@ -1,8 +1,10 @@
-﻿namespace iproto.Data.Packets
+﻿using System;
+
+namespace iproto.Data.Packets
 {
     public class SelectPacket<T> : UnifiedPacket
     {
-        public SelectPacket(Header header, int spaceId, int indexId, int limit, int offset, Iterator iterator, SelectKey<T> selectKey)
+        public SelectPacket(Header header, int spaceId, int indexId, int limit, int offset, Iterator iterator, Tuple<T> selectKey)
             : base(header)
         {
             SpaceId = spaceId;
@@ -23,6 +25,6 @@
 
         public Iterator Iterator { get; }
 
-        public SelectKey<T> SelectKey { get; }
+        public Tuple<T> SelectKey { get; }
     }
 }

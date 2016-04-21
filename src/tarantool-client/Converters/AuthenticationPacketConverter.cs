@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using iproto.Data;
 using iproto.Data.Packets;

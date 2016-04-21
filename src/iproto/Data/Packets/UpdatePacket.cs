@@ -1,10 +1,12 @@
-﻿using iproto.Data.UpdateOperations;
+﻿using System;
+
+using iproto.Data.UpdateOperations;
 
 namespace iproto.Data.Packets
 {
-    public class UpdatePacket<TSelect, TUpdate> : UnifiedPacket
+    public class UpdatePacket<T1, TUpdate> : UnifiedPacket
     {
-        public UpdatePacket(Header header, int spaceId, int indexId, SelectKey<TSelect> key, UpdateOperation<TUpdate> updateOperation)
+        public UpdatePacket(Header header, int spaceId, int indexId, Tuple<T1> key, UpdateOperation<TUpdate> updateOperation)
             : base(header)
         {
             SpaceId = spaceId;
@@ -17,7 +19,7 @@ namespace iproto.Data.Packets
 
         public int IndexId { get; }
 
-        public SelectKey<TSelect> Key { get; }
+        public Tuple<T1> Key { get; }
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
     }

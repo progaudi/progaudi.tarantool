@@ -1,8 +1,10 @@
-﻿namespace iproto.Data.Packets
+﻿using System;
+
+namespace iproto.Data.Packets
 {
     public class DeletePacket<T> :UnifiedPacket
     {
-        public DeletePacket(Header header, int spaceId, int indexId, SelectKey<T> key)
+        public DeletePacket(Header header, int spaceId, int indexId, Tuple<T> key)
             : base(header)
         {
             SpaceId = spaceId;
@@ -14,6 +16,6 @@
 
         public int IndexId { get; }
 
-        public SelectKey<T> Key { get; }
+        public Tuple<T> Key { get; }
     }
 }

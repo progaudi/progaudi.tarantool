@@ -7,27 +7,31 @@ using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters
 {
-    public class InsertReplacePacketConverter<T1> : IMsgPackConverter<InsertReplacePacket<T1>>
+    public class DeletePacketConverter<T1> : IMsgPackConverter<DeletePacket<T1>>
     {
-        public void Write(InsertReplacePacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(DeletePacket<T1> value, IBytesWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
             var intConverter = context.GetConverter<int>();
-            var tupleConverter = context.GetConverter<Tuple<T1>>();
+            var selectKeyConverter = context.GetConverter<Tuple<T1>>();
 
-            writer.WriteMapHeaderAndLength(2);
+            writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
             intConverter.Write(value.SpaceId, writer, context);
 
+            keyConverter.Write(Key.IndexId, writer, context);
+            intConverter.Write(value.IndexId, writer, context);
+
             keyConverter.Write(Key.Tuple, writer, context);
-            tupleConverter.Write(value.Tuple, writer, context);
+            writer.WriteArrayHeaderAndLength(1);
+            selectKeyConverter.Write(value.Key, writer, context);
         }
 
-        public InsertReplacePacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<InsertReplacePacket<T1>> creator)
+        public DeletePacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<DeletePacket<T1>> creator)
         {
             throw new NotImplementedException();
         }
