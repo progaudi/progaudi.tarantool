@@ -85,8 +85,17 @@ namespace TarantoolDnx.MsgPack
                 ?? TryGenerateNullableConverter(type));
         }
 
+        public Func<object> GetObjectActivator(Type type)
+        {
+            return ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
+        }
+
         private IMsgPackConverter TryGenerateConverterFromGenericConverter(Type type)
         {
+            if (!type.GetTypeInfo().IsGenericType)
+            {
+                return null;
+            }
             var genericType = type.GetGenericTypeDefinition();
             Type genericConverterType;
 
@@ -97,11 +106,6 @@ namespace TarantoolDnx.MsgPack
 
             var converterType = genericConverterType.MakeGenericType(type.GenericTypeArguments);
             return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)GetObjectActivator(x)());
-        }
-
-        public Func<object> GetObjectActivator(Type type)
-        {
-            return ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
