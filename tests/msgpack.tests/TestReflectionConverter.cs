@@ -161,7 +161,7 @@ namespace TarantoolDnx.MsgPack.Tests
         [NotNull]
         private static object GetConverter(MsgPackContext context, Type type)
         {
-            var methodDefinition = typeof(MsgPackContext).GetMethod(nameof(MsgPackContext.GetConverter));
+            var methodDefinition = typeof(MsgPackContext).GetMethod(nameof(MsgPackContext.GetConverter), new Type[0]);
             var concreteMethod = methodDefinition.MakeGenericMethod(type);
             var converter = concreteMethod.Invoke(context, null);
             if (converter == null)

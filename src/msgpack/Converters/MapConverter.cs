@@ -29,7 +29,7 @@ namespace TarantoolDnx.MsgPack.Converters
 
         public override TMap Read(IBytesReader reader, MsgPackContext context, Func<TMap> creator)
         {
-            var length = reader.ReadArrayLengthOrNull();
+            var length = reader.ReadMapLengthOrNull();
             return length.HasValue ? ReadMap(reader, context, creator, length.Value) : default(TMap);
         }
 
