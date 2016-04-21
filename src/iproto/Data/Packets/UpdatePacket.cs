@@ -4,9 +4,9 @@ using iproto.Data.UpdateOperations;
 
 namespace iproto.Data.Packets
 {
-    public class UpdatePacket<T1, TUpdate> : UnifiedPacket
+    public class UpdatePacket<T1> : UnifiedPacket
     {
-        public UpdatePacket(Header header, int spaceId, int indexId, Tuple<T1> key, UpdateOperation<TUpdate> updateOperation)
+        public UpdatePacket(Header header, int spaceId, int indexId, Tuple<T1> key, IUpdateOperation updateOperation)
             : base(header)
         {
             SpaceId = spaceId;
@@ -21,6 +21,6 @@ namespace iproto.Data.Packets
 
         public Tuple<T1> Key { get; }
 
-        public UpdateOperation<TUpdate> UpdateOperation { get; }
+        public IUpdateOperation UpdateOperation { get; }
     }
 }

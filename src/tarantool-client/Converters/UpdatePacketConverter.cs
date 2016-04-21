@@ -8,9 +8,9 @@ using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters
 {
-    public class UpdatePacketConverter<T1, TUpdate> : IMsgPackConverter<UpdatePacket<T1, TUpdate>>
+    public class UpdatePacketConverter<T1> : IMsgPackConverter<UpdatePacket<T1>>
     {
-        public void Write(UpdatePacket<T1, TUpdate> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(UpdatePacket<T1> value, IBytesWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -18,7 +18,7 @@ namespace tarantool_client.Converters
             var intConverter = context.GetConverter<int>();
             var keyConverter = context.GetConverter<Key>();
             var selectKeyConverter = context.GetConverter<Tuple<T1>>();
-            var updateOperationConverter = context.GetConverter<UpdateOperation<TUpdate>>();
+            var updateOperationConverter = context.GetConverter<IUpdateOperation>(value.UpdateOperation.GetType());
 
             writer.WriteMapHeaderAndLength(4);
 
@@ -36,7 +36,7 @@ namespace tarantool_client.Converters
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
-        public UpdatePacket<T1, TUpdate> Read(IBytesReader reader, MsgPackContext context, Func<UpdatePacket<T1, TUpdate>> creator)
+        public UpdatePacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<UpdatePacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

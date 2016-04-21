@@ -1,6 +1,10 @@
 ﻿namespace iproto.Data.UpdateOperations
 {
-    public class UpdateOperation<T>
+    public interface IUpdateOperation
+    {
+    }
+
+    public class UpdateOperation<T> : IUpdateOperation
     {
         public string OperationType { get; }
 
@@ -216,7 +220,7 @@
         {
             return new UpdateOperation<long>(UpdateOperationType.BitwiseOr, fieldNumber, argument);
         }
-        
+
         #endregion
 
         #region Object Operation Factory
@@ -244,6 +248,7 @@
         {
             return new StringSliceOperation(fieldNumber, position, offset, argument);
         }
+
         #endregion
     }
 }
