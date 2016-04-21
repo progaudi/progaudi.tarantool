@@ -9,7 +9,7 @@ namespace tarantool_client.Converters
 {
     public class JointRequestConverter:IMsgPackConverter<JoinRequestPacket>
     {
-        public void Write(JoinRequestPacket value, IBytesWriter writer, MsgPackContext context)
+        public void Write(JoinRequestPacket value, IMsgPackWriter writer, MsgPackContext context)
         {
             var keyConverter = context.GetConverter<Key>();
             var codeConverter = context.GetConverter<CommandCode>();
@@ -28,7 +28,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.ServerUuid, writer, context);
         }
 
-        public JoinRequestPacket Read(IBytesReader reader, MsgPackContext context, Func<JoinRequestPacket> creator)
+        public JoinRequestPacket Read(IMsgPackReader reader, MsgPackContext context, Func<JoinRequestPacket> creator)
         {
             throw new NotImplementedException();
         }

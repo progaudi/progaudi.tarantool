@@ -9,7 +9,7 @@ namespace tarantool_client.Converters
 {
     public class DeletePacketConverter<T1> : IMsgPackConverter<DeletePacket<T1>>
     {
-        public void Write(DeletePacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(DeletePacket<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -27,11 +27,11 @@ namespace tarantool_client.Converters
             intConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeaderAndLength(1);
+            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
-        public DeletePacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<DeletePacket<T1>> creator)
+        public DeletePacket<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<DeletePacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

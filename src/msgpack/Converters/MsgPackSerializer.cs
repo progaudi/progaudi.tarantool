@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace TarantoolDnx.MsgPack.Converters
 {
     [DebuggerStepThrough]
-    public static class MsgPackConverter
+    public static class MsgPackSerializer
     {
         public static byte[] Serialize<T>(T data)
         {
@@ -18,7 +18,7 @@ namespace TarantoolDnx.MsgPack.Converters
         public static byte[] Serialize<T>(T data, [NotNull]MsgPackContext context)
         {
             var memoryStream = new MemoryStream();
-            using (var writer = new BytesStreamWriter(memoryStream))
+            using (var writer = new MsgPackStreamWriter(memoryStream))
             {
                 var converter = GetConverter<T>(context);
 

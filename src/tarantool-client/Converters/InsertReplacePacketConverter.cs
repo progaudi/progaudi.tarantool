@@ -9,7 +9,7 @@ namespace tarantool_client.Converters
 {
     public class InsertReplacePacketConverter<T1> : IMsgPackConverter<InsertReplacePacket<T1>>
     {
-        public void Write(InsertReplacePacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(InsertReplacePacket<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -27,7 +27,7 @@ namespace tarantool_client.Converters
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
-        public InsertReplacePacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<InsertReplacePacket<T1>> creator)
+        public InsertReplacePacket<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<InsertReplacePacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

@@ -14,7 +14,7 @@ namespace TarantoolDnx.MsgPack.Converters
             IsSingleDimensionArray = type.IsArray && type.GetArrayRank() == 1 && type.GetElementType() == typeof(TElement);
         }
 
-        public override void Write(TArray value, IBytesWriter writer, MsgPackContext context)
+        public override void Write(TArray value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -22,7 +22,7 @@ namespace TarantoolDnx.MsgPack.Converters
                 return;
             }
 
-            writer.WriteArrayHeaderAndLength((uint) value.Count);
+            writer.WriteArrayHeader((uint) value.Count);
             var elementConverter = context.GetConverter<TElement>();
             ValidateConverter(elementConverter);
 
@@ -32,13 +32,13 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public override TArray Read(IBytesReader reader, MsgPackContext context, Func<TArray> creator)
+        public override TArray Read(IMsgPackReader reader, MsgPackContext context, Func<TArray> creator)
         {
-            var length = reader.ReadArrayLengthOrNull();
+            var length = reader.ReadArrayLength();
             return length.HasValue ? ReadArray(reader, context, creator, length.Value) : default(TArray);
         }
 
-        private TArray ReadArray(IBytesReader reader, MsgPackContext context, Func<TArray> creator, uint length)
+        private TArray ReadArray(IMsgPackReader reader, MsgPackContext context, Func<TArray> creator, uint length)
         {
             var converter = context.GetConverter<TElement>();
 
@@ -50,7 +50,7 @@ namespace TarantoolDnx.MsgPack.Converters
             return ReadList(reader, context, creator, length, converter);
         }
 
-        private TArray ReadArray(IBytesReader reader, MsgPackContext context, uint length, IMsgPackConverter<TElement> converter)
+        private TArray ReadArray(IMsgPackReader reader, MsgPackContext context, uint length, IMsgPackConverter<TElement> converter)
         {
             // ReSharper disable once RedundantCast
             var result = (TArray)(object)new TElement[length];
@@ -64,7 +64,7 @@ namespace TarantoolDnx.MsgPack.Converters
         }
 
         private static TArray ReadList(
-            IBytesReader reader,
+            IMsgPackReader reader,
             MsgPackContext context,
             Func<TArray> creator,
             uint length,

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace TarantoolDnx.MsgPack
 {
-    public interface IBytesReader : IDisposable
+    public interface IMsgPackReader : IDisposable
     {
         DataTypes ReadDataType();
 
@@ -13,8 +13,8 @@ namespace TarantoolDnx.MsgPack
 
         void Seek(int offset, SeekOrigin origin);
 
-        uint? ReadArrayLengthOrNull();
+        uint? ReadArrayLength();
 
-        uint? ReadMapLengthOrNull();
+        uint? ReadMapLength();
     }
 }

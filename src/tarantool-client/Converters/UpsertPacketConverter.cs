@@ -10,7 +10,7 @@ namespace tarantool_client.Converters
 {
     public class UpsertPacketConverter<T1> : IMsgPackConverter<UpsertPacket<T1>>
     {
-        public void Write(UpsertPacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(UpsertPacket<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -32,7 +32,7 @@ namespace tarantool_client.Converters
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
-        public UpsertPacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<UpsertPacket<T1>> creator)
+        public UpsertPacket<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<UpsertPacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

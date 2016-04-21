@@ -1,7 +1,7 @@
 ﻿{
     "version": "0.0.1",
     "description": "MsgPackLite.Tests Class Library",
-    "authors": [ "aensidhe" ],
+    "authors": [ "aensidhe", "roman-kozachenko" ],
     "tags": [ "" ],
     "projectUrl": "",
     "licenseUrl": "",

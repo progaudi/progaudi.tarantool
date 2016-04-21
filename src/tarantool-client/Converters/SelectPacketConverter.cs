@@ -11,7 +11,7 @@ namespace tarantool_client.Converters
 {
     public class SelectPacketConverter<T1> : IMsgPackConverter<SelectPacket<T1>>
     {
-        public void Write(SelectPacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(SelectPacket<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -39,11 +39,11 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeaderAndLength(1);
+            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
-        public SelectPacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<SelectPacket<T1>> creator)
+        public SelectPacket<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<SelectPacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

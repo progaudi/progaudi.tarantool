@@ -1,20 +1,26 @@
 ﻿namespace iproto.Data.UpdateOperations
 {
-    public class UpdateOperationType
+    public static class UpdateOperationType
     {
         //Works only with integer
-        public static string Addition = "+";
-        public static string Subtraction = "-";
-        public static string BitwiseAnd = "&";
-        public static string BitwiseXor = "^";
-        public static string BitwiseOr = "|";
+        public static readonly string Addition = "+";
+
+        public static readonly string Subtraction = "-";
+
+        public static readonly string BitwiseAnd = "&";
+
+        public static readonly string BitwiseXor = "^";
+
+        public static readonly string BitwiseOr = "|";
 
         //Works on any field
-        public static string Delete = "#";
-        public static string Insert = "!";
-        public static string Assign = "=";
+        public static readonly string Delete = "#";
+
+        public static readonly string Insert = "!";
+
+        public static readonly string Assign = "=";
 
         //Works only for string
-        public static string Splice = ":";
+        public static readonly string Splice = ":";
     }
 }

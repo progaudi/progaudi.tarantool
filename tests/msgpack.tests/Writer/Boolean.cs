@@ -11,13 +11,13 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [Fact]
         public void False()
         {
-            MsgPackConverter.Serialize(false).ShouldBe(new[] {(byte) DataTypes.False});
+            MsgPackSerializer.Serialize(false).ShouldBe(new[] {(byte) DataTypes.False});
         }
 
         [Fact]
         public void True()
         {
-            MsgPackConverter.Serialize(true).ShouldBe(new[] {(byte) DataTypes.True});
+            MsgPackSerializer.Serialize(true).ShouldBe(new[] {(byte) DataTypes.True});
         }
     }
 }

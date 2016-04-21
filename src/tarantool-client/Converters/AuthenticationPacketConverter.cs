@@ -9,7 +9,7 @@ namespace tarantool_client.Converters
 {
     public class AuthenticationPacketConverter : IMsgPackConverter<AuthenticationPacket>
     {
-        public void Write(AuthenticationPacket value, IBytesWriter writer, MsgPackContext context)
+        public void Write(AuthenticationPacket value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -31,12 +31,12 @@ namespace tarantool_client.Converters
 
             keyConverter.Write(Key.Tuple, writer, context);
 
-            writer.WriteArrayHeaderAndLength(2);
+            writer.WriteArrayHeader(2);
             stringConverter.Write("chap-sha1", writer, context);
             bytesConverter.Write(value.Scramble, writer, context);
         }
 
-        public AuthenticationPacket Read(IBytesReader reader, MsgPackContext context, Func<AuthenticationPacket> creator)
+        public AuthenticationPacket Read(IMsgPackReader reader, MsgPackContext context, Func<AuthenticationPacket> creator)
         {
             throw new NotImplementedException();
         }

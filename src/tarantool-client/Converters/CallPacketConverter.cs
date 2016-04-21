@@ -9,7 +9,7 @@ namespace tarantool_client.Converters
 {
     public class CallPacketConverter<T1> : IMsgPackConverter<CallPacket<T1>>
     {
-        public void Write(CallPacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(CallPacket<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -24,11 +24,11 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.FunctionName, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeaderAndLength(1);
+            writer.WriteArrayHeader(1);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
-        public CallPacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<CallPacket<T1>> creator)
+        public CallPacket<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<CallPacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

@@ -12,19 +12,19 @@ namespace tarantool_client.Converters
 {
     public class JoinResponsePacketConverter :IMsgPackConverter<JoinResponsePacket>
     {
-        public void Write(JoinResponsePacket value, IBytesWriter writer, MsgPackContext context)
+        public void Write(JoinResponsePacket value, IMsgPackWriter writer, MsgPackContext context)
         {
             throw new NotImplementedException();
         }
 
-        public JoinResponsePacket Read(IBytesReader reader, MsgPackContext context, Func<JoinResponsePacket> creator)
+        public JoinResponsePacket Read(IMsgPackReader reader, MsgPackContext context, Func<JoinResponsePacket> creator)
         {
             var keyConverter = context.GetConverter<Key>();
             var codeConverter = context.GetConverter<CommandCode>();
             var intConverter = context.GetConverter<int>();
             var vclockConverter = context.GetConverter<Dictionary<int, int>>();
 
-            reader.ReadMapLengthOrNull().ShouldBe(2u);
+            reader.ReadMapLength().ShouldBe(2u);
 
             keyConverter.Read(reader, context, null).ShouldBe(Key.Code);
             codeConverter.Read(reader, context, null).ShouldBe(CommandCode.Ok);
@@ -32,7 +32,7 @@ namespace tarantool_client.Converters
             keyConverter.Read(reader, context, null).ShouldBe(Key.Sync);
             var sync = intConverter.Read(reader, context, null);
 
-            reader.ReadMapLengthOrNull().ShouldBe(1u);
+            reader.ReadMapLength().ShouldBe(1u);
 
             keyConverter.Read(reader, context, null).ShouldBe(Key.Vclock);
             var vclocks = vclockConverter.Read(reader, context, null);

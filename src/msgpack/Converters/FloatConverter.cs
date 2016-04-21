@@ -5,7 +5,7 @@ namespace TarantoolDnx.MsgPack.Converters
 {
     internal class FloatConverter : IMsgPackConverter<float>, IMsgPackConverter<double>
     {
-        public void Write(double value, IBytesWriter writer, MsgPackContext context)
+        public void Write(double value, IMsgPackWriter writer, MsgPackContext context)
         {
             var binary = new DoubleBinary(value);
             writer.Write(DataTypes.Double);
@@ -33,7 +33,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public double Read(IBytesReader reader, MsgPackContext context, Func<double> creator)
+        public double Read(IMsgPackReader reader, MsgPackContext context, Func<double> creator)
         {
             var type = reader.ReadDataType();
 
@@ -50,7 +50,7 @@ namespace TarantoolDnx.MsgPack.Converters
             return new DoubleBinary(bytes).value;
         }
         
-        public void Write(float value, IBytesWriter writer, MsgPackContext context)
+        public void Write(float value, IMsgPackWriter writer, MsgPackContext context)
         {
             var binary = new FloatBinary(value);
             writer.Write(DataTypes.Single);
@@ -70,7 +70,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        float IMsgPackConverter<float>.Read(IBytesReader reader, MsgPackContext context, Func<float> creator)
+        float IMsgPackConverter<float>.Read(IMsgPackReader reader, MsgPackContext context, Func<float> creator)
         {
             var type = reader.ReadDataType();
 
@@ -80,14 +80,14 @@ namespace TarantoolDnx.MsgPack.Converters
             return ReadFloat(reader);
         }
 
-        private static float ReadFloat(IBytesReader reader)
+        private static float ReadFloat(IMsgPackReader reader)
         {
             var bytes = ReadBytes(reader, 4);
 
             return new FloatBinary(bytes).value;
         }
 
-        private static byte[] ReadBytes(IBytesReader reader, int length)
+        private static byte[] ReadBytes(IMsgPackReader reader, int length)
         {
             var bytes = new byte[length];
             reader.ReadBytes(bytes);

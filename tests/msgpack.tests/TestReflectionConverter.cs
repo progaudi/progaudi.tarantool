@@ -11,7 +11,7 @@ namespace TarantoolDnx.MsgPack.Tests
 {
     public class TestReflectionConverter : IMsgPackConverter<object>
     {
-        public void Write(object value, IBytesWriter writer, MsgPackContext context)
+        public void Write(object value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -23,12 +23,12 @@ namespace TarantoolDnx.MsgPack.Tests
 
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(value.GetType()).GetMethod(
                 "Write",
-                new[] { value.GetType(), typeof(IBytesWriter), typeof(MsgPackContext) });
+                new[] { value.GetType(), typeof(IMsgPackWriter), typeof(MsgPackContext) });
 
             methodDefinition.Invoke(converter, new[] { value, writer, context });
         }
 
-        public object Read(IBytesReader reader, MsgPackContext context, Func<object> creator)
+        public object Read(IMsgPackReader reader, MsgPackContext context, Func<object> creator)
         {
             var msgPackType = reader.ReadDataType();
 
@@ -133,7 +133,7 @@ namespace TarantoolDnx.MsgPack.Tests
             var converter = GetConverter(context, type);
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(type).GetMethod(
                 "Read",
-                new[] { typeof(IBytesReader), typeof(MsgPackContext), typeof(Func<>).MakeGenericType(type) });
+                new[] { typeof(IMsgPackReader), typeof(MsgPackContext), typeof(Func<>).MakeGenericType(type) });
 
             return methodDefinition.Invoke(converter, new object[] { reader, context, null });
         }

@@ -22,7 +22,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(long.MinValue, new byte[] {211, 128, 0, 0, 0, 0, 0, 0, 0})]
         public void TestSignedLong(long number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
 
         [Theory]
@@ -38,7 +38,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(50505, new byte[] {205, 197, 73})]
         public void TestSignedInt(int number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
 
         [Theory]
@@ -51,7 +51,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(short.MaxValue, new byte[] {209, 127, 0xff})]
         public void TestSignedShort(short number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
 
         [Theory]
@@ -62,7 +62,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(sbyte.MaxValue, new byte[] {127})]
         public void TestSignedByte(sbyte number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
 
         [Theory]
@@ -74,7 +74,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(ulong.MaxValue, new byte[] {0xcf, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff})]
         public void TetsUnsignedLong(ulong number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
 
         [Theory]
@@ -85,7 +85,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(uint.MaxValue, new byte[] {0xce, 0xff, 0xff, 0xff, 0xff})]
         public void TetsUnsignedInt(uint number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
 
         [Theory]
@@ -95,7 +95,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(ushort.MaxValue, new byte[] {0xcd, 0xff, 0xff})]
         public void TetsUnsignedShort(ushort number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
 
         [Theory]
@@ -104,7 +104,7 @@ namespace TarantoolDnx.MsgPack.Tests.Writer
         [InlineData(byte.MaxValue, new byte[] {0xcc, 0xff})]
         public void TetsUnsignedByte(byte number, byte[] data)
         {
-            MsgPackConverter.Serialize(number).ShouldBe(data);
+            MsgPackSerializer.Serialize(number).ShouldBe(data);
         }
     }
 }

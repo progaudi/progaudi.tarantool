@@ -9,7 +9,7 @@ namespace tarantool_client.Converters
 {
     public class EvalPacketConverter<T1> : IMsgPackConverter<EvalPacket<T1>>
     {
-        public void Write(EvalPacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(EvalPacket<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -24,11 +24,11 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeaderAndLength(1);
+            writer.WriteArrayHeader(1);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
-        public EvalPacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<EvalPacket<T1>> creator)
+        public EvalPacket<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<EvalPacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

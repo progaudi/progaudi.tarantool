@@ -2,7 +2,7 @@
 
 namespace TarantoolDnx.MsgPack
 {
-    public interface IBytesWriter : IDisposable
+    public interface IMsgPackWriter : IDisposable
     {
         void Write(DataTypes dataType);
 
@@ -10,7 +10,7 @@ namespace TarantoolDnx.MsgPack
 
         void Write(byte[] array);
 
-        void WriteArrayHeaderAndLength(uint length);
+        void WriteArrayHeader(uint length);
 
         void WriteMapHeaderAndLength(uint length);
     }

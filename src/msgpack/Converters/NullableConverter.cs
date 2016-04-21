@@ -5,7 +5,7 @@ namespace TarantoolDnx.MsgPack.Converters
 {
     public class NullableConverter<T> : IMsgPackConverter<T?> where T : struct
     {
-        public T? Read(IBytesReader reader, MsgPackContext context, Func<T?> creator)
+        public T? Read(IMsgPackReader reader, MsgPackContext context, Func<T?> creator)
         {
             var type = reader.ReadDataType();
 
@@ -33,7 +33,7 @@ namespace TarantoolDnx.MsgPack.Converters
             return structConverter.Read(reader, context, nullableCreator);
         }
 
-        public void Write(T? value, IBytesWriter writer, MsgPackContext context)
+        public void Write(T? value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value.HasValue)
             {

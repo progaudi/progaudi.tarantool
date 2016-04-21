@@ -37,77 +37,8 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Properties\AssemblyInfo.cs">
-      <Link>Properties\AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Array.cs">
-      <Link>Reader\Array.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Binary.cs">
-      <Link>Reader\Binary.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Boolean.cs">
-      <Link>Reader\Boolean.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\DateTime.cs">
-      <Link>Reader\DateTime.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Double.cs">
-      <Link>Reader\Double.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Helpers.cs">
-      <Link>Reader\Helpers.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Integers.cs">
-      <Link>Reader\Integers.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Map.cs">
-      <Link>Reader\Map.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Null.cs">
-      <Link>Reader\Null.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\Nullable.cs">
-      <Link>Reader\Nullable.cs</Link>
-    </Compile>
-    <Compile Include="..\Reader\String.cs">
-      <Link>Reader\String.cs</Link>
-    </Compile>
-    <Compile Include="..\TestReflectionConverter.cs">
-      <Link>TestReflectionConverter.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Array.cs">
-      <Link>Writer\Array.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Binary.cs">
-      <Link>Writer\Binary.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Boolean.cs">
-      <Link>Writer\Boolean.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\DateTime.cs">
-      <Link>Writer\DateTime.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Double.cs">
-      <Link>Writer\Double.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Helpers.cs">
-      <Link>Writer\Helpers.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Integers.cs">
-      <Link>Writer\Integers.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Map.cs">
-      <Link>Writer\Map.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Null.cs">
-      <Link>Writer\Null.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\Nullable.cs">
-      <Link>Writer\Nullable.cs</Link>
-    </Compile>
-    <Compile Include="..\Writer\String.cs">
-      <Link>Writer\String.cs</Link>
+    <Compile Include="..\**\*.cs">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

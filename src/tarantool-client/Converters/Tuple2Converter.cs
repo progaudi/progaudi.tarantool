@@ -6,7 +6,7 @@ namespace tarantool_client.Converters
 {
     public class Tuple2Converter <T1,T2>: IMsgPackConverter<Tuple<T1,T2>>
     {
-        public void Write(Tuple<T1, T2> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(Tuple<T1, T2> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -21,7 +21,7 @@ namespace tarantool_client.Converters
             t2Converter.Write(value.Item2, writer, context);
         }
 
-        public Tuple<T1, T2> Read(IBytesReader reader, MsgPackContext context, Func<Tuple<T1, T2>> creator)
+        public Tuple<T1, T2> Read(IMsgPackReader reader, MsgPackContext context, Func<Tuple<T1, T2>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();

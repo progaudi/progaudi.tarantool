@@ -1,7 +1,7 @@
 ﻿{
   "version": "1.0.0-*",
   "description": "tarantool-client.test Console Application",
-  "authors": [ "roman" ],
+  "authors": ["roman-kozachenko"],
   "tags": [ "" ],
   "projectUrl": "",
   "licenseUrl": "",

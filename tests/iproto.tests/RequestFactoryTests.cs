@@ -36,7 +36,7 @@ namespace iproto.tests
         //        bytes[i] =(byte) sbytes[i];
         //    }
 
-        //    //var deserialized = MsgPackConverter.Deserialize<object>(bytes, msgPackContext);
+        //    //var deserialized = MsgPackSerializer.Deserialize<object>(bytes, msgPackContext);
         //    serialzied.ShouldBe(bytes);
         //}
     }

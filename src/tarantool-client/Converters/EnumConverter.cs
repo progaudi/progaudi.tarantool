@@ -9,14 +9,17 @@ namespace tarantool_client.Converters
     public class EnumConverter<T> : IMsgPackConverter<T>
         where T : struct, IConvertible
     {
-        public void Write(T value, IBytesWriter writer, MsgPackContext context)
+        static EnumConverter()
         {
             var enumTypeInfo = typeof(T).GetTypeInfo();
             if (!enumTypeInfo.IsEnum)
             {
                 throw new InvalidOperationException($"Enum expected, but got {typeof(T)}.");
             }
+        }
 
+        public void Write(T value, IMsgPackWriter writer, MsgPackContext context)
+        {
             var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));
 
             if (enumUnderlyingType == typeof(sbyte))
@@ -65,7 +68,7 @@ namespace tarantool_client.Converters
             }
         }
 
-        public T Read(IBytesReader reader, MsgPackContext context, Func<T> creator)
+        public T Read(IMsgPackReader reader, MsgPackContext context, Func<T> creator)
         {
             var enumTypeInfo = typeof(T).GetTypeInfo();
             if (!enumTypeInfo.IsEnum)

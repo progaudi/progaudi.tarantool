@@ -12,12 +12,12 @@ namespace tarantool_client.Converters
 {
     public class ResponsePacketConverter : IMsgPackConverter<ResponsePacket>
     {
-        public void Write(ResponsePacket value, IBytesWriter writer, MsgPackContext context)
+        public void Write(ResponsePacket value, IMsgPackWriter writer, MsgPackContext context)
         {
             throw new NotImplementedException();
         }
 
-        public ResponsePacket Read(IBytesReader reader, MsgPackContext context, Func<ResponsePacket> creator)
+        public ResponsePacket Read(IMsgPackReader reader, MsgPackContext context, Func<ResponsePacket> creator)
         {
             var headerConverter = context.GetConverter<Header>();
             var keyConverter = context.GetConverter<Key>();
@@ -26,7 +26,7 @@ namespace tarantool_client.Converters
             string errorMessage = null;
             object data = null;
 
-            var length = reader.ReadMapLengthOrNull();
+            var length = reader.ReadMapLength();
 
             length.HasValue.ShouldBeTrue();
 

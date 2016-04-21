@@ -38,7 +38,7 @@ namespace tarantool_client
             var greetings = _responseReader.ReadGreetings(greetingsBytes);
             var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(greetings, userName, password);
             var responseBytes = SendPacket(authenticateRequest);
-            var response = MsgPackConverter.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
+            var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
 
             return response;
         }
@@ -54,8 +54,8 @@ namespace tarantool_client
 
         private byte[] SendPacket<T>(T authenticateUnified) where T : UnifiedPacket
         {
-            var request = MsgPackConverter.Serialize(authenticateUnified, _msgPackContext);
-            var requestHeaderLength = MsgPackConverter.Serialize(request.Length, _msgPackContext);
+            var request = MsgPackSerializer.Serialize(authenticateUnified, _msgPackContext);
+            var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
             return SendBytes(requestHeaderLength, request);
         }
 
@@ -70,7 +70,7 @@ namespace tarantool_client
             var headerSizeBuffer = new byte[5];
             _socket.Receive(headerSizeBuffer);
 
-            var headerSize = MsgPackConverter.Deserialize<ulong>(headerSizeBuffer);
+            var headerSize = MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer);
             var responseBuffer = new byte[headerSize];
             _socket.Receive(responseBuffer);
             return responseBuffer;

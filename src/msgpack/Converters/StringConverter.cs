@@ -5,7 +5,7 @@ namespace TarantoolDnx.MsgPack.Converters
 {
     internal class StringConverter : IMsgPackConverter<string>
     {
-        public void Write(string value, IBytesWriter writer, MsgPackContext context)
+        public void Write(string value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -20,7 +20,7 @@ namespace TarantoolDnx.MsgPack.Converters
             writer.Write(data);
         }
 
-        public string Read(IBytesReader reader, MsgPackContext context, Func<string> creator)
+        public string Read(IMsgPackReader reader, MsgPackContext context, Func<string> creator)
         {
             var type = reader.ReadDataType();
 
@@ -48,7 +48,7 @@ namespace TarantoolDnx.MsgPack.Converters
             throw ExceptionUtils.BadTypeException(type, DataTypes.FixStr, DataTypes.Str8, DataTypes.Str16, DataTypes.Str32);
         }
 
-        private string ReadString(IBytesReader reader, uint length)
+        private string ReadString(IMsgPackReader reader, uint length)
         {
             var buffer = BinaryConverter.ReadByteArray(reader, length);
 
@@ -61,7 +61,7 @@ namespace TarantoolDnx.MsgPack.Converters
             return type.GetHighBits(3) == DataTypes.FixStr.GetHighBits(3);
         }
 
-        private void WriteStringHeaderAndLength(IBytesWriter writer, int length)
+        private void WriteStringHeaderAndLength(IMsgPackWriter writer, int length)
         {
             if (length <= 31)
             {

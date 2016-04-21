@@ -11,7 +11,7 @@ namespace tarantool_client.Converters
 {
     public class SubscribePacketConverter : IMsgPackConverter<SubscribePacket>
     {
-        public void Write(SubscribePacket value, IBytesWriter writer, MsgPackContext context)
+        public void Write(SubscribePacket value, IMsgPackWriter writer, MsgPackContext context)
         {
             var keyConverter = context.GetConverter<Key>();
             var codeConverter = context.GetConverter<CommandCode>();
@@ -38,7 +38,7 @@ namespace tarantool_client.Converters
             intConverter.Write(value.Vclock, writer, context);
         }
 
-        public SubscribePacket Read(IBytesReader reader, MsgPackContext context, Func<SubscribePacket> creator)
+        public SubscribePacket Read(IMsgPackReader reader, MsgPackContext context, Func<SubscribePacket> creator)
         {
             throw new NotImplementedException();
         }

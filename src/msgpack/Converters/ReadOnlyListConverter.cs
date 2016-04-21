@@ -6,7 +6,7 @@ namespace TarantoolDnx.MsgPack.Converters
     internal class ReadOnlyListConverter<TArray, TElement> : ArrayConverterBase<TArray, TElement>
         where TArray : IReadOnlyList<TElement>
     {
-        public override void Write(TArray value, IBytesWriter writer, MsgPackContext context)
+        public override void Write(TArray value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -14,7 +14,7 @@ namespace TarantoolDnx.MsgPack.Converters
                 return;
             }
 
-            writer.WriteArrayHeaderAndLength((uint) value.Count);
+            writer.WriteArrayHeader((uint) value.Count);
             var elementConverter = context.GetConverter<TElement>();
             ValidateConverter(elementConverter);
 
@@ -24,7 +24,7 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public override TArray Read(IBytesReader reader, MsgPackContext context, Func<TArray> creator)
+        public override TArray Read(IMsgPackReader reader, MsgPackContext context, Func<TArray> creator)
         {
             throw ExceptionUtils.CantReadReadOnlyCollection(typeof(TArray));
         }

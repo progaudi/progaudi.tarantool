@@ -10,7 +10,7 @@ namespace tarantool_client.Converters
 {
     public class HeaderConverter : IMsgPackConverter<Header>
     {
-        public void Write(Header value, IBytesWriter writer, MsgPackContext context)
+        public void Write(Header value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -34,13 +34,13 @@ namespace tarantool_client.Converters
             ulongConverter.Write(value.SchemaId, writer, context);
         }
 
-        public Header Read(IBytesReader reader, MsgPackContext context, Func<Header> creator)
+        public Header Read(IMsgPackReader reader, MsgPackContext context, Func<Header> creator)
         {
             var keyConverter = context.GetConverter<Key>();
             var ulongConverter = context.GetConverter<ulong>();
             var codeConverter = context.GetConverter<CommandCode>();
 
-            reader.ReadMapLengthOrNull().ShouldBe(3u);
+            reader.ReadMapLength().ShouldBe(3u);
 
             keyConverter.Read(reader, context, null).ShouldBe(Key.Code);
             var code = codeConverter.Read(reader, context, null);

@@ -10,7 +10,7 @@ namespace tarantool_client.Converters
 {
     public class UpdatePacketConverter<T1> : IMsgPackConverter<UpdatePacket<T1>>
     {
-        public void Write(UpdatePacket<T1> value, IBytesWriter writer, MsgPackContext context)
+        public void Write(UpdatePacket<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             var headerConverter = context.GetConverter<Header>();
             headerConverter.Write(value.Header, writer, context);
@@ -29,14 +29,14 @@ namespace tarantool_client.Converters
             intConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeaderAndLength(1);
+            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
-        public UpdatePacket<T1> Read(IBytesReader reader, MsgPackContext context, Func<UpdatePacket<T1>> creator)
+        public UpdatePacket<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<UpdatePacket<T1>> creator)
         {
             throw new NotImplementedException();
         }

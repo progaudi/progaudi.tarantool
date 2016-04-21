@@ -6,7 +6,7 @@ namespace TarantoolDnx.MsgPack.Converters
     internal class MapConverter<TMap, TKey, TValue> : MapConverterBase<TMap, TKey, TValue>
         where TMap : IDictionary<TKey, TValue>
     {
-        public override void Write(TMap value, IBytesWriter writer, MsgPackContext context)
+        public override void Write(TMap value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -27,13 +27,13 @@ namespace TarantoolDnx.MsgPack.Converters
             }
         }
 
-        public override TMap Read(IBytesReader reader, MsgPackContext context, Func<TMap> creator)
+        public override TMap Read(IMsgPackReader reader, MsgPackContext context, Func<TMap> creator)
         {
-            var length = reader.ReadMapLengthOrNull();
+            var length = reader.ReadMapLength();
             return length.HasValue ? ReadMap(reader, context, creator, length.Value) : default(TMap);
         }
 
-        private TMap ReadMap(IBytesReader reader, MsgPackContext context, Func<TMap> creator, uint length)
+        private TMap ReadMap(IMsgPackReader reader, MsgPackContext context, Func<TMap> creator, uint length)
         {
             var keyConverter = context.GetConverter<TKey>();
             var valueConverter = context.GetConverter<TValue>();

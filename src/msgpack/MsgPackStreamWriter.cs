@@ -4,13 +4,13 @@ using TarantoolDnx.MsgPack.Converters;
 
 namespace TarantoolDnx.MsgPack
 {
-    internal class BytesStreamWriter : IBytesWriter
+    internal class MsgPackStreamWriter : IMsgPackWriter
     {
         private readonly Stream _stream;
 
         private readonly bool _disposeStream;
 
-        public BytesStreamWriter(Stream stream, bool disposeStream = true)
+        public MsgPackStreamWriter(Stream stream, bool disposeStream = true)
         {
             _stream = stream;
             _disposeStream = disposeStream;
@@ -37,7 +37,7 @@ namespace TarantoolDnx.MsgPack
                 _stream.Dispose();
         }
 
-        public void WriteArrayHeaderAndLength(uint length)
+        public void WriteArrayHeader(uint length)
         {
             if (length <= 15)
             {

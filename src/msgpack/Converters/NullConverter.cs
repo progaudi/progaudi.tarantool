@@ -4,12 +4,12 @@ namespace TarantoolDnx.MsgPack.Converters
 {
     internal class NullConverter : IMsgPackConverter<object>
     {
-        public void Write(object value, IBytesWriter writer, MsgPackContext context)
+        public void Write(object value, IMsgPackWriter writer, MsgPackContext context)
         {
             writer.Write(DataTypes.Null);
         }
 
-        public object Read(IBytesReader reader, MsgPackContext context, Func<object> creator)
+        public object Read(IMsgPackReader reader, MsgPackContext context, Func<object> creator)
         {
             var type = reader.ReadDataType();
             if (type == DataTypes.Null)
