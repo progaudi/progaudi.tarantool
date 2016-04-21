@@ -1,8 +1,8 @@
 ﻿namespace iproto.Data.Packets
 {
-    public class JoinPacket
+    public class JoinRequestPacket
     {
-        public JoinPacket(int sync, string serverUuid)
+        public JoinRequestPacket(int sync, string serverUuid)
         {
             Sync = sync;
             ServerUuid = serverUuid;
