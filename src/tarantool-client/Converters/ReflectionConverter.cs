@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using JetBrains.Annotations;
 // ReSharper disable once RedundantUsingDirective
 using System.Reflection;
+
 using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters
@@ -24,9 +25,9 @@ namespace tarantool_client.Converters
 
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(value.GetType()).GetMethod(
                 "Write",
-                new[] { value.GetType(), typeof(IMsgPackWriter), typeof(MsgPackContext) });
+                new[] {value.GetType(), typeof(IMsgPackWriter), typeof(MsgPackContext)});
 
-            methodDefinition.Invoke(converter, new[] { value, writer, context });
+            methodDefinition.Invoke(converter, new[] {value, writer, context});
         }
 
         public object Read(IMsgPackReader reader, MsgPackContext context, Func<object> creator)
@@ -134,9 +135,9 @@ namespace tarantool_client.Converters
             var converter = GetConverter(context, type);
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(type).GetMethod(
                 "Read",
-                new[] { typeof(IMsgPackReader), typeof(MsgPackContext), typeof(Func<>).MakeGenericType(type) });
+                new[] {typeof(IMsgPackReader), typeof(MsgPackContext), typeof(Func<>).MakeGenericType(type)});
 
-            return methodDefinition.Invoke(converter, new object[] { reader, context, null });
+            return methodDefinition.Invoke(converter, new object[] {reader, context, null});
         }
 
         private Type TryInferFromFixedLength(DataTypes msgPackType)

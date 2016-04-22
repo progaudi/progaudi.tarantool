@@ -10,7 +10,7 @@ using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters
 {
-    public class JoinResponsePacketConverter :IMsgPackConverter<JoinResponsePacket>
+    public class JoinResponsePacketConverter : IMsgPackConverter<JoinResponsePacket>
     {
         public void Write(JoinResponsePacket value, IMsgPackWriter writer, MsgPackContext context)
         {

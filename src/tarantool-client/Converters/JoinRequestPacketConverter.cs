@@ -7,7 +7,7 @@ using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters
 {
-    public class JointRequestConverter:IMsgPackConverter<JoinRequestPacket>
+    public class JointRequestConverter : IMsgPackConverter<JoinRequestPacket>
     {
         public void Write(JoinRequestPacket value, IMsgPackWriter writer, MsgPackContext context)
         {
