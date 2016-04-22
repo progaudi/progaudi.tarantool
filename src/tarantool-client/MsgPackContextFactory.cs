@@ -1,5 +1,7 @@
-﻿using iproto.Data;
+﻿using System;
 
+using iproto.Data;
+using iproto.Data.UpdateOperations;
 using tarantool_client.Converters;
 
 using TarantoolDnx.MsgPack;
@@ -17,22 +19,17 @@ namespace tarantool_client
             result.RegisterConverter(new EnumConverter<Iterator>());
 
             result.RegisterConverter(new StringSliceOperationConverter());
-            result.RegisterConverter(new UpdateOperationConverter<sbyte>());
-            result.RegisterConverter(new UpdateOperationConverter<byte>());
-            result.RegisterConverter(new UpdateOperationConverter<ushort>());
-            result.RegisterConverter(new UpdateOperationConverter<short>());
-            result.RegisterConverter(new UpdateOperationConverter<uint>());
-            result.RegisterConverter(new UpdateOperationConverter<int>());
-            result.RegisterConverter(new UpdateOperationConverter<ulong>());
-            result.RegisterConverter(new UpdateOperationConverter<long>());
-            result.RegisterConverter(new UpdateOperationConverter<object>());
+
+            result.RegisterGenericConverter(typeof (UpdateOperationConverter<>));
 
             result.RegisterConverter(new ReflectionConverter());
-            result.RegisterConverter(new Tuple1Converter<object[]>());
             result.RegisterConverter(new HeaderConverter());
 
             result.RegisterConverter(new AuthenticationPacketConverter());
             result.RegisterConverter(new ResponsePacketConverter());
+
+            result.RegisterGenericConverter(typeof (Tuple1Converter<>));
+            result.RegisterGenericConverter(typeof (Tuple2Converter<,>));
 
             return result;
         } 

@@ -1,10 +1,6 @@
 ﻿namespace iproto.Data.UpdateOperations
 {
-    public interface IUpdateOperation
-    {
-    }
-
-    public class UpdateOperation<T> : IUpdateOperation
+    public class UpdateOperation<T>
     {
         public string OperationType { get; }
 

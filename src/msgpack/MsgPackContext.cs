@@ -9,7 +9,7 @@ using TarantoolDnx.MsgPack.Converters;
 
 namespace TarantoolDnx.MsgPack
 {
-    [DebuggerStepThrough]
+    
     public class MsgPackContext
     {
         private static readonly IReadOnlyDictionary<Type, IMsgPackConverter> DefaultConverters = new Dictionary<Type, IMsgPackConverter>
@@ -53,6 +53,8 @@ namespace TarantoolDnx.MsgPack
 
         private readonly Dictionary<Type, IMsgPackConverter> _converters = new Dictionary<Type, IMsgPackConverter>();
 
+        private readonly Dictionary<Type, Type> _genericConverters = new Dictionary<Type, Type>();
+
         public IMsgPackConverter<object> NullConverter => SharedNullConverter;
 
         public void RegisterConverter<T>(IMsgPackConverter<T> converter)
@@ -60,20 +62,24 @@ namespace TarantoolDnx.MsgPack
             _converters[typeof(T)] = converter;
         }
 
+        public void RegisterGenericConverter(Type type)
+        {
+            var converterType= GetGenericInterface(type, typeof(IMsgPackConverter<>));
+            if (converterType == null)
+            {
+                throw new ArgumentException($"Error registering generic converter. Expected IMsgPackConverter<> implementation, but got {type}");
+            }
+
+            var convertedType = converterType.GenericTypeArguments.Single().GetGenericTypeDefinition();
+            _genericConverters.Add(convertedType, type);
+        }
+
         public IMsgPackConverter<T> GetConverter<T>()
         {
             var type = typeof(T);
             return (IMsgPackConverter<T>)
                 (GetConverterFromCache(type)
-                ?? TryGenerateArrayConverter(type)
-                ?? TryGenerateMapConverter(type)
-                ?? TryGenerateNullableConverter(type));
-        }
-
-        public IMsgPackConverter<T> GetConverter<T>(Type type)
-        {
-            return (IMsgPackConverter<T>)
-                (GetConverterFromCache(type)
+                ?? TryGenerateConverterFromGenericConverter(type)
                 ?? TryGenerateArrayConverter(type)
                 ?? TryGenerateMapConverter(type)
                 ?? TryGenerateNullableConverter(type));
@@ -82,6 +88,24 @@ namespace TarantoolDnx.MsgPack
         public Func<object> GetObjectActivator(Type type)
         {
             return ObjectActivators.GetOrAdd(type, t => CompiledLambdaActivatorFactory.GetActivator(type));
+        }
+
+        private IMsgPackConverter TryGenerateConverterFromGenericConverter(Type type)
+        {
+            if (!type.GetTypeInfo().IsGenericType)
+            {
+                return null;
+            }
+            var genericType = type.GetGenericTypeDefinition();
+            Type genericConverterType;
+
+            if (!_genericConverters.TryGetValue(genericType, out genericConverterType))
+            {
+                return null;
+            }
+
+            var converterType = genericConverterType.MakeGenericType(type.GenericTypeArguments);
+            return GeneratedConverters.GetOrAdd(converterType, x => (IMsgPackConverter)GetObjectActivator(x)());
         }
 
         private IMsgPackConverter TryGenerateMapConverter(Type type)
