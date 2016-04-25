@@ -10,7 +10,6 @@ using TarantoolDnx.MsgPack.Converters;
 
 namespace tarantool_client
 {
-
     public class AsyncTarantoolClient : IDisposable
     {
         private readonly Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -37,9 +36,16 @@ namespace tarantool_client
             var greetingsBytes = ReceiveGreetings();
             var greetings = _responseReader.ReadGreetings(greetingsBytes);
             var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(greetings, userName, password);
-            var responseBytes = SendPacket(authenticateRequest);
-            var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
+            var response = SendPacket(authenticateRequest);
+            return response;
+        }
 
+        public ResponsePacket SendPacket<T>(T unifiedPacket) where T : UnifiedPacket
+        {
+            var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
+            var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
+            var responseBytes = SendBytes(requestHeaderLength, request);
+            var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
             return response;
         }
 
@@ -50,13 +56,6 @@ namespace tarantool_client
             _socket.Receive(greetingsResponse);
 
             return greetingsResponse;
-        }
-
-        private byte[] SendPacket<T>(T authenticateUnified) where T : UnifiedPacket
-        {
-            var request = MsgPackSerializer.Serialize(authenticateUnified, _msgPackContext);
-            var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
-            return SendBytes(requestHeaderLength, request);
         }
 
         private byte[] SendBytes(byte[] headerAndBodySize, byte[] headerAndBody)

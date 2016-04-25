@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+
 using iproto.Data;
 
 using TarantoolDnx.MsgPack;
@@ -22,16 +23,31 @@ namespace tarantool_client.Converters
             var ulongConverter = context.GetConverter<ulong>();
             var codeConverter = context.GetConverter<CommandCode>();
 
-            writer.WriteMapHeaderAndLength(3);
+            var headerComponentsCount = 1u;
+            if (value.Sync.HasValue)
+            {
+                headerComponentsCount ++;
+            }
+            if (value.SchemaId.HasValue)
+            {
+                headerComponentsCount++;
+            }
+            writer.WriteMapHeaderAndLength(headerComponentsCount);
 
             keyConverter.Write(Key.Code, writer, context);
             codeConverter.Write(value.Code, writer, context);
 
-            keyConverter.Write(Key.Sync, writer, context);
-            ulongConverter.Write(value.Sync, writer, context);
+            if (value.Sync.HasValue)
+            {
+                keyConverter.Write(Key.Sync, writer, context);
+                ulongConverter.Write(value.Sync.Value, writer, context);
+            }
 
-            keyConverter.Write(Key.SchemaId, writer, context);
-            ulongConverter.Write(value.SchemaId, writer, context);
+            if (value.SchemaId.HasValue)
+            {
+                keyConverter.Write(Key.SchemaId, writer, context);
+                ulongConverter.Write(value.SchemaId.Value, writer, context);
+            }
         }
 
         public Header Read(IMsgPackReader reader, MsgPackContext context, Func<Header> creator)

@@ -2,8 +2,8 @@
 {
     public class AuthenticationPacket : UnifiedPacket
     {
-        public AuthenticationPacket(Header header, string username, byte[] scramble)
-            : base(header)
+        public AuthenticationPacket(string username, byte[] scramble)
+            : base(new Header(CommandCode.Auth, null, null))
         {
             Username = username;
             Scramble = scramble;

@@ -4,8 +4,8 @@ namespace iproto.Data.Packets
 {
     public class CallPacket<T1> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;
@@ -18,8 +18,8 @@ namespace iproto.Data.Packets
 
     public class CallPacket<T1, T2> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1, T2> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1, T2> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;
@@ -32,8 +32,8 @@ namespace iproto.Data.Packets
 
     public class CallPacket<T1, T2, T3> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1, T2, T3> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1, T2, T3> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;
@@ -46,8 +46,8 @@ namespace iproto.Data.Packets
 
     public class CallPacket<T1, T2, T3, T4> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1, T2, T3, T4> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1, T2, T3, T4> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;
@@ -60,8 +60,8 @@ namespace iproto.Data.Packets
 
     public class CallPacket<T1, T2, T3, T4, T5> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1, T2, T3, T4, T5> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1, T2, T3, T4, T5> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;
@@ -74,8 +74,8 @@ namespace iproto.Data.Packets
 
     public class CallPacket<T1, T2, T3, T4, T5, T6> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1, T2, T3, T4, T5, T6> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1, T2, T3, T4, T5, T6> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;
@@ -88,8 +88,8 @@ namespace iproto.Data.Packets
 
     public class CallPacket<T1, T2, T3, T4, T5, T6, T7> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1, T2, T3, T4, T5, T6, T7> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1, T2, T3, T4, T5, T6, T7> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;
@@ -102,8 +102,8 @@ namespace iproto.Data.Packets
 
     public class CallPacket<T1, T2, T3, T4, T5, T6, T7, TRest> : UnifiedPacket
     {
-        public CallPacket(Header header, string functionName, Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> tuple)
-            : base(header)
+        public CallPacket(string functionName, Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> tuple)
+            : base(new Header(CommandCode.Call, null, null))
         {
             FunctionName = functionName;
             Tuple = tuple;

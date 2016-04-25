@@ -6,8 +6,8 @@ namespace iproto.Data.Packets
 {
     public class UpsertPacket<T1, TUpdate> : UnifiedPacket
     {
-        public UpsertPacket(Header header, int spaceId, Tuple<T1> tuple, UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+        public UpsertPacket(uint spaceId, Tuple<T1> tuple, UpdateOperation<TUpdate> updateOperation)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -16,15 +16,15 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1> Tuple { get; }
     }
 
     public class UpsertPacket<T1, T2, TUpdate> : UnifiedPacket
     {
-        public UpsertPacket(Header header, int spaceId, Tuple<T1, T2> tuple, UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+        public UpsertPacket(uint spaceId, Tuple<T1, T2> tuple, UpdateOperation<TUpdate> updateOperation)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -33,15 +33,15 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1, T2> Tuple { get; }
     }
 
     public class UpsertPacket<T1, T2, T3, TUpdate> : UnifiedPacket
     {
-        public UpsertPacket(Header header, int spaceId, Tuple<T1, T2, T3> tuple, UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+        public UpsertPacket(uint spaceId, Tuple<T1, T2, T3> tuple, UpdateOperation<TUpdate> updateOperation)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -50,15 +50,15 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1, T2, T3> Tuple { get; }
     }
 
     public class UpsertPacket<T1, T2, T3, T4, TUpdate> : UnifiedPacket
     {
-        public UpsertPacket(Header header, int spaceId, Tuple<T1, T2, T3, T4> tuple, UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+        public UpsertPacket(uint spaceId, Tuple<T1, T2, T3, T4> tuple, UpdateOperation<TUpdate> updateOperation)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -67,15 +67,15 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1, T2, T3, T4> Tuple { get; }
     }
 
     public class UpsertPacket<T1, T2, T3, T4, T5, TUpdate> : UnifiedPacket
     {
-        public UpsertPacket(Header header, int spaceId, Tuple<T1, T2, T3, T4, T5> tuple, UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+        public UpsertPacket(uint spaceId, Tuple<T1, T2, T3, T4, T5> tuple, UpdateOperation<TUpdate> updateOperation)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -84,7 +84,7 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1, T2, T3, T4, T5> Tuple { get; }
     }
@@ -93,10 +93,10 @@ namespace iproto.Data.Packets
     {
         public UpsertPacket(
             Header header,
-            int spaceId,
+           uint spaceId,
             Tuple<T1, T2, T3, T4, T5, T6> tuple,
             UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -105,7 +105,7 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1, T2, T3, T4, T5, T6> Tuple { get; }
     }
@@ -114,10 +114,10 @@ namespace iproto.Data.Packets
     {
         public UpsertPacket(
             Header header,
-            int spaceId,
+           uint spaceId,
             Tuple<T1, T2, T3, T4, T5, T6, T7> tuple,
             UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -126,7 +126,7 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1, T2, T3, T4, T5, T6, T7> Tuple { get; }
     }
@@ -135,10 +135,10 @@ namespace iproto.Data.Packets
     {
         public UpsertPacket(
             Header header,
-            int spaceId,
+           uint spaceId,
             Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> tuple,
             UpdateOperation<TUpdate> updateOperation)
-            : base(header)
+            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -147,7 +147,7 @@ namespace iproto.Data.Packets
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
 
-        public int SpaceId { get; }
+        public uint SpaceId { get; }
 
         public Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> Tuple { get; }
     }

@@ -6,7 +6,7 @@ using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters
 {
-    public class UpdateOperationConverter<T> :IMsgPackConverter<UpdateOperation<T>>
+    public class UpdateOperationConverter<T> : IMsgPackConverter<UpdateOperation<T>>
     {
         public void Write(UpdateOperation<T> value, IMsgPackWriter writer, MsgPackContext context)
         {

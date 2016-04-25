@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using Shouldly;
 
@@ -38,13 +37,11 @@ namespace tarantool_client.Converters
 
                 keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
                 errorMessage = stringConverter.Read(reader, context, null);
-            }
-
-            if (length.Value > 0u)
+            } else if (length.Value > 0u)
             {
                 var dataConverter = context.GetConverter<object>();
 
-                keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
+                keyConverter.Read(reader, context, null).ShouldBe(Key.Data);
                 data = dataConverter.Read(reader, context, null);
             }
 

@@ -9,8 +9,7 @@ namespace iproto.Services
         public AuthenticationPacket CreateAuthentication(GreetingsPacket greetings, string username, string password)
         {
             var scrable = GetScrable(greetings, password);
-            var header = new Header(CommandCode.Auth, 0, 0);
-            var authenticationPacket = new AuthenticationPacket(header, username, scrable);
+            var authenticationPacket = new AuthenticationPacket(username, scrable);
             return authenticationPacket;
         }
 
