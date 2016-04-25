@@ -2,7 +2,7 @@
 {
     public class Header
     {
-        public Header(CommandCode code, ulong sync, ulong schemaId)
+        public Header(CommandCode code, ulong? sync, ulong? schemaId)
         {
             Code = code;
             Sync = sync;
@@ -11,8 +11,8 @@
 
         public CommandCode Code { get; }
 
-        public ulong Sync { get; }
+        public ulong? Sync { get; }
 
-        public ulong SchemaId { get; }
+        public ulong? SchemaId { get; }
     }
 }

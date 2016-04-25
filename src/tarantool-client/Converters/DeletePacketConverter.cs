@@ -15,16 +15,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);
@@ -45,16 +45,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1, T2>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);
@@ -75,16 +75,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1, T2, T3>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);
@@ -105,16 +105,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1, T2, T3, T4>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);
@@ -135,16 +135,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1, T2, T3, T4, T5>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);
@@ -168,16 +168,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1, T2, T3, T4, T5, T6>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);
@@ -201,16 +201,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1, T2, T3, T4, T5, T6, T7>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);
@@ -235,16 +235,16 @@ namespace tarantool_client.Converters
             headerConverter.Write(value.Header, writer, context);
 
             var keyConverter = context.GetConverter<Key>();
-            var intConverter = context.GetConverter<int>();
+            var uintConverter = context.GetConverter<uint>();
             var selectKeyConverter = context.GetConverter<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>();
 
             writer.WriteMapHeaderAndLength(3);
 
             keyConverter.Write(Key.SpaceId, writer, context);
-            intConverter.Write(value.SpaceId, writer, context);
+            uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.IndexId, writer, context);
-            intConverter.Write(value.IndexId, writer, context);
+            uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
             writer.WriteArrayHeader(1);

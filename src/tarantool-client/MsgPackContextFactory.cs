@@ -34,8 +34,8 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,,>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,,,>));
+            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,,,,>));
 
             result.RegisterGenericConverter(typeof(CallPacketConverter<>));
             result.RegisterGenericConverter(typeof(CallPacketConverter<,>));
@@ -44,7 +44,7 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,>));
             result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,,,,>));
 
             result.RegisterGenericConverter(typeof(DeletePacketConverter<>));
             result.RegisterGenericConverter(typeof(DeletePacketConverter<,>));
@@ -53,7 +53,7 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,>));
             result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,,,,>));
 
             result.RegisterGenericConverter(typeof(EvalPacketConverter<>));
             result.RegisterGenericConverter(typeof(EvalPacketConverter<,>));
@@ -62,7 +62,7 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,>));
             result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,,,,>));
 
             result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<>));
             result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,>));
@@ -71,7 +71,7 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,>));
             result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,,,,>));
 
             result.RegisterGenericConverter(typeof(SelectPacketConverter<>));
             result.RegisterGenericConverter(typeof(SelectPacketConverter<,>));
@@ -80,7 +80,7 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,>));
             result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,,,,>));
 
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,>));
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,>));
@@ -88,8 +88,8 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,>));
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,,>));
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,,,>));
+            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,,,,>));
 
             result.RegisterGenericConverter(typeof(TupleConverter<>));
             result.RegisterGenericConverter(typeof(TupleConverter<,>));
@@ -98,7 +98,7 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(TupleConverter<,,,,>));
             result.RegisterGenericConverter(typeof(TupleConverter<,,,,,>));
             result.RegisterGenericConverter(typeof(TupleConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,,,>));
 
             return result;
         }

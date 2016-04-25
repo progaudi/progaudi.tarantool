@@ -40,9 +40,9 @@ namespace tarantool_client
             return response;
         }
 
-        public ResponsePacket SendPacket<T>(T authenticateUnified) where T : UnifiedPacket
+        public ResponsePacket SendPacket<T>(T unifiedPacket) where T : UnifiedPacket
         {
-            var request = MsgPackSerializer.Serialize(authenticateUnified, _msgPackContext);
+            var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
             var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
             var responseBytes = SendBytes(requestHeaderLength, request);
             var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);

@@ -70,12 +70,6 @@ namespace tarantool_client.Converters
 
         public T Read(IMsgPackReader reader, MsgPackContext context, Func<T> creator)
         {
-            var enumTypeInfo = typeof(T).GetTypeInfo();
-            if (!enumTypeInfo.IsEnum)
-            {
-                throw new InvalidOperationException($"Enum expected, but got {typeof(T)}.");
-            }
-
             var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));
 
             if (enumUnderlyingType == typeof(sbyte))
