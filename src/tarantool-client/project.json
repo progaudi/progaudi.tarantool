@@ -20,8 +20,8 @@
         }
     },
     "dependencies": {
-        "msgpack": { "target": "project" },
         "iproto": { "target": "project" },
-        "Shouldly": "2.7.0"
+        "Shouldly": "2.7.0",
+        "MsgPack.Light" : "0.0.1"
     }
 }
