@@ -26,9 +26,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(1u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -56,9 +58,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(2u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -89,9 +93,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(3u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -122,9 +128,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(4u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -155,9 +163,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(5u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -188,9 +198,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(6u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -222,9 +234,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(6u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -256,9 +270,11 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.SpaceId, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(7u);
             tupleConverter.Write(value.Tuple, writer, context);
 
             keyConverter.Write(Key.Ops, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 

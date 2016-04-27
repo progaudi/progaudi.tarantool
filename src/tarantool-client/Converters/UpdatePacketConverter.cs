@@ -33,6 +33,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(1u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -67,6 +68,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(2u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -104,6 +106,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(3u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -141,6 +144,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(4u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -178,6 +182,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(5u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -215,6 +220,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(6u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -253,6 +259,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(7u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 
@@ -291,6 +298,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(8u);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 

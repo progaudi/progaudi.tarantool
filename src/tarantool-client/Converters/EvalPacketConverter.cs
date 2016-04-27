@@ -51,7 +51,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
+            writer.WriteArrayHeader(2);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
@@ -78,7 +78,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
+            writer.WriteArrayHeader(3);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
@@ -105,7 +105,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
+            writer.WriteArrayHeader(4);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
@@ -132,7 +132,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
+            writer.WriteArrayHeader(5);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
@@ -162,7 +162,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
+            writer.WriteArrayHeader(6);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
@@ -192,7 +192,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
+            writer.WriteArrayHeader(7);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
@@ -222,7 +222,7 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.Expression, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
+            writer.WriteArrayHeader(8);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
