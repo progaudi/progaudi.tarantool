@@ -27,3 +27,7 @@ install:
   - dnvm use 1.0.0-rc1-update1
 before_script:
   - dnu restore
+
+script:
+  - dnu build tests\tarantool-client.test\project.json
+  - dnu build tests\iproto.tests\project.json
