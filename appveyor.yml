@@ -38,6 +38,6 @@ build:
   verbosity: minimal
 
 test_script:
-  - ps: dnx -p tests/msgpack.tests test
+  - ps: dnx -p tests/iproto.tests test
 
 deploy: off
