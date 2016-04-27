@@ -37,4 +37,7 @@ build:
   project: tarantool-dnx.sln
   verbosity: minimal
 
+test_script:
+  - ps: dnx -p tests/iproto.tests test
+
 deploy: off
