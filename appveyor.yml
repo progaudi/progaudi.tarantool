@@ -37,7 +37,4 @@ build:
   project: tarantool-dnx.sln
   verbosity: minimal
 
-test_script:
-  - ps: dnx -p tests/msgpack.tests test
-
 deploy: off

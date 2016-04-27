@@ -27,5 +27,3 @@ install:
   - dnvm use 1.0.0-rc1-update1
 before_script:
   - dnu restore
-script:
-  - dnx -p tests/msgpack.tests test -parallel none
