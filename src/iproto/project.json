@@ -21,6 +21,6 @@
         }
     },
     "dependencies": {
-        "msgpack": { "target": "project" }
+        "MsgPack.Light": "0.0.2"
     }
 }
