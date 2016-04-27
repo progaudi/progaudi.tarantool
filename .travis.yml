@@ -29,4 +29,4 @@ before_script:
   - dnu restore
 
 script:
-  - dnx -p tests/iptoto.tests test -parallel none
+  - dnx -p tests/iproto.tests test -parallel none

@@ -2,10 +2,14 @@
 using System;
 
 using iproto.Data.Packets;
+using iproto.Services;
 
 using tarantool_client;
 
+using TarantoolDnx.MsgPack.Converters;
+
 using Xunit;
+using Shouldly;
 
 namespace iproto.tests
 {
@@ -14,26 +18,63 @@ namespace iproto.tests
         [Fact]
         public void CreatAuthPacket()
         {
-            //var requestFactory = new RequestFactory();
-            //var salt = Convert.FromBase64String("DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
-            //var packet = requestFactory.CreateAuthentication(new GreetingsPacket(string.Empty, salt), "test", "test");
-            //var msgPackContext = MsgPackContextFactory.Create();
-            //var serialzied = packet.Serialize(msgPackContext);
+            var requestFactory = new AuthenticationRequestFactory();
+            var salt = Convert.FromBase64String("DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
+            var packet = requestFactory.CreateAuthentication(new GreetingsPacket(string.Empty, salt), "test", "test");
+            var msgPackContext = MsgPackContextFactory.Create();
+            var serialzied = MsgPackSerializer.Serialize(packet, msgPackContext);
 
-            //var sbytes = new sbyte[]
-            //{
-            //    43,
-            //    -127, 0, 7,
-            //    -126, 33, -110, -87, 99, 104, 97, 112, 45, 115, 104, 97, 49, -76, -44, -30, 16, 98, -118, -88, -70, -77, -91, 37, -80, 2, 114, -39, 19, -41, 79, 100, -99, 12, 35, -92, 116, 101, 115, 116
-            //};
-            //var bytes = new byte[sbytes.Length];
-            //for (int i = 0; i < sbytes.Length; i++)
-            //{
-            //    bytes[i] = (byte)sbytes[i];
-            //}
+            var expected = new byte[]
+            {
+                0x81,
 
-            ////var deserialized = MsgPackSerializer.Deserialize<object>(bytes, msgPackContext);
-            //serialzied.ShouldBe(bytes);
+                0x00,
+                0x07,
+
+                0x82,
+                0x23,
+                0xa4,
+                0x74,
+                0x65,
+                0x73,
+                0x74,
+                0x21,
+                0x92,
+                0xa9,
+                0x63,
+                0x68,
+                0x61,
+                0x70,
+                0x2d,
+                0x73,
+                0x68,
+                0x61,
+                0x31,
+                0xc4,
+                0x14,
+                0xd4,
+                0xe2,
+                0x10,
+                0x62,
+                0x8a,
+                0xa8,
+                0xba,
+                0xb3,
+                0xa5,
+                0x25,
+                0xb0,
+                0x02,
+                0x72,
+                0xd9,
+                0x13,
+                0xd7,
+                0x4f,
+                0x64,
+                0x9d,
+                0x0c,
+            };
+
+            serialzied.ShouldBe(expected);
         }
     }
 }
