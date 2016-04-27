@@ -29,5 +29,4 @@ before_script:
   - dnu restore
 
 script:
-  - dnu build tests\tarantool-client.test\project.json
-  - dnu build tests\iproto.tests\project.json
+  - dnx -p tests/iptoto.tests test -parallel none
