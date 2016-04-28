@@ -27,7 +27,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
@@ -57,7 +56,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
@@ -87,7 +85,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
@@ -117,7 +114,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
@@ -147,7 +143,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
@@ -180,7 +175,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
@@ -213,7 +207,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
@@ -247,7 +240,6 @@ namespace tarantool_client.Converters
             uintConverter.Write(value.IndexId, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.Key, writer, context);
         }
 
