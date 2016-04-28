@@ -10,7 +10,7 @@ using TarantoolDnx.MsgPack.Converters;
 
 namespace tarantool_client
 {
-    public class AsyncTarantoolClient : IDisposable
+    public class Connection : IDisposable
     {
         private readonly Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -40,6 +40,11 @@ namespace tarantool_client
             return response;
         }
 
+        public Schema GetSchema()
+        {
+            throw new NotImplementedException();
+        }
+
         public ResponsePacket SendPacket<T>(T unifiedPacket) where T : UnifiedPacket
         {
             var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
@@ -48,6 +53,10 @@ namespace tarantool_client
             var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
             return response;
         }
+
+
+
+
 
         private byte[] ReceiveGreetings()
         {

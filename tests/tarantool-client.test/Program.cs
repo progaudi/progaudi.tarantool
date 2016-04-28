@@ -8,7 +8,7 @@ namespace tarantool_client.test
     {
         public static void Main(string[] args)
         {
-            var tarantoolClinet = new AsyncTarantoolClient();
+            var tarantoolClinet = new Connection();
             tarantoolClinet.Connect("192.168.99.100", 3301);
             var response = tarantoolClinet.Login("operator", "operator");
 
