@@ -39,7 +39,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
@@ -79,7 +78,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
@@ -119,7 +117,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
@@ -159,7 +156,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
@@ -199,7 +195,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
@@ -242,7 +237,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
@@ -285,7 +279,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 
@@ -329,7 +322,6 @@ namespace tarantool_client.Converters
             iteratorConverter.Write(value.Iterator, writer, context);
 
             keyConverter.Write(Key.Key, writer, context);
-            writer.WriteArrayHeader(1);
             selectKeyConverter.Write(value.SelectKey, writer, context);
         }
 

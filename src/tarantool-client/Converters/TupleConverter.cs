@@ -15,7 +15,7 @@ namespace tarantool_client.Converters
             }
 
             var t1Converter = context.GetConverter<T1>();
-
+            writer.WriteArrayHeader(1);
             t1Converter.Write(value.Item1, writer, context);
         }
 
@@ -42,6 +42,7 @@ namespace tarantool_client.Converters
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
 
+            writer.WriteArrayHeader(2);
             t1Converter.Write(value.Item1, writer, context);
             t2Converter.Write(value.Item2, writer, context);
         }
@@ -72,6 +73,7 @@ namespace tarantool_client.Converters
             var t2Converter = context.GetConverter<T2>();
             var t3Converter = context.GetConverter<T3>();
 
+            writer.WriteArrayHeader(3);
             t1Converter.Write(value.Item1, writer, context);
             t2Converter.Write(value.Item2, writer, context);
             t3Converter.Write(value.Item3, writer, context);
@@ -106,6 +108,7 @@ namespace tarantool_client.Converters
             var t3Converter = context.GetConverter<T3>();
             var t4Converter = context.GetConverter<T4>();
 
+            writer.WriteArrayHeader(4);
             t1Converter.Write(value.Item1, writer, context);
             t2Converter.Write(value.Item2, writer, context);
             t3Converter.Write(value.Item3, writer, context);
@@ -144,6 +147,7 @@ namespace tarantool_client.Converters
             var t4Converter = context.GetConverter<T4>();
             var t5Converter = context.GetConverter<T5>();
 
+            writer.WriteArrayHeader(5);
             t1Converter.Write(value.Item1, writer, context);
             t2Converter.Write(value.Item2, writer, context);
             t3Converter.Write(value.Item3, writer, context);
@@ -186,6 +190,7 @@ namespace tarantool_client.Converters
             var t5Converter = context.GetConverter<T5>();
             var t6Converter = context.GetConverter<T6>();
 
+            writer.WriteArrayHeader(6);
             t1Converter.Write(value.Item1, writer, context);
             t2Converter.Write(value.Item2, writer, context);
             t3Converter.Write(value.Item3, writer, context);
@@ -235,6 +240,7 @@ namespace tarantool_client.Converters
             var t6Converter = context.GetConverter<T6>();
             var t7Converter = context.GetConverter<T7>();
 
+            writer.WriteArrayHeader(7);
             t1Converter.Write(value.Item1, writer, context);
             t2Converter.Write(value.Item2, writer, context);
             t3Converter.Write(value.Item3, writer, context);
@@ -288,6 +294,7 @@ namespace tarantool_client.Converters
             var t7Converter = context.GetConverter<T7>();
             var t8Converter = context.GetConverter<TRest>();
 
+            writer.WriteArrayHeader(8);
             t1Converter.Write(value.Item1, writer, context);
             t2Converter.Write(value.Item2, writer, context);
             t3Converter.Write(value.Item3, writer, context);
