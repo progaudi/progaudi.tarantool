@@ -29,76 +29,21 @@ namespace tarantool_client
             result.RegisterConverter(new SubscribePacketConverter());
 
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,,,>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,,,,,,,,>));
-
             result.RegisterGenericConverter(typeof(CallPacketConverter<>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,,>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,,,>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(CallPacketConverter<,,,,,,,>));
-
             result.RegisterGenericConverter(typeof(DeletePacketConverter<>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(DeletePacketConverter<,,,,,,,>));
-
             result.RegisterGenericConverter(typeof(EvalPacketConverter<>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(EvalPacketConverter<,,,,,,,>));
-
             result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<,,,,,,,>));
-
             result.RegisterGenericConverter(typeof(SelectPacketConverter<>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(SelectPacketConverter<,,,,,,,>));
-
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,,,>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,,,,,,,,>));
 
-            result.RegisterGenericConverter(typeof(TupleConverter<>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,,>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,,,>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,,,>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<,>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<,,>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,,>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,,,,>));
 
             return result;
         }

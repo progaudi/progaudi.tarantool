@@ -1,4 +1,6 @@
 ﻿using System;
+
+using iproto;
 using iproto.Data;
 using iproto.Data.Packets;
 
@@ -20,7 +22,7 @@ namespace tarantool_client.test
                 return;
             }
 
-            var selectRequest = new SelectPacket<int>(514, 0, 100, 0, Iterator.All, Tuple.Create(2));
+            var selectRequest = new SelectPacket<MyTuple<int>>(514, 0, 100, 0, Iterator.All, MyTuple.Create(2));
             var selectResponse = tarantoolClinet.SendPacket(selectRequest);
         }
     }

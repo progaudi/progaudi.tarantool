@@ -3,8 +3,6 @@
 using iproto.Data;
 using iproto.Data.Packets;
 
-using Shouldly;
-
 using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters

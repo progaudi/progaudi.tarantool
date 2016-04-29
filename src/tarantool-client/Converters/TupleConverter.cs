@@ -1,12 +1,14 @@
 using System;
 
+using iproto;
+
 using TarantoolDnx.MsgPack;
 
 namespace tarantool_client.Converters
 {
-    public class TupleConverter<T1> : IMsgPackConverter<Tuple<T1>>
+    public class MyTupleConverter<T1> : IMsgPackConverter<MyTuple<T1>>
     {
-        public void Write(Tuple<T1> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -19,19 +21,19 @@ namespace tarantool_client.Converters
             t1Converter.Write(value.Item1, writer, context);
         }
 
-        public Tuple<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<Tuple<T1>> creator)
+        public MyTuple<T1> Read(IMsgPackReader reader, MsgPackContext context, Func<MyTuple<T1>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
 
             var item1 = t1Converter.Read(reader, context, null);
 
-            return Tuple.Create(item1);
+            return MyTuple.Create(item1);
         }
     }
 
-    public class TupleConverter<T1, T2> : IMsgPackConverter<Tuple<T1, T2>>
+    public class MyTupleConverter<T1, T2> : IMsgPackConverter<MyTuple<T1, T2>>
     {
-        public void Write(Tuple<T1, T2> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1, T2> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -46,7 +48,7 @@ namespace tarantool_client.Converters
             t2Converter.Write(value.Item2, writer, context);
         }
 
-        public Tuple<T1, T2> Read(IMsgPackReader reader, MsgPackContext context, Func<Tuple<T1, T2>> creator)
+        public MyTuple<T1, T2> Read(IMsgPackReader reader, MsgPackContext context, Func<MyTuple<T1, T2>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
@@ -54,13 +56,13 @@ namespace tarantool_client.Converters
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
 
-            return Tuple.Create(item1, item2);
+            return MyTuple.Create(item1, item2);
         }
     }
 
-    public class TupleConverter<T1, T2, T3> : IMsgPackConverter<Tuple<T1, T2, T3>>
+    public class MyTupleConverter<T1, T2, T3> : IMsgPackConverter<MyTuple<T1, T2, T3>>
     {
-        public void Write(Tuple<T1, T2, T3> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1, T2, T3> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -77,7 +79,7 @@ namespace tarantool_client.Converters
             t3Converter.Write(value.Item3, writer, context);
         }
 
-        public Tuple<T1, T2, T3> Read(IMsgPackReader reader, MsgPackContext context, Func<Tuple<T1, T2, T3>> creator)
+        public MyTuple<T1, T2, T3> Read(IMsgPackReader reader, MsgPackContext context, Func<MyTuple<T1, T2, T3>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
@@ -87,13 +89,13 @@ namespace tarantool_client.Converters
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);
 
-            return Tuple.Create(item1, item2, item3);
+            return MyTuple.Create(item1, item2, item3);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4> : IMsgPackConverter<Tuple<T1, T2, T3, T4>>
+    public class MyTupleConverter<T1, T2, T3, T4> : IMsgPackConverter<MyTuple<T1, T2, T3, T4>>
     {
-        public void Write(Tuple<T1, T2, T3, T4> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1, T2, T3, T4> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -112,7 +114,7 @@ namespace tarantool_client.Converters
             t4Converter.Write(value.Item4, writer, context);
         }
 
-        public Tuple<T1, T2, T3, T4> Read(IMsgPackReader reader, MsgPackContext context, Func<Tuple<T1, T2, T3, T4>> creator)
+        public MyTuple<T1, T2, T3, T4> Read(IMsgPackReader reader, MsgPackContext context, Func<MyTuple<T1, T2, T3, T4>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
@@ -124,13 +126,13 @@ namespace tarantool_client.Converters
             var item3 = t3Converter.Read(reader, context, null);
             var item4 = t4Converter.Read(reader, context, null);
 
-            return Tuple.Create(item1, item2, item3, item4);
+            return MyTuple.Create(item1, item2, item3, item4);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5>>
+    public class MyTupleConverter<T1, T2, T3, T4, T5> : IMsgPackConverter<MyTuple<T1, T2, T3, T4, T5>>
     {
-        public void Write(Tuple<T1, T2, T3, T4, T5> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1, T2, T3, T4, T5> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -151,7 +153,7 @@ namespace tarantool_client.Converters
             t5Converter.Write(value.Item5, writer, context);
         }
 
-        public Tuple<T1, T2, T3, T4, T5> Read(IMsgPackReader reader, MsgPackContext context, Func<Tuple<T1, T2, T3, T4, T5>> creator)
+        public MyTuple<T1, T2, T3, T4, T5> Read(IMsgPackReader reader, MsgPackContext context, Func<MyTuple<T1, T2, T3, T4, T5>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
@@ -165,13 +167,13 @@ namespace tarantool_client.Converters
             var item4 = t4Converter.Read(reader, context, null);
             var item5 = t5Converter.Read(reader, context, null);
 
-            return Tuple.Create(item1, item2, item3, item4, item5);
+            return MyTuple.Create(item1, item2, item3, item4, item5);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5, T6> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5, T6>>
+    public class MyTupleConverter<T1, T2, T3, T4, T5, T6> : IMsgPackConverter<MyTuple<T1, T2, T3, T4, T5, T6>>
     {
-        public void Write(Tuple<T1, T2, T3, T4, T5, T6> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1, T2, T3, T4, T5, T6> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -194,10 +196,10 @@ namespace tarantool_client.Converters
             t6Converter.Write(value.Item6, writer, context);
         }
 
-        public Tuple<T1, T2, T3, T4, T5, T6> Read(
+        public MyTuple<T1, T2, T3, T4, T5, T6> Read(
             IMsgPackReader reader,
             MsgPackContext context,
-            Func<Tuple<T1, T2, T3, T4, T5, T6>> creator)
+            Func<MyTuple<T1, T2, T3, T4, T5, T6>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
@@ -213,13 +215,13 @@ namespace tarantool_client.Converters
             var item5 = t5Converter.Read(reader, context, null);
             var item6 = t6Converter.Read(reader, context, null);
 
-            return Tuple.Create(item1, item2, item3, item4, item5, item6);
+            return MyTuple.Create(item1, item2, item3, item4, item5, item6);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5, T6, T7>>
+    public class MyTupleConverter<T1, T2, T3, T4, T5, T6, T7> : IMsgPackConverter<MyTuple<T1, T2, T3, T4, T5, T6, T7>>
     {
-        public void Write(Tuple<T1, T2, T3, T4, T5, T6, T7> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1, T2, T3, T4, T5, T6, T7> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -244,10 +246,10 @@ namespace tarantool_client.Converters
             t7Converter.Write(value.Item7, writer, context);
         }
 
-        public Tuple<T1, T2, T3, T4, T5, T6, T7> Read(
+        public MyTuple<T1, T2, T3, T4, T5, T6, T7> Read(
             IMsgPackReader reader,
             MsgPackContext context,
-            Func<Tuple<T1, T2, T3, T4, T5, T6, T7>> creator)
+            Func<MyTuple<T1, T2, T3, T4, T5, T6, T7>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
@@ -265,13 +267,13 @@ namespace tarantool_client.Converters
             var item6 = t6Converter.Read(reader, context, null);
             var item7 = t7Converter.Read(reader, context, null);
 
-            return Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
+            return MyTuple.Create(item1, item2, item3, item4, item5, item6, item7);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7, TRest> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
+    public class MyTupleConverter<T1, T2, T3, T4, T5, T6, T7, TRest> : IMsgPackConverter<MyTuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
     {
-        public void Write(Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(MyTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value, IMsgPackWriter writer, MsgPackContext context)
         {
             if (value == null)
             {
@@ -295,13 +297,13 @@ namespace tarantool_client.Converters
             t5Converter.Write(value.Item5, writer, context);
             t6Converter.Write(value.Item6, writer, context);
             t7Converter.Write(value.Item7, writer, context);
-            t8Converter.Write(value.Rest, writer, context);
+            t8Converter.Write(value.Item8, writer, context);
         }
 
-        public Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> Read(
+        public MyTuple<T1, T2, T3, T4, T5, T6, T7, TRest> Read(
             IMsgPackReader reader,
             MsgPackContext context,
-            Func<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>> creator)
+            Func<MyTuple<T1, T2, T3, T4, T5, T6, T7, TRest>> creator)
         {
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
@@ -321,7 +323,7 @@ namespace tarantool_client.Converters
             var item7 = t7Converter.Read(reader, context, null);
             var item8 = t8Converter.Read(reader, context, null);
 
-            return new Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, item8);
+            return new MyTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, item8);
         }
     }
 }
