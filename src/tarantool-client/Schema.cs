@@ -4,7 +4,7 @@ namespace tarantool_client
 {
     public class Schema
     {
-        public Space CreateSpace()
+        public Space CreateSpace(string spaceName, SpaceCreationOptions options = null)
         {
             throw new NotImplementedException();
         }
@@ -18,6 +18,5 @@ namespace tarantool_client
         {
             throw new NotImplementedException();
         }
-
     }
 }

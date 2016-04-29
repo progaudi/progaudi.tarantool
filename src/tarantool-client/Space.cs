@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+using iproto;
+using iproto.Data.UpdateOperations;
+
 namespace tarantool_client
 {
     public class Space
     {
         public uint Id { get; }
+
+        public bool Enabled { get; }
+
+        public uint FieldCount { get; }
 
         public string Name { get; }
 
@@ -17,17 +24,104 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public Tuple<T1> Insert<T1>(Tuple<T1> tuple)
+        public void Drop()
         {
             throw new NotImplementedException();
         }
 
-        public IList<object> Select<T1>(Tuple<T1> selectKey)
+        public void Rename(string newName)
         {
             throw new NotImplementedException();
         }
 
-        public IList<Tuple<TResult1>> Select<TSelect1, TResult1>(Tuple<TSelect1> selectKey)
+        public T Insert<T>(T tuple)
+            where T : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public IList<object> Select<T>(T selectKey)
+            where T : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public IList<TResult> Select<TKey, TResult>(TKey selectKey)
+          where TKey : ITuple
+          where TResult : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public TResult Get<TKey, TResult>(TKey key)
+            where TKey : ITuple
+          where TResult : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Replace<T>(T tuple)
+            where T : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Put<T>(T tuple)
+            where T: ITuple
+        {
+            return Replace(tuple);
+        }
+
+        public TTuple Update<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
+            where TTuple : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public TTuple Upsert<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
+           where TTuple : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public TTuple Delete<TTuple, TKey>(TKey key)
+           where TTuple : ITuple
+           where TKey: ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public uint Count<TKey>(TKey key)
+           where TKey: ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public uint Length()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Increment<TKey>(TKey key)
+            where TKey:ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Decrement<TKey>(TKey key)
+            where TKey:ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)
+            where TTuple: ITuple
+            where TRest : ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<KeyValuePair<TKey, TValue>> Pairs<TKey, TValue>()
         {
             throw new NotImplementedException();
         }
