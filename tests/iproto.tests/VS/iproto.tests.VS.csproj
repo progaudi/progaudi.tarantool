@@ -49,10 +49,6 @@
       <Project>{069C0303-362B-4E81-9775-33F99BD4B20D}</Project>
       <Name>iproto.VS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\src\msgpack\VS\msgpack.VS.csproj">
-      <Project>{2F96BC33-6B63-464D-82B8-A99C90CCF33F}</Project>
-      <Name>msgpack.VS</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\tarantool-client\VS\tarantool-client.VS.csproj">
       <Project>{7A18460B-BE46-4D29-AA8B-6CF3B5873F29}</Project>
       <Name>tarantool-client.VS</Name>

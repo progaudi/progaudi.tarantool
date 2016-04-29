@@ -48,16 +48,6 @@
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="VS\obj\Debug\" />
-    <Folder Include="VS\Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\msgpack\VS\msgpack.VS.csproj">
-      <Project>{2F96BC33-6B63-464D-82B8-A99C90CCF33F}</Project>
-      <Name>msgpack.VS</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
