@@ -9,7 +9,7 @@ using TarantoolDnx.MsgPack;
 namespace tarantool_client.Converters
 {
     public class EvalPacketConverter<T> : IMsgPackConverter<EvalPacket<T>>
-        where T:IMyTuple
+        where T:ITuple
     {
         public void Write(EvalPacket<T> value, IMsgPackWriter writer, MsgPackContext context)
         {

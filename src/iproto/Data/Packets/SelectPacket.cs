@@ -1,7 +1,7 @@
 ﻿namespace iproto.Data.Packets
 {
     public class SelectPacket<T> : UnifiedPacket
-        where T : IMyTuple
+        where T : ITuple
     {
         public SelectPacket(uint spaceId, uint indexId, uint limit, uint offset, Iterator iterator, T selectKey)
             : base(new Header(CommandCode.Select, null, null))

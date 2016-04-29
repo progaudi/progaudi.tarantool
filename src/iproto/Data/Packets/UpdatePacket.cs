@@ -3,7 +3,7 @@
 namespace iproto.Data.Packets
 {
     public class UpdatePacket<TKey, TUpdate> : UnifiedPacket
-     where TKey : IMyTuple
+     where TKey : ITuple
     {
         public UpdatePacket(uint spaceId, uint indexId, TKey key, UpdateOperation<TUpdate> updateOperation)
             : base(new Header(CommandCode.Update, null, null))

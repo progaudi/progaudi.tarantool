@@ -1,7 +1,7 @@
 ﻿namespace iproto.Data.Packets
 {
     public class InsertReplacePacket<T> : UnifiedPacket
-        where T : IMyTuple
+        where T : ITuple
     {
         public InsertReplacePacket(CommandCode code, uint spaceId, T tuple)
             : base(new Header(code, null, null))

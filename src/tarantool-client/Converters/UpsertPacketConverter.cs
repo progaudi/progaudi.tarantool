@@ -10,7 +10,7 @@ using TarantoolDnx.MsgPack;
 namespace tarantool_client.Converters
 {
     public class UpsertPacketConverter<T, TUpdate> : IMsgPackConverter<UpsertPacket<T, TUpdate>>
-        where T : IMyTuple
+        where T : ITuple
     {
         public void Write(UpsertPacket<T, TUpdate> value, IMsgPackWriter writer, MsgPackContext context)
         {

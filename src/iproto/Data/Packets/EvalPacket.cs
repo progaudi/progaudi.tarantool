@@ -1,7 +1,7 @@
 ﻿namespace iproto.Data.Packets
 {
     public class EvalPacket<T> : UnifiedPacket
-        where T : IMyTuple
+        where T : ITuple
     {
         public EvalPacket(string expression, T tuple)
             : base(new Header(CommandCode.Eval, null, null))

@@ -22,7 +22,7 @@ namespace tarantool_client.test
                 return;
             }
 
-            var selectRequest = new SelectPacket<MyTuple<int>>(514, 0, 100, 0, Iterator.All, MyTuple.Create(2));
+            var selectRequest = new SelectPacket<iproto.Tuple<int>>(514, 0, 100, 0, Iterator.All, MyTuple.Create(2));
             var selectResponse = tarantoolClinet.SendPacket(selectRequest);
         }
     }

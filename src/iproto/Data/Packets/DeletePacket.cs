@@ -1,7 +1,7 @@
 ﻿namespace iproto.Data.Packets
 {
     public class DeletePacket<T> : UnifiedPacket
-        where T : IMyTuple
+        where T : ITuple
     {
         public DeletePacket(uint spaceId, uint indexId, T key)
             : base(new Header(CommandCode.Delete, null, null))

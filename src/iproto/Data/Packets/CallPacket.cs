@@ -1,7 +1,7 @@
 ﻿namespace iproto.Data.Packets
 {
     public class CallPacket<T> : UnifiedPacket
-        where T : IMyTuple
+        where T : ITuple
     {
         public CallPacket(string functionName, T tuple)
             : base(new Header(CommandCode.Call, null, null))
