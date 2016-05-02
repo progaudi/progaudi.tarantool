@@ -1,8 +1,8 @@
 using System;
 
-using iproto;
-
 using MsgPack.Light;
+
+using Tuple = iproto.Tuple;
 
 namespace tarantool_client.Converters
 {
@@ -27,7 +27,7 @@ namespace tarantool_client.Converters
 
             var item1 = t1Converter.Read(reader, context, null);
 
-            return MyTuple.Create(item1);
+            return Tuple.Create(item1);
         }
     }
 
@@ -57,7 +57,7 @@ namespace tarantool_client.Converters
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
 
-            return MyTuple.Create(item1, item2);
+            return Tuple.Create(item1, item2);
         }
     }
 
@@ -91,7 +91,7 @@ namespace tarantool_client.Converters
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);
 
-            return MyTuple.Create(item1, item2, item3);
+            return Tuple.Create(item1, item2, item3);
         }
     }
 
@@ -129,7 +129,7 @@ namespace tarantool_client.Converters
             var item3 = t3Converter.Read(reader, context, null);
             var item4 = t4Converter.Read(reader, context, null);
 
-            return MyTuple.Create(item1, item2, item3, item4);
+            return Tuple.Create(item1, item2, item3, item4);
         }
     }
 
@@ -171,7 +171,7 @@ namespace tarantool_client.Converters
             var item4 = t4Converter.Read(reader, context, null);
             var item5 = t5Converter.Read(reader, context, null);
 
-            return MyTuple.Create(item1, item2, item3, item4, item5);
+            return Tuple.Create(item1, item2, item3, item4, item5);
         }
     }
 
@@ -220,7 +220,7 @@ namespace tarantool_client.Converters
             var item5 = t5Converter.Read(reader, context, null);
             var item6 = t6Converter.Read(reader, context, null);
 
-            return MyTuple.Create(item1, item2, item3, item4, item5, item6);
+            return Tuple.Create(item1, item2, item3, item4, item5, item6);
         }
     }
 
@@ -273,7 +273,7 @@ namespace tarantool_client.Converters
             var item6 = t6Converter.Read(reader, context, null);
             var item7 = t7Converter.Read(reader, context, null);
 
-            return MyTuple.Create(item1, item2, item3, item4, item5, item6, item7);
+            return Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
         }
     }
 
