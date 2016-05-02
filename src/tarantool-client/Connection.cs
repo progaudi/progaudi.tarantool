@@ -1,7 +1,8 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Net;
 
+using iproto;
+using iproto.Data;
 using iproto.Data.Packets;
 using iproto.Services;
 
@@ -9,8 +10,12 @@ using MsgPack.Light;
 
 namespace tarantool_client
 {
-    public class Connection : IDisposable
+    public class Connection : System.IDisposable
     {
+        private const int VSpace = 281;
+
+        private const int VIndex = 289;
+
         private readonly Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         private readonly AuthenticationRequestFactory _authenticationRequestFactory = new AuthenticationRequestFactory();
@@ -41,7 +46,9 @@ namespace tarantool_client
 
         public Schema GetSchema()
         {
-            throw new NotImplementedException();
+            var selectSchemaPacket = new SelectPacket<Tuple<object>>(VSpace, VIndex, 0, 0, Iterator.Eq, null);
+            var response = SendPacket(selectSchemaPacket);
+            return null;
         }
 
         public ResponsePacket SendPacket<T>(T unifiedPacket) where T : UnifiedPacket
@@ -52,10 +59,6 @@ namespace tarantool_client
             var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
             return response;
         }
-
-
-
-
 
         private byte[] ReceiveGreetings()
         {
