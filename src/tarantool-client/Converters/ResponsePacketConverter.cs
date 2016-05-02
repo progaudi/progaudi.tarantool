@@ -9,21 +9,21 @@ using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {
-    public class ResponsePacketConverter : IMsgPackConverter<ResponsePacket>
+    public class ResponsePacketConverter<T> : IMsgPackConverter<ResponsePacket<T>>
     {
-        public void Write(ResponsePacket value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(ResponsePacket<T> value, IMsgPackWriter writer, MsgPackContext context)
         {
             throw new NotImplementedException();
         }
 
-        public ResponsePacket Read(IMsgPackReader reader, MsgPackContext context, Func<ResponsePacket> creator)
+        public ResponsePacket<T> Read(IMsgPackReader reader, MsgPackContext context, Func<ResponsePacket<T>> creator)
         {
             var headerConverter = context.GetConverter<Header>();
             var keyConverter = context.GetConverter<Key>();
 
             var header = headerConverter.Read(reader, context, null);
             string errorMessage = null;
-            object data = null;
+            T data = default(T);
 
             var length = reader.ReadMapLength();
 
@@ -39,13 +39,13 @@ namespace tarantool_client.Converters
                 errorMessage = stringConverter.Read(reader, context, null);
             } else if (length.Value > 0u)
             {
-                var dataConverter = context.GetConverter<object>();
+                var dataConverter = context.GetConverter<T>();
 
                 keyConverter.Read(reader, context, null).ShouldBe(Key.Data);
                 data = dataConverter.Read(reader, context, null);
             }
 
-            return new ResponsePacket(header, errorMessage, data);
+            return new ResponsePacket<T>(header, errorMessage, data);
         }
     }
 }

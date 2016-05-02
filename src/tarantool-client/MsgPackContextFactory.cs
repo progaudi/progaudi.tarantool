@@ -23,11 +23,11 @@ namespace tarantool_client
             result.RegisterConverter(new HeaderConverter());
 
             result.RegisterConverter(new AuthenticationPacketConverter());
-            result.RegisterConverter(new ResponsePacketConverter());
             result.RegisterConverter(new JointRequestConverter());
             result.RegisterConverter(new JoinResponsePacketConverter());
             result.RegisterConverter(new SubscribePacketConverter());
 
+            result.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,>));
             result.RegisterGenericConverter(typeof(CallPacketConverter<>));
             result.RegisterGenericConverter(typeof(DeletePacketConverter<>));

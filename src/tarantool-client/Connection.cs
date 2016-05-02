@@ -35,30 +35,56 @@ namespace tarantool_client
             _socket.Dispose();
         }
 
-        public ResponsePacket Login(string userName, string password)
+        public ResponsePacket<object> Login(string userName, string password)
         {
             var greetingsBytes = ReceiveGreetings();
             var greetings = _responseReader.ReadGreetings(greetingsBytes);
             var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(greetings, userName, password);
-            var response = SendPacket(authenticateRequest);
+            var response = SendPacket<AuthenticationPacket,object>(authenticateRequest);
             return response;
         }
 
         public Schema GetSchema()
         {
-            var selectSchemaPacket = new SelectPacket<Tuple<object>>(VSpace, VIndex, 0, 0, Iterator.Eq, null);
-            var response = SendPacket(selectSchemaPacket);
+            var selectSpacesRequest = new SelectPacket<Tuple<int>>(VSpace, 0, 1000, 0, Iterator.All, Tuple.Create(0));
+            var selectSpacesResponse = SendPacket<SelectPacket<Tuple<int>>, object>(selectSpacesRequest);
+
+            var selectIndecesRequest = new SelectPacket<Tuple<int>>(VIndex, 0, 1000, 0, Iterator.All, Tuple.Create(0));
+            var selectIndecesResponse = SendPacket<SelectPacket<Tuple<int>>, object>(selectIndecesRequest);
             return null;
         }
 
-        public ResponsePacket SendPacket<T>(T unifiedPacket) where T : UnifiedPacket
+        public ResponsePacket<TResult> SendPacket<TRequest,TResult>(TRequest unifiedPacket) where TRequest : UnifiedPacket
         {
             var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
             var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
             var responseBytes = SendBytes(requestHeaderLength, request);
-            var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
+
+            if (responseBytes.Length == 0)
+            {
+                throw new System.ArgumentException("Zero-length response received, possible wrong packet sent.");
+            }
+
+            var response = MsgPackSerializer.Deserialize<ResponsePacket<TResult>>(responseBytes, _msgPackContext);
             return response;
         }
+
+        public ResponsePacket<object> SendPacket<TRequest>(TRequest unifiedPacket) where TRequest : UnifiedPacket
+        {
+            var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
+            var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
+            var responseBytes = SendBytes(requestHeaderLength, request);
+
+            if (responseBytes.Length == 0)
+            {
+                throw new System.ArgumentException("Zero-length response received, possible wrong packet sent.");
+            }
+
+            var response = MsgPackSerializer.Deserialize<ResponsePacket<object>>(responseBytes, _msgPackContext);
+            return response;
+        }
+
+
 
         private byte[] ReceiveGreetings()
         {
