@@ -36,14 +36,14 @@ namespace tarantool_client
             result.RegisterGenericConverter(typeof(SelectPacketConverter<>));
             result.RegisterGenericConverter(typeof(UpsertPacketConverter<,>));
 
-            result.RegisterGenericConverter(typeof(MyTupleConverter<>));
-            result.RegisterGenericConverter(typeof(MyTupleConverter<,>));
-            result.RegisterGenericConverter(typeof(MyTupleConverter<,,>));
-            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,>));
-            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,>));
-            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,,>));
-            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,,,>));
-            result.RegisterGenericConverter(typeof(MyTupleConverter<,,,,,,,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,,,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,,,,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,,>));
+            result.RegisterGenericConverter(typeof(TupleConverter<,,,,,,,>));
 
             return result;
         }

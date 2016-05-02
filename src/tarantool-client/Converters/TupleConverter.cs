@@ -6,7 +6,7 @@ using Tuple = iproto.Tuple;
 
 namespace tarantool_client.Converters
 {
-    public class MyTupleConverter<T1> : IMsgPackConverter<iproto.Tuple<T1>>
+    public class TupleConverter<T1> : IMsgPackConverter<iproto.Tuple<T1>>
     {
         public void Write(iproto.Tuple<T1> value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -31,7 +31,7 @@ namespace tarantool_client.Converters
         }
     }
 
-    public class MyTupleConverter<T1, T2> : IMsgPackConverter<iproto.Tuple<T1, T2>>
+    public class TupleConverter<T1, T2> : IMsgPackConverter<iproto.Tuple<T1, T2>>
     {
         public void Write(iproto.Tuple<T1, T2> value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -61,7 +61,7 @@ namespace tarantool_client.Converters
         }
     }
 
-    public class MyTupleConverter<T1, T2, T3> : IMsgPackConverter<iproto.Tuple<T1, T2, T3>>
+    public class TupleConverter<T1, T2, T3> : IMsgPackConverter<iproto.Tuple<T1, T2, T3>>
     {
         public void Write(iproto.Tuple<T1, T2, T3> value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -95,7 +95,7 @@ namespace tarantool_client.Converters
         }
     }
 
-    public class MyTupleConverter<T1, T2, T3, T4> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4>>
+    public class TupleConverter<T1, T2, T3, T4> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4>>
     {
         public void Write(iproto.Tuple<T1, T2, T3, T4> value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -133,7 +133,7 @@ namespace tarantool_client.Converters
         }
     }
 
-    public class MyTupleConverter<T1, T2, T3, T4, T5> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5>>
+    public class TupleConverter<T1, T2, T3, T4, T5> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5>>
     {
         public void Write(iproto.Tuple<T1, T2, T3, T4, T5> value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -175,7 +175,7 @@ namespace tarantool_client.Converters
         }
     }
 
-    public class MyTupleConverter<T1, T2, T3, T4, T5, T6> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5, T6>>
+    public class TupleConverter<T1, T2, T3, T4, T5, T6> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5, T6>>
     {
         public void Write(iproto.Tuple<T1, T2, T3, T4, T5, T6> value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -224,7 +224,7 @@ namespace tarantool_client.Converters
         }
     }
 
-    public class MyTupleConverter<T1, T2, T3, T4, T5, T6, T7> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5, T6, T7>>
+    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5, T6, T7>>
     {
         public void Write(iproto.Tuple<T1, T2, T3, T4, T5, T6, T7> value, IMsgPackWriter writer, MsgPackContext context)
         {
@@ -277,7 +277,7 @@ namespace tarantool_client.Converters
         }
     }
 
-    public class MyTupleConverter<T1, T2, T3, T4, T5, T6, T7, TRest> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
+    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7, TRest> : IMsgPackConverter<iproto.Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
     {
         public void Write(iproto.Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> value, IMsgPackWriter writer, MsgPackContext context)
         {
