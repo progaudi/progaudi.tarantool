@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 // ReSharper disable once RedundantUsingDirective
 using System.Reflection;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {

@@ -2,7 +2,7 @@
 
 using iproto.Data;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 using Shouldly;
 

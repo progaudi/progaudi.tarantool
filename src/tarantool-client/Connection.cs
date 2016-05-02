@@ -5,8 +5,7 @@ using System.Net;
 using iproto.Data.Packets;
 using iproto.Services;
 
-using TarantoolDnx.MsgPack;
-using TarantoolDnx.MsgPack.Converters;
+using MsgPack.Light;
 
 namespace tarantool_client
 {

@@ -2,7 +2,7 @@
 
 using iproto.Data.UpdateOperations;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {

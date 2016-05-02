@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Reflection;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {

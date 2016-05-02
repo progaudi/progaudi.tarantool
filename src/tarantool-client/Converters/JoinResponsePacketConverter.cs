@@ -6,7 +6,7 @@ using iproto.Data.Packets;
 
 using Shouldly;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {
