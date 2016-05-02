@@ -21,6 +21,6 @@
         }
     },
     "dependencies": {
-        "MsgPack.Light": "0.0.2"
+        "MsgPack.Light": "0.1.0"
     }
 }
