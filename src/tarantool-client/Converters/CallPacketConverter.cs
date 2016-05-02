@@ -26,7 +26,6 @@ namespace tarantool_client.Converters
             stringConverter.Write(value.FunctionName, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
             tupleConverter.Write(value.Tuple, writer, context);
         }
 
