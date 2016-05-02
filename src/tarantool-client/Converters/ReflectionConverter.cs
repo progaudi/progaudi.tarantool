@@ -142,19 +142,19 @@ namespace tarantool_client.Converters
 
         private Type TryInferFromFixedLength(DataTypes msgPackType)
         {
-            if ((msgPackType & DataTypes.PositiveFixNum) == msgPackType)
+            if (msgPackType.GetHighBits(1) == DataTypes.PositiveFixNum.GetHighBits(1))
                 return typeof(byte);
 
-            if ((msgPackType & DataTypes.NegativeFixNum) == DataTypes.NegativeFixNum)
+            if (msgPackType.GetHighBits(3) == DataTypes.NegativeFixNum.GetHighBits(3))
                 return typeof(sbyte);
 
-            if ((msgPackType & DataTypes.FixArray) == DataTypes.FixArray)
+            if (msgPackType.GetHighBits(4) == DataTypes.FixArray.GetHighBits(4))
                 return typeof(object[]);
 
-            if ((msgPackType & DataTypes.FixStr) == DataTypes.FixStr)
+            if (msgPackType.GetHighBits(3) == DataTypes.FixStr.GetHighBits(3))
                 return typeof(string);
 
-            if ((msgPackType & DataTypes.FixMap) == DataTypes.FixMap)
+            if (msgPackType.GetHighBits(4) == DataTypes.FixMap.GetHighBits(4))
                 return typeof(Dictionary<object, object>);
 
             throw new SerializationException($"Can't infer type for msgpack type: {msgPackType:G} (0x{msgPackType:X})");
