@@ -2,8 +2,14 @@
 {
     public class IndexPart
     {
-        public IndexPartType Type { get; }
+        public IndexPart(uint fieldNo, IndexPartType type)
+        {
+            FieldNo = fieldNo;
+            Type = type;
+        }
 
         public uint FieldNo { get; }
+
+        public IndexPartType Type { get; }
     }
 }

@@ -18,6 +18,8 @@ namespace tarantool_client
 
             result.RegisterConverter(new FromStringEnumConverter<StorageEngine>());
             result.RegisterConverter(new FromStringEnumConverter<FieldType>());
+            result.RegisterConverter(new FromStringEnumConverter<IndexPartType>());
+            result.RegisterConverter(new FromStringEnumConverter<IndexType>());
 
             result.RegisterConverter(new StringSliceOperationConverter());
             result.RegisterGenericConverter(typeof(UpdateOperationConverter<>));
@@ -32,6 +34,9 @@ namespace tarantool_client
 
             result.RegisterConverter(new SpaceConverter());
             result.RegisterConverter(new SpaceFieldConverter());
+            result.RegisterConverter(new IndexConverter());
+            result.RegisterConverter(new IndexPartConverter());
+            result.RegisterConverter(new IndexCreationOptionsConverter());
 
             result.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,>));

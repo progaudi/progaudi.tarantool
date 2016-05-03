@@ -8,6 +8,22 @@ namespace tarantool_client
 {
     public class Index
     {
+        public Index(uint id, uint spaceId, string name, bool unique, IndexType type, IReadOnlyList<IndexPart> parts)
+        {
+            Id = id;
+            SpaceId = spaceId;
+            Name = name;
+            Unique = unique;
+            Type = type;
+            Parts = parts;
+        }
+
+        public uint Id { get; }
+
+        public uint SpaceId { get; }
+
+        public string Name { get; }
+
         public bool Unique { get; }
 
         public IndexType Type { get; }

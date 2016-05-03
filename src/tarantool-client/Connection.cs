@@ -46,12 +46,13 @@ namespace tarantool_client
 
         public Schema GetSchema()
         {
+            var selectIndecesRequest = new SelectPacket<Tuple<int>>(VIndex, 0, 1000, 0, Iterator.All, Tuple.Create(0));
+            var selectIndecesResponse = SendPacket<SelectPacket<Tuple<int>>, Index[]>(selectIndecesRequest);
+
             var selectSpacesRequest = new SelectPacket<Tuple<int>>(VSpace, 0, 1000, 0, Iterator.All, Tuple.Create(0));
             var selectSpacesResponse = SendPacket<SelectPacket<Tuple<int>>, Space[]>(selectSpacesRequest);
 
-            var selectIndecesRequest = new SelectPacket<Tuple<int>>(VIndex, 0, 1000, 0, Iterator.All, Tuple.Create(0));
-            var selectIndecesResponse = SendPacket<SelectPacket<Tuple<int>>, object>(selectIndecesRequest);
-            return null;
+            return new Schema(selectIndecesResponse.Data, selectSpacesResponse.Data);
         }
 
         public ResponsePacket<TResult> SendPacket<TRequest,TResult>(TRequest unifiedPacket) where TRequest : UnifiedPacket
