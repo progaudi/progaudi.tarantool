@@ -9,15 +9,27 @@ namespace tarantool_client
 {
     public class Space
     {
-        public uint Id { get; }
+        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
+        {
+            Id = id;
+            FieldCount = fieldCount;
+            Name = name;
+            Indices = indices;
+            Engine = engine;
+            Fields = fields;
+        }
 
-        public bool Enabled { get; }
+        public uint Id { get; }
 
         public uint FieldCount { get; }
 
         public string Name { get; }
 
-        public ReadOnlyCollection<Index> Indices { get; }
+        public StorageEngine Engine { get; }
+
+        public IReadOnlyCollection<Index> Indices { get; }
+
+        public IReadOnlyCollection<SpaceField> Fields { get; }
 
         public void CreateIndex()
         {

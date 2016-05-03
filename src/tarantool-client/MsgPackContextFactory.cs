@@ -16,6 +16,9 @@ namespace tarantool_client
             result.RegisterConverter(new EnumConverter<CommandCode>());
             result.RegisterConverter(new EnumConverter<Iterator>());
 
+            result.RegisterConverter(new FromStringEnumConverter<StorageEngine>());
+            result.RegisterConverter(new FromStringEnumConverter<FieldType>());
+
             result.RegisterConverter(new StringSliceOperationConverter());
             result.RegisterGenericConverter(typeof(UpdateOperationConverter<>));
 
@@ -26,6 +29,9 @@ namespace tarantool_client
             result.RegisterConverter(new JointRequestConverter());
             result.RegisterConverter(new JoinResponsePacketConverter());
             result.RegisterConverter(new SubscribePacketConverter());
+
+            result.RegisterConverter(new SpaceConverter());
+            result.RegisterConverter(new SpaceFieldConverter());
 
             result.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,>));

@@ -37,7 +37,8 @@ namespace tarantool_client.Converters
 
                 keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
                 errorMessage = stringConverter.Read(reader, context, null);
-            } else if (length.Value > 0u)
+            }
+            else if (length.Value > 0u)
             {
                 var dataConverter = context.GetConverter<T>();
 

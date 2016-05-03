@@ -47,7 +47,7 @@ namespace tarantool_client
         public Schema GetSchema()
         {
             var selectSpacesRequest = new SelectPacket<Tuple<int>>(VSpace, 0, 1000, 0, Iterator.All, Tuple.Create(0));
-            var selectSpacesResponse = SendPacket<SelectPacket<Tuple<int>>, object>(selectSpacesRequest);
+            var selectSpacesResponse = SendPacket<SelectPacket<Tuple<int>>, Space[]>(selectSpacesRequest);
 
             var selectIndecesRequest = new SelectPacket<Tuple<int>>(VIndex, 0, 1000, 0, Iterator.All, Tuple.Create(0));
             var selectIndecesResponse = SendPacket<SelectPacket<Tuple<int>>, object>(selectIndecesRequest);
