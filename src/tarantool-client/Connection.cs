@@ -46,13 +46,13 @@ namespace tarantool_client
 
         public Schema GetSchema()
         {
-            var selectIndecesRequest = new SelectPacket<Tuple<int>>(VIndex, 0, 1000, 0, Iterator.All, Tuple.Create(0));
+            var selectIndecesRequest = new SelectPacket<Tuple<int>>(VIndex, 0, uint.MaxValue, 0, Iterator.All, Tuple.Create(0));
             var selectIndecesResponse = SendPacket<SelectPacket<Tuple<int>>, Index[]>(selectIndecesRequest);
 
-            var selectSpacesRequest = new SelectPacket<Tuple<int>>(VSpace, 0, 1000, 0, Iterator.All, Tuple.Create(0));
+            var selectSpacesRequest = new SelectPacket<Tuple<int>>(VSpace, 0, uint.MaxValue, 0, Iterator.All, Tuple.Create(0));
             var selectSpacesResponse = SendPacket<SelectPacket<Tuple<int>>, Space[]>(selectSpacesRequest);
 
-            return new Schema(selectIndecesResponse.Data, selectSpacesResponse.Data);
+            return new Schema(selectIndecesResponse.Data, selectSpacesResponse.Data, this);
         }
 
         public ResponsePacket<TResult> SendPacket<TRequest,TResult>(TRequest unifiedPacket) where TRequest : UnifiedPacket
@@ -84,8 +84,6 @@ namespace tarantool_client
             var response = MsgPackSerializer.Deserialize<ResponsePacket<object>>(responseBytes, _msgPackContext);
             return response;
         }
-
-
 
         private byte[] ReceiveGreetings()
         {

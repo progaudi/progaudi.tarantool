@@ -8,7 +8,7 @@ namespace tarantool_client
 {
     public class Space
     {
-        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
+        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields, Connection connection)
         {
             Id = id;
             FieldCount = fieldCount;
@@ -16,7 +16,10 @@ namespace tarantool_client
             Indices = indices;
             Engine = engine;
             Fields = fields;
+            Connection = connection;
         }
+
+        public Connection Connection { get; set; }
 
         public uint Id { get; }
 

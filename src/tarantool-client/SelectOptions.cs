@@ -6,7 +6,7 @@ namespace tarantool_client
     {
         public Iterator Iterator { get; set; } = Iterator.Eq;
 
-        public uint Limit { get; set; } = 0;
+        public uint Limit { get; set; } = uint.MaxValue;
 
         public uint Offset { get; set; } = 0;
     }

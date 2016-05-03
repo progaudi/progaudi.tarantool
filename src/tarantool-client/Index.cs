@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using iproto;
 using iproto.Data;
+using iproto.Data.Packets;
 
 namespace tarantool_client
 {
@@ -30,18 +31,28 @@ namespace tarantool_client
 
         public IReadOnlyList<IndexPart> Parts { get; }
 
+        public Connection Connection { get; set; }
+
         public IEnumerable<TResult> Pairs<TValue, TResult>(TValue value, Iterator iterator)
             where TResult : ITuple
         {
             throw new NotImplementedException();
         }
 
-        public TTuple Select<TTuple, TKey>(TKey key, SelectOptions options = null)
+        public ResponsePacket<TTuple[]> Select<TTuple, TKey>(TKey key, SelectOptions options = null)
             where TKey : ITuple
             where TTuple : ITuple
 
         {
-            throw new NotImplementedException();
+            var selectRequest = new SelectPacket<TKey>(
+                SpaceId,
+                Id,
+                options?.Limit ?? uint.MaxValue,
+                options?.Offset ?? 0,
+                options?.Iterator ?? Iterator.Eq,
+                key);
+
+            return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectRequest);
         }
 
         public TTuple Min<TTuple, TKey>(TKey key)

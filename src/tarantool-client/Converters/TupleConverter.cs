@@ -1,7 +1,7 @@
 using System;
 
 using MsgPack.Light;
-
+using Shouldly;
 using Tuple = iproto.Tuple;
 
 namespace tarantool_client.Converters
@@ -25,6 +25,7 @@ namespace tarantool_client.Converters
         {
             var t1Converter = context.GetConverter<T1>();
 
+            reader.ReadArrayLength().ShouldBe(1u);
             var item1 = t1Converter.Read(reader, context, null);
 
             return Tuple.Create(item1);
@@ -54,6 +55,7 @@ namespace tarantool_client.Converters
             var t1Converter = context.GetConverter<T1>();
             var t2Converter = context.GetConverter<T2>();
 
+            reader.ReadArrayLength().ShouldBe(2u);
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
 
@@ -87,6 +89,7 @@ namespace tarantool_client.Converters
             var t2Converter = context.GetConverter<T2>();
             var t3Converter = context.GetConverter<T3>();
 
+            reader.ReadArrayLength().ShouldBe(3u);
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);
@@ -124,6 +127,7 @@ namespace tarantool_client.Converters
             var t3Converter = context.GetConverter<T3>();
             var t4Converter = context.GetConverter<T4>();
 
+            reader.ReadArrayLength().ShouldBe(4u);
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);
@@ -165,6 +169,7 @@ namespace tarantool_client.Converters
             var t4Converter = context.GetConverter<T4>();
             var t5Converter = context.GetConverter<T5>();
 
+            reader.ReadArrayLength().ShouldBe(5u);
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);
@@ -213,6 +218,7 @@ namespace tarantool_client.Converters
             var t5Converter = context.GetConverter<T5>();
             var t6Converter = context.GetConverter<T6>();
 
+            reader.ReadArrayLength().ShouldBe(6u);
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);
@@ -265,6 +271,7 @@ namespace tarantool_client.Converters
             var t6Converter = context.GetConverter<T6>();
             var t7Converter = context.GetConverter<T7>();
 
+            reader.ReadArrayLength().ShouldBe(7u);
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);
@@ -321,6 +328,7 @@ namespace tarantool_client.Converters
             var t7Converter = context.GetConverter<T7>();
             var t8Converter = context.GetConverter<TRest>();
 
+            reader.ReadArrayLength().ShouldBe(8u);
             var item1 = t1Converter.Read(reader, context, null);
             var item2 = t2Converter.Read(reader, context, null);
             var item3 = t3Converter.Read(reader, context, null);

@@ -1,4 +1,5 @@
-﻿using iproto;
+﻿using System.Linq;
+using iproto;
 using iproto.Data;
 using iproto.Data.Packets;
 using iproto.Data.UpdateOperations;
@@ -25,6 +26,8 @@ namespace tarantool_client.test
 
             var schema = tarantoolClient.GetSchema();
 
+
+
             var insertRequest = new InsertReplacePacket<Tuple<int, string>>(CommandCode.Insert, spaceId, Tuple.Create(2, "Music"));
             var insertResponse = tarantoolClient.SendPacket(insertRequest);
 
@@ -35,6 +38,10 @@ namespace tarantool_client.test
 
             var selectRequest = new SelectPacket<Tuple<int>>(spaceId, 0, 100, 0, Iterator.All, Tuple.Create(2));
             var selectResponse = tarantoolClient.SendPacket(selectRequest);
+
+            var tester = schema.GetSpace("tester");
+            var testerIndex = tester.Indices.First();
+            var indexSelectResponse = testerIndex.Select<Tuple<int, string>, Tuple<int>>(Tuple.Create(2));
 
             var replaceRequest = new InsertReplacePacket<Tuple<int, string, int>>(CommandCode.Replace, spaceId,
                 Tuple.Create(2, "Orange", 5));

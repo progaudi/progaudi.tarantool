@@ -36,7 +36,7 @@ namespace tarantool_client.Converters
 
             var fields = fieldConverter.Read(reader, context, null);
 
-            return new Space(id, fieldCount, name, null, engine, fields.AsReadOnly());
+            return new Space(id, fieldCount, name, null, engine, fields.AsReadOnly(), null);
         }
     }
 }
