@@ -34,6 +34,7 @@ namespace tarantool_client.Converters
             selectKeyConverter.Write(value.Key, writer, context);
 
             keyConverter.Write(Key.Tuple, writer, context);
+            writer.WriteArrayHeader(1);
             updateOperationConverter.Write(value.UpdateOperation, writer, context);
         }
 

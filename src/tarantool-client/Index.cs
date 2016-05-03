@@ -42,7 +42,6 @@ namespace tarantool_client
         public ResponsePacket<TTuple[]> Select<TTuple, TKey>(TKey key, SelectOptions options = null)
             where TKey : ITuple
             where TTuple : ITuple
-
         {
             var selectRequest = new SelectPacket<TKey>(
                 SpaceId,

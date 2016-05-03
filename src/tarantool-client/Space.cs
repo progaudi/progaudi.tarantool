@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using iproto;
+using iproto.Data;
+using iproto.Data.Packets;
 using iproto.Data.UpdateOperations;
 
 namespace tarantool_client
@@ -48,65 +50,94 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public T Insert<T>(T tuple)
+        public ResponsePacket<T[]> Insert<T>(T tuple)
             where T : ITuple
         {
-            throw new NotImplementedException();
+            var insertRequest = new InsertReplacePacket<T>(CommandCode.Insert, Id, tuple);
+            return Connection.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
         }
 
-        public IList<object> Select<T>(T selectKey)
+        public ResponsePacket<object> Select<T>(T selectKey)
             where T : ITuple
         {
-            throw new NotImplementedException();
+            var selectRequest = new SelectPacket<T>(Id, PrimaryIndex.Id, uint.MaxValue, 0, Iterator.Eq, selectKey);
+            return Connection.SendPacket(selectRequest);
         }
 
-        public IList<TResult> Select<TKey, TResult>(TKey selectKey)
+        public ResponsePacket<TResult[]> Select<TKey, TResult>(TKey selectKey)
           where TKey : ITuple
           where TResult : ITuple
         {
-            throw new NotImplementedException();
+            var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, uint.MaxValue, 0, Iterator.Eq, selectKey);
+            return Connection.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
         }
 
         public TResult Get<TKey, TResult>(TKey key)
             where TKey : ITuple
           where TResult : ITuple
         {
-            throw new NotImplementedException();
+            var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, 1, 0, Iterator.Eq, key);
+            return Connection.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest).Data.Single();
         }
 
-        public T Replace<T>(T tuple)
+        public ResponsePacket<T[]> Replace<T>(T tuple)
             where T : ITuple
         {
-            throw new NotImplementedException();
+            var insertRequest = new InsertReplacePacket<T>(CommandCode.Replace, Id, tuple);
+            return Connection.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
         }
 
         public T Put<T>(T tuple)
-            where T: ITuple
+            where T : ITuple
         {
-            return Replace(tuple);
+            return Replace(tuple).Data.First();
         }
 
-        public TTuple Update<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
-            where TTuple : ITuple
+        public ResponsePacket<TResult[]> Update<TKey, TUpdate, TResult>(TKey key, UpdateOperation<TUpdate> updateOperation)
+            where TKey : ITuple
+            where TResult : ITuple
         {
-            throw new NotImplementedException();
+            var updateRequest = new UpdatePacket<TKey, TUpdate>(Id, PrimaryIndex.Id, key, updateOperation);
+            return Connection.SendPacket<UpdatePacket<TKey, TUpdate>, TResult[]>(updateRequest);
         }
 
-        public TTuple Upsert<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
+        public ResponsePacket<object> Update<TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
+           where TKey : ITuple
+        {
+            var updateRequest = new UpdatePacket<TKey, TUpdate>(Id, PrimaryIndex.Id, key, updateOperation);
+            return Connection.SendPacket(updateRequest);
+        }
+
+        public ResponsePacket<object> Upsert<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
            where TTuple : ITuple
         {
-            throw new NotImplementedException();
+            var updateRequest = new UpsertPacket<TTuple, TUpdate>(Id, tuple, updateOperation);
+            return Connection.SendPacket(updateRequest);
+        }
+        public ResponsePacket<TResult[]> Upsert<TTuple, TUpdate, TResult>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
+           where TTuple : ITuple
+        {
+            var updateRequest = new UpsertPacket<TTuple, TUpdate>(Id, tuple, updateOperation);
+            return Connection.SendPacket<UpsertPacket<TTuple, TUpdate>, TResult[]>(updateRequest);
         }
 
-        public TTuple Delete<TTuple, TKey>(TKey key)
+        public ResponsePacket<TTuple[]> Delete<TTuple, TKey>(TKey key)
            where TTuple : ITuple
-           where TKey: ITuple
+           where TKey : ITuple
         {
-            throw new NotImplementedException();
+            var deleteResponse = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
+            return Connection.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteResponse);
+        }
+
+        public ResponsePacket<object> Delete<TKey>(TKey key)
+          where TKey : ITuple
+        {
+            var deleteResponse = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
+            return Connection.SendPacket(deleteResponse);
         }
 
         public uint Count<TKey>(TKey key)
-           where TKey: ITuple
+           where TKey : ITuple
         {
             throw new NotImplementedException();
         }
@@ -117,19 +148,19 @@ namespace tarantool_client
         }
 
         public int Increment<TKey>(TKey key)
-            where TKey:ITuple
+            where TKey : ITuple
         {
             throw new NotImplementedException();
         }
 
         public int Decrement<TKey>(TKey key)
-            where TKey:ITuple
+            where TKey : ITuple
         {
             throw new NotImplementedException();
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)
-            where TTuple: ITuple
+            where TTuple : ITuple
             where TRest : ITuple
         {
             throw new NotImplementedException();
@@ -139,5 +170,7 @@ namespace tarantool_client
         {
             throw new NotImplementedException();
         }
+
+        private Index PrimaryIndex => Indices.First();
     }
 }

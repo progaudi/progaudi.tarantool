@@ -11,7 +11,6 @@ namespace tarantool_client.test
         private const int spaceId = 514;
         public static void Main(string[] args)
         {
-            ConvertJava2CSharp();
             var tarantoolClient = new Connection();
             tarantoolClient.Connect("192.168.99.100", 3301);
             var response = tarantoolClient.Login("operator", "operator");
@@ -25,10 +24,34 @@ namespace tarantool_client.test
             }
 
             var schema = tarantoolClient.GetSchema();
+            var tester = schema.GetSpace("tester");
+            var firstIndex = tester.Indices.First();
 
+            SendPacketMethodTest(tarantoolClient);
+            SpaceMethodsTest(tester);
+            IndexMethodsTest(firstIndex);
+        }
 
+        private static void IndexMethodsTest(Index index)
+        {
+            var indexSelectResponse = index.Select<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(2));
+        }
 
-            var insertRequest = new InsertReplacePacket<Tuple<int, string>>(CommandCode.Insert, spaceId, Tuple.Create(2, "Music"));
+        private static void SpaceMethodsTest(Space tester)
+        {
+            var insertResponse = tester.Insert(Tuple.Create(2, "Music"));
+            var deleteResponse = tester.Delete(Tuple.Create(2));
+            insertResponse = tester.Insert(Tuple.Create(2, "Music"));
+            var selectResponse = tester.Select<Tuple<int>, Tuple<int,string>>(Tuple.Create(2));
+            var replaceResponse = tester.Replace(Tuple.Create(2, "Car", -24.5));
+            var updateResponse = tester.Update(Tuple.Create(2), UpdateOperation<int>.CreateAddition(1, 2));
+            var upsertResponse = tester.Upsert(Tuple.Create(5, 20), UpdateOperation<int>.CreateAddition(1, 2));
+        }
+
+        private static void SendPacketMethodTest(Connection tarantoolClient)
+        {
+            var insertRequest = new InsertReplacePacket<Tuple<int, string>>(CommandCode.Insert, spaceId,
+                Tuple.Create(2, "Music"));
             var insertResponse = tarantoolClient.SendPacket(insertRequest);
 
             var deleteRequest = new DeletePacket<Tuple<int>>(spaceId, 0, Tuple.Create(2));
@@ -38,10 +61,6 @@ namespace tarantool_client.test
 
             var selectRequest = new SelectPacket<Tuple<int>>(spaceId, 0, 100, 0, Iterator.All, Tuple.Create(2));
             var selectResponse = tarantoolClient.SendPacket(selectRequest);
-
-            var tester = schema.GetSpace("tester");
-            var testerIndex = tester.Indices.First();
-            var indexSelectResponse = testerIndex.Select<Tuple<int, string>, Tuple<int>>(Tuple.Create(2));
 
             var replaceRequest = new InsertReplacePacket<Tuple<int, string, int>>(CommandCode.Replace, spaceId,
                 Tuple.Create(2, "Orange", 5));
@@ -64,40 +83,6 @@ namespace tarantool_client.test
 
             var evalRequest = new EvalPacket<Tuple<int, int, int>>("return ...", Tuple.Create(1, 2, 3));
             var evalResponse = tarantoolClient.SendPacket(evalRequest);
-        }
-
-        public static void ConvertJava2CSharp()
-        {
-            var input = new sbyte[]
-            {
-                -50,
-                0,
-                0,
-                0,
-                17,
-                -127,
-                0,
-                2,
-                -126,
-                16,
-                -51,
-                2,
-                2,
-                33,
-                -110,
-                2,
-                -91,
-                77,
-                117,
-                115,
-                105,
-                99,
-            };
-            var result = new byte[input.Length];
-            for (int i = 0; i < input.Length; i++)
-            {
-                result[i] = (byte)input[i];
-            }
         }
     }
 }
