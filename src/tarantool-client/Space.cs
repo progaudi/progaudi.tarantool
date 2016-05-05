@@ -125,15 +125,15 @@ namespace tarantool_client
            where TTuple : ITuple
            where TKey : ITuple
         {
-            var deleteResponse = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
-            return Connection.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteResponse);
+            var deleteRequest = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
+            return Connection.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
         }
 
         public ResponsePacket<object> Delete<TKey>(TKey key)
           where TKey : ITuple
         {
-            var deleteResponse = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
-            return Connection.SendPacket(deleteResponse);
+            var deleteRequest = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
+            return Connection.SendPacket(deleteRequest);
         }
 
         public uint Count<TKey>(TKey key)
@@ -147,16 +147,24 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public int Increment<TKey>(TKey key)
+        public ResponsePacket<TTuple[]> Increment<TTuple, TKey>(TKey key)
             where TKey : ITuple
         {
-            throw new NotImplementedException();
+            var lastFieldKeyNumber = PrimaryIndex.Parts.Max(part => part.FieldNo);
+            var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
+                UpdateOperation<int>.CreateAddition(1, (int)lastFieldKeyNumber + 1));
+
+            return Connection.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
         }
 
-        public int Decrement<TKey>(TKey key)
+        public ResponsePacket<TTuple[]> Decrement<TTuple, TKey>(TKey key)
             where TKey : ITuple
         {
-            throw new NotImplementedException();
+            var lastFieldKeyNumber = PrimaryIndex.Parts.Max(part => part.FieldNo);
+            var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
+                UpdateOperation<int>.CreateAddition(-1, (int)lastFieldKeyNumber + 1));
+
+            return Connection.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)
