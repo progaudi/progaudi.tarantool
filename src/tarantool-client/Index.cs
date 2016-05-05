@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using iproto;
 using iproto.Data;
 using iproto.Data.Packets;
+using iproto.Data.UpdateOperations;
 
 namespace tarantool_client
 {
@@ -54,18 +55,34 @@ namespace tarantool_client
             return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectRequest);
         }
 
-        public TTuple Min<TTuple, TKey>(TKey key)
+        public TTuple Min<TTuple, TKey>(TKey key = null)
             where TTuple : ITuple
-            where TKey : ITuple
+            where TKey : class, ITuple
         {
-            throw new NotImplementedException();
+            if (Type != IndexType.Tree)
+            {
+                throw new NotSupportedException("Only TREE indicies support min opration.");
+            }
+            var iterator = key == null ? Iterator.Eq : Iterator.Ge;
+
+            var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
+
+            return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket).Data.SingleOrDefault();
         }
 
-        public TTuple Max<TTuple, TKey>(TKey key)
+        public TTuple Max<TTuple, TKey>(TKey key = null)
             where TTuple : ITuple
-            where TKey : ITuple
+            where TKey : class, ITuple
         {
-            throw new NotImplementedException();
+            if (Type != IndexType.Tree)
+            {
+                throw new NotSupportedException("Only TREE indicies support max opration.");
+            }
+            var iterator = key == null ? Iterator.Req : Iterator.Le;
+
+            var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
+
+            return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket).Data.SingleOrDefault();
         }
 
         public TTuple Random<TTuple>(int randomValue)
@@ -74,8 +91,48 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public uint Count<TKey>(TKey key = default(TKey), Iterator it = Iterator.Eq)
+        public uint Count<TKey>(TKey key = null, Iterator it = Iterator.Eq)
+            where TKey : class, ITuple
+        {
+            throw new NotImplementedException();
+        }
+
+        public ResponsePacket<TTuple[]> Update<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
             where TKey : ITuple
+        {
+            var updateRequest = new UpdatePacket<TKey, TUpdate>(
+                SpaceId,
+                Id,
+                key,
+                updateOperation);
+
+            return Connection.SendPacket<UpdatePacket<TKey, TUpdate>, TTuple[]>(updateRequest);
+        }
+
+        public ResponsePacket<TTuple[]> Delete<TTuple, TKey>(TKey key)
+            where TKey : ITuple
+        {
+            var deleteRequest = new DeletePacket<TKey>(SpaceId, Id, key);
+
+            return Connection.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
+        }
+
+        public void Alter(IndexCreationOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Drop()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Rename(string indexName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public uint BSize()
         {
             throw new NotImplementedException();
         }
