@@ -45,6 +45,13 @@ namespace tarantool_client.test
                 UpdateOperation<int>.CreateAddition(2, 2));
             upsertResponse = index.Upsert<Tuple<int, string>, Tuple<int>, int>(Tuple.Create(5),
                 UpdateOperation<int>.CreateAddition(2, -2));
+
+            var min = index.Min<Tuple<int, string, double>, Tuple<int?>>(Tuple.Create((int?)null));
+            var min2 = index.Min<Tuple<int, int>, Tuple<double>>(Tuple.Create(2.1));
+
+            var max= index.Max<Tuple<int, int>, Tuple<int>>();
+            var max2 = index.Max<Tuple<int, string, double>, Tuple<double>>(Tuple.Create(4.9));
+
         }
 
         private static void SpaceMethodsTest(Space tester)
