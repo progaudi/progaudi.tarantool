@@ -12,34 +12,37 @@ namespace tarantool_client.Converters
     public class UpsertPacketConverter<T, TUpdate> : IMsgPackConverter<UpsertPacket<T, TUpdate>>
         where T : ITuple
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<T> _tupleConverter;
+        private IMsgPackConverter<UpdateOperation<TUpdate>> _updateOperationConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _headerConverter = context.GetConverter<Header>();
+            _uintConverter = context.GetConverter<uint>();
+            _keyConverter = context.GetConverter<Key>();
+            _tupleConverter = context.GetConverter<T>();
+            _updateOperationConverter = context.GetConverter<UpdateOperation<TUpdate>>();
         }
 
         public void Write(UpsertPacket<T, TUpdate> value, IMsgPackWriter writer)
         {
-            var headerConverter = _context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer);
+            _headerConverter.Write(value.Header, writer);
 
-            var uintConverter = _context.GetConverter<uint>();
-            var keyConverter = _context.GetConverter<Key>();
-            var tupleConverter = _context.GetConverter<T>();
-            var updateOperationConverter = _context.GetConverter<UpdateOperation<TUpdate>>();
-
+            
             writer.WriteMapHeader(3);
 
-            keyConverter.Write(Key.SpaceId, writer);
-            uintConverter.Write(value.SpaceId, writer);
+            _keyConverter.Write(Key.SpaceId, writer);
+            _uintConverter.Write(value.SpaceId, writer);
 
-            keyConverter.Write(Key.Tuple, writer);
-            tupleConverter.Write(value.Tuple, writer);
+            _keyConverter.Write(Key.Tuple, writer);
+            _tupleConverter.Write(value.Tuple, writer);
 
-            keyConverter.Write(Key.Ops, writer);
+            _keyConverter.Write(Key.Ops, writer);
             writer.WriteArrayHeader(1);
-            updateOperationConverter.Write(value.UpdateOperation, writer);
+            _updateOperationConverter.Write(value.UpdateOperation, writer);
         }
 
         public UpsertPacket<T, TUpdate> Read(IMsgPackReader reader)

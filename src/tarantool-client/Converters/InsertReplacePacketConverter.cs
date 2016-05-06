@@ -11,29 +11,30 @@ namespace tarantool_client.Converters
     public class InsertReplacePacketConverter<T> : IMsgPackConverter<InsertReplacePacket<T>>
         where T : ITuple
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<T> _tupleConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _headerConverter = context.GetConverter<Header>();
+            _keyConverter = context.GetConverter<Key>();
+            _uintConverter = context.GetConverter<uint>();
+            _tupleConverter = context.GetConverter<T>();
         }
 
         public void Write(InsertReplacePacket<T> value, IMsgPackWriter writer)
         {
-            var headerConverter = _context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer);
-
-            var keyConverter = _context.GetConverter<Key>();
-            var uintConverter = _context.GetConverter<uint>();
-            var tupleConverter = _context.GetConverter<T>();
+            _headerConverter.Write(value.Header, writer);
 
             writer.WriteMapHeader(2);
 
-            keyConverter.Write(Key.SpaceId, writer);
-            uintConverter.Write(value.SpaceId, writer);
+            _keyConverter.Write(Key.SpaceId, writer);
+            _uintConverter.Write(value.SpaceId, writer);
 
-            keyConverter.Write(Key.Tuple, writer);
-            tupleConverter.Write(value.Tuple, writer);
+            _keyConverter.Write(Key.Tuple, writer);
+            _tupleConverter.Write(value.Tuple, writer);
         }
 
         public InsertReplacePacket<T> Read(IMsgPackReader reader)

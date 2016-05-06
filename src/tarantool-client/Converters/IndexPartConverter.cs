@@ -5,11 +5,13 @@ namespace tarantool_client.Converters
 {
     public class IndexPartConverter : IMsgPackConverter<IndexPart>
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<IndexPartType> _indexPartTypeConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _uintConverter = context.GetConverter<uint>();
+            _indexPartTypeConverter = context.GetConverter<IndexPartType>();
         }
 
         public void Write(IndexPart value, IMsgPackWriter writer)
@@ -21,11 +23,9 @@ namespace tarantool_client.Converters
         {
             reader.ReadArrayLength().ShouldBe(2u);
 
-            var uintConverter = _context.GetConverter<uint>();
-            var indexPartTypeConverter = _context.GetConverter<IndexPartType>();
-
-            var fieldNo = uintConverter.Read(reader);
-            var indexPartType = indexPartTypeConverter.Read(reader);
+        
+            var fieldNo = _uintConverter.Read(reader);
+            var indexPartType = _indexPartTypeConverter.Read(reader);
 
             return new IndexPart(fieldNo, indexPartType);
         }

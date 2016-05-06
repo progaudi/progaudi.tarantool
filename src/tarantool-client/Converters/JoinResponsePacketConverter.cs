@@ -12,11 +12,17 @@ namespace tarantool_client.Converters
 {
     public class JoinResponsePacketConverter : IMsgPackConverter<JoinResponsePacket>
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<CommandCode> _codeConverter;
+        private IMsgPackConverter<int> _intConverter;
+        private IMsgPackConverter<Dictionary<int, int>> _vclockConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _keyConverter = context.GetConverter<Key>();
+            _codeConverter = context.GetConverter<CommandCode>();
+            _intConverter = context.GetConverter<int>();
+            _vclockConverter = context.GetConverter<Dictionary<int, int>>();
         }
 
         public void Write(JoinResponsePacket value, IMsgPackWriter writer)
@@ -26,23 +32,19 @@ namespace tarantool_client.Converters
 
         public JoinResponsePacket Read(IMsgPackReader reader)
         {
-            var keyConverter = _context.GetConverter<Key>();
-            var codeConverter = _context.GetConverter<CommandCode>();
-            var intConverter = _context.GetConverter<int>();
-            var vclockConverter = _context.GetConverter<Dictionary<int, int>>();
-
+        
             reader.ReadMapLength().ShouldBe(2u);
 
-            keyConverter.Read(reader).ShouldBe(Key.Code);
-            codeConverter.Read(reader).ShouldBe(CommandCode.Ok);
+            _keyConverter.Read(reader).ShouldBe(Key.Code);
+            _codeConverter.Read(reader).ShouldBe(CommandCode.Ok);
 
-            keyConverter.Read(reader).ShouldBe(Key.Sync);
-            var sync = intConverter.Read(reader);
+            _keyConverter.Read(reader).ShouldBe(Key.Sync);
+            var sync = _intConverter.Read(reader);
 
             reader.ReadMapLength().ShouldBe(1u);
 
-            keyConverter.Read(reader).ShouldBe(Key.Vclock);
-            var vclocks = vclockConverter.Read(reader);
+            _keyConverter.Read(reader).ShouldBe(Key.Vclock);
+            var vclocks = _vclockConverter.Read(reader);
 
             return new JoinResponsePacket(sync, vclocks);
         }

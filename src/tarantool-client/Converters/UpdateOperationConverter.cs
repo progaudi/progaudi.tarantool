@@ -8,24 +8,25 @@ namespace tarantool_client.Converters
 {
     public class UpdateOperationConverter<T> : IMsgPackConverter<UpdateOperation<T>>
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<string> _stringConverter;
+        private IMsgPackConverter<int> _intConverter;
+        private IMsgPackConverter<T> _argumentConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _stringConverter = context.GetConverter<string>();
+            _intConverter = context.GetConverter<int>();
+            _argumentConverter = context.GetConverter<T>();
         }
 
         public void Write(UpdateOperation<T> value, IMsgPackWriter writer)
         {
-            var stringConverter = _context.GetConverter<string>();
-            var intConverter = _context.GetConverter<int>();
-            var argumentConverter = _context.GetConverter<T>();
-
+        
             writer.WriteArrayHeader(3);
 
-            stringConverter.Write(value.OperationType, writer);
-            intConverter.Write(value.FieldNumber, writer);
-            argumentConverter.Write(value.Argument, writer);
+            _stringConverter.Write(value.OperationType, writer);
+            _intConverter.Write(value.FieldNumber, writer);
+            _argumentConverter.Write(value.Argument, writer);
         }
 
         public UpdateOperation<T> Read(IMsgPackReader reader)

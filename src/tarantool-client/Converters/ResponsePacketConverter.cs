@@ -11,11 +11,17 @@ namespace tarantool_client.Converters
 {
     public class ResponsePacketConverter<T> : IMsgPackConverter<ResponsePacket<T>>
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<string> _stringConverter;
+        private IMsgPackConverter<T> _dataConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _headerConverter = context.GetConverter<Header>();
+            _keyConverter = context.GetConverter<Key>();
+            _stringConverter = context.GetConverter<string>();
+            _dataConverter = context.GetConverter<T>();
         }
 
         public void Write(ResponsePacket<T> value, IMsgPackWriter writer)
@@ -25,12 +31,9 @@ namespace tarantool_client.Converters
 
         public ResponsePacket<T> Read(IMsgPackReader reader)
         {
-            var headerConverter = _context.GetConverter<Header>();
-            var keyConverter = _context.GetConverter<Key>();
-
-            var header = headerConverter.Read(reader);
+            var header = _headerConverter.Read(reader);
             string errorMessage = null;
-            T data = default(T);
+            var data = default(T);
 
             var length = reader.ReadMapLength();
 
@@ -40,17 +43,13 @@ namespace tarantool_client.Converters
             {
                 length.ShouldBe(1u);
 
-                var stringConverter = _context.GetConverter<string>();
-
-                keyConverter.Read(reader).ShouldBe(Key.Error);
-                errorMessage = stringConverter.Read(reader);
+                _keyConverter.Read(reader).ShouldBe(Key.Error);
+                errorMessage = _stringConverter.Read(reader);
             }
             else if (length.Value > 0u)
             {
-                var dataConverter = _context.GetConverter<T>();
-
-                keyConverter.Read(reader).ShouldBe(Key.Data);
-                data = dataConverter.Read(reader);
+                _keyConverter.Read(reader).ShouldBe(Key.Data);
+                data = _dataConverter.Read(reader);
             }
 
             return new ResponsePacket<T>(header, errorMessage, data);

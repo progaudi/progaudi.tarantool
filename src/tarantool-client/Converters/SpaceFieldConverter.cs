@@ -5,11 +5,13 @@ namespace tarantool_client.Converters
 {
     public class SpaceFieldConverter:IMsgPackConverter<SpaceField>
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<string> _stringConverter;
+        private IMsgPackConverter<FieldType> _typeConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context= context;
+            _stringConverter = context.GetConverter<string>();
+            _typeConverter = context.GetConverter<FieldType>();
         }
 
         public void Write(SpaceField value, IMsgPackWriter writer)
@@ -20,22 +22,20 @@ namespace tarantool_client.Converters
         public SpaceField Read(IMsgPackReader reader)
         {
             var dictLength = reader.ReadMapLength();
-            var stringConverter = _context.GetConverter<string>();
-            var typeConverter = _context.GetConverter<FieldType>();
-
+        
             string name = null;
             var type = (FieldType) (-1);
 
             for (int i = 0; i < dictLength.Value; i++)
             {
-                var key = stringConverter.Read(reader);
+                var key = _stringConverter.Read(reader);
                 switch (key)
                 {
                     case "name":
-                        name = stringConverter.Read(reader);
+                        name = _stringConverter.Read(reader);
                         break;
                     case "type":
-                        type = typeConverter.Read(reader);
+                        type = _typeConverter.Read(reader);
                         break;
                     default:
                         throw new ArgumentException($"Invalid SpaceField key: {key}");

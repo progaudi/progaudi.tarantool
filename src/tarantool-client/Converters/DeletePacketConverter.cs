@@ -11,32 +11,33 @@ namespace tarantool_client.Converters
     public class DeletePacketConverter<T> : IMsgPackConverter<DeletePacket<T>>
         where T: ITuple
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<T> _selectKeyConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _headerConverter = context.GetConverter<Header>();
+            _keyConverter = context.GetConverter<Key>();
+            _uintConverter = context.GetConverter<uint>();
+            _selectKeyConverter = context.GetConverter<T>();
         }
 
         public void Write(DeletePacket<T> value, IMsgPackWriter writer)
         {
-            var headerConverter = _context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer);
-
-            var keyConverter = _context.GetConverter<Key>();
-            var uintConverter = _context.GetConverter<uint>();
-            var selectKeyConverter = _context.GetConverter<T>();
+            _headerConverter.Write(value.Header, writer);
 
             writer.WriteMapHeader(3);
 
-            keyConverter.Write(Key.SpaceId, writer);
-            uintConverter.Write(value.SpaceId, writer);
+            _keyConverter.Write(Key.SpaceId, writer);
+            _uintConverter.Write(value.SpaceId, writer);
 
-            keyConverter.Write(Key.IndexId, writer);
-            uintConverter.Write(value.IndexId, writer);
+            _keyConverter.Write(Key.IndexId, writer);
+            _uintConverter.Write(value.IndexId, writer);
 
-            keyConverter.Write(Key.Key, writer);
-            selectKeyConverter.Write(value.Key, writer);
+            _keyConverter.Write(Key.Key, writer);
+            _selectKeyConverter.Write(value.Key, writer);
         }
 
         public DeletePacket<T> Read(IMsgPackReader reader)

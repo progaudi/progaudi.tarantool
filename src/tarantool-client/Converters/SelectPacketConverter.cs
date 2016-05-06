@@ -11,42 +11,45 @@ namespace tarantool_client.Converters
     public class SelectPacketConverter<T> : IMsgPackConverter<SelectPacket<T>>
         where T : ITuple
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<T> _selectKeyConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<Iterator> _iteratorConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _headerConverter = context.GetConverter<Header>();
+            _keyConverter = context.GetConverter<Key>();
+            _uintConverter = context.GetConverter<uint>();
+            _iteratorConverter = context.GetConverter<Iterator>();
+            _selectKeyConverter = context.GetConverter<T>();
         }
 
         public void Write(SelectPacket<T> value, IMsgPackWriter writer)
         {
-            var headerConverter = _context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer);
+            _headerConverter.Write(value.Header, writer);
 
-            var keyConverter = _context.GetConverter<Key>();
-            var uintConverter = _context.GetConverter<uint>();
-            var iteratorConverter = _context.GetConverter<Iterator>();
-            var selectKeyConverter = _context.GetConverter<T>();
-
+        
             writer.WriteMapHeader(6);
 
-            keyConverter.Write(Key.SpaceId, writer);
-            uintConverter.Write(value.SpaceId, writer);
+            _keyConverter.Write(Key.SpaceId, writer);
+            _uintConverter.Write(value.SpaceId, writer);
 
-            keyConverter.Write(Key.IndexId, writer);
-            uintConverter.Write(value.IndexId, writer);
+            _keyConverter.Write(Key.IndexId, writer);
+            _uintConverter.Write(value.IndexId, writer);
 
-            keyConverter.Write(Key.Limit, writer);
-            uintConverter.Write(value.Limit, writer);
+            _keyConverter.Write(Key.Limit, writer);
+            _uintConverter.Write(value.Limit, writer);
 
-            keyConverter.Write(Key.Offset, writer);
-            uintConverter.Write(value.Offset, writer);
+            _keyConverter.Write(Key.Offset, writer);
+            _uintConverter.Write(value.Offset, writer);
 
-            keyConverter.Write(Key.Iterator, writer);
-            iteratorConverter.Write(value.Iterator, writer);
+            _keyConverter.Write(Key.Iterator, writer);
+            _iteratorConverter.Write(value.Iterator, writer);
 
-            keyConverter.Write(Key.Key, writer);
-            selectKeyConverter.Write(value.SelectKey, writer);
+            _keyConverter.Write(Key.Key, writer);
+            _selectKeyConverter.Write(value.SelectKey, writer);
         }
 
         public SelectPacket<T> Read(IMsgPackReader reader)

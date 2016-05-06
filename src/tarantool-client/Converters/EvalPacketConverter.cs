@@ -11,29 +11,31 @@ namespace tarantool_client.Converters
     public class EvalPacketConverter<T> : IMsgPackConverter<EvalPacket<T>>
         where T:ITuple
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<string> _stringConverter;
+        private IMsgPackConverter<T> _tupleConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _headerConverter = context.GetConverter<Header>();
+            _keyConverter = context.GetConverter<Key>();
+            _stringConverter = context.GetConverter<string>();
+            _tupleConverter = context.GetConverter<T>();
         }
 
         public void Write(EvalPacket<T> value, IMsgPackWriter writer)
         {
-            var headerConverter = _context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer);
+            _headerConverter.Write(value.Header, writer);
 
-            var keyConverter = _context.GetConverter<Key>();
-            var stringConverter = _context.GetConverter<string>();
-            var tupleConverter = _context.GetConverter<T>();
 
             writer.WriteMapHeader(2);
 
-            keyConverter.Write(Key.Expression, writer);
-            stringConverter.Write(value.Expression, writer);
+            _keyConverter.Write(Key.Expression, writer);
+            _stringConverter.Write(value.Expression, writer);
 
-            keyConverter.Write(Key.Tuple, writer);
-            tupleConverter.Write(value.Tuple, writer);
+            _keyConverter.Write(Key.Tuple, writer);
+            _tupleConverter.Write(value.Tuple, writer);
         }
 
         public EvalPacket<T> Read(IMsgPackReader reader)

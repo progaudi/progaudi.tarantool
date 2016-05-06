@@ -12,37 +12,40 @@ namespace tarantool_client.Converters
     public class UpdatePacketConverter<T, TUpdate> : IMsgPackConverter<UpdatePacket<T, TUpdate>>
         where T : ITuple
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<T> _selectKeyConverter;
+        private IMsgPackConverter<UpdateOperation<TUpdate>> _updateOperationConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _headerConverter = context.GetConverter<Header>();
+            _uintConverter = context.GetConverter<uint>();
+            _keyConverter = context.GetConverter<Key>();
+            _selectKeyConverter = context.GetConverter<T>();
+            _updateOperationConverter = context.GetConverter<UpdateOperation<TUpdate>>();
         }
 
         public void Write(UpdatePacket<T, TUpdate> value, IMsgPackWriter writer)
         {
-            var headerConverter = _context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer);
+            _headerConverter.Write(value.Header, writer);
 
-            var uintConverter = _context.GetConverter<uint>();
-            var keyConverter = _context.GetConverter<Key>();
-            var selectKeyConverter = _context.GetConverter<T>();
-            var updateOperationConverter = _context.GetConverter<UpdateOperation<TUpdate>>();
-
+        
             writer.WriteMapHeader(4);
 
-            keyConverter.Write(Key.SpaceId, writer);
-            uintConverter.Write(value.SpaceId, writer);
+            _keyConverter.Write(Key.SpaceId, writer);
+            _uintConverter.Write(value.SpaceId, writer);
 
-            keyConverter.Write(Key.IndexId, writer);
-            uintConverter.Write(value.IndexId, writer);
+            _keyConverter.Write(Key.IndexId, writer);
+            _uintConverter.Write(value.IndexId, writer);
 
-            keyConverter.Write(Key.Key, writer);
-            selectKeyConverter.Write(value.Key, writer);
+            _keyConverter.Write(Key.Key, writer);
+            _selectKeyConverter.Write(value.Key, writer);
 
-            keyConverter.Write(Key.Tuple, writer);
+            _keyConverter.Write(Key.Tuple, writer);
             writer.WriteArrayHeader(1);
-            updateOperationConverter.Write(value.UpdateOperation, writer);
+            _updateOperationConverter.Write(value.UpdateOperation, writer);
         }
 
         public UpdatePacket<T, TUpdate> Read(IMsgPackReader readerr)

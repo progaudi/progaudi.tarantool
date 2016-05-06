@@ -7,11 +7,19 @@ namespace tarantool_client.Converters
 {
     public class SpaceConverter : IMsgPackConverter<Space>
     {
-        private MsgPackContext _context;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<string> _stringConverter;
+        private IMsgPackConverter<StorageEngine> _engineConverter;
+        private IMsgPackConverter<Dictionary<object, object>> _dictConverter;
+        private IMsgPackConverter<List<SpaceField>> _fieldConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _context = context;
+            _uintConverter = context.GetConverter<uint>();
+            _stringConverter = context.GetConverter<string>();
+            _engineConverter = context.GetConverter<StorageEngine>();
+            _dictConverter = context.GetConverter<Dictionary<object, object>>();
+            _fieldConverter = context.GetConverter<List<SpaceField>>();
         }
 
         public void Write(Space value, IMsgPackWriter writer)
@@ -23,25 +31,20 @@ namespace tarantool_client.Converters
         {
             reader.ReadArrayLength().ShouldBe(7u);
 
-            var uintConverter = _context.GetConverter<uint>();
-            var stringConverter = _context.GetConverter<string>();
-            var engineConverter = _context.GetConverter<StorageEngine>();
-            var dictConverter = _context.GetConverter<Dictionary<object, object>>();
-            var fieldConverter = _context.GetConverter<List<SpaceField>>();
-
-            var id = uintConverter.Read(reader);
+        
+            var id = _uintConverter.Read(reader);
 
             //TODO find out what that number means
-            uintConverter.Read(reader);
+            _uintConverter.Read(reader);
 
-            var name = stringConverter.Read(reader);
-            var engine = engineConverter.Read(reader);
-            var fieldCount = uintConverter.Read(reader);
+            var name = _stringConverter.Read(reader);
+            var engine = _engineConverter.Read(reader);
+            var fieldCount = _uintConverter.Read(reader);
 
             //TODO find what is that dict used for 
-            dictConverter.Read(reader);
+            _dictConverter.Read(reader);
 
-            var fields = fieldConverter.Read(reader);
+            var fields = _fieldConverter.Read(reader);
 
             return new Space(id, fieldCount, name, null, engine, fields.AsReadOnly(), null);
         }
