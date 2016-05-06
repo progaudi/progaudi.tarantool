@@ -5,12 +5,19 @@ namespace tarantool_client.Converters
 {
     public class IndexCreationOptionsConverter:IMsgPackConverter<IndexCreationOptions>
     {
-        public void Write(IndexCreationOptions value, IMsgPackWriter writer, MsgPackContext context)
+        private MsgPackContext context;
+
+        public void Initialize(MsgPackContext context)
+        {
+            this.context= context;
+        }
+
+        public void Write(IndexCreationOptions value, IMsgPackWriter writer)
         {
             throw new System.NotImplementedException();
         }
 
-        public IndexCreationOptions Read(IMsgPackReader reader, MsgPackContext context, Func<IndexCreationOptions> creator)
+        public IndexCreationOptions Read(IMsgPackReader reader)
         {
             var optionsCount = reader.ReadMapLength();
             var stringConverter = context.GetConverter<string>();
@@ -19,11 +26,11 @@ namespace tarantool_client.Converters
             var unique = false;
             for (int i = 0; i < optionsCount.Value; i++)
             {
-                var key = stringConverter.Read(reader, context, null);
+                var key = stringConverter.Read(reader);
                 switch (key)
                 {
                     case "unique":
-                        unique = boolConverter.Read(reader, context, null);
+                        unique = boolConverter.Read(reader);
                         break;
                     default:
                         throw new ArgumentException($"Unknown index creation option: {key}");

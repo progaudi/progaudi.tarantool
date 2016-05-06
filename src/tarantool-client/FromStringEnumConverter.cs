@@ -9,6 +9,13 @@ namespace tarantool_client.Converters
     public class FromStringEnumConverter<T> : IMsgPackConverter<T>
            where T : struct, IConvertible
     {
+        private MsgPackContext _context;
+
+        public void Initialize(MsgPackContext context)
+        {
+            _context = context;
+        }
+
         static FromStringEnumConverter()
         {
             var enumTypeInfo = typeof(T).GetTypeInfo();
@@ -18,17 +25,17 @@ namespace tarantool_client.Converters
             }
         }
 
-        public void Write(T value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(T value, IMsgPackWriter writer)
         {
-            var stringConverter = context.GetConverter<string>();
-            stringConverter.Write(value.ToString(CultureInfo.InvariantCulture), writer, context);
+            var stringConverter = _context.GetConverter<string>();
+            stringConverter.Write(value.ToString(CultureInfo.InvariantCulture), writer);
         }
 
-        public T Read(IMsgPackReader reader, MsgPackContext context, Func<T> creator)
+        public T Read(IMsgPackReader reader)
         {
-            var stringConverter = context.GetConverter<string>();
+            var stringConverter = _context.GetConverter<string>();
 
-            var stringValue = stringConverter.Read(reader, context, null);
+            var stringValue = stringConverter.Read(reader);
 
             return  StringEnum.Parse<T>(typeof (T), stringValue, true);
         }

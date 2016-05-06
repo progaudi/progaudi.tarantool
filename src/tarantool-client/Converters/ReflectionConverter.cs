@@ -13,24 +13,31 @@ namespace tarantool_client.Converters
 {
     public class ReflectionConverter : IMsgPackConverter<object>
     {
-        public void Write(object value, IMsgPackWriter writer, MsgPackContext context)
+        private MsgPackContext _context;
+
+        public void Initialize(MsgPackContext context)
+        {
+            _context = context;
+        }
+
+        public void Write(object value, IMsgPackWriter writer)
         {
             if (value == null)
             {
-                context.NullConverter.Write(value, writer, context);
+                _context.NullConverter.Write(value, writer);
                 return;
             }
 
-            var converter = GetConverter(context, value.GetType());
+            var converter = GetConverter(_context, value.GetType());
 
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(value.GetType()).GetMethod(
                 "Write",
                 new[] {value.GetType(), typeof(IMsgPackWriter), typeof(MsgPackContext)});
 
-            methodDefinition.Invoke(converter, new[] {value, writer, context});
+            methodDefinition.Invoke(converter, new[] {value, writer, _context});
         }
 
-        public object Read(IMsgPackReader reader, MsgPackContext context, Func<object> creator)
+        public object Read(IMsgPackReader reader)
         {
             var msgPackType = reader.ReadDataType();
 
@@ -132,12 +139,12 @@ namespace tarantool_client.Converters
             }
 
             reader.Seek(-1, SeekOrigin.Current);
-            var converter = GetConverter(context, type);
+            var converter = GetConverter(_context, type);
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(type).GetMethod(
                 "Read",
                 new[] {typeof(IMsgPackReader), typeof(MsgPackContext), typeof(Func<>).MakeGenericType(type)});
 
-            return methodDefinition.Invoke(converter, new object[] {reader, context, null});
+            return methodDefinition.Invoke(converter, new object[] {reader, _context, null});
         }
 
         private Type TryInferFromFixedLength(DataTypes msgPackType)

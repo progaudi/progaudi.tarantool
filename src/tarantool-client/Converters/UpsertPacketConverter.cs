@@ -12,30 +12,37 @@ namespace tarantool_client.Converters
     public class UpsertPacketConverter<T, TUpdate> : IMsgPackConverter<UpsertPacket<T, TUpdate>>
         where T : ITuple
     {
-        public void Write(UpsertPacket<T, TUpdate> value, IMsgPackWriter writer, MsgPackContext context)
+        private MsgPackContext _context;
+
+        public void Initialize(MsgPackContext context)
         {
-            var headerConverter = context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer, context);
-
-            var uintConverter = context.GetConverter<uint>();
-            var keyConverter = context.GetConverter<Key>();
-            var tupleConverter = context.GetConverter<T>();
-            var updateOperationConverter = context.GetConverter<UpdateOperation<TUpdate>>();
-
-            writer.WriteMapHeaderAndLength(3);
-
-            keyConverter.Write(Key.SpaceId, writer, context);
-            uintConverter.Write(value.SpaceId, writer, context);
-
-            keyConverter.Write(Key.Tuple, writer, context);
-            tupleConverter.Write(value.Tuple, writer, context);
-
-            keyConverter.Write(Key.Ops, writer, context);
-            writer.WriteArrayHeader(1);
-            updateOperationConverter.Write(value.UpdateOperation, writer, context);
+            _context = context;
         }
 
-        public UpsertPacket<T, TUpdate> Read(IMsgPackReader reader, MsgPackContext context, Func<UpsertPacket<T, TUpdate>> creator)
+        public void Write(UpsertPacket<T, TUpdate> value, IMsgPackWriter writer)
+        {
+            var headerConverter = _context.GetConverter<Header>();
+            headerConverter.Write(value.Header, writer);
+
+            var uintConverter = _context.GetConverter<uint>();
+            var keyConverter = _context.GetConverter<Key>();
+            var tupleConverter = _context.GetConverter<T>();
+            var updateOperationConverter = _context.GetConverter<UpdateOperation<TUpdate>>();
+
+            writer.WriteMapHeader(3);
+
+            keyConverter.Write(Key.SpaceId, writer);
+            uintConverter.Write(value.SpaceId, writer);
+
+            keyConverter.Write(Key.Tuple, writer);
+            tupleConverter.Write(value.Tuple, writer);
+
+            keyConverter.Write(Key.Ops, writer);
+            writer.WriteArrayHeader(1);
+            updateOperationConverter.Write(value.UpdateOperation, writer);
+        }
+
+        public UpsertPacket<T, TUpdate> Read(IMsgPackReader reader)
         {
             throw new NotImplementedException();
         }

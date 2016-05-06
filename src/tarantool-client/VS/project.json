@@ -22,7 +22,7 @@
         "win": { }
     },
     "dependencies": {
-        "MsgPack.Light": "0.1.0",
+        "MsgPack.Light": "0.5.0",
         "Shouldly": "2.7.0"
     }
 }

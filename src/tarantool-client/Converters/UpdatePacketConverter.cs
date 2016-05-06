@@ -12,33 +12,40 @@ namespace tarantool_client.Converters
     public class UpdatePacketConverter<T, TUpdate> : IMsgPackConverter<UpdatePacket<T, TUpdate>>
         where T : ITuple
     {
-        public void Write(UpdatePacket<T, TUpdate> value, IMsgPackWriter writer, MsgPackContext context)
+        private MsgPackContext _context;
+
+        public void Initialize(MsgPackContext context)
         {
-            var headerConverter = context.GetConverter<Header>();
-            headerConverter.Write(value.Header, writer, context);
-
-            var uintConverter = context.GetConverter<uint>();
-            var keyConverter = context.GetConverter<Key>();
-            var selectKeyConverter = context.GetConverter<T>();
-            var updateOperationConverter = context.GetConverter<UpdateOperation<TUpdate>>();
-
-            writer.WriteMapHeaderAndLength(4);
-
-            keyConverter.Write(Key.SpaceId, writer, context);
-            uintConverter.Write(value.SpaceId, writer, context);
-
-            keyConverter.Write(Key.IndexId, writer, context);
-            uintConverter.Write(value.IndexId, writer, context);
-
-            keyConverter.Write(Key.Key, writer, context);
-            selectKeyConverter.Write(value.Key, writer, context);
-
-            keyConverter.Write(Key.Tuple, writer, context);
-            writer.WriteArrayHeader(1);
-            updateOperationConverter.Write(value.UpdateOperation, writer, context);
+            _context = context;
         }
 
-        public UpdatePacket<T, TUpdate> Read(IMsgPackReader reader, MsgPackContext context, Func<UpdatePacket<T, TUpdate>> creator)
+        public void Write(UpdatePacket<T, TUpdate> value, IMsgPackWriter writer)
+        {
+            var headerConverter = _context.GetConverter<Header>();
+            headerConverter.Write(value.Header, writer);
+
+            var uintConverter = _context.GetConverter<uint>();
+            var keyConverter = _context.GetConverter<Key>();
+            var selectKeyConverter = _context.GetConverter<T>();
+            var updateOperationConverter = _context.GetConverter<UpdateOperation<TUpdate>>();
+
+            writer.WriteMapHeader(4);
+
+            keyConverter.Write(Key.SpaceId, writer);
+            uintConverter.Write(value.SpaceId, writer);
+
+            keyConverter.Write(Key.IndexId, writer);
+            uintConverter.Write(value.IndexId, writer);
+
+            keyConverter.Write(Key.Key, writer);
+            selectKeyConverter.Write(value.Key, writer);
+
+            keyConverter.Write(Key.Tuple, writer);
+            writer.WriteArrayHeader(1);
+            updateOperationConverter.Write(value.UpdateOperation, writer);
+        }
+
+        public UpdatePacket<T, TUpdate> Read(IMsgPackReader readerr)
         {
             throw new NotImplementedException();
         }

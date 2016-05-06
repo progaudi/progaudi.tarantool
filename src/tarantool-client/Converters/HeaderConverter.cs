@@ -1,6 +1,4 @@
-﻿using System;
-
-using iproto.Data;
+﻿using iproto.Data;
 
 using MsgPack.Light;
 
@@ -10,17 +8,24 @@ namespace tarantool_client.Converters
 {
     public class HeaderConverter : IMsgPackConverter<Header>
     {
-        public void Write(Header value, IMsgPackWriter writer, MsgPackContext context)
+        private MsgPackContext _context;
+
+        public void Initialize(MsgPackContext context)
+        {
+            _context = context;
+        }
+
+        public void Write(Header value, IMsgPackWriter writer)
         {
             if (value == null)
             {
-                context.NullConverter.Write(null, writer, context);
+                _context.NullConverter.Write(null, writer);
                 return;
             }
 
-            var keyConverter = context.GetConverter<Key>();
-            var ulongConverter = context.GetConverter<ulong>();
-            var codeConverter = context.GetConverter<CommandCode>();
+            var keyConverter = _context.GetConverter<Key>();
+            var ulongConverter = _context.GetConverter<ulong>();
+            var codeConverter = _context.GetConverter<CommandCode>();
 
             var headerComponentsCount = 1u;
             if (value.Sync.HasValue)
@@ -31,40 +36,40 @@ namespace tarantool_client.Converters
             {
                 headerComponentsCount++;
             }
-            writer.WriteMapHeaderAndLength(headerComponentsCount);
+            writer.WriteMapHeader(headerComponentsCount);
 
-            keyConverter.Write(Key.Code, writer, context);
-            codeConverter.Write(value.Code, writer, context);
+            keyConverter.Write(Key.Code, writer);
+            codeConverter.Write(value.Code, writer);
 
             if (value.Sync.HasValue)
             {
-                keyConverter.Write(Key.Sync, writer, context);
-                ulongConverter.Write(value.Sync.Value, writer, context);
+                keyConverter.Write(Key.Sync, writer);
+                ulongConverter.Write(value.Sync.Value, writer);
             }
 
             if (value.SchemaId.HasValue)
             {
-                keyConverter.Write(Key.SchemaId, writer, context);
-                ulongConverter.Write(value.SchemaId.Value, writer, context);
+                keyConverter.Write(Key.SchemaId, writer);
+                ulongConverter.Write(value.SchemaId.Value, writer);
             }
         }
 
-        public Header Read(IMsgPackReader reader, MsgPackContext context, Func<Header> creator)
+        public Header Read(IMsgPackReader reader)
         {
-            var keyConverter = context.GetConverter<Key>();
-            var ulongConverter = context.GetConverter<ulong>();
-            var codeConverter = context.GetConverter<CommandCode>();
+            var keyConverter = _context.GetConverter<Key>();
+            var ulongConverter = _context.GetConverter<ulong>();
+            var codeConverter = _context.GetConverter<CommandCode>();
 
             reader.ReadMapLength().ShouldBe(3u);
 
-            keyConverter.Read(reader, context, null).ShouldBe(Key.Code);
-            var code = codeConverter.Read(reader, context, null);
+            keyConverter.Read(reader).ShouldBe(Key.Code);
+            var code = codeConverter.Read(reader);
 
-            keyConverter.Read(reader, context, null).ShouldBe(Key.Sync);
-            var sync = ulongConverter.Read(reader, context, null);
+            keyConverter.Read(reader).ShouldBe(Key.Sync);
+            var sync = ulongConverter.Read(reader);
 
-            keyConverter.Read(reader, context, null).ShouldBe(Key.SchemaId);
-            var schemaId = ulongConverter.Read(reader, context, null);
+            keyConverter.Read(reader).ShouldBe(Key.SchemaId);
+            var schemaId = ulongConverter.Read(reader);
 
             return new Header(code, sync, schemaId);
         }
