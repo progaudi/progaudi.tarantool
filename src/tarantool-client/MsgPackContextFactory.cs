@@ -32,11 +32,11 @@ namespace tarantool_client
             result.RegisterConverter(new JoinResponsePacketConverter());
             result.RegisterConverter(new SubscribePacketConverter());
 
-            result.RegisterConverter(new SpaceConverter());
             result.RegisterConverter(new SpaceFieldConverter());
-            result.RegisterConverter(new IndexConverter());
+            result.RegisterConverter(new SpaceConverter());
             result.RegisterConverter(new IndexPartConverter());
             result.RegisterConverter(new IndexCreationOptionsConverter());
+            result.RegisterConverter(new IndexConverter());
 
             result.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,>));
