@@ -12,7 +12,7 @@ namespace tarantool_client.test
         public static void Main(string[] args)
         {
             var tarantoolClient = new Connection();
-            tarantoolClient.Connect("192.168.99.100", 3301);
+            tarantoolClient.Connect("192.168.99.101", 3301);
             var response = tarantoolClient.Login("operator", "operator");
 
             if (!string.IsNullOrWhiteSpace(response.ErrorMessage))
@@ -34,7 +34,17 @@ namespace tarantool_client.test
 
         private static void IndexMethodsTest(Index index)
         {
-            var indexSelectResponse = index.Select<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(2));
+            var insertResponse = index.Insert(Tuple.Create(2, "Music"));
+            var deleteResponse = index.Delete<Tuple<int, string>, Tuple<int>>(Tuple.Create(2));
+            insertResponse = index.Insert(Tuple.Create(2, "Music"));
+            var selectResponse = index.Select<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(2));
+            var replaceResponse = index.Replace(Tuple.Create(2, "Car", -245.3));
+            var updateResponse = index.Update<Tuple<int, string, double>, Tuple<int>, int>(Tuple.Create(2),
+                UpdateOperation<int>.CreateAddition(3, 100));
+            var upsertResponse = index.Upsert<Tuple<int, string>, Tuple<int>, int>(Tuple.Create(5),
+                UpdateOperation<int>.CreateAddition(2, 2));
+            upsertResponse = index.Upsert<Tuple<int, string>, Tuple<int>, int>(Tuple.Create(5),
+                UpdateOperation<int>.CreateAddition(2, -2));
         }
 
         private static void SpaceMethodsTest(Space tester)
@@ -42,7 +52,7 @@ namespace tarantool_client.test
             var insertResponse = tester.Insert(Tuple.Create(2, "Music"));
             var deleteResponse = tester.Delete(Tuple.Create(2));
             insertResponse = tester.Insert(Tuple.Create(2, "Music"));
-            var selectResponse = tester.Select<Tuple<int>, Tuple<int,string>>(Tuple.Create(2));
+            var selectResponse = tester.Select<Tuple<int>, Tuple<int, string>>(Tuple.Create(2));
             var replaceResponse = tester.Replace(Tuple.Create(2, "Car", -24.5));
             var updateResponse = tester.Update(Tuple.Create(2), UpdateOperation<int>.CreateAddition(1, 2));
             var upsertResponse = tester.Upsert(Tuple.Create(5, 20), UpdateOperation<int>.CreateAddition(1, 2));

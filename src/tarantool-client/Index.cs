@@ -55,6 +55,26 @@ namespace tarantool_client
             return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectRequest);
         }
 
+        ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
+        ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
+        public ResponsePacket<TTuple[]> Insert<TTuple>(TTuple tuple)
+            where TTuple : ITuple
+        {
+            var insertRequest = new InsertReplacePacket<TTuple>(CommandCode.Insert, SpaceId, tuple);
+
+            return Connection.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(insertRequest);
+        }
+
+        ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
+        ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
+        public ResponsePacket<TTuple[]> Replace<TTuple>(TTuple tuple)
+            where TTuple : ITuple
+        {
+            var replaceRequest = new InsertReplacePacket<TTuple>(CommandCode.Replace, SpaceId, tuple);
+
+            return Connection.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(replaceRequest);
+        }
+
         public TTuple Min<TTuple, TKey>(TKey key = null)
             where TTuple : ITuple
             where TKey : class, ITuple
@@ -107,6 +127,17 @@ namespace tarantool_client
                 updateOperation);
 
             return Connection.SendPacket<UpdatePacket<TKey, TUpdate>, TTuple[]>(updateRequest);
+        }
+
+        public ResponsePacket<TTuple[]> Upsert<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
+            where TKey : ITuple
+        {
+            var updateRequest = new UpsertPacket<TKey, TUpdate>(
+                SpaceId,
+                key,
+                updateOperation);
+
+            return Connection.SendPacket<UpsertPacket<TKey, TUpdate>, TTuple[]>(updateRequest);
         }
 
         public ResponsePacket<TTuple[]> Delete<TTuple, TKey>(TKey key)
