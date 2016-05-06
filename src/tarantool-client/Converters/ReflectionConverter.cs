@@ -32,9 +32,9 @@ namespace tarantool_client.Converters
 
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(value.GetType()).GetMethod(
                 "Write",
-                new[] {value.GetType(), typeof(IMsgPackWriter), typeof(MsgPackContext)});
+                new[] { value.GetType(), typeof(IMsgPackWriter) });
 
-            methodDefinition.Invoke(converter, new[] {value, writer, _context});
+            methodDefinition.Invoke(converter, new[] { value, writer });
         }
 
         public object Read(IMsgPackReader reader)
@@ -142,9 +142,9 @@ namespace tarantool_client.Converters
             var converter = GetConverter(_context, type);
             var methodDefinition = typeof(IMsgPackConverter<>).MakeGenericType(type).GetMethod(
                 "Read",
-                new[] {typeof(IMsgPackReader), typeof(MsgPackContext), typeof(Func<>).MakeGenericType(type)});
+                new[] { typeof(IMsgPackReader) });
 
-            return methodDefinition.Invoke(converter, new object[] {reader, _context, null});
+            return methodDefinition.Invoke(converter, new object[] { reader });
         }
 
         private Type TryInferFromFixedLength(DataTypes msgPackType)

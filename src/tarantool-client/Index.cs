@@ -87,7 +87,8 @@ namespace tarantool_client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket).Data.SingleOrDefault();
+            var minResponse = Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
+            return minResponse.Data.SingleOrDefault();
         }
 
         public TTuple Max<TTuple, TKey>(TKey key = null)
@@ -102,7 +103,8 @@ namespace tarantool_client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket).Data.SingleOrDefault();
+            var maxResponse = Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
+            return maxResponse.Data.SingleOrDefault();
         }
 
         public TTuple Random<TTuple>(int randomValue)
