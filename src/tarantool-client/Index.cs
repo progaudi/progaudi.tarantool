@@ -143,7 +143,7 @@ namespace tarantool_client
             return Connection.SendPacket<UpdatePacket<TKey, TUpdate>, TTuple[]>(updateRequest);
         }
 
-        public ResponsePacket<TTuple[]> Upsert<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public ResponsePacket<object> Upsert<TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
             where TKey : ITuple
         {
             var updateRequest = new UpsertPacket<TKey, TUpdate>(
@@ -151,7 +151,7 @@ namespace tarantool_client
                 key,
                 updateOperation);
 
-            return Connection.SendPacket<UpsertPacket<TKey, TUpdate>, TTuple[]>(updateRequest);
+            return Connection.SendPacket(updateRequest);
         }
 
         public ResponsePacket<TTuple[]> Delete<TTuple, TKey>(TKey key)
