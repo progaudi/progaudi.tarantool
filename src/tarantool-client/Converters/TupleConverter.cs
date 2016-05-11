@@ -4,6 +4,34 @@ using Tuple = iproto.Tuple;
 
 namespace tarantool_client.Converters
 {
+    public class TupleConverter : IMsgPackConverter<iproto.Tuple>
+    {
+        private IMsgPackConverter<object> _nullConverter;
+
+        public void Initialize(MsgPackContext context)
+        {
+            _nullConverter = context.NullConverter;
+        }
+
+        public void Write(iproto.Tuple value, IMsgPackWriter writer)
+        {
+            if (value == null)
+            {
+                _nullConverter.Write(null, writer);
+                return;
+            }
+
+            writer.WriteArrayHeader(0);
+        }
+
+        public iproto.Tuple Read(IMsgPackReader reader)
+        {
+            reader.ReadArrayLength().ShouldBe(0u);
+
+            return Tuple.Create();
+        }
+    }
+
     public class TupleConverter<T1> : IMsgPackConverter<iproto.Tuple<T1>>
     {
         private IMsgPackConverter<object> _nullConverter;

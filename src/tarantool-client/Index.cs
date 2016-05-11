@@ -75,7 +75,13 @@ namespace tarantool_client
             return Connection.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(replaceRequest);
         }
 
-        public TTuple Min<TTuple, TKey>(TKey key = null)
+        public TTuple Min<TTuple>()
+           where TTuple : ITuple
+        {
+            return Min<TTuple, iproto.Tuple>(iproto.Tuple.Create());
+        }
+
+        public TTuple Min<TTuple, TKey>(TKey key)
             where TTuple : ITuple
             where TKey : class, ITuple
         {
@@ -89,6 +95,12 @@ namespace tarantool_client
 
             var minResponse = Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
             return minResponse.Data.SingleOrDefault();
+        }
+
+        public TTuple Max<TTuple>()
+            where TTuple : ITuple
+        {
+            return Max<TTuple, iproto.Tuple>(iproto.Tuple.Create());
         }
 
         public TTuple Max<TTuple, TKey>(TKey key = null)

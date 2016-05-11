@@ -12,7 +12,7 @@ namespace tarantool_client.test
         public static void Main(string[] args)
         {
             var tarantoolClient = new Connection();
-            tarantoolClient.Connect("192.168.99.101", 3301);
+            tarantoolClient.Connect("192.168.99.100", 3301);
             var response = tarantoolClient.Login("operator", "operator");
 
             if (!string.IsNullOrWhiteSpace(response.ErrorMessage))
@@ -25,7 +25,7 @@ namespace tarantool_client.test
 
             var schema = tarantoolClient.GetSchema();
             var tester = schema.GetSpace("tester");
-            var firstIndex = tester.Indices.First();
+            var firstIndex = tester.Indices.First(index => index.Type == IndexType.Tree);
 
             SendPacketMethodTest(tarantoolClient);
             SpaceMethodsTest(tester);
@@ -35,9 +35,9 @@ namespace tarantool_client.test
         private static void IndexMethodsTest(Index index)
         {
             var insertResponse = index.Insert(Tuple.Create(2, "Music"));
-            var deleteResponse = index.Delete<Tuple<int, string>, Tuple<int>>(Tuple.Create(2));
+            var deleteResponse = index.Delete<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(2));
             insertResponse = index.Insert(Tuple.Create(2, "Music"));
-            var selectResponse = index.Select<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(2));
+            var selectResponse = index.Select<Tuple<int, string>, Tuple<int>>(Tuple.Create(2));
             var replaceResponse = index.Replace(Tuple.Create(2, "Car", -245.3));
             var updateResponse = index.Update<Tuple<int, string, double>, Tuple<int>, int>(Tuple.Create(2),
                 UpdateOperation<int>.CreateAddition(3, 100));
@@ -46,11 +46,11 @@ namespace tarantool_client.test
             upsertResponse = index.Upsert<Tuple<int, string>, Tuple<int>, int>(Tuple.Create(5),
                 UpdateOperation<int>.CreateAddition(2, -2));
 
-            var min = index.Min<Tuple<int, string, double>, Tuple<int?>>(Tuple.Create((int?)null));
-            var min2 = index.Min<Tuple<int, int>, Tuple<double>>(Tuple.Create(2.1));
+            var min2 = index.Min<Tuple<int,int>, Tuple<int>>(Tuple.Create(3));
+            var min = index.Min<Tuple<int, string, double>>();
 
-            var max= index.Max<Tuple<int, int>, Tuple<int>>();
-            var max2 = index.Max<Tuple<int, string, double>, Tuple<double>>(Tuple.Create(4.9));
+            var max= index.Max<Tuple<int, int>>();
+            var max2 = index.Max<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(4));
 
         }
 

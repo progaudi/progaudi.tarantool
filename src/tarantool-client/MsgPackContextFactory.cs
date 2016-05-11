@@ -37,6 +37,7 @@ namespace tarantool_client
             result.RegisterConverter(new IndexPartConverter());
             result.RegisterConverter(new IndexCreationOptionsConverter());
             result.RegisterConverter(new IndexConverter());
+            result.RegisterConverter(new TupleConverter());
 
             result.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
             result.RegisterGenericConverter(typeof(UpdatePacketConverter<,>));

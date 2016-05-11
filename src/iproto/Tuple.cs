@@ -383,8 +383,32 @@ namespace iproto
         }
     }
 
-    public class Tuple
+    public class Tuple : ITuple
     {
+
+        protected bool Equals(Tuple other)
+        {
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Tuple)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return string.Empty.GetHashCode();
+        }
+
+        public static Tuple Create()
+        {
+            return new Tuple();
+        }
+
         public static Tuple<T1>
             Create<T1>(T1 item1)
         {

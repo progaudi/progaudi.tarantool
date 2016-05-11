@@ -24,7 +24,7 @@ namespace tarantool_client.Utils
             if (!type.GetTypeInfo().IsEnum)
                 throw new ArgumentException($"Supplied type must be an Enum.  Type was {type}");
 
-            if (!Enum.TryParse(stringValue, out output))
+            if (!Enum.TryParse(stringValue, ignoreCase, out output))
             {
 
                 //Look for our string value associated with fields in this enum
@@ -38,7 +38,7 @@ namespace tarantool_client.Utils
                     //Check for equality then select actual enum value.
                     if (string.Compare(enumStringValue, stringValue, ignoreCase) == 0)
                     {
-                        output = (T) Enum.Parse(type, fi.Name);
+                        output = (T)Enum.Parse(type, fi.Name);
                         break;
                     }
                 }
