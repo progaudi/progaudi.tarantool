@@ -1,0 +1,60 @@
+public interface ITuple{}
+<#
+var maxParametersCount = 8;
+var typeParameters = new Func<int, string>(count => string.Join(", ", Enumerable.Range(1, count).Select(num => $"T{num}")));
+ var itemsList = new Func<int, string>(count => string.Join(", ", Enumerable.Range(1, count).Select(num => $"T{num} item{num}")));
+ var equalityComparer= new Func<int, string>(count => string.Join(" && ", Enumerable.Range(1, count).Select(num => $"EqualityComparer<T{num}>.Default.Equals(Item{num}, other.Item{num})")));
+ var getHashCode = new Func<int, string>(count => string.Join("hashCode = (hashCode * 397) ^ ", Enumerable.Range(1, count).Select(num => $"EqualityComparer<T{num}>.Default.GetHashCode(Item{num});")));
+for(int i=0;i < maxParametersCount; i++){
+#>
+ public class Tuple<<#= typeParameters(i+1)#>> :ITuple
+    {
+        public Tuple(<#= itemsList(i+1)#>)
+        {
+            <# for(int j=0; j< i+1; j++){#>
+			Item<#= j + 1 #> = item<#=j+1#>;<#}#>
+        }
+	<# for(int j=0; j< i+1; j++){#>
+			public T<#= j + 1 #>  Item<#=j+1#>{get;}<#}#>
+			
+			 protected bool Equals(Tuple<<#= typeParameters(i+1)#>> other)
+        {
+            return <#= equalityComparer(i+1)#>;
+		}
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Tuple<<#= typeParameters(i+1)#>>) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode =<#= getHashCode(i+1) #>
+                return hashCode;
+            }
+        }
+    }
+<#
+}
+#>
+
+public class Tuple{
+<#
+for(int i=0;i < maxParametersCount; i++){
+#>
+ public static Tuple<<#= typeParameters(i+1)#>> 
+ Create<<#= typeParameters(i+1)#>>(<#= itemsList(i+1)#>)
+ {
+ 	return new Tuple<<#= typeParameters(i+1)#>>
+	(<# for(int j=0; j< i+1; j++){#>item<#=j+1#><#if(j!=i) {#>, <#}#><#}#> );
+ }
+ 
+<#
+}
+#>
+}

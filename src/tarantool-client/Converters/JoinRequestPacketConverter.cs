@@ -3,32 +3,41 @@
 using iproto.Data;
 using iproto.Data.Packets;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {
     public class JointRequestConverter : IMsgPackConverter<JoinRequestPacket>
     {
-        public void Write(JoinRequestPacket value, IMsgPackWriter writer, MsgPackContext context)
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<CommandCode> _codeConverter;
+        private IMsgPackConverter<int> _intConverter;
+        private IMsgPackConverter<string> _stringConverter;
+
+        public void Initialize(MsgPackContext context)
         {
-            var keyConverter = context.GetConverter<Key>();
-            var codeConverter = context.GetConverter<CommandCode>();
-            var intConverter = context.GetConverter<int>();
-            var stringConverter = context.GetConverter<string>();
-
-            writer.WriteMapHeaderAndLength(3);
-
-            keyConverter.Write(Key.Code, writer, context);
-            codeConverter.Write(CommandCode.Join, writer, context);
-
-            keyConverter.Write(Key.Sync, writer, context);
-            intConverter.Write(value.Sync, writer, context);
-
-            keyConverter.Write(Key.ServerUuid, writer, context);
-            stringConverter.Write(value.ServerUuid, writer, context);
+            _keyConverter = context.GetConverter<Key>();
+            _codeConverter = context.GetConverter<CommandCode>();
+            _intConverter = context.GetConverter<int>();
+            _stringConverter = context.GetConverter<string>();
         }
 
-        public JoinRequestPacket Read(IMsgPackReader reader, MsgPackContext context, Func<JoinRequestPacket> creator)
+        public void Write(JoinRequestPacket value, IMsgPackWriter writer)
+        {
+    
+            writer.WriteMapHeader(3);
+
+            _keyConverter.Write(Key.Code, writer);
+            _codeConverter.Write(CommandCode.Join, writer);
+
+            _keyConverter.Write(Key.Sync, writer);
+            _intConverter.Write(value.Sync, writer);
+
+            _keyConverter.Write(Key.ServerUuid, writer);
+            _stringConverter.Write(value.ServerUuid, writer);
+        }
+
+        public JoinRequestPacket Read(IMsgPackReader reader)
         {
             throw new NotImplementedException();
         }

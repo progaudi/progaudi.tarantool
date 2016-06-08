@@ -4,9 +4,9 @@ using System;
 using iproto.Data.Packets;
 using iproto.Services;
 
-using tarantool_client;
+using MsgPack.Light;
 
-using TarantoolDnx.MsgPack.Converters;
+using tarantool_client;
 
 using Xunit;
 using Shouldly;

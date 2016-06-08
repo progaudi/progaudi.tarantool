@@ -1,17 +1,21 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Net;
 
+using iproto;
+using iproto.Data;
 using iproto.Data.Packets;
 using iproto.Services;
 
-using TarantoolDnx.MsgPack;
-using TarantoolDnx.MsgPack.Converters;
+using MsgPack.Light;
 
 namespace tarantool_client
 {
-    public class AsyncTarantoolClient : IDisposable
+    public class Connection : System.IDisposable
     {
+        private const int VSpace = 281;
+
+        private const int VIndex = 289;
+
         private readonly Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         private readonly AuthenticationRequestFactory _authenticationRequestFactory = new AuthenticationRequestFactory();
@@ -31,21 +35,53 @@ namespace tarantool_client
             _socket.Dispose();
         }
 
-        public ResponsePacket Login(string userName, string password)
+        public ResponsePacket<object> Login(string userName, string password)
         {
             var greetingsBytes = ReceiveGreetings();
             var greetings = _responseReader.ReadGreetings(greetingsBytes);
             var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(greetings, userName, password);
-            var response = SendPacket(authenticateRequest);
+            var response = SendPacket<AuthenticationPacket,object>(authenticateRequest);
             return response;
         }
 
-        public ResponsePacket SendPacket<T>(T unifiedPacket) where T : UnifiedPacket
+        public Schema GetSchema()
+        {
+            var selectIndecesRequest = new SelectPacket<Tuple<int>>(VIndex, 0, uint.MaxValue, 0, Iterator.All, Tuple.Create(0));
+            var selectIndecesResponse = SendPacket<SelectPacket<Tuple<int>>, Index[]>(selectIndecesRequest);
+
+            var selectSpacesRequest = new SelectPacket<Tuple<int>>(VSpace, 0, uint.MaxValue, 0, Iterator.All, Tuple.Create(0));
+            var selectSpacesResponse = SendPacket<SelectPacket<Tuple<int>>, Space[]>(selectSpacesRequest);
+
+            return new Schema(selectIndecesResponse.Data, selectSpacesResponse.Data, this);
+        }
+
+        public ResponsePacket<TResult> SendPacket<TRequest,TResult>(TRequest unifiedPacket) where TRequest : UnifiedPacket
         {
             var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
             var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
             var responseBytes = SendBytes(requestHeaderLength, request);
-            var response = MsgPackSerializer.Deserialize<ResponsePacket>(responseBytes, _msgPackContext);
+
+            if (responseBytes.Length == 0)
+            {
+                throw new System.ArgumentException("Zero-length response received, possible wrong packet sent.");
+            }
+
+            var response = MsgPackSerializer.Deserialize<ResponsePacket<TResult>>(responseBytes, _msgPackContext);
+            return response;
+        }
+
+        public ResponsePacket<object> SendPacket<TRequest>(TRequest unifiedPacket) where TRequest : UnifiedPacket
+        {
+            var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
+            var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
+            var responseBytes = SendBytes(requestHeaderLength, request);
+
+            if (responseBytes.Length == 0)
+            {
+                throw new System.ArgumentException("Zero-length response received, possible wrong packet sent.");
+            }
+
+            var response = MsgPackSerializer.Deserialize<ResponsePacket<object>>(responseBytes, _msgPackContext);
             return response;
         }
 

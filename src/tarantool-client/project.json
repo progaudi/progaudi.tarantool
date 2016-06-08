@@ -22,6 +22,6 @@
     "dependencies": {
         "iproto": { "target": "project" },
         "Shouldly": "2.7.0",
-        "MsgPack.Light" : "0.0.2"
+        "MsgPack.Light" : "0.5.3"
     }
 }

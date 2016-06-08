@@ -3,42 +3,50 @@
 using iproto.Data;
 using iproto.Data.Packets;
 
-using Shouldly;
-
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {
     public class SubscribePacketConverter : IMsgPackConverter<SubscribePacket>
     {
-        public void Write(SubscribePacket value, IMsgPackWriter writer, MsgPackContext context)
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<CommandCode> _codeConverter;
+        private IMsgPackConverter<int> _intConverter;
+        private IMsgPackConverter<string> _stringConverter;
+
+        public void Initialize(MsgPackContext context)
         {
-            var keyConverter = context.GetConverter<Key>();
-            var codeConverter = context.GetConverter<CommandCode>();
-            var intConverter = context.GetConverter<int>();
-            var stringConverter = context.GetConverter<string>();
+            _keyConverter = context.GetConverter<Key>();
+            _codeConverter = context.GetConverter<CommandCode>();
+            _intConverter = context.GetConverter<int>();
+            _stringConverter = context.GetConverter<string>();
 
-            writer.WriteMapHeaderAndLength(4);
-
-            keyConverter.Write(Key.Code, writer, context);
-            codeConverter.Write(CommandCode.Subscribe, writer, context);
-
-            keyConverter.Write(Key.Sync, writer, context);
-            intConverter.Write(value.Sync, writer, context);
-
-            keyConverter.Write(Key.ServerUuid, writer, context);
-            stringConverter.Write(value.ServerUuid, writer, context);
-
-            keyConverter.Write(Key.ClusterUuid, writer, context);
-            stringConverter.Write(value.ClusterUid, writer, context);
-
-            writer.WriteMapHeaderAndLength(1);
-
-            keyConverter.Write(Key.Vclock, writer, context);
-            intConverter.Write(value.Vclock, writer, context);
         }
 
-        public SubscribePacket Read(IMsgPackReader reader, MsgPackContext context, Func<SubscribePacket> creator)
+        public void Write(SubscribePacket value, IMsgPackWriter writer)
+        {
+
+            writer.WriteMapHeader(4);
+
+            _keyConverter.Write(Key.Code, writer);
+            _codeConverter.Write(CommandCode.Subscribe, writer);
+
+            _keyConverter.Write(Key.Sync, writer);
+            _intConverter.Write(value.Sync, writer);
+
+            _keyConverter.Write(Key.ServerUuid, writer);
+            _stringConverter.Write(value.ServerUuid, writer);
+
+            _keyConverter.Write(Key.ClusterUuid, writer);
+            _stringConverter.Write(value.ClusterUid, writer);
+
+            writer.WriteMapHeader(1);
+
+            _keyConverter.Write(Key.Vclock, writer);
+            _intConverter.Write(value.Vclock, writer);
+        }
+
+        public SubscribePacket Read(IMsgPackReader reader)
         {
             throw new NotImplementedException();
         }

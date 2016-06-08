@@ -1,14 +1,66 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {
     public class EnumConverter<T> : IMsgPackConverter<T>
         where T : struct, IConvertible
     {
+        private IMsgPackConverter<sbyte> _sbyteConverter;
+        private IMsgPackConverter<byte> _byteConverter;
+        private IMsgPackConverter<short> _shortConverter;
+        private IMsgPackConverter<ushort> _ushortConverter;
+        private IMsgPackConverter<int> _intConverter;
+        private IMsgPackConverter<uint> _uintConverter;
+        private IMsgPackConverter<long> _longConverter;
+        private IMsgPackConverter<ulong> _ulongConverter;
+
+        private readonly Dictionary<Type, Action<T, IMsgPackWriter>> _writeMethodsCache = new Dictionary<Type, Action<T, IMsgPackWriter>>();
+        private readonly Dictionary<Type, Func<IMsgPackReader, T>> _readMethodsCache = new Dictionary<Type, Func<IMsgPackReader, T>>();
+
+        public void Initialize(MsgPackContext context)
+        {
+            _sbyteConverter = context.GetConverter<sbyte>();
+            _byteConverter = context.GetConverter<byte>();
+            _shortConverter = context.GetConverter<short>();
+            _ushortConverter = context.GetConverter<ushort>();
+            _intConverter = context.GetConverter<int>();
+            _uintConverter = context.GetConverter<uint>();
+            _longConverter = context.GetConverter<long>();
+            _ulongConverter = context.GetConverter<ulong>();
+
+            InitializeWriteMethodsChache();
+            InitializeReadMethodsCache();
+        }
+
+        private void InitializeReadMethodsCache()
+        {
+            _readMethodsCache.Add(typeof(sbyte), reader => (T)Enum.ToObject(typeof(T), _sbyteConverter.Read(reader)));
+            _readMethodsCache.Add(typeof(byte), reader => (T)Enum.ToObject(typeof(T), _byteConverter.Read(reader)));
+            _readMethodsCache.Add(typeof(short), reader => (T)Enum.ToObject(typeof(T), _shortConverter.Read(reader)));
+            _readMethodsCache.Add(typeof(ushort), reader => (T)Enum.ToObject(typeof(T), _ushortConverter.Read(reader)));
+            _readMethodsCache.Add(typeof(int), reader => (T)Enum.ToObject(typeof(T), _intConverter.Read(reader)));
+            _readMethodsCache.Add(typeof(uint), reader => (T)Enum.ToObject(typeof(T), _uintConverter.Read(reader)));
+            _readMethodsCache.Add(typeof(long), reader => (T)Enum.ToObject(typeof(T), _longConverter.Read(reader)));
+            _readMethodsCache.Add(typeof(ulong), reader => (T)Enum.ToObject(typeof(T), _ulongConverter.Read(reader)));
+        }
+
+        private void InitializeWriteMethodsChache()
+        {
+            _writeMethodsCache.Add(typeof(sbyte), (value, writer) => _sbyteConverter.Write(value.ToSByte(CultureInfo.InvariantCulture), writer));
+            _writeMethodsCache.Add(typeof(byte), (value, writer) => _byteConverter.Write(value.ToByte(CultureInfo.InvariantCulture), writer));
+            _writeMethodsCache.Add(typeof(short), (value, writer) => _shortConverter.Write(value.ToInt16(CultureInfo.InvariantCulture), writer));
+            _writeMethodsCache.Add(typeof(ushort), (value, writer) => _ushortConverter.Write(value.ToUInt16(CultureInfo.InvariantCulture), writer));
+            _writeMethodsCache.Add(typeof(int), (value, writer) => _intConverter.Write(value.ToInt32(CultureInfo.InvariantCulture), writer));
+            _writeMethodsCache.Add(typeof(uint), (value, writer) => _uintConverter.Write(value.ToUInt32(CultureInfo.InvariantCulture), writer));
+            _writeMethodsCache.Add(typeof(long), (value, writer) => _longConverter.Write(value.ToInt64(CultureInfo.InvariantCulture), writer));
+            _writeMethodsCache.Add(typeof(ulong), (value, writer) => _ulongConverter.Write(value.ToUInt64(CultureInfo.InvariantCulture), writer));
+        }
+
         static EnumConverter()
         {
             var enumTypeInfo = typeof(T).GetTypeInfo();
@@ -18,49 +70,14 @@ namespace tarantool_client.Converters
             }
         }
 
-        public void Write(T value, IMsgPackWriter writer, MsgPackContext context)
+        public void Write(T value, IMsgPackWriter writer)
         {
             var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));
 
-            if (enumUnderlyingType == typeof(sbyte))
+            Action<T, IMsgPackWriter> writeMethod;
+            if (_writeMethodsCache.TryGetValue(enumUnderlyingType, out writeMethod))
             {
-                var converter = context.GetConverter<sbyte>();
-                converter.Write(value.ToSByte(CultureInfo.InvariantCulture), writer, context);
-            }
-            else if (enumUnderlyingType == typeof(byte))
-            {
-                var converter = context.GetConverter<byte>();
-                converter.Write(value.ToByte(CultureInfo.InvariantCulture), writer, context);
-            }
-            else if (enumUnderlyingType == typeof(short))
-            {
-                var converter = context.GetConverter<short>();
-                converter.Write(value.ToInt16(CultureInfo.InvariantCulture), writer, context);
-            }
-            else if (enumUnderlyingType == typeof(ushort))
-            {
-                var converter = context.GetConverter<ushort>();
-                converter.Write(value.ToUInt16(CultureInfo.InvariantCulture), writer, context);
-            }
-            else if (enumUnderlyingType == typeof(int))
-            {
-                var converter = context.GetConverter<int>();
-                converter.Write(value.ToInt32(CultureInfo.InvariantCulture), writer, context);
-            }
-            else if (enumUnderlyingType == typeof(uint))
-            {
-                var converter = context.GetConverter<uint>();
-                converter.Write(value.ToUInt32(CultureInfo.InvariantCulture), writer, context);
-            }
-            else if (enumUnderlyingType == typeof(long))
-            {
-                var converter = context.GetConverter<long>();
-                converter.Write(value.ToInt64(CultureInfo.InvariantCulture), writer, context);
-            }
-            else if (enumUnderlyingType == typeof(ulong))
-            {
-                var converter = context.GetConverter<ulong>();
-                converter.Write(value.ToUInt64(CultureInfo.InvariantCulture), writer, context);
+                writeMethod(value, writer);
             }
             else
             {
@@ -68,62 +85,16 @@ namespace tarantool_client.Converters
             }
         }
 
-        public T Read(IMsgPackReader reader, MsgPackContext context, Func<T> creator)
+        public T Read(IMsgPackReader reader)
         {
             var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));
+            Func<IMsgPackReader, T> readMethod;
+            if (_readMethodsCache.TryGetValue(enumUnderlyingType, out readMethod))
+            {
+                return readMethod(reader);
+            }
 
-            if (enumUnderlyingType == typeof(sbyte))
-            {
-                var converter = context.GetConverter<sbyte>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else if (enumUnderlyingType == typeof(byte))
-            {
-                var converter = context.GetConverter<byte>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else if (enumUnderlyingType == typeof(short))
-            {
-                var converter = context.GetConverter<short>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else if (enumUnderlyingType == typeof(ushort))
-            {
-                var converter = context.GetConverter<ushort>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else if (enumUnderlyingType == typeof(int))
-            {
-                var converter = context.GetConverter<int>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else if (enumUnderlyingType == typeof(uint))
-            {
-                var converter = context.GetConverter<uint>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else if (enumUnderlyingType == typeof(long))
-            {
-                var converter = context.GetConverter<long>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else if (enumUnderlyingType == typeof(ulong))
-            {
-                var converter = context.GetConverter<ulong>();
-                var readValue = converter.Read(reader, context, null);
-                return (T) Enum.ToObject(typeof(T), readValue);
-            }
-            else
-            {
-                throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
-            }
+            throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
         }
     }
 }

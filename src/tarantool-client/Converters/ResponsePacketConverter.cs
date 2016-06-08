@@ -5,25 +5,35 @@ using Shouldly;
 using iproto.Data;
 using iproto.Data.Packets;
 
-using TarantoolDnx.MsgPack;
+using MsgPack.Light;
 
 namespace tarantool_client.Converters
 {
-    public class ResponsePacketConverter : IMsgPackConverter<ResponsePacket>
+    public class ResponsePacketConverter<T> : IMsgPackConverter<ResponsePacket<T>>
     {
-        public void Write(ResponsePacket value, IMsgPackWriter writer, MsgPackContext context)
+        private IMsgPackConverter<Header> _headerConverter;
+        private IMsgPackConverter<Key> _keyConverter;
+        private IMsgPackConverter<string> _stringConverter;
+        private IMsgPackConverter<T> _dataConverter;
+
+        public void Initialize(MsgPackContext context)
+        {
+            _headerConverter = context.GetConverter<Header>();
+            _keyConverter = context.GetConverter<Key>();
+            _stringConverter = context.GetConverter<string>();
+            _dataConverter = context.GetConverter<T>();
+        }
+
+        public void Write(ResponsePacket<T> value, IMsgPackWriter writer)
         {
             throw new NotImplementedException();
         }
 
-        public ResponsePacket Read(IMsgPackReader reader, MsgPackContext context, Func<ResponsePacket> creator)
+        public ResponsePacket<T> Read(IMsgPackReader reader)
         {
-            var headerConverter = context.GetConverter<Header>();
-            var keyConverter = context.GetConverter<Key>();
-
-            var header = headerConverter.Read(reader, context, null);
+            var header = _headerConverter.Read(reader);
             string errorMessage = null;
-            object data = null;
+            var data = default(T);
 
             var length = reader.ReadMapLength();
 
@@ -33,19 +43,16 @@ namespace tarantool_client.Converters
             {
                 length.ShouldBe(1u);
 
-                var stringConverter = context.GetConverter<string>();
-
-                keyConverter.Read(reader, context, null).ShouldBe(Key.Error);
-                errorMessage = stringConverter.Read(reader, context, null);
-            } else if (length.Value > 0u)
+                _keyConverter.Read(reader).ShouldBe(Key.Error);
+                errorMessage = _stringConverter.Read(reader);
+            }
+            else if (length.Value > 0u)
             {
-                var dataConverter = context.GetConverter<object>();
-
-                keyConverter.Read(reader, context, null).ShouldBe(Key.Data);
-                data = dataConverter.Read(reader, context, null);
+                _keyConverter.Read(reader).ShouldBe(Key.Data);
+                data = _dataConverter.Read(reader);
             }
 
-            return new ResponsePacket(header, errorMessage, data);
+            return new ResponsePacket<T>(header, errorMessage, data);
         }
     }
 }
