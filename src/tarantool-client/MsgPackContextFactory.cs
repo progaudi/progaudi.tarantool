@@ -24,7 +24,6 @@ namespace tarantool_client
             result.RegisterConverter(new StringSliceOperationConverter());
             result.RegisterGenericConverter(typeof(UpdateOperationConverter<>));
 
-            result.RegisterConverter(new ReflectionConverter());
             result.RegisterConverter(new HeaderConverter());
 
             result.RegisterConverter(new AuthenticationPacketConverter());
