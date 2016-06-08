@@ -10,7 +10,6 @@ namespace tarantool_client.Converters
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<string> _stringConverter;
         private IMsgPackConverter<StorageEngine> _engineConverter;
-        private IMsgPackConverter<Dictionary<object, object>> _dictConverter;
         private IMsgPackConverter<List<SpaceField>> _fieldConverter;
 
         public void Initialize(MsgPackContext context)
@@ -18,7 +17,6 @@ namespace tarantool_client.Converters
             _uintConverter = context.GetConverter<uint>();
             _stringConverter = context.GetConverter<string>();
             _engineConverter = context.GetConverter<StorageEngine>();
-            _dictConverter = context.GetConverter<Dictionary<object, object>>();
             _fieldConverter = context.GetConverter<List<SpaceField>>();
         }
 
@@ -34,15 +32,15 @@ namespace tarantool_client.Converters
         
             var id = _uintConverter.Read(reader);
 
-            //TODO find out what that number means
-            _uintConverter.Read(reader);
+            //TODO Find what skipped number means
+            reader.SkipToken();
 
             var name = _stringConverter.Read(reader);
             var engine = _engineConverter.Read(reader);
             var fieldCount = _uintConverter.Read(reader);
 
-            //TODO find what is that dict used for 
-            _dictConverter.Read(reader);
+            //TODO Find what skipped dictionary used for
+            reader.SkipToken();
 
             var fields = _fieldConverter.Read(reader);
 
