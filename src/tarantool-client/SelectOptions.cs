@@ -1,4 +1,4 @@
-﻿using iproto.Data;
+﻿using tarantool_client.IProto.Data;
 
 namespace tarantool_client
 {

@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
-using iproto;
-using iproto.Data;
-using iproto.Data.Packets;
-using iproto.Data.UpdateOperations;
+
+using tarantool_client.IProto;
+using tarantool_client.IProto.Data;
+using tarantool_client.IProto.Data.Packets;
+using tarantool_client.IProto.Data.UpdateOperations;
+
+using Tuple = tarantool_client.IProto.Tuple;
 
 namespace tarantool_client
 {
@@ -32,7 +36,7 @@ namespace tarantool_client
 
         public IReadOnlyList<IndexPart> Parts { get; }
 
-        public Connection Connection { get; set; }
+        public Multiplexer Multiplexer { get; set; }
 
         public IEnumerable<TResult> Pairs<TValue, TResult>(TValue value, Iterator iterator)
             where TResult : ITuple
@@ -40,7 +44,7 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public ResponsePacket<TTuple[]> Select<TTuple, TKey>(TKey key, SelectOptions options = null)
+        public async Task<ResponsePacket<TTuple[]>> Select<TTuple, TKey>(TKey key, SelectOptions options = null)
             where TKey : ITuple
             where TTuple : ITuple
         {
@@ -52,36 +56,36 @@ namespace tarantool_client
                 options?.Iterator ?? Iterator.Eq,
                 key);
 
-            return Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectRequest);
+            return await Multiplexer.SendPacket<SelectPacket<TKey>, TTuple[]>(selectRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        public ResponsePacket<TTuple[]> Insert<TTuple>(TTuple tuple)
+        public async Task<ResponsePacket<TTuple[]>> Insert<TTuple>(TTuple tuple)
             where TTuple : ITuple
         {
             var insertRequest = new InsertReplacePacket<TTuple>(CommandCode.Insert, SpaceId, tuple);
 
-            return Connection.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(insertRequest);
+            return await Multiplexer.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(insertRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        public ResponsePacket<TTuple[]> Replace<TTuple>(TTuple tuple)
+        public async Task<ResponsePacket<TTuple[]>> Replace<TTuple>(TTuple tuple)
             where TTuple : ITuple
         {
             var replaceRequest = new InsertReplacePacket<TTuple>(CommandCode.Replace, SpaceId, tuple);
 
-            return Connection.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(replaceRequest);
+            return await Multiplexer.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(replaceRequest);
         }
 
-        public TTuple Min<TTuple>()
+        public async Task<TTuple> Min<TTuple>()
            where TTuple : ITuple
         {
-            return Min<TTuple, iproto.Tuple>(iproto.Tuple.Create());
+            return await Min<TTuple, Tuple>(Tuple.Create());
         }
 
-        public TTuple Min<TTuple, TKey>(TKey key)
+        public async Task<TTuple> Min<TTuple, TKey>(TKey key)
             where TTuple : ITuple
             where TKey : class, ITuple
         {
@@ -93,17 +97,17 @@ namespace tarantool_client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var minResponse = Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
+            var minResponse = await Multiplexer.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
             return minResponse.Data.SingleOrDefault();
         }
 
-        public TTuple Max<TTuple>()
+        public async Task<TTuple> Max<TTuple>()
             where TTuple : ITuple
         {
-            return Max<TTuple, iproto.Tuple>(iproto.Tuple.Create());
+            return await Max<TTuple, Tuple>(Tuple.Create());
         }
 
-        public TTuple Max<TTuple, TKey>(TKey key = null)
+        public async Task<TTuple> Max<TTuple, TKey>(TKey key = null)
             where TTuple : ITuple
             where TKey : class, ITuple
         {
@@ -115,7 +119,7 @@ namespace tarantool_client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var maxResponse = Connection.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
+            var maxResponse = await Multiplexer.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
             return maxResponse.Data.SingleOrDefault();
         }
 
@@ -131,7 +135,7 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public ResponsePacket<TTuple[]> Update<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public async Task<ResponsePacket<TTuple[]>> Update<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
             where TKey : ITuple
         {
             var updateRequest = new UpdatePacket<TKey, TUpdate>(
@@ -140,26 +144,15 @@ namespace tarantool_client
                 key,
                 updateOperation);
 
-            return Connection.SendPacket<UpdatePacket<TKey, TUpdate>, TTuple[]>(updateRequest);
+            return await Multiplexer.SendPacket<UpdatePacket<TKey, TUpdate>, TTuple[]>(updateRequest);
         }
 
-        public ResponsePacket<object> Upsert<TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
-            where TKey : ITuple
-        {
-            var updateRequest = new UpsertPacket<TKey, TUpdate>(
-                SpaceId,
-                key,
-                updateOperation);
-
-            return Connection.SendPacket(updateRequest);
-        }
-
-        public ResponsePacket<TTuple[]> Delete<TTuple, TKey>(TKey key)
+        public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
             where TKey : ITuple
         {
             var deleteRequest = new DeletePacket<TKey>(SpaceId, Id, key);
 
-            return Connection.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
+            return await Multiplexer.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
         }
 
         public void Alter(IndexCreationOptions options)

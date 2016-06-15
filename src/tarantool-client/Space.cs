@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using iproto;
-using iproto.Data;
-using iproto.Data.Packets;
-using iproto.Data.UpdateOperations;
+using System.Threading.Tasks;
+
+using tarantool_client.IProto;
+using tarantool_client.IProto.Data;
+using tarantool_client.IProto.Data.Packets;
+using tarantool_client.IProto.Data.UpdateOperations;
 
 namespace tarantool_client
 {
     public class Space
     {
-        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields, Connection connection)
+        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields, Multiplexer multiplexer)
         {
             Id = id;
             FieldCount = fieldCount;
@@ -18,10 +20,10 @@ namespace tarantool_client
             Indices = indices;
             Engine = engine;
             Fields = fields;
-            Connection = connection;
+            Multiplexer = multiplexer;
         }
 
-        public Connection Connection { get; set; }
+        public Multiplexer Multiplexer { get; set; }
 
         public uint Id { get; }
 
@@ -50,86 +52,60 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public ResponsePacket<T[]> Insert<T>(T tuple)
+        public async Task<ResponsePacket<T[]>> Insert<T>(T tuple)
             where T : ITuple
         {
             var insertRequest = new InsertReplacePacket<T>(CommandCode.Insert, Id, tuple);
-            return Connection.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
+            return await Multiplexer.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
         }
 
-        public ResponsePacket<object> Select<T>(T selectKey)
-            where T : ITuple
-        {
-            var selectRequest = new SelectPacket<T>(Id, PrimaryIndex.Id, uint.MaxValue, 0, Iterator.Eq, selectKey);
-            return Connection.SendPacket(selectRequest);
-        }
-
-        public ResponsePacket<TResult[]> Select<TKey, TResult>(TKey selectKey)
+        public async Task<ResponsePacket<TResult[]>> Select<TKey, TResult>(TKey selectKey)
           where TKey : ITuple
           where TResult : ITuple
         {
             var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, uint.MaxValue, 0, Iterator.Eq, selectKey);
-            return Connection.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
+            return await Multiplexer.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
         }
 
-        public TResult Get<TKey, TResult>(TKey key)
+        public async Task<TResult> Get<TKey, TResult>(TKey key)
             where TKey : ITuple
           where TResult : ITuple
         {
             var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, 1, 0, Iterator.Eq, key);
-            return Connection.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest).Data.Single();
+            var response = await Multiplexer.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
+            return response.Data.Single();
         }
 
-        public ResponsePacket<T[]> Replace<T>(T tuple)
+        public async Task<ResponsePacket<T[]>> Replace<T>(T tuple)
             where T : ITuple
         {
             var insertRequest = new InsertReplacePacket<T>(CommandCode.Replace, Id, tuple);
-            return Connection.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
+            return await Multiplexer.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
         }
 
-        public T Put<T>(T tuple)
+        public async Task<T> Put<T>(T tuple)
             where T : ITuple
         {
-            return Replace(tuple).Data.First();
+            var response = await Replace(tuple);
+            return response.Data.First();
         }
 
-        public ResponsePacket<TResult[]> Update<TKey, TUpdate, TResult>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public async Task<ResponsePacket<TResult[]>> Update<TKey, TUpdate, TResult>(TKey key, UpdateOperation<TUpdate> updateOperation)
             where TKey : ITuple
             where TResult : ITuple
         {
             var updateRequest = new UpdatePacket<TKey, TUpdate>(Id, PrimaryIndex.Id, key, updateOperation);
-            return Connection.SendPacket<UpdatePacket<TKey, TUpdate>, TResult[]>(updateRequest);
+            return await Multiplexer.SendPacket<UpdatePacket<TKey, TUpdate>, TResult[]>(updateRequest);
         }
-
-        public ResponsePacket<object> Update<TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
-           where TKey : ITuple
-        {
-            var updateRequest = new UpdatePacket<TKey, TUpdate>(Id, PrimaryIndex.Id, key, updateOperation);
-            return Connection.SendPacket(updateRequest);
-        }
-
-        public ResponsePacket<object> Upsert<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
-           where TTuple : ITuple
-        {
-            var updateRequest = new UpsertPacket<TTuple, TUpdate>(Id, tuple, updateOperation);
-            return Connection.SendPacket(updateRequest);
-        }
-      
-        public ResponsePacket<TTuple[]> Delete<TTuple, TKey>(TKey key)
+        
+        public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
            where TTuple : ITuple
            where TKey : ITuple
         {
             var deleteRequest = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
-            return Connection.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
+            return await Multiplexer.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
         }
-
-        public ResponsePacket<object> Delete<TKey>(TKey key)
-          where TKey : ITuple
-        {
-            var deleteRequest = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
-            return Connection.SendPacket(deleteRequest);
-        }
-
+        
         public uint Count<TKey>(TKey key)
            where TKey : ITuple
         {
@@ -141,24 +117,24 @@ namespace tarantool_client
             throw new NotImplementedException();
         }
 
-        public ResponsePacket<TTuple[]> Increment<TTuple, TKey>(TKey key)
+        public async Task<ResponsePacket<TTuple[]>> Increment<TTuple, TKey>(TKey key)
             where TKey : ITuple
         {
             var lastFieldKeyNumber = PrimaryIndex.Parts.Max(part => part.FieldNo);
             var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
                 UpdateOperation<int>.CreateAddition(1, (int)lastFieldKeyNumber + 1));
 
-            return Connection.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
+            return await Multiplexer.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
         }
 
-        public ResponsePacket<TTuple[]> Decrement<TTuple, TKey>(TKey key)
+        public async Task<ResponsePacket<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
             where TKey : ITuple
         {
             var lastFieldKeyNumber = PrimaryIndex.Parts.Max(part => part.FieldNo);
             var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
                 UpdateOperation<int>.CreateAddition(-1, (int)lastFieldKeyNumber + 1));
 
-            return Connection.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
+            return await Multiplexer.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)

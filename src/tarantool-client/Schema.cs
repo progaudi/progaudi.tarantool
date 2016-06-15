@@ -9,15 +9,15 @@ namespace tarantool_client
         private readonly Index[] _indices;
         private readonly Space[] _spaces;
 
-        public Schema(Index[] indices, Space[] spaces, Connection connection)
+        public Schema(Index[] indices, Space[] spaces, Multiplexer multiplexer)
         {
             _indices = indices;
 
             foreach (var index in _indices)
             {
-                index.Connection = connection;
+                index.Multiplexer = multiplexer;
             }
-            _spaces = spaces.Select(space => CloneSpace(space, _indices.Where(i => i.SpaceId == space.Id).ToList().AsReadOnly(), connection)).ToArray();
+            _spaces = spaces.Select(space => CloneSpace(space, _indices.Where(i => i.SpaceId == space.Id).ToList().AsReadOnly(), multiplexer)).ToArray();
         }
 
         public Space CreateSpace(string spaceName, SpaceCreationOptions options = null)
@@ -45,9 +45,9 @@ namespace tarantool_client
             return _indices.Single(index => index.Id == id);
         }
 
-        private Space CloneSpace(Space space, IReadOnlyCollection<Index> indecies, Connection connection)
+        private Space CloneSpace(Space space, IReadOnlyCollection<Index> indecies, Multiplexer multiplexer)
         {
-            var result = new Space(space.Id, space.FieldCount, space.Name, indecies, space.Engine, space.Fields, connection);
+            var result = new Space(space.Id, space.FieldCount, space.Name, indecies, space.Engine, space.Fields, multiplexer);
 
             return result;
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-using iproto.Data.Packets;
+using tarantool_client.IProto.Data.Packets;
 
 namespace tarantool_client
 {
