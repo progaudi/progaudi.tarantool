@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5209673F-EB12-456A-B0FF-88F0C6989274}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tarantool.Client</RootNamespace>
+    <AssemblyName>tarantool.client</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <OutputPath>..\..\artifacts\bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\artifacts\obj\$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="FieldType.cs" />
+    <Compile Include="GreetingsResponseReader.cs" />
+    <Compile Include="IConnection.cs" />
+    <Compile Include="Ilog.cs" />
+    <Compile Include="Index.cs" />
+    <Compile Include="IndexCreationOptions.cs" />
+    <Compile Include="IndexPart.cs" />
+    <Compile Include="IndexPartType.cs" />
+    <Compile Include="IndexType.cs" />
+    <Compile Include="IProto\ConverterRegistrator.cs" />
+    <Compile Include="IProto\Converters\AuthenticationPacketConverter.cs" />
+    <Compile Include="IProto\Converters\CallPacketConverter.cs" />
+    <Compile Include="IProto\Converters\DeletePacketConverter.cs" />
+    <Compile Include="IProto\Converters\EnumConverter.cs" />
+    <Compile Include="IProto\Converters\EvalPacketConverter.cs" />
+    <Compile Include="IProto\Converters\FromStringEnumConverter.cs" />
+    <Compile Include="IProto\Converters\HeaderConverter.cs" />
+    <Compile Include="IProto\Converters\IndexConverter.cs" />
+    <Compile Include="IProto\Converters\IndexCreationOptionsConverter.cs" />
+    <Compile Include="IProto\Converters\IndexPartConverter.cs" />
+    <Compile Include="IProto\Converters\InsertReplacePacketConverter.cs" />
+    <Compile Include="IProto\Converters\JoinRequestPacketConverter.cs" />
+    <Compile Include="IProto\Converters\JoinResponsePacketConverter.cs" />
+    <Compile Include="IProto\Converters\ResponsePacketConverter.cs" />
+    <Compile Include="IProto\Converters\SelectPacketConverter.cs" />
+    <Compile Include="IProto\Converters\SpaceConverter.cs" />
+    <Compile Include="IProto\Converters\SpaceFieldConverter.cs" />
+    <Compile Include="IProto\Converters\StringSliceOperationConverter.cs" />
+    <Compile Include="IProto\Converters\SubscribePacketConverter.cs" />
+    <Compile Include="IProto\Converters\TupleConverter.cs" />
+    <Compile Include="IProto\Converters\UpdateOperationConverter.cs" />
+    <Compile Include="IProto\Converters\UpdatePacketConverter.cs" />
+    <Compile Include="IProto\Converters\UpsertPacketConverter.cs" />
+    <Compile Include="IProto\Data\CommandCode.cs" />
+    <Compile Include="IProto\Data\Header.cs" />
+    <Compile Include="IProto\Data\Iterator.cs" />
+    <Compile Include="IProto\Data\Key.cs" />
+    <Compile Include="IProto\Data\Packets\AuthenticationPacket.cs" />
+    <Compile Include="IProto\Data\Packets\CallPacket.cs" />
+    <Compile Include="IProto\Data\Packets\DeletePacket.cs" />
+    <Compile Include="IProto\Data\Packets\EvalPacket.cs" />
+    <Compile Include="IProto\Data\Packets\GreetingsPacket.cs" />
+    <Compile Include="IProto\Data\Packets\InsertReplacePacket.cs" />
+    <Compile Include="IProto\Data\Packets\JoinRequestPacket.cs" />
+    <Compile Include="IProto\Data\Packets\JoinResponsePacket.cs" />
+    <Compile Include="IProto\Data\Packets\ResponsePacket.cs" />
+    <Compile Include="IProto\Data\Packets\SelectPacket.cs" />
+    <Compile Include="IProto\Data\Packets\SubscribePacket.cs" />
+    <Compile Include="IProto\Data\Packets\UnifiedPacket.cs" />
+    <Compile Include="IProto\Data\Packets\UpdatePacket.cs" />
+    <Compile Include="IProto\Data\Packets\UpsertPacket.cs" />
+    <Compile Include="IProto\Data\UpdateOperations\StringOperations.cs" />
+    <Compile Include="IProto\Data\UpdateOperations\UpdateOperation.cs" />
+    <Compile Include="IProto\Data\UpdateOperations\UpdateOperationType.cs" />
+    <Compile Include="IProto\Services\AuthenticationRequestFactory.cs" />
+    <Compile Include="IProto\Sha1Utils.cs" />
+    <Compile Include="IProto\Tuple.cs" />
+    <Compile Include="IRequestWriter.cs" />
+    <Compile Include="IResponseReader.cs" />
+    <Compile Include="MsgPackContextFactory.cs" />
+    <Compile Include="Multiplexer.cs" />
+    <Compile Include="RequestWriter.cs" />
+    <Compile Include="ResponseReader.cs" />
+    <Compile Include="Schema.cs" />
+    <Compile Include="SelectOptions.cs" />
+    <Compile Include="Space.cs" />
+    <Compile Include="SpaceCreationOptions.cs" />
+    <Compile Include="SpaceField.cs" />
+    <Compile Include="StorageEngine.cs" />
+    <Compile Include="Utils\StringEnum.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=10.1.4.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\JetBrains.Annotations.10.1.4\lib\net20\JetBrains.Annotations.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="msgpack.light, Version=0.5.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\msgpack.light.0.5.3\lib\net451\msgpack.light.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Shouldly, Version=2.7.0.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Shouldly.2.7.0\lib\net40\Shouldly.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
