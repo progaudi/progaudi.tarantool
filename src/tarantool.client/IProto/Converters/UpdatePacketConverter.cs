@@ -11,7 +11,6 @@ namespace Tarantool.Client.IProto.Converters
     public class UpdatePacketConverter<T, TUpdate> : IMsgPackConverter<UpdatePacket<T, TUpdate>>
         where T : ITuple
     {
-        private IMsgPackConverter<Header> _headerConverter;
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<T> _selectKeyConverter;
@@ -19,7 +18,6 @@ namespace Tarantool.Client.IProto.Converters
 
         public void Initialize(MsgPackContext context)
         {
-            _headerConverter = context.GetConverter<Header>();
             _uintConverter = context.GetConverter<uint>();
             _keyConverter = context.GetConverter<Key>();
             _selectKeyConverter = context.GetConverter<T>();
@@ -28,9 +26,6 @@ namespace Tarantool.Client.IProto.Converters
 
         public void Write(UpdatePacket<T, TUpdate> value, IMsgPackWriter writer)
         {
-            _headerConverter.Write(value.Header, writer);
-
-        
             writer.WriteMapHeader(4);
 
             _keyConverter.Write(Key.SpaceId, writer);

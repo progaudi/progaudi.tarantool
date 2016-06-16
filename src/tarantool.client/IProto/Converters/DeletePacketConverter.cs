@@ -10,14 +10,12 @@ namespace Tarantool.Client.IProto.Converters
     public class DeletePacketConverter<T> : IMsgPackConverter<DeletePacket<T>>
         where T: ITuple
     {
-        private IMsgPackConverter<Header> _headerConverter;
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<T> _selectKeyConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _headerConverter = context.GetConverter<Header>();
             _keyConverter = context.GetConverter<Key>();
             _uintConverter = context.GetConverter<uint>();
             _selectKeyConverter = context.GetConverter<T>();
@@ -25,8 +23,6 @@ namespace Tarantool.Client.IProto.Converters
 
         public void Write(DeletePacket<T> value, IMsgPackWriter writer)
         {
-            _headerConverter.Write(value.Header, writer);
-
             writer.WriteMapHeader(3);
 
             _keyConverter.Write(Key.SpaceId, writer);

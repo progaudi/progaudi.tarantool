@@ -1,10 +1,9 @@
 ﻿namespace Tarantool.Client.IProto.Data.Packets
 {
-    public class SelectPacket<T> : UnifiedPacket
+    public class SelectPacket<T> : IRequestPacket
         where T : ITuple
     {
         public SelectPacket(uint spaceId, uint indexId, uint limit, uint offset, Iterator iterator, T selectKey)
-            : base(new Header(CommandCode.Select, null, null))
         {
             SpaceId = spaceId;
             IndexId = indexId;
@@ -25,5 +24,7 @@
         public Iterator Iterator { get; }
 
         public T SelectKey { get; }
+
+        public CommandCode Code => CommandCode.Select;
     }
 }

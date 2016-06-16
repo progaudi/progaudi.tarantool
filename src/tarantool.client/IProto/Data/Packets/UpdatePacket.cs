@@ -2,11 +2,10 @@
 
 namespace Tarantool.Client.IProto.Data.Packets
 {
-    public class UpdatePacket<TKey, TUpdate> : UnifiedPacket
+    public class UpdatePacket<TKey, TUpdate> : IRequestPacket
      where TKey : ITuple
     {
         public UpdatePacket(uint spaceId, uint indexId, TKey key, UpdateOperation<TUpdate> updateOperation)
-            : base(new Header(CommandCode.Update, null, null))
         {
             SpaceId = spaceId;
             IndexId = indexId;
@@ -21,5 +20,7 @@ namespace Tarantool.Client.IProto.Data.Packets
         public TKey Key { get; }
 
         public UpdateOperation<TUpdate> UpdateOperation { get; }
+
+        public CommandCode Code => CommandCode.Update;
     }
 }

@@ -10,14 +10,12 @@ namespace Tarantool.Client.IProto.Converters
     public class InsertReplacePacketConverter<T> : IMsgPackConverter<InsertReplacePacket<T>>
         where T : ITuple
     {
-        private IMsgPackConverter<Header> _headerConverter;
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<T> _tupleConverter;
 
         public void Initialize(MsgPackContext context)
         {
-            _headerConverter = context.GetConverter<Header>();
             _keyConverter = context.GetConverter<Key>();
             _uintConverter = context.GetConverter<uint>();
             _tupleConverter = context.GetConverter<T>();
@@ -25,8 +23,6 @@ namespace Tarantool.Client.IProto.Converters
 
         public void Write(InsertReplacePacket<T> value, IMsgPackWriter writer)
         {
-            _headerConverter.Write(value.Header, writer);
-
             writer.WriteMapHeader(2);
 
             _keyConverter.Write(Key.SpaceId, writer);

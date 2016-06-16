@@ -1,32 +1,48 @@
-﻿namespace Tarantool.Client.Tests
+﻿using System;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
+
+using NUnit.Framework;
+
+namespace Tarantool.Client.Tests
 {
-    public class Program
+    [TestFixture]
+    public class ConnectTest
     {
-        private const int spaceId = 514;
-        public static void Main(string[] args)
+        [Test]
+        public async Task ConnectWithEmptyCredentials()
         {
-            //var tarantoolClient = new Multiplexer();
-            //tarantoolClient.Connect("192.168.99.100", 3301);
-            //var response = tarantoolClient.Login("operator", "operator");
+            var options = new ConnectionOptions()
+            {
+                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
+                LogWriter = new StringWriter()
+            };
 
-            //if (!string.IsNullOrWhiteSpace(response.ErrorMessage))
-            //{
-            //    System.Console.WriteLine("An error occured in login process:");
-            //    System.Console.WriteLine(response.ErrorMessage);
-            //    System.Console.WriteLine("Exiting...");
-            //    return;
-            //}
+            var tarantoolClient = new Box(options);
 
-            //var schema = tarantoolClient.GetSchema();
-            //var tester = schema.GetSpace("tester");
-            //var firstIndex = tester.Indices.First(index=>index.Id == 0);
-            //var treeIndex= tester.Indices.First(index => index.Type == IndexType.Tree);
-
-            //SendPacketMethodTest(tarantoolClient);
-            //SpaceMethodsTest(tester);
-            //IndexMethodsTest(firstIndex);
-            //TreeIndexMethodsTest(treeIndex);
+            
+            await tarantoolClient.ConnectAsync();
         }
+
+        [Test]
+        public async Task ConnectWithCredentials()
+        {
+            var options = new ConnectionOptions()
+            {
+                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
+                LogWriter = new StringWriter(),
+                UserName = "operator",
+                Password = "operator"
+
+            };
+
+            var tarantoolClient = new Box(options);
+
+
+            await tarantoolClient.ConnectAsync();
+        }
+
 
         //private static void TreeIndexMethodsTest(Index index)
         //{
@@ -63,7 +79,7 @@
         //    var upsertResponse = tester.Upsert(Tuple.Create(5), UpdateOperation<int>.CreateAddition(1, 2));
         //}
 
-        //private static void SendPacketMethodTest(Multiplexer tarantoolClient)
+        //private static void SendPacketMethodTest(Box tarantoolClient)
         //{
         //    var insertRequest = new InsertReplacePacket<Tuple<int, string>>(CommandCode.Insert, spaceId,
         //        Tuple.Create(2, "Music"));

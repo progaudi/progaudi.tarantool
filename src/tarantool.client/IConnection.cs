@@ -1,13 +1,12 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
+using Tarantool.Client.IProto.Data.Packets;
 
 namespace Tarantool.Client
 {
-    internal interface IConnection : IDisposable
+    public interface IConnection
     {
-        Task ConnectAsync(EndPoint endPoint);
-
-        Task<byte[]> SendAsync(byte[] request, ulong requestId);
+        Task<TResponse> SendPacket<TRequest, TResponse>(TRequest request)
+            where TRequest : IRequestPacket;
     }
 }

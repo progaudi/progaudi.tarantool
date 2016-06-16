@@ -12,7 +12,7 @@ namespace Tarantool.Client
 {
     public class Space
     {
-        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields, Multiplexer multiplexer)
+        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields, Box box)
         {
             Id = id;
             FieldCount = fieldCount;
@@ -20,10 +20,10 @@ namespace Tarantool.Client
             Indices = indices;
             Engine = engine;
             Fields = fields;
-            Multiplexer = multiplexer;
+            Box = box;
         }
 
-        public Multiplexer Multiplexer { get; set; }
+        public Box Box { get; set; }
 
         public uint Id { get; }
 
@@ -55,8 +55,8 @@ namespace Tarantool.Client
         public async Task<ResponsePacket<T[]>> Insert<T>(T tuple)
             where T : ITuple
         {
-            var insertRequest = new InsertReplacePacket<T>(CommandCode.Insert, Id, tuple);
-            return await Multiplexer.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
+            var insertRequest = new InsertPacket<T>(Id, tuple);
+            return await Box.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
         }
 
         public async Task<ResponsePacket<TResult[]>> Select<TKey, TResult>(TKey selectKey)
@@ -64,7 +64,7 @@ namespace Tarantool.Client
           where TResult : ITuple
         {
             var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, uint.MaxValue, 0, Iterator.Eq, selectKey);
-            return await Multiplexer.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
+            return await Box.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
         }
 
         public async Task<TResult> Get<TKey, TResult>(TKey key)
@@ -72,15 +72,15 @@ namespace Tarantool.Client
           where TResult : ITuple
         {
             var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, 1, 0, Iterator.Eq, key);
-            var response = await Multiplexer.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
+            var response = await Box.SendPacket<SelectPacket<TKey>, TResult[]>(selectRequest);
             return response.Data.Single();
         }
 
         public async Task<ResponsePacket<T[]>> Replace<T>(T tuple)
             where T : ITuple
         {
-            var insertRequest = new InsertReplacePacket<T>(CommandCode.Replace, Id, tuple);
-            return await Multiplexer.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
+            var insertRequest = new ReplacePacket<T>(Id, tuple);
+            return await Box.SendPacket<InsertReplacePacket<T>, T[]>(insertRequest);
         }
 
         public async Task<T> Put<T>(T tuple)
@@ -95,7 +95,7 @@ namespace Tarantool.Client
             where TResult : ITuple
         {
             var updateRequest = new UpdatePacket<TKey, TUpdate>(Id, PrimaryIndex.Id, key, updateOperation);
-            return await Multiplexer.SendPacket<UpdatePacket<TKey, TUpdate>, TResult[]>(updateRequest);
+            return await Box.SendPacket<UpdatePacket<TKey, TUpdate>, TResult[]>(updateRequest);
         }
         
         public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
@@ -103,7 +103,7 @@ namespace Tarantool.Client
            where TKey : ITuple
         {
             var deleteRequest = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
-            return await Multiplexer.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
+            return await Box.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
         }
         
         public uint Count<TKey>(TKey key)
@@ -124,7 +124,7 @@ namespace Tarantool.Client
             var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
                 UpdateOperation<int>.CreateAddition(1, (int)lastFieldKeyNumber + 1));
 
-            return await Multiplexer.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
+            return await Box.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
         }
 
         public async Task<ResponsePacket<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
@@ -134,7 +134,7 @@ namespace Tarantool.Client
             var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
                 UpdateOperation<int>.CreateAddition(-1, (int)lastFieldKeyNumber + 1));
 
-            return await Multiplexer.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
+            return await Box.SendPacket<UpsertPacket<TKey, int>, TTuple[]>(upsertRequest);
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)

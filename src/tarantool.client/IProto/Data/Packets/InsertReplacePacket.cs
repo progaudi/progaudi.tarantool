@@ -1,11 +1,11 @@
 ﻿namespace Tarantool.Client.IProto.Data.Packets
 {
-    public class InsertReplacePacket<T> : UnifiedPacket
+    public abstract class InsertReplacePacket<T> : IRequestPacket
         where T : ITuple
     {
-        public InsertReplacePacket(CommandCode code, uint spaceId, T tuple)
-            : base(new Header(code, null, null))
+        protected InsertReplacePacket(CommandCode code, uint spaceId, T tuple)
         {
+            Code = code;
             SpaceId = spaceId;
             Tuple = tuple;
         }
@@ -13,5 +13,7 @@
         public uint SpaceId { get; }
 
         public T Tuple { get; }
+
+        public CommandCode Code { get; }
     }
 }

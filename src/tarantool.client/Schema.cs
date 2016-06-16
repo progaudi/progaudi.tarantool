@@ -1,23 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+
+using Tarantool.Client.IProto.Data;
+using Tarantool.Client.IProto.Data.Packets;
+
+using Tuple = Tarantool.Client.IProto.Tuple;
 
 namespace Tarantool.Client
 {
     public class Schema
     {
-        private readonly Index[] _indices;
-        private readonly Space[] _spaces;
+        private const int VSpace = 281;
 
-        public Schema(Index[] indices, Space[] spaces, Multiplexer multiplexer)
+        private const int VIndex = 289;
+
+        private readonly IConnection _connection;
+
+
+        public Schema(IConnection connection)
         {
-            _indices = indices;
-
-            foreach (var index in _indices)
-            {
-                index.Multiplexer = multiplexer;
-            }
-            _spaces = spaces.Select(space => CloneSpace(space, _indices.Where(i => i.SpaceId == space.Id).ToList().AsReadOnly(), multiplexer)).ToArray();
+            _connection = connection;
         }
 
         public Space CreateSpace(string spaceName, SpaceCreationOptions options = null)
@@ -27,30 +29,24 @@ namespace Tarantool.Client
 
         public Space GetSpace(string name)
         {
-            return _spaces.Single(s => s.Name == name);
+            throw new NotImplementedException();
         }
 
         public Space GetSpace(uint id)
         {
-            return _spaces.Single(s => s.Id == id);
+            throw new NotImplementedException();
         }
 
         public Index GetIndex(string name)
         {
-            return _indices.Single(index => index.Name == name);
+            throw new NotImplementedException();
         }
 
-        public Index GetIndex(uint id)
+        public async Task<Index> GetIndex(uint id)
         {
-            return _indices.Single(index => index.Id == id);
+            var selectIndexRequest = new SelectPacket<IProto.Tuple<int>>(VIndex, 0, UInt32.MaxValue, 0, Iterator.All, Tuple.Create(0));
+
+            return await _connection.SendPacket<SelectPacket<IProto.Tuple<int>>, Index>(selectIndexRequest);
         }
-
-        private Space CloneSpace(Space space, IReadOnlyCollection<Index> indecies, Multiplexer multiplexer)
-        {
-            var result = new Space(space.Id, space.FieldCount, space.Name, indecies, space.Engine, space.Fields, multiplexer);
-
-            return result;
-        }
-
     }
 }

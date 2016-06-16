@@ -10,25 +10,21 @@ namespace Tarantool.Client
 {
     public class ResponseReader :IResponseReader
     {
-        private readonly Stream _networkStream;
+        private readonly IPhysicalConnection _physicalConnection;
 
         private readonly IRequestWriter _requestWriter;
 
-        private readonly ILog _log;
-
-        private readonly  MsgPackContext _msgPackContext;
+        private readonly ConnectionOptions _connectionOptions;
 
         private byte[] _buffer = new byte[512];
 
         private int _bytesRead;
 
-        public ResponseReader(Stream networkStream, IRequestWriter requestWriter, ILog log, MsgPackContext msgPackContext)
+        public ResponseReader(IPhysicalConnection physicalConnection, IRequestWriter requestWriter,ConnectionOptions connectionOptions)
         {
-            _networkStream = networkStream;
+            _physicalConnection = physicalConnection;
             _requestWriter = requestWriter;
-            _log = log;
-
-            _msgPackContext = msgPackContext;
+            _connectionOptions = connectionOptions;
         }
 
         public async Task BeginReading()
@@ -37,7 +33,7 @@ namespace Tarantool.Client
             do
             {
                 var space = EnsureSpaceAndComputeBytesToRead();
-                var result = await _networkStream.ReadAsync(_buffer, _bytesRead, space);
+                var result = await _physicalConnection.ReadAsync(_buffer, _bytesRead, space);
                 keepReading = ProcessReadBytes(result);
             } while (keepReading);
         }
@@ -47,22 +43,22 @@ namespace Tarantool.Client
         {
             if (bytesRead <= 0)
             {
-                _log.Trace("EOF");
+                _connectionOptions.LogWriter?.WriteLine("EOF");
                 return false;
             }
 
             _bytesRead += bytesRead;
-            _log.Trace("More bytes available: " + bytesRead + " (" + _bytesRead + ")");
+            _connectionOptions.LogWriter?.WriteLine("More bytes available: " + bytesRead + " (" + _bytesRead + ")");
             var offset = 0;
             var handled = ProcessBuffer(_buffer, ref offset);
-            _log.Trace("Processed: " + handled);
+            _connectionOptions.LogWriter?.WriteLine("Processed: " + handled);
             if (handled != 0)
             {
                 // read stuff
                 var remainingBytesCount = _buffer.Length - offset;
                 if (remainingBytesCount > 0)
                 {
-                    _log.Trace("Copying remaining bytes: " + remainingBytesCount);
+                    _connectionOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
                     //  if anything was left over, we need to copy it to
                     // the start of the buffer so it can be used next time
                     Buffer.BlockCopy(_buffer, offset, _buffer, 0, remainingBytesCount);
@@ -91,7 +87,7 @@ namespace Tarantool.Client
                 // entire message: update the external counters
                 offset = tmpOffset;
 
-                _log.Trace(result.ToString());
+                _connectionOptions.LogWriter?.WriteLine(result.ToString());
                 MatchResult(result);
             } while (nonEmptyResult);
 
@@ -100,16 +96,9 @@ namespace Tarantool.Client
 
         private void MatchResult(byte[] result)
         {
-            var header = MsgPackSerializer.Deserialize<Header>(result, _msgPackContext);
+            var header = MsgPackSerializer.Deserialize<ResponseHeader>(result, _connectionOptions.MsgPackContext);
 
-            if (header.Sync.HasValue)
-            {
-                _requestWriter.EndRequest(header.Sync.Value, result);
-            }
-            else
-            {
-                _log.Trace($"Found unmatched response with header: {header}");
-            }
+            _requestWriter.EndRequest(header.RequestId, result);
         }
 
         private byte[] TryParseResult(byte[] buffer, ref int offset)

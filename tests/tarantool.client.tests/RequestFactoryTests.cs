@@ -2,25 +2,27 @@
 
 using MsgPack.Light;
 
+using NUnit.Framework;
+
 using Shouldly;
 
 using Tarantool.Client.IProto;
 using Tarantool.Client.IProto.Data.Packets;
 using Tarantool.Client.IProto.Services;
 
-using Xunit;
 
 namespace Tarantool.Client.Tests
 {
+    [TestFixture]
     public class RequestFactoryTests
     {
-        [Fact]
+        [Test]
         public void CreatAuthPacket()
         {
             var requestFactory = new AuthenticationRequestFactory();
             var salt = Convert.FromBase64String("DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
-            var packet = requestFactory.CreateAuthentication(new GreetingsPacket(string.Empty, salt), "test", "test");
-            var msgPackContext = ConverterRegistrator.Register(new MsgPackContext());
+            var packet = requestFactory.CreateAuthentication(new GreetingsResponse(salt), "test", "test");
+            var msgPackContext = MsgPackContextFactory.Create();
             var serialzied = MsgPackSerializer.Serialize(packet, msgPackContext);
 
             var expected = new byte[]

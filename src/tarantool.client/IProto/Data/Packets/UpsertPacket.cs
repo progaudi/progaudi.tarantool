@@ -2,11 +2,10 @@
 
 namespace Tarantool.Client.IProto.Data.Packets
 {
-    public class UpsertPacket<TTuple, TUpdate> : UnifiedPacket
+    public class UpsertPacket<TTuple, TUpdate> : IRequestPacket
         where TTuple : ITuple
     {
         public UpsertPacket(uint spaceId, TTuple tuple, UpdateOperation<TUpdate> updateOperation)
-            : base(new Header(CommandCode.Upsert, null, null))
         {
             SpaceId = spaceId;
             Tuple = tuple;
@@ -18,5 +17,7 @@ namespace Tarantool.Client.IProto.Data.Packets
         public uint SpaceId { get; }
 
         public TTuple Tuple { get; }
+
+        public CommandCode Code => CommandCode.Upsert;
     }
 }

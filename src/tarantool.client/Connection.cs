@@ -1,62 +1,46 @@
+﻿using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading.Tasks;
+
+using MsgPack.Light;
+
+using Tarantool.Client.IProto.Data;
+using Tarantool.Client.IProto.Data.Packets;
 
 namespace Tarantool.Client
 {
-    internal class Connection : IConnection
+    public class Connection : IConnection
     {
-        private readonly Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        MsgPackContext _msgPackContext;
 
-        private readonly ILog _log;
+        private const int headerLength = 10;
 
-        private IResponseReader _responseReader;
+        private const int lengthLength = 5;
 
-        private IRequestWriter _requestWriter;
-
-        private Stream _networkStream;
-
-        public async Task ConnectAsync(EndPoint endPoint)
+        public async Task<TResponse> SendPacket<TRequest, TResponse>(TRequest request) where TRequest : IRequestPacket
         {
-            _socket.Connect(endPoint);
+            var serializedRequest = MsgPackSerializer.Serialize(request, _msgPackContext);
+            var packetLength = lengthLength + headerLength + serializedRequest.Length;
+            var buffer = new byte[lengthLength + headerLength];
+            var stream = new MemoryStream(buffer);
+            MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
 
-            _networkStream = new NetworkStream(_socket);
+            var requestHeader = new RequestHeader(request.Code, GetRequestId());
+            MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
 
-            _requestWriter = new RequestWriter(_networkStream, _log);
-            _responseReader = new ResponseReader(_networkStream, _requestWriter, _log, null);
-
-            await _responseReader.BeginReading();
+            await WriteAsync(buffer);
+            await WriteAsync(serializedRequest);
+            throw new NotImplementedException();
         }
 
-        public async Task<byte[]> SendAsync(byte[] request, ulong requestId)
+        private async Task WriteAsync(byte[] buffer)
         {
-            return await _requestWriter.WriteRequest(request, requestId);
+            throw new NotImplementedException();
         }
 
-        #region IDisposable Implementation
-
-        private bool _disposedValue;
-
-        protected virtual void Dispose(bool disposing)
+        private ulong GetRequestId()
         {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    _networkStream.Dispose();
-                    _socket.Dispose();
-                }
-
-                _disposedValue = true;
-            }
+            throw new NotImplementedException();
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        #endregion
     }
-};
+}

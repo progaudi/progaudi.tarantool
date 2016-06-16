@@ -4,16 +4,13 @@ using System.Text;
 
 namespace Tarantool.Client.IProto
 {
-    public class Sha1Utils
+    internal static class Sha1Utils
     {
         public static byte[] Hash(string str)
         {
-            var bytes = Encoding.UTF8.GetBytes(str);
+            var bytes = str == null ? new byte[0] : Encoding.UTF8.GetBytes(str);
 
-            var sha1 = SHA1.Create();
-            var hashBytes = sha1.ComputeHash(bytes);
-
-            return hashBytes;
+            return Hash(bytes);
         }
 
         public static byte[] Hash(byte[] bytes)

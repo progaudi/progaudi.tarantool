@@ -36,7 +36,7 @@ namespace Tarantool.Client
 
         public IReadOnlyList<IndexPart> Parts { get; }
 
-        public Multiplexer Multiplexer { get; set; }
+        public Box Box { get; set; }
 
         public IEnumerable<TResult> Pairs<TValue, TResult>(TValue value, Iterator iterator)
             where TResult : ITuple
@@ -56,7 +56,7 @@ namespace Tarantool.Client
                 options?.Iterator ?? Iterator.Eq,
                 key);
 
-            return await Multiplexer.SendPacket<SelectPacket<TKey>, TTuple[]>(selectRequest);
+            return await Box.SendPacket<SelectPacket<TKey>, TTuple[]>(selectRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
@@ -64,9 +64,9 @@ namespace Tarantool.Client
         public async Task<ResponsePacket<TTuple[]>> Insert<TTuple>(TTuple tuple)
             where TTuple : ITuple
         {
-            var insertRequest = new InsertReplacePacket<TTuple>(CommandCode.Insert, SpaceId, tuple);
+            var insertRequest = new InsertPacket<TTuple>(SpaceId, tuple);
 
-            return await Multiplexer.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(insertRequest);
+            return await Box.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(insertRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
@@ -74,9 +74,9 @@ namespace Tarantool.Client
         public async Task<ResponsePacket<TTuple[]>> Replace<TTuple>(TTuple tuple)
             where TTuple : ITuple
         {
-            var replaceRequest = new InsertReplacePacket<TTuple>(CommandCode.Replace, SpaceId, tuple);
+            var replaceRequest = new ReplacePacket<TTuple>(SpaceId, tuple);
 
-            return await Multiplexer.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(replaceRequest);
+            return await Box.SendPacket<InsertReplacePacket<TTuple>, TTuple[]>(replaceRequest);
         }
 
         public async Task<TTuple> Min<TTuple>()
@@ -97,7 +97,7 @@ namespace Tarantool.Client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var minResponse = await Multiplexer.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
+            var minResponse = await Box.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
             return minResponse.Data.SingleOrDefault();
         }
 
@@ -119,7 +119,7 @@ namespace Tarantool.Client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var maxResponse = await Multiplexer.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
+            var maxResponse = await Box.SendPacket<SelectPacket<TKey>, TTuple[]>(selectPacket);
             return maxResponse.Data.SingleOrDefault();
         }
 
@@ -144,7 +144,7 @@ namespace Tarantool.Client
                 key,
                 updateOperation);
 
-            return await Multiplexer.SendPacket<UpdatePacket<TKey, TUpdate>, TTuple[]>(updateRequest);
+            return await Box.SendPacket<UpdatePacket<TKey, TUpdate>, TTuple[]>(updateRequest);
         }
 
         public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
@@ -152,7 +152,7 @@ namespace Tarantool.Client
         {
             var deleteRequest = new DeletePacket<TKey>(SpaceId, Id, key);
 
-            return await Multiplexer.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
+            return await Box.SendPacket<DeletePacket<TKey>, TTuple[]>(deleteRequest);
         }
 
         public void Alter(IndexCreationOptions options)

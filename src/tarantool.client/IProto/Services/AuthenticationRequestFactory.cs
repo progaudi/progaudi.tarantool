@@ -6,14 +6,14 @@ namespace Tarantool.Client.IProto.Services
 {
     public class AuthenticationRequestFactory
     {
-        public AuthenticationPacket CreateAuthentication(GreetingsPacket greetings, string username, string password)
+        public AuthenticationPacket CreateAuthentication(GreetingsResponse greetings, string username, string password)
         {
             var scrable = GetScrable(greetings, password);
             var authenticationPacket = new AuthenticationPacket(username, scrable);
             return authenticationPacket;
         }
 
-        private static byte[] GetScrable(GreetingsPacket greetings, string password)
+        private static byte[] GetScrable(GreetingsResponse greetings, string password)
         {
             var decodedSalt = greetings.Salt;
             var first20SaltBytes = new byte[20];

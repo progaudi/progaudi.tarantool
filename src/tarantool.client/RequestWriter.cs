@@ -6,16 +6,16 @@ namespace Tarantool.Client
 {
     public class RequestWriter : IRequestWriter
     {
-        private readonly Stream _networkStream;
+        private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly ILog _log;
+        private readonly ConnectionOptions _connectionOptions;
 
         private readonly ConcurrentDictionary<ulong, TaskCompletionSource<byte[]>> _pendingRequests = new ConcurrentDictionary<ulong, TaskCompletionSource<byte[]>>();
 
-        public RequestWriter(Stream stream, ILog log)
+        public RequestWriter(IPhysicalConnection stream, ConnectionOptions connectionOptions)
         {
-            _networkStream = stream;
-            _log = log;
+            _physicalConnection = stream;
+            _connectionOptions = connectionOptions;
         }
 
         public void EndRequest(ulong requestId, byte[] result)
@@ -23,14 +23,14 @@ namespace Tarantool.Client
             TaskCompletionSource<byte[]> pendingRequest;
             if (_pendingRequests.TryGetValue(requestId, out pendingRequest))
             {
-                _log.Trace(
+                _connectionOptions.LogWriter?.WriteLine(
                     pendingRequest.TrySetResult(result)
                         ? $"Successfully completed request with id:{requestId}"
                         : $"Can't complete request with id:{requestId}");
             }
             else
             {
-                _log.Trace($"Can't find matching request for response with id: {requestId}.");
+                _connectionOptions.LogWriter?.WriteLine($"Can't find matching request for response with id: {requestId}.");
             }
         }
 
@@ -40,11 +40,11 @@ namespace Tarantool.Client
 
             if (_pendingRequests.TryAdd(requestId, requestTask))
             {
-                await _networkStream.WriteAsync(request, 0, request.Length);
+                await _physicalConnection.WriteAsync(request, 0, request.Length);
             }
             else
             {
-                _log.Trace($"Request with such id ({requestId}) is already sent!");
+                _connectionOptions.LogWriter?.WriteLine($"Request with such id ({requestId}) is already sent!");
                 requestTask.SetResult(null);
             }
 

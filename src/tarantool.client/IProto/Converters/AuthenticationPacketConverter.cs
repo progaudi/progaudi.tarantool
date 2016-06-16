@@ -10,7 +10,6 @@ namespace Tarantool.Client.IProto.Converters
     public class AuthenticationPacketConverter : IMsgPackConverter<AuthenticationPacket>
     {
         private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<Header> _headerConverter;
         private IMsgPackConverter<byte[]> _bytesConverter;
         private IMsgPackConverter<string> _stringConverter;
         private IMsgPackConverter<object> _nullConverter;
@@ -18,7 +17,6 @@ namespace Tarantool.Client.IProto.Converters
         public void Initialize(MsgPackContext context)
         {
             _keyConverter = context.GetConverter<Key>();
-            _headerConverter = context.GetConverter<Header>();
             _bytesConverter = context.GetConverter<byte[]>();
             _stringConverter = context.GetConverter<string>();
             _nullConverter = context.NullConverter;
@@ -31,8 +29,6 @@ namespace Tarantool.Client.IProto.Converters
                 _nullConverter.Write(null, writer);
                 return;
             }
-
-            _headerConverter.Write(value.Header, writer);
 
             writer.WriteMapHeader(2);
 
