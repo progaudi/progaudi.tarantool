@@ -16,7 +16,8 @@ namespace Tarantool.Client.Tests
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter()
+                LogWriter = new StringWriter(),
+                StreamBufferSize = 1
             };
 
             var tarantoolClient = new Box(options);
@@ -83,37 +84,37 @@ namespace Tarantool.Client.Tests
         //{
         //    var insertRequest = new InsertReplacePacket<Tuple<int, string>>(CommandCode.Insert, spaceId,
         //        Tuple.Create(2, "Music"));
-        //    var insertResponse = tarantoolClient.SendPacket(insertRequest);
+        //    var insertResponse = tarantoolClient.SendRequest(insertRequest);
 
         //    var deleteRequest = new DeletePacket<Tuple<int>>(spaceId, 0, Tuple.Create(2));
-        //    var deleteResponse = tarantoolClient.SendPacket(deleteRequest);
+        //    var deleteResponse = tarantoolClient.SendRequest(deleteRequest);
 
-        //    insertResponse = tarantoolClient.SendPacket(insertRequest);
+        //    insertResponse = tarantoolClient.SendRequest(insertRequest);
 
         //    var selectRequest = new SelectPacket<Tuple<int>>(spaceId, 0, 100, 0, Iterator.All, Tuple.Create(2));
-        //    var selectResponse = tarantoolClient.SendPacket(selectRequest);
+        //    var selectResponse = tarantoolClient.SendRequest(selectRequest);
 
         //    var replaceRequest = new InsertReplacePacket<Tuple<int, string, int>>(CommandCode.Replace, spaceId,
         //        Tuple.Create(2, "Orange", 5));
-        //    var replaceResponse = tarantoolClient.SendPacket(replaceRequest);
+        //    var replaceResponse = tarantoolClient.SendRequest(replaceRequest);
 
         //    var udateRequest = new UpdatePacket<Tuple<int>, int>(spaceId, 0, Tuple.Create(2),
         //        UpdateOperation<int>.CreateAddition(1, 2));
-        //    var updateResponse = tarantoolClient.SendPacket(udateRequest);
+        //    var updateResponse = tarantoolClient.SendRequest(udateRequest);
 
-        //    selectResponse = tarantoolClient.SendPacket(selectRequest);
+        //    selectResponse = tarantoolClient.SendRequest(selectRequest);
 
         //    var upsertRequest = new UpsertPacket<Tuple<int, int>, int>(spaceId, Tuple.Create(5, 20),
         //        UpdateOperation<int>.CreateAddition(10, 1));
-        //    var upsertResponse = tarantoolClient.SendPacket(upsertRequest);
+        //    var upsertResponse = tarantoolClient.SendRequest(upsertRequest);
 
-        //    selectResponse = tarantoolClient.SendPacket(selectRequest);
+        //    selectResponse = tarantoolClient.SendRequest(selectRequest);
 
         //    var callRequest = new CallPacket<Tuple<float>>("math.sqrt", Tuple.Create(1.3f));
-        //    var callResponse = tarantoolClient.SendPacket(callRequest);
+        //    var callResponse = tarantoolClient.SendRequest(callRequest);
 
         //    var evalRequest = new EvalPacket<Tuple<int, int, int>>("return ...", Tuple.Create(1, 2, 3));
-        //    var evalResponse = tarantoolClient.SendPacket(evalRequest);
+        //    var evalResponse = tarantoolClient.SendRequest(evalRequest);
         //}
     }
 }

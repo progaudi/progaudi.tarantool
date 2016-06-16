@@ -1,11 +1,14 @@
 ﻿using System.Threading.Tasks;
 
+using Tarantool.Client.IProto.Data.Packets;
+
 namespace Tarantool.Client
 {
     public interface IRequestWriter
     {
-        void EndRequest(ulong requestId, byte[] result);
+        Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request)
+            where TRequest : IRequestPacket;
 
-        Task<byte[]> WriteRequest(byte[] request, ulong requestId);
+        void CompleteRequest(ulong requestId, byte[] responseBytes);
     }
 }

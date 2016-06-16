@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-
-using MsgPack.Light;
 
 using Tarantool.Client.IProto.Data.Packets;
 using Tarantool.Client.IProto.Services;
@@ -11,39 +8,36 @@ namespace Tarantool.Client
 {
     public class Box : IBox
     {
-        private const long MaxRequestId = long.MaxValue / 2;
-
         private readonly IPhysicalConnection _physicalConnection = new NetworkStreamPhysicalConnection();
 
         private readonly AuthenticationRequestFactory _authenticationRequestFactory = new AuthenticationRequestFactory();
 
-        private readonly MsgPackContext _msgPackContext = MsgPackContextFactory.Create();
-
-        private readonly IResponseReader _responseReader;
+        private readonly ConnectionOptions _connectionOptions;
 
         private readonly IRequestWriter _requestWriter;
 
-        private readonly ConnectionOptions _connectionOptions;
-
-        private IConnection _connection;
+        private readonly IResponseReader _responseReader;
 
         public Box(ConnectionOptions options)
         {
             _connectionOptions = options;
-            _requestWriter = new RequestWriter(_physicalConnection, _connectionOptions);
-            _responseReader = new ResponseReader(_physicalConnection, _requestWriter, _connectionOptions);
+            _requestWriter = new RequestWriter(options.MsgPackContext, _physicalConnection);
+            _responseReader = new ResponseReader(_physicalConnection, _requestWriter, options);
         }
 
         public async Task ConnectAsync()
         {
             _physicalConnection.Connect(_connectionOptions);
-
+         
             var greetingsResponseBytes = new byte[128];
-            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            var readCount = _physicalConnection.Read(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
             if (readCount != greetingsResponseBytes.Length)
             {
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
             }
+
+            var readerThread = new Thread(_responseReader.BeginReading);
+            readerThread.Start();
 
             var greetings = new GreetingsResponse(greetingsResponseBytes);
 
@@ -52,14 +46,10 @@ namespace Tarantool.Client
                 _connectionOptions.UserName,
                 _connectionOptions.Password);
 
-            await _connection.SendPacket<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
+            await _requestWriter.SendRequest<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
+            
         }
-
-        private async Task<byte[]> SendAsync(byte[] request, ulong requestId)
-        {
-            return await _requestWriter.WriteRequest(request, requestId);
-        }
-
+        
         public void Dispose()
         {
             _physicalConnection.Dispose();
@@ -67,37 +57,7 @@ namespace Tarantool.Client
         
         public Schema GetSchemaAsync()
         {
-            return new Schema(_connection);
+            return new Schema(_requestWriter);
         }
-
-        internal async Task<ResponsePacket<TResult>> SendPacket<TRequest,TResult>(TRequest unifiedPacket) where TRequest : IRequestPacket
-        {
-            var request = MsgPackSerializer.Serialize(unifiedPacket, _msgPackContext);
-            var requestHeaderLength = MsgPackSerializer.Serialize(request.Length, _msgPackContext);
-            var responseBytes = await SendBytes(ArrayConcat(requestHeaderLength, request), 0);
-
-            if (responseBytes.Length == 0)
-            {
-                throw new System.ArgumentException("Zero-length response received, possible wrong packet sent.");
-            }
-
-            var response = MsgPackSerializer.Deserialize<ResponsePacket<TResult>>(responseBytes, _msgPackContext);
-            return response;
-        }
-        
-        private async Task<byte[]> SendBytes(byte[] requestBytes, ulong requestId)
-        {
-            var resonse = await SendAsync(requestBytes, requestId);
-            return resonse;
-        }
-
-        private T[] ArrayConcat<T>(T[] first, T[] second){
-            var result = new T[first.Length + second.Length];
-            first.CopyTo(result, 0);
-            second.CopyTo(result, first.Length);
-
-            return result;
-        }
-
     }
 }

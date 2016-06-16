@@ -1,54 +1,86 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+
+using MsgPack.Light;
+
+using Tarantool.Client.IProto.Data;
+using Tarantool.Client.IProto.Data.Packets;
 
 namespace Tarantool.Client
 {
     public class RequestWriter : IRequestWriter
     {
+        private const long MaxRequestId = long.MaxValue / 2;
+
+        private readonly MsgPackContext _msgPackContext;
+
         private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly ConnectionOptions _connectionOptions;
+        private const int MaxHeaderLength = 12;
 
-        private readonly ConcurrentDictionary<ulong, TaskCompletionSource<byte[]>> _pendingRequests = new ConcurrentDictionary<ulong, TaskCompletionSource<byte[]>>();
+        private const int LengthLength = 5;
 
-        public RequestWriter(IPhysicalConnection stream, ConnectionOptions connectionOptions)
+        private readonly Dictionary<ulong, TaskCompletionSource<byte[]>> _pendingRequests = new Dictionary<ulong, TaskCompletionSource<byte[]>>();
+
+        private long _currentRequestId;
+
+        public RequestWriter(MsgPackContext msgPackContext, IPhysicalConnection physicalConnection)
         {
-            _physicalConnection = stream;
-            _connectionOptions = connectionOptions;
+            _msgPackContext = msgPackContext;
+            _physicalConnection = physicalConnection;
         }
 
-        public void EndRequest(ulong requestId, byte[] result)
+        public async Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequestPacket
         {
-            TaskCompletionSource<byte[]> pendingRequest;
-            if (_pendingRequests.TryGetValue(requestId, out pendingRequest))
-            {
-                _connectionOptions.LogWriter?.WriteLine(
-                    pendingRequest.TrySetResult(result)
-                        ? $"Successfully completed request with id:{requestId}"
-                        : $"Can't complete request with id:{requestId}");
-            }
-            else
-            {
-                _connectionOptions.LogWriter?.WriteLine($"Can't find matching request for response with id: {requestId}.");
-            }
+            var serializedRequest = MsgPackSerializer.Serialize(request, _msgPackContext);
+
+            var packetLength = LengthLength + MaxHeaderLength + serializedRequest.Length;
+
+            var buffer = new byte[LengthLength + MaxHeaderLength];
+            var stream = new MemoryStream(buffer);
+            MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
+
+            var requestId = GetRequestId();
+            var requestHeader = new RequestHeader(request.Code, requestId);
+            MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
+
+            Write(buffer, 0, (int) stream.Position);
+            Write(serializedRequest, 0, serializedRequest.Length);
+
+            var tcs = new TaskCompletionSource<byte[]>();
+
+            _pendingRequests.Add(requestId, tcs);
+
+            var responseBytes = await tcs.Task;
+            var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
+            return deserializedResponse;
         }
 
-        public async Task<byte[]> WriteRequest(byte[] request, ulong requestId)
+        public void CompleteRequest(ulong requestId, byte[] responseBytes)
         {
-            var requestTask = new TaskCompletionSource<byte[]>();
-
-            if (_pendingRequests.TryAdd(requestId, requestTask))
+            TaskCompletionSource<byte[]> request;
+            if (!_pendingRequests.TryGetValue(requestId, out request))
             {
-                await _physicalConnection.WriteAsync(request, 0, request.Length);
-            }
-            else
-            {
-                _connectionOptions.LogWriter?.WriteLine($"Request with such id ({requestId}) is already sent!");
-                requestTask.SetResult(null);
+                throw new ArgumentOutOfRangeException($"Can't find pending request with id = {requestId}");
             }
 
-            return await requestTask.Task;
+            request.SetResult(responseBytes);
+        }
+
+        private void Write(byte[] buffer, int offset, int count)
+        {
+            _physicalConnection.Write(buffer, offset, count);
+        }
+
+        private ulong GetRequestId()
+        {
+            Interlocked.CompareExchange(ref _currentRequestId, 0, MaxRequestId);
+            Interlocked.Increment(ref _currentRequestId);
+
+            return (ulong)_currentRequestId;
         }
     }
 }

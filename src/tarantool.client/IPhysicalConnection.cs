@@ -9,6 +9,10 @@ namespace Tarantool.Client
 
         Task<int> ReadAsync(byte[] buffer, int offset, int count);
 
+        int Read(byte[] buffer, int offset, int count);
+
         Task WriteAsync(byte[] buffer, int offset, int count);
+
+        void Write(byte[] buffer, int offset, int count);
     }
 }

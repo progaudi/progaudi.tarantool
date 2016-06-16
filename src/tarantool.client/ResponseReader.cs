@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Threading.Tasks;
 
 using MsgPack.Light;
 
@@ -8,7 +6,7 @@ using Tarantool.Client.IProto.Data;
 
 namespace Tarantool.Client
 {
-    public class ResponseReader :IResponseReader
+    public class ResponseReader : IResponseReader
     {
         private readonly IPhysicalConnection _physicalConnection;
 
@@ -20,25 +18,25 @@ namespace Tarantool.Client
 
         private int _bytesRead;
 
-        public ResponseReader(IPhysicalConnection physicalConnection, IRequestWriter requestWriter,ConnectionOptions connectionOptions)
+        public ResponseReader(IPhysicalConnection physicalConnection, IRequestWriter requestWriter, ConnectionOptions connectionOptions)
         {
             _physicalConnection = physicalConnection;
             _requestWriter = requestWriter;
             _connectionOptions = connectionOptions;
         }
 
-        public async Task BeginReading()
+        public void BeginReading()
         {
             bool keepReading;
             do
             {
                 var space = EnsureSpaceAndComputeBytesToRead();
-                var result = await _physicalConnection.ReadAsync(_buffer, _bytesRead, space);
+                var result = _physicalConnection.Read(_buffer, _bytesRead, space);
                 keepReading = ProcessReadBytes(result);
             } while (keepReading);
         }
 
-        
+
         private bool ProcessReadBytes(int bytesRead)
         {
             if (bytesRead <= 0)
@@ -98,7 +96,7 @@ namespace Tarantool.Client
         {
             var header = MsgPackSerializer.Deserialize<ResponseHeader>(result, _connectionOptions.MsgPackContext);
 
-            _requestWriter.EndRequest(header.RequestId, result);
+            _requestWriter.CompleteRequest(header.RequestId, result);
         }
 
         private byte[] TryParseResult(byte[] buffer, ref int offset)
