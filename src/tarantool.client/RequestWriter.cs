@@ -47,8 +47,8 @@ namespace Tarantool.Client
             var requestHeader = new RequestHeader(request.Code, requestId);
             MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
 
-            Write(buffer, 0, (int) stream.Position);
-            Write(serializedRequest, 0, serializedRequest.Length);
+            await WriteAsync(buffer, 0, (int) stream.Position);
+            await WriteAsync(serializedRequest, 0, serializedRequest.Length);
 
             var tcs = new TaskCompletionSource<byte[]>();
 
@@ -73,6 +73,11 @@ namespace Tarantool.Client
         private void Write(byte[] buffer, int offset, int count)
         {
             _physicalConnection.Write(buffer, offset, count);
+        }
+
+        private async Task WriteAsync(byte[] buffer, int offset, int count)
+        {
+            await _physicalConnection.WriteAsync(buffer, offset, count);
         }
 
         private ulong GetRequestId()
