@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 using MsgPack.Light;
 
@@ -20,18 +21,13 @@ namespace Tarantool.Client.Tests
         public void CreatAuthPacket()
         {
             var requestFactory = new AuthenticationRequestFactory();
-            var salt = Convert.FromBase64String("DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
+            var salt = Encoding.UTF8.GetBytes("Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727   DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
             var packet = requestFactory.CreateAuthentication(new GreetingsResponse(salt), "test", "test");
             var msgPackContext = MsgPackContextFactory.Create();
             var serialzied = MsgPackSerializer.Serialize(packet, msgPackContext);
 
             var expected = new byte[]
             {
-                0x81,
-
-                0x00,
-                0x07,
-
                 0x82,
                 0x23,
                 0xa4,

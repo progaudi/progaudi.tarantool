@@ -8,8 +8,6 @@ namespace Tarantool.Client
 {
     public class Box : IBox
     {
-        private readonly IPhysicalConnection _physicalConnection = new NetworkStreamPhysicalConnection();
-
         private readonly AuthenticationRequestFactory _authenticationRequestFactory = new AuthenticationRequestFactory();
 
         private readonly ConnectionOptions _connectionOptions;
@@ -21,16 +19,16 @@ namespace Tarantool.Client
         public Box(ConnectionOptions options)
         {
             _connectionOptions = options;
-            _requestWriter = new RequestWriter(options.MsgPackContext, _physicalConnection);
-            _responseReader = new ResponseReader(_physicalConnection, _requestWriter, options);
+            _requestWriter = new RequestWriter(options.MsgPackContext, options.PhysicalConnection);
+            _responseReader = new ResponseReader(options.PhysicalConnection, _requestWriter, options);
         }
 
         public async Task ConnectAsync()
         {
-            _physicalConnection.Connect(_connectionOptions);
+            _connectionOptions.PhysicalConnection.Connect(_connectionOptions);
          
             var greetingsResponseBytes = new byte[128];
-            var readCount = _physicalConnection.Read(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            var readCount = _connectionOptions.PhysicalConnection.Read(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
             if (readCount != greetingsResponseBytes.Length)
             {
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
@@ -52,7 +50,7 @@ namespace Tarantool.Client
         
         public void Dispose()
         {
-            _physicalConnection.Dispose();
+            _connectionOptions.PhysicalConnection.Dispose();
         }
         
         public Schema GetSchemaAsync()

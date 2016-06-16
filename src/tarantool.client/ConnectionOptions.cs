@@ -18,5 +18,7 @@ namespace Tarantool.Client
         internal MsgPackContext MsgPackContext { get; } = MsgPackContextFactory.Create();
 
         public int StreamBufferSize { get; set; } = 4096;
+
+        public IPhysicalConnection PhysicalConnection { get; set; } = new NetworkStreamPhysicalConnection();
     }
 }

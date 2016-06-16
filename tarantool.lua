@@ -6,6 +6,9 @@ box.cfg
 box.schema.user.passwd('')
 box.schema.user.grant('guest','read,write,execute','universe')
 
+box.schema.user.create('operator', {password = 'operator'})
+box.schema.user.grant('operator','read,write,execute','universe')
+
 function log_connect ()
   local log = require('log')
   local m = 'Connection. user=' .. box.session.user() .. ' id=' .. box.session.id()
