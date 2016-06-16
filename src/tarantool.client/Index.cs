@@ -14,7 +14,7 @@ namespace Tarantool.Client
 {
     public class Index
     {
-        public IRequestWriter RequestWriter { get; set; }
+        public ILogicalConnection LogicalConnection { get; set; }
 
         public Index(uint id, uint spaceId, string name, bool unique, IndexType type, IReadOnlyList<IndexPart> parts)
         {
@@ -56,7 +56,7 @@ namespace Tarantool.Client
                 options?.Iterator ?? Iterator.Eq,
                 key);
 
-            return await RequestWriter.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectRequest);
+            return await LogicalConnection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
@@ -66,7 +66,7 @@ namespace Tarantool.Client
         {
             var insertRequest = new InsertPacket<TTuple>(SpaceId, tuple);
 
-            return await RequestWriter.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(insertRequest);
+            return await LogicalConnection.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(insertRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
@@ -76,7 +76,7 @@ namespace Tarantool.Client
         {
             var replaceRequest = new ReplacePacket<TTuple>(SpaceId, tuple);
 
-            return await RequestWriter.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(replaceRequest);
+            return await LogicalConnection.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(replaceRequest);
         }
 
         public async Task<TTuple> Min<TTuple>()
@@ -97,7 +97,7 @@ namespace Tarantool.Client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var minResponse = await RequestWriter.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectPacket);
+            var minResponse = await LogicalConnection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectPacket);
             return minResponse.Data.SingleOrDefault();
         }
 
@@ -119,7 +119,7 @@ namespace Tarantool.Client
 
             var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var maxResponse = await RequestWriter.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectPacket);
+            var maxResponse = await LogicalConnection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectPacket);
             return maxResponse.Data.SingleOrDefault();
         }
 
@@ -144,7 +144,7 @@ namespace Tarantool.Client
                 key,
                 updateOperation);
 
-            return await RequestWriter.SendRequest<UpdatePacket<TKey, TUpdate>, ResponsePacket<TTuple[]>>(updateRequest);
+            return await LogicalConnection.SendRequest<UpdatePacket<TKey, TUpdate>, ResponsePacket<TTuple[]>>(updateRequest);
         }
 
         public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
@@ -152,7 +152,7 @@ namespace Tarantool.Client
         {
             var deleteRequest = new DeletePacket<TKey>(SpaceId, Id, key);
 
-            return await RequestWriter.SendRequest<DeletePacket<TKey>, ResponsePacket<TTuple[]>>(deleteRequest);
+            return await LogicalConnection.SendRequest<DeletePacket<TKey>, ResponsePacket<TTuple[]>>(deleteRequest);
         }
 
         public void Alter(IndexCreationOptions options)

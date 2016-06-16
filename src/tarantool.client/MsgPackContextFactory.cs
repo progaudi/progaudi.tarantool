@@ -14,6 +14,8 @@ namespace Tarantool.Client
             result.RegisterConverter(new EnumConverter<Key>());
             result.RegisterConverter(new EnumConverter<CommandCode>());
             result.RegisterConverter(new EnumConverter<Iterator>());
+            result.RegisterConverter(new RequestIdConverter());
+            result.RegisterConverter(new PacketSizeConverter());
 
             result.RegisterConverter(new FromStringEnumConverter<StorageEngine>());
             result.RegisterConverter(new FromStringEnumConverter<FieldType>());
@@ -27,6 +29,7 @@ namespace Tarantool.Client
             result.RegisterConverter(new RequestHeaderConverter());
 
             result.RegisterConverter(new AuthenticationPacketConverter());
+            result.RegisterConverter(new AuthenticationResponseConverter());
             result.RegisterConverter(new ErrorResponsePacketConverter());
 
             result.RegisterConverter(new SpaceFieldConverter());

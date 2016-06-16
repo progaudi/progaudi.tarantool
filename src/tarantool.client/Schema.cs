@@ -14,12 +14,12 @@ namespace Tarantool.Client
 
         private const int VIndex = 289;
 
-        private readonly IRequestWriter _requestWriter;
+        private readonly ILogicalConnection _logicalConnection;
 
 
-        public Schema(IRequestWriter requestWriter)
+        public Schema(ILogicalConnection logicalConnection)
         {
-            _requestWriter = requestWriter;
+            _logicalConnection = logicalConnection;
         }
 
         public Space CreateSpace(string spaceName, SpaceCreationOptions options = null)
@@ -46,7 +46,7 @@ namespace Tarantool.Client
         {
             var selectIndexRequest = new SelectPacket<IProto.Tuple<int>>(VIndex, 0, UInt32.MaxValue, 0, Iterator.All, Tuple.Create(0));
 
-            var response = await _requestWriter.SendRequest<SelectPacket<IProto.Tuple<int>>, ResponsePacket<Index>>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<int>>, ResponsePacket<Index>>(selectIndexRequest);
             return response.Data;
         }
     }

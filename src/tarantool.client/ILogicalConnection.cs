@@ -4,11 +4,11 @@ using Tarantool.Client.IProto.Data.Packets;
 
 namespace Tarantool.Client
 {
-    public interface IRequestWriter
+    public interface ILogicalConnection
     {
         Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request)
             where TRequest : IRequestPacket;
 
-        void CompleteRequest(ulong requestId, byte[] responseBytes);
+        TaskCompletionSource<byte[]> GetResponseCompletionSource(ulong requestId);
     }
 }

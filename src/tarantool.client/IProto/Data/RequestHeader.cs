@@ -2,7 +2,7 @@
 {
     public class RequestHeader : HeaderBase
     {
-        public RequestHeader(CommandCode code, ulong requestId)
+        public RequestHeader(CommandCode code, RequestId requestId)
             : base(code, requestId)
         {
         }

@@ -11,14 +11,14 @@ namespace Tarantool.Client.IProto.Converters
     public class RequestHeaderConverter : IMsgPackConverter<RequestHeader>
     {
         private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<ulong> _ulongConverter;
+        private IMsgPackConverter<RequestId> _requestIdConverter;
         private IMsgPackConverter<CommandCode> _codeConverter;
         private IMsgPackConverter<object> _nullConverter;
 
         public void Initialize(MsgPackContext context)
         {
             _keyConverter = context.GetConverter<Key>();
-            _ulongConverter = context.GetConverter<ulong>();
+            _requestIdConverter = context.GetConverter<RequestId>();
             _codeConverter = context.GetConverter<CommandCode>();
             _nullConverter = context.NullConverter;
         }
@@ -37,7 +37,7 @@ namespace Tarantool.Client.IProto.Converters
             _codeConverter.Write(value.Code, writer);
 
             _keyConverter.Write(Key.Sync, writer);
-            _ulongConverter.Write(value.RequestId, writer);
+            _requestIdConverter.Write(value.RequestId, writer);
         }
 
         public RequestHeader Read(IMsgPackReader reader)

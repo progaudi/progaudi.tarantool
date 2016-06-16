@@ -1,9 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
+using NSubstitute;
+
 using NUnit.Framework;
+
+using Shouldly;
 
 namespace Tarantool.Client.Tests
 {
@@ -22,7 +29,7 @@ namespace Tarantool.Client.Tests
 
             var tarantoolClient = new Box(options);
 
-            
+
             await tarantoolClient.ConnectAsync();
         }
 
@@ -40,81 +47,138 @@ namespace Tarantool.Client.Tests
 
             var tarantoolClient = new Box(options);
 
-
             await tarantoolClient.ConnectAsync();
         }
 
-
-        //private static void TreeIndexMethodsTest(Index index)
+        //[Test]
+        //public async Task CheckAuthenticationRequest()
         //{
-        //    var min2 = index.Min<Tuple<int, int, int>, Tuple<int>>(Tuple.Create(3));
-        //    var min = index.Min<Tuple<int, string, double>>();
+        //    var greetings = "Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727  \nsD24oB/4KdxTkEdn2es+iMnZOJQZ+8QjW9EXMrGaGWg=                    ";
+        //    var greetingsBytes = Encoding.UTF8.GetBytes(greetings);
 
-        //    var max = index.Max<Tuple<int, int, int>>();
-        //    var max2 = index.Max<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(4));
+        //    var physicalConnection = Substitute.For<IPhysicalConnection>();
+        //    var readsCount = 0;
+
+
+        //    physicalConnection.Read(Arg.Any<byte[]>(), Arg.Any<int>(), Arg.Any<int>()).Returns(
+        //        x =>
+        //        {
+        //            if (readsCount++ == 0)
+        //            {
+        //                Array.Copy(greetingsBytes, (byte[])x[0], greetingsBytes.Length);
+        //                return greetingsBytes.Length;
+        //            }
+        //            return 0;
+        //        });
+
+        //    var writeArguments = new List<byte[]>();
+
+        //    physicalConnection.When(x => x.Write(Arg.Any<byte[]>(), Arg.Any<int>(), Arg.Any<int>()))
+        //        .Do(
+        //            x =>
+        //            {
+        //                writeArguments.Add(x[0] as byte[]);
+        //            });
+
+        //    var requestQueue = Substitute.For<IRequestQueue>();
+        //    requestQueue
+        //        .Queue(Arg.Any<ulong>())
+        //        .Returns(Task.FromResult(
+        //            new byte[]
+        //            {
+        //                0x81,
+        //                0x30,
+        //                0xc0
+        //            }));
+
+        //    var responseReader = Substitute.For<IResponseReader>();
+        //    var responseReaderFactory = Substitute.For<IResponseReaderFactory>();
+        //    responseReaderFactory
+        //        .Create(Arg.Any<ILogicalConnection>(), Arg.Any<ConnectionOptions>())
+        //        .Returns(responseReader);
+
+        //    var options = new ConnectionOptions()
+        //    {
+        //        EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
+        //        LogWriter = new StringWriter(),
+        //        UserName = "operator",
+        //        Password = "operator",
+        //        PhysicalConnection = physicalConnection,
+        //        ResponseReaderFactory = responseReaderFactory,
+        //        RequestQueue = requestQueue
+        //    };
+
+        //    var tarantoolClient = new Box(options);
+
+        //    await tarantoolClient.ConnectAsync();
+
+        //    var expectedHeaderBytes = new byte[]
+        //    {
+        //        0x3e,
+        //        0x82,
+        //        0x00,
+        //        0x07,
+        //        0x01,
+        //        0x01
+        //    };
+
+
+        //    var expectedBodyBytes = new byte[]
+        //  {
+        //        0x82,
+        //        0x23,
+        //        0xa8,
+        //        0x6f,
+        //        0x70,
+        //        0x65,
+        //        0x72,
+        //        0x61,
+        //        0x74,
+        //        0x6f,
+        //        0x72,
+        //        0x21,
+        //        0x92,
+        //        0xa9,
+        //        0x63,
+        //        0x68,
+        //        0x61,
+        //        0x70,
+        //        0x2d,
+        //        0x73,
+        //        0x68,
+        //        0x61,
+        //        0x31,
+        //        0xc4,
+        //        0x14,
+        //        0x3f,
+        //        0xb4,
+        //        0xbb,
+        //        0x12,
+        //        0x58,
+        //        0x32,
+        //        0xba,
+        //        0x34,
+        //        0xca,
+        //        0xe1,
+        //        0x72,
+        //        0xd7,
+        //        0xff,
+        //        0xd5,
+        //        0x5c,
+        //        0xeb,
+        //        0x3e,
+        //        0x1c,
+        //        0x2d,
+        //        0xf7,
+        //  };
+
+
+        //    physicalConnection.Received().Write(Arg.Any<byte[]>(), 0, expectedHeaderBytes.Length);
+        //    physicalConnection.Received().Write(Arg.Any<byte[]>(), 0, expectedBodyBytes.Length);
+
+        //    writeArguments[0].Take(6).ToArray().ShouldBe(expectedHeaderBytes);
+        //    writeArguments[1].ShouldBe(expectedBodyBytes);
         //}
 
-        //private static void IndexMethodsTest(Index index)
-        //{
-        //    var insertResponse = index.Insert(Tuple.Create(2, "Music"));
-        //    var deleteResponse = index.Delete<Tuple<int, string, double>, Tuple<int>>(Tuple.Create(2));
-        //    insertResponse = index.Insert(Tuple.Create(2, "Music"));
-        //    var selectResponse = index.Select<Tuple<int, string>, Tuple<int>>(Tuple.Create(2));
-        //    var replaceResponse = index.Replace(Tuple.Create(2, "Car", -245.3));
-        //    var updateResponse = index.Update<Tuple<int, string, double>, Tuple<int>, int>(Tuple.Create(2),
-        //        UpdateOperation<int>.CreateAddition(3, 100));
-        //    var upsertResponse = index.Upsert(Tuple.Create(5),
-        //        UpdateOperation<int>.CreateAssign(2, 2));
-        //    upsertResponse = index.Upsert(Tuple.Create(5),
-        //        UpdateOperation<int>.CreateAddition(-2, 2));
-        //}
-
-        //private static void SpaceMethodsTest(Space tester)
-        //{
-        //    var insertResponse = tester.Insert(Tuple.Create(2, "Music"));
-        //    var deleteResponse = tester.Delete(Tuple.Create(2));
-        //    insertResponse = tester.Insert(Tuple.Create(2, "Music"));
-        //    var selectResponse = tester.Select<Tuple<int>, Tuple<int, string>>(Tuple.Create(2));
-        //    var replaceResponse = tester.Replace(Tuple.Create(2, "Car", -24.5));
-        //    var updateResponse = tester.Update(Tuple.Create(2), UpdateOperation<int>.CreateAddition(1, 2));
-        //    var upsertResponse = tester.Upsert(Tuple.Create(5), UpdateOperation<int>.CreateAddition(1, 2));
-        //}
-
-        //private static void SendPacketMethodTest(Box tarantoolClient)
-        //{
-        //    var insertRequest = new InsertReplacePacket<Tuple<int, string>>(CommandCode.Insert, spaceId,
-        //        Tuple.Create(2, "Music"));
-        //    var insertResponse = tarantoolClient.SendRequest(insertRequest);
-
-        //    var deleteRequest = new DeletePacket<Tuple<int>>(spaceId, 0, Tuple.Create(2));
-        //    var deleteResponse = tarantoolClient.SendRequest(deleteRequest);
-
-        //    insertResponse = tarantoolClient.SendRequest(insertRequest);
-
-        //    var selectRequest = new SelectPacket<Tuple<int>>(spaceId, 0, 100, 0, Iterator.All, Tuple.Create(2));
-        //    var selectResponse = tarantoolClient.SendRequest(selectRequest);
-
-        //    var replaceRequest = new InsertReplacePacket<Tuple<int, string, int>>(CommandCode.Replace, spaceId,
-        //        Tuple.Create(2, "Orange", 5));
-        //    var replaceResponse = tarantoolClient.SendRequest(replaceRequest);
-
-        //    var udateRequest = new UpdatePacket<Tuple<int>, int>(spaceId, 0, Tuple.Create(2),
-        //        UpdateOperation<int>.CreateAddition(1, 2));
-        //    var updateResponse = tarantoolClient.SendRequest(udateRequest);
-
-        //    selectResponse = tarantoolClient.SendRequest(selectRequest);
-
-        //    var upsertRequest = new UpsertPacket<Tuple<int, int>, int>(spaceId, Tuple.Create(5, 20),
-        //        UpdateOperation<int>.CreateAddition(10, 1));
-        //    var upsertResponse = tarantoolClient.SendRequest(upsertRequest);
-
-        //    selectResponse = tarantoolClient.SendRequest(selectRequest);
-
-        //    var callRequest = new CallPacket<Tuple<float>>("math.sqrt", Tuple.Create(1.3f));
-        //    var callResponse = tarantoolClient.SendRequest(callRequest);
-
-        //    var evalRequest = new EvalPacket<Tuple<int, int, int>>("return ...", Tuple.Create(1, 2, 3));
-        //    var evalResponse = tarantoolClient.SendRequest(evalRequest);
-        //}
     }
 }

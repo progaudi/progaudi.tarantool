@@ -31,13 +31,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="IProto\Converters\AuthenticationResponseConverter.cs" />
+    <Compile Include="IProto\PacketSize.cs" />
+    <Compile Include="IProto\Converters\PacketSizeConverter.cs" />
+    <Compile Include="IProto\Converters\RequestIdConverter.cs" />
+    <Compile Include="IProto\Data\RequestId.cs" />
+    <Compile Include="IRequestQueue.cs" />
     <Compile Include="IResponseReader.cs" />
-    <Compile Include="RequestWriter.cs" />
+    <Compile Include="IResponseReaderFactory.cs" />
+    <Compile Include="RequestQueue.cs" />
+    <Compile Include="LogicalConnection.cs" />
     <Compile Include="ConnectionOptions.cs" />
     <Compile Include="ExceptionHelper.cs" />
     <Compile Include="FieldType.cs" />
     <Compile Include="IBox.cs" />
-    <Compile Include="IRequestWriter.cs" />
+    <Compile Include="ILogicalConnection.cs" />
     <Compile Include="IPhysicalConnection.cs" />
     <Compile Include="Ilog.cs" />
     <Compile Include="Index.cs" />
@@ -99,6 +107,7 @@
     <Compile Include="Box.cs" />
     <Compile Include="NetworkStreamPhysicalConnection.cs" />
     <Compile Include="ResponseReader.cs" />
+    <Compile Include="ResponseReaderFactory.cs" />
     <Compile Include="Schema.cs" />
     <Compile Include="SelectOptions.cs" />
     <Compile Include="Space.cs" />

@@ -12,15 +12,15 @@ namespace Tarantool.Client.IProto.Converters
     {
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<ulong> _ulongConverter;
+        private IMsgPackConverter<RequestId> _requestIdConverter;
         private IMsgPackConverter<CommandCode> _codeConverter;
-        private IMsgPackConverter<object> _nullConverter;
 
         public void Initialize(MsgPackContext context)
         {
             _keyConverter = context.GetConverter<Key>();
             _ulongConverter = context.GetConverter<ulong>();
             _codeConverter = context.GetConverter<CommandCode>();
-            _nullConverter = context.NullConverter;
+            _requestIdConverter = context.GetConverter<RequestId>();
         }
 
         public void Write(ResponseHeader value, IMsgPackWriter writer)
@@ -36,7 +36,7 @@ namespace Tarantool.Client.IProto.Converters
             var code = _codeConverter.Read(reader);
 
             _keyConverter.Read(reader).ShouldBe(Key.Sync);
-            var sync = _ulongConverter.Read(reader);
+            var sync = _requestIdConverter.Read(reader);
 
             _keyConverter.Read(reader).ShouldBe(Key.SchemaId);
             var schemaId = _ulongConverter.Read(reader);

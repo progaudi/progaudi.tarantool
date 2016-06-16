@@ -8,11 +8,11 @@ namespace Tarantool.Client
     public class NetworkStreamPhysicalConnection : IPhysicalConnection
     {
         private Stream _stream;
-        private readonly Socket _socket;
+
+        private Socket _socket;
 
         public NetworkStreamPhysicalConnection()
         {
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
         public void Dispose()
@@ -22,33 +22,15 @@ namespace Tarantool.Client
 
         public void Connect(ConnectionOptions options)
         {
+            _socket = new Socket(options.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _socket.Connect(options.EndPoint);
-            _stream = new BufferedStream(new NetworkStream(_socket), options.StreamBufferSize);
+            //_stream = new BufferedStream(new NetworkStream(_socket), options.StreamBufferSize);
+            _stream = new NetworkStream(_socket, true);
         }
 
         public async Task<int> ReadAsync(byte[] buffer, int offset, int count)
         {
             return await _stream.ReadAsync(buffer, offset, count);
-            //var tcs = new TaskCompletionSource<int>();
-            //_socket.BeginReceive(
-            //    buffer,
-            //    offset,
-            //    count,
-            //    SocketFlags.None,
-            //    ar =>
-            //    {
-            //        var result = ((Socket) (ar.AsyncState)).EndReceive(ar);
-            //        tcs.SetResult(result);
-            //    },
-            //    _socket);
-
-            //return await tcs.Task;
-        }
-
-        public int Read(byte[] buffer, int offset, int count)
-        {
-            return _socket.Receive(buffer, offset, count, SocketFlags.None);
-            //return _stream.Read(buffer, offset, count);
         }
 
         public async Task WriteAsync(byte[] buffer, int offset, int count)
@@ -56,10 +38,19 @@ namespace Tarantool.Client
             await _stream.WriteAsync(buffer, offset, count);
         }
 
-        public void Write(byte[] buffer, int offset, int count)
+        public async Task FlushAsync()
         {
-            _socket.Send(buffer, offset, count, SocketFlags.None);
-            //_stream.Write(buffer, offset, count);
+            await _stream.FlushAsync();
+        }
+
+        public IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            return _socket.BeginReceive(buffer, offset, count, SocketFlags.None, callback, state);
+        }
+
+        public int EndRead(IAsyncResult asyncResult)
+        {
+            return _stream.EndRead(asyncResult);
         }
     }
 }

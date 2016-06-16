@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using MsgPack.Light;
 
@@ -10,7 +11,7 @@ namespace Tarantool.Client
     {
         private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly IRequestWriter _requestWriter;
+        private readonly ILogicalConnection _logicalConnection;
 
         private readonly ConnectionOptions _connectionOptions;
 
@@ -18,25 +19,25 @@ namespace Tarantool.Client
 
         private int _bytesRead;
 
-        public ResponseReader(IPhysicalConnection physicalConnection, IRequestWriter requestWriter, ConnectionOptions connectionOptions)
+        public ResponseReader(ILogicalConnection logicalConnection, ConnectionOptions connectionOptions)
         {
-            _physicalConnection = physicalConnection;
-            _requestWriter = requestWriter;
+            _physicalConnection = connectionOptions.PhysicalConnection;
+            _logicalConnection = logicalConnection;
             _connectionOptions = connectionOptions;
         }
 
         public void BeginReading()
         {
-            bool keepReading;
-            do
-            {
-                var space = EnsureSpaceAndComputeBytesToRead();
-                var result = _physicalConnection.Read(_buffer, _bytesRead, space);
-                keepReading = ProcessReadBytes(result);
-            } while (keepReading);
+            var freeBufferSpace= EnsureSpaceAndComputeBytesToRead();
+
+            _physicalConnection.BeginRead(_buffer, _bytesRead, freeBufferSpace, EndReading, this);
         }
 
-
+        private void EndReading(IAsyncResult ar)
+        {
+            throw new NotImplementedException();
+        }
+        
         private bool ProcessReadBytes(int bytesRead)
         {
             if (bytesRead <= 0)
@@ -96,7 +97,8 @@ namespace Tarantool.Client
         {
             var header = MsgPackSerializer.Deserialize<ResponseHeader>(result, _connectionOptions.MsgPackContext);
 
-            _requestWriter.CompleteRequest(header.RequestId, result);
+            var tcs = _logicalConnection.GetResponseCompletionSource(header.RequestId);
+            tcs.SetResult(result);
         }
 
         private byte[] TryParseResult(byte[] buffer, ref int offset)

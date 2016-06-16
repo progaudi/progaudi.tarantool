@@ -12,15 +12,15 @@ namespace Tarantool.Client
 
         private readonly ConnectionOptions _connectionOptions;
 
-        private readonly IRequestWriter _requestWriter;
+        private readonly ILogicalConnection _logicalConnection;
 
         private readonly IResponseReader _responseReader;
 
         public Box(ConnectionOptions options)
         {
             _connectionOptions = options;
-            _requestWriter = new RequestWriter(options.MsgPackContext, options.PhysicalConnection);
-            _responseReader = new ResponseReader(options.PhysicalConnection, _requestWriter, options);
+            _logicalConnection = new LogicalConnection(options);
+            _responseReader = options.ResponseReaderFactory.Create(_logicalConnection, options);
         }
 
         public async Task ConnectAsync()
@@ -28,23 +28,24 @@ namespace Tarantool.Client
             _connectionOptions.PhysicalConnection.Connect(_connectionOptions);
          
             var greetingsResponseBytes = new byte[128];
-            var readCount = _connectionOptions.PhysicalConnection.Read(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            var readCount = await _connectionOptions.PhysicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
             if (readCount != greetingsResponseBytes.Length)
             {
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
             }
 
-            var readerThread = new Thread(_responseReader.BeginReading);
-            readerThread.Start();
+            //var readerThread = new Thread(_responseReader.BeginReading);
+            //readerThread.Start();
 
             var greetings = new GreetingsResponse(greetingsResponseBytes);
+            _responseReader.BeginReading();
 
             var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(
                 greetings,
                 _connectionOptions.UserName,
                 _connectionOptions.Password);
 
-            await _requestWriter.SendRequest<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
+            await _logicalConnection.SendRequest<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
             
         }
         
@@ -55,7 +56,7 @@ namespace Tarantool.Client
         
         public Schema GetSchemaAsync()
         {
-            return new Schema(_requestWriter);
+            return new Schema(_logicalConnection);
         }
     }
 }

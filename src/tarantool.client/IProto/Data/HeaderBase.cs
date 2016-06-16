@@ -2,7 +2,7 @@
 {
     public abstract class HeaderBase
     {
-        protected HeaderBase(CommandCode code, ulong requestId)
+        protected HeaderBase(CommandCode code, RequestId requestId)
         {
             Code = code;
             RequestId = requestId;
@@ -10,6 +10,6 @@
 
         public CommandCode Code { get; }
 
-        public ulong RequestId { get; set; }
+        public RequestId RequestId { get; set; }
     }
 }

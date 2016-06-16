@@ -2,7 +2,7 @@
 {
     public class ResponseHeader : HeaderBase
     {
-        public ResponseHeader(CommandCode code, ulong requestId, ulong schemaId) : base(code, requestId)
+        public ResponseHeader(CommandCode code, RequestId requestId, ulong schemaId) : base(code, requestId)
         {
             SchemaId = schemaId;
         }
