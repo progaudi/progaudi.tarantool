@@ -63,7 +63,7 @@ namespace Tarantool.Client
             _connectionOptions.PhysicalConnection.Dispose();
         }
         
-        public Schema GetSchemaAsync()
+        public Schema GetSchema()
         {
             return new Schema(_logicalConnection);
         }

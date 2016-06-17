@@ -68,7 +68,7 @@ namespace Tarantool.Client
             _bytesRead += bytesRead;
             _connectionOptions.LogWriter?.WriteLine("More bytes available: " + bytesRead + " (" + _bytesRead + ")");
             var offset = 0;
-            var handled = ProcessBuffer(_buffer, ref offset);
+            var handled = ProcessBuffer(ref offset);
             _connectionOptions.LogWriter?.WriteLine("Processed: " + handled);
             if (handled != 0)
             {
@@ -86,7 +86,7 @@ namespace Tarantool.Client
             return true;
         }
 
-        private int ProcessBuffer(byte[] underlying, ref int offset)
+        private int ProcessBuffer(ref int offset)
         {
             var messageCount = 0;
             bool nonEmptyResult;
@@ -94,7 +94,7 @@ namespace Tarantool.Client
             {
                 int tmpOffset = offset;
                 // we want TryParseResult to be able to mess with these without consequence
-                var result = TryParseResult(underlying, ref tmpOffset);
+                var result = TryParseResult(ref tmpOffset);
                 nonEmptyResult = result != null && result.Length > 0;
                 if (!nonEmptyResult)
                 {
@@ -105,7 +105,6 @@ namespace Tarantool.Client
                 // entire message: update the external counters
                 offset = tmpOffset;
 
-                _connectionOptions.LogWriter?.WriteLine(result.ToString());
                 MatchResult(result);
             } while (nonEmptyResult);
 
@@ -127,24 +126,38 @@ namespace Tarantool.Client
             }
             else
             {
+                _connectionOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
                 tcs.SetResult(resultStream);
-            }
+            } 
         }
 
-        private byte[] TryParseResult(byte[] buffer, ref int offset)
+        private byte[] TryParseResult(ref int offset)
         {
             const int headerSizeBufferSize = 5;
             var headerSizeBuffer = new byte[headerSizeBufferSize];
-            Array.Copy(buffer, offset, headerSizeBuffer, 0, headerSizeBufferSize);
+            Array.Copy(_buffer, offset, headerSizeBuffer, 0, headerSizeBufferSize);
             offset += headerSizeBufferSize;
 
-            var headerSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer);
+            //TODO don't read packet size each time
+            var packetSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer);
 
-            var responseBuffer = new byte[headerSize];
-            Array.Copy(buffer, offset, responseBuffer, 0, headerSize);
-            offset += headerSize;
+            if (PacketCompletelyRead(packetSize, offset))
+            {
+                var responseBuffer = new byte[packetSize];
+                Array.Copy(_buffer, offset, responseBuffer, 0, packetSize);
+                offset += packetSize;
 
-            return responseBuffer;
+                return responseBuffer;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private bool PacketCompletelyRead(int packetSize, int offset)
+        {
+            return packetSize == _bytesRead - offset;
         }
 
         private int EnsureSpaceAndComputeBytesToRead()
