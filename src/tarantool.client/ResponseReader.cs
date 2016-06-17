@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 using MsgPack.Light;
 
 using Tarantool.Client.IProto.Data;
+using Tarantool.Client.IProto.Data.Packets;
 
 namespace Tarantool.Client
 {
@@ -28,7 +30,7 @@ namespace Tarantool.Client
 
         public void BeginReading()
         {
-            var freeBufferSpace= EnsureSpaceAndComputeBytesToRead();
+            var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
 
             _physicalConnection.BeginRead(_buffer, _bytesRead, freeBufferSpace, EndReading, this);
         }
@@ -112,10 +114,21 @@ namespace Tarantool.Client
 
         private void MatchResult(byte[] result)
         {
-            var header = MsgPackSerializer.Deserialize<ResponseHeader>(result, _connectionOptions.MsgPackContext);
+            var resultStream = new MemoryStream(result);
+
+            var header = MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _connectionOptions.MsgPackContext);
 
             var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId);
-            tcs.SetResult(result);
+
+            if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
+            {
+                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponsePacket>(resultStream, _connectionOptions.MsgPackContext);
+                tcs.SetException(new ArgumentException($"Tarantool returns an error with code:{header.Code}  and message: {errorResponse.ErrorMessage}"));
+            }
+            else
+            {
+                tcs.SetResult(resultStream);
+            }
         }
 
         private byte[] TryParseResult(byte[] buffer, ref int offset)

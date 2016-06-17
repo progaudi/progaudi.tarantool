@@ -11,17 +11,8 @@ namespace Tarantool.Client.IProto.Converters
 {
     public class AuthenticationResponseConverter : IMsgPackConverter<AuthenticationResponse>
     {
-        private IMsgPackConverter<Key> _keyConverter;
-
-        private IMsgPackConverter<string> _stringConverter;
-
-        private IMsgPackConverter<object> _nullConverter;
-
         public void Initialize(MsgPackContext context)
         {
-            _keyConverter = context.GetConverter<Key>();
-            _stringConverter = context.GetConverter<string>();
-            _nullConverter = context.NullConverter;
         }
 
         public void Write(AuthenticationResponse value, IMsgPackWriter writer)
@@ -34,9 +25,7 @@ namespace Tarantool.Client.IProto.Converters
             var length = reader.ReadMapLength();
 
             length.HasValue.ShouldBeTrue();
-
-            _keyConverter.Read(reader).ShouldBe(Key.Data);
-            _nullConverter.Read(reader);
+            length.Value.ShouldBe((uint)0);
 
             return new AuthenticationResponse();
         }

@@ -29,8 +29,10 @@ namespace Tarantool.Client.IProto.Converters
             var type = reader.ReadDataType();
             type.ShouldBe(DataTypes.UInt64);
 
-            var requestIdBytes = reader.ReadBytes(8);
-            return new RequestId(BitConverter.ToUInt64(requestIdBytes.Array.Reverse().ToArray(), 0));
+            var allbytes = reader.ReadBytes(8);
+            var requestIdBytes = allbytes.Array.Skip(allbytes.Offset).Take(allbytes.Count).Reverse().ToArray();
+
+            return new RequestId(BitConverter.ToUInt64(requestIdBytes, 0));
         }
     }
 }

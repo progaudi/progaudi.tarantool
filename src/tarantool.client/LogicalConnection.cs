@@ -27,7 +27,8 @@ namespace Tarantool.Client
 
         private RequestId _currentRequestId = new RequestId(0);
 
-        private readonly Dictionary<RequestId, TaskCompletionSource<byte[]>> _pendingRequests = new Dictionary<RequestId, TaskCompletionSource<byte[]>>();
+        private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
+            new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
         public LogicalConnection(ConnectionOptions options)
         {
@@ -63,9 +64,9 @@ namespace Tarantool.Client
             return deserializedResponse;
         }
 
-        public TaskCompletionSource<byte[]> PopResponseCompletionSource(RequestId requestId)
+        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
         {
-            TaskCompletionSource<byte[]> request;
+            TaskCompletionSource<MemoryStream> request;
             if (!_pendingRequests.TryGetValue(requestId, out request))
             {
                 throw new ArgumentOutOfRangeException($"Can't find pending request with id = {requestId}");
@@ -76,7 +77,7 @@ namespace Tarantool.Client
             return request;
         }
 
-        public IEnumerable<TaskCompletionSource<byte[]>> PopAllResponseCompletionSources()
+        public IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources()
         {
             var result = _pendingRequests.Values.ToArray();
             _pendingRequests.Clear();
@@ -92,9 +93,9 @@ namespace Tarantool.Client
             return _currentRequestId;
         }
 
-        private Task<byte[]> GetResponseTask(RequestId requestId)
+        private Task<MemoryStream> GetResponseTask(RequestId requestId)
         {
-            var tcs = new TaskCompletionSource<byte[]>();
+            var tcs = new TaskCompletionSource<MemoryStream>();
             _pendingRequests.Add(requestId, tcs);
             return tcs.Task;
         }

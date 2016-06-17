@@ -6,6 +6,10 @@ box.cfg
 box.schema.user.passwd('')
 box.schema.user.grant('guest','read,write,execute','universe')
 
+
+box.schema.user.create('notSetPassword')
+box.schema.user.create('emptyPassword', {password = ''})
+
 box.schema.user.create('operator', {password = 'operator'})
 box.schema.user.grant('operator','read,write,execute','universe')
 

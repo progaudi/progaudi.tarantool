@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="ConnectTest.cs" />
+    <Compile Include="Box\ConnectTest.cs" />
     <Compile Include="RequestFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
