@@ -99,7 +99,6 @@
     <Compile Include="IProto\Data\UpdateOperations\StringOperations.cs" />
     <Compile Include="IProto\Data\UpdateOperations\UpdateOperation.cs" />
     <Compile Include="IProto\Data\UpdateOperations\UpdateOperationType.cs" />
-    <Compile Include="IProto\Services\AuthenticationRequestFactory.cs" />
     <Compile Include="IProto\Sha1Utils.cs" />
     <Compile Include="IProto\Tuple.cs" />
     <Compile Include="Log.cs" />

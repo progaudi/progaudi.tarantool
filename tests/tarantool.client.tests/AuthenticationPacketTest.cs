@@ -7,21 +7,19 @@ using NUnit.Framework;
 using Shouldly;
 
 using Tarantool.Client.IProto.Data.Packets;
-using Tarantool.Client.IProto.Services;
 
 
 namespace Tarantool.Client.Tests
 {
     [TestFixture]
-    public class RequestFactoryTests
+    public class AuthenticationPacketTest
     {
         [Test]
         public void CreatAuthPacket()
         {
-            var requestFactory = new AuthenticationRequestFactory();
-            var salt = Encoding.UTF8.GetBytes("Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727   DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
+            var greetings = Encoding.UTF8.GetBytes("Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727   DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
             
-            var packet = requestFactory.CreateAuthentication(new GreetingsResponse(salt), "test", "test");
+            var packet = AuthenticationPacket.Create(new GreetingsResponse(greetings), "test", "test");
             var msgPackContext = MsgPackContextFactory.Create();
             var serialzied = MsgPackSerializer.Serialize(packet, msgPackContext);
 

@@ -32,7 +32,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Box\ConnectTest.cs" />
-    <Compile Include="RequestFactoryTests.cs" />
+    <Compile Include="AuthenticationPacketTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\tarantool.client\tarantool.client.csproj">

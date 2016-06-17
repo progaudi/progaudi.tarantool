@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Tarantool.Client.IProto.Data.Packets;
-using Tarantool.Client.IProto.Services;
 
 namespace Tarantool.Client
 {
     public class Box : IBox
     {
-        private readonly AuthenticationRequestFactory _authenticationRequestFactory = new AuthenticationRequestFactory();
-
         private readonly ConnectionOptions _connectionOptions;
 
         private readonly ILogicalConnection _logicalConnection;
@@ -53,7 +49,7 @@ namespace Tarantool.Client
             }
             else
             {
-                var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(
+                var authenticateRequest = AuthenticationPacket.Create(
                     greetings,
                     _connectionOptions.UserName,
                     _connectionOptions.Password);
