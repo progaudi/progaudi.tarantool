@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 using MsgPack.Light;
 
@@ -7,7 +6,6 @@ using NUnit.Framework;
 
 using Shouldly;
 
-using Tarantool.Client.IProto;
 using Tarantool.Client.IProto.Data.Packets;
 using Tarantool.Client.IProto.Services;
 
@@ -22,6 +20,7 @@ namespace Tarantool.Client.Tests
         {
             var requestFactory = new AuthenticationRequestFactory();
             var salt = Encoding.UTF8.GetBytes("Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727   DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
+            
             var packet = requestFactory.CreateAuthentication(new GreetingsResponse(salt), "test", "test");
             var msgPackContext = MsgPackContextFactory.Create();
             var serialzied = MsgPackSerializer.Serialize(packet, msgPackContext);

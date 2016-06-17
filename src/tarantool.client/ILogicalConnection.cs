@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
+using Tarantool.Client.IProto.Data;
 using Tarantool.Client.IProto.Data.Packets;
 
 namespace Tarantool.Client
@@ -9,6 +11,8 @@ namespace Tarantool.Client
         Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request)
             where TRequest : IRequestPacket;
 
-        TaskCompletionSource<byte[]> GetResponseCompletionSource(ulong requestId);
+        TaskCompletionSource<byte[]> PopResponseCompletionSource(RequestId requestId);
+
+        IEnumerable<TaskCompletionSource<byte[]>> PopAllResponseCompletionSources();
     }
 }

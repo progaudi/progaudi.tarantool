@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ namespace Tarantool.Client
 
         private RequestId _currentRequestId = new RequestId(0);
 
-        private readonly Dictionary<ulong, TaskCompletionSource<byte[]>> _pendingRequests = new Dictionary<ulong, TaskCompletionSource<byte[]>>();
+        private readonly Dictionary<RequestId, TaskCompletionSource<byte[]>> _pendingRequests = new Dictionary<RequestId, TaskCompletionSource<byte[]>>();
 
         public LogicalConnection(ConnectionOptions options)
         {
@@ -57,11 +58,12 @@ namespace Tarantool.Client
             await _physicalConnection.WriteAsync(serializedRequest, 0, serializedRequest.Length);
 
             var responseBytes = await responseTask;
+
             var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
             return deserializedResponse;
         }
 
-        public TaskCompletionSource<byte[]> GetResponseCompletionSource(ulong requestId)
+        public TaskCompletionSource<byte[]> PopResponseCompletionSource(RequestId requestId)
         {
             TaskCompletionSource<byte[]> request;
             if (!_pendingRequests.TryGetValue(requestId, out request))
@@ -69,7 +71,16 @@ namespace Tarantool.Client
                 throw new ArgumentOutOfRangeException($"Can't find pending request with id = {requestId}");
             }
 
+            _pendingRequests.Remove(requestId);
+
             return request;
+        }
+
+        public IEnumerable<TaskCompletionSource<byte[]>> PopAllResponseCompletionSources()
+        {
+            var result = _pendingRequests.Values.ToArray();
+            _pendingRequests.Clear();
+            return result;
         }
 
         private RequestId GetRequestId()
@@ -81,7 +92,7 @@ namespace Tarantool.Client
             return _currentRequestId;
         }
 
-        private Task<byte[]> GetResponseTask(ulong requestId)
+        private Task<byte[]> GetResponseTask(RequestId requestId)
         {
             var tcs = new TaskCompletionSource<byte[]>();
             _pendingRequests.Add(requestId, tcs);

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Tarantool.Client.IProto.Data.Packets;
@@ -34,21 +35,33 @@ namespace Tarantool.Client
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
             }
 
-            //var readerThread = new Thread(_responseReader.BeginReading);
-            //readerThread.Start();
-
             var greetings = new GreetingsResponse(greetingsResponseBytes);
+
             _responseReader.BeginReading();
 
-            var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(
-                greetings,
-                _connectionOptions.UserName,
-                _connectionOptions.Password);
-
-            await _logicalConnection.SendRequest<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
-            
+            await TryLogin(greetings);
         }
-        
+
+        private async Task TryLogin(GreetingsResponse greetings)
+        {
+            if (string.IsNullOrEmpty(_connectionOptions.UserName))
+            {
+                if (!_connectionOptions.GuestMode)
+                {
+                    throw new ArgumentException("Empty username in non-guest mode!");
+                }
+            }
+            else
+            {
+                var authenticateRequest = _authenticationRequestFactory.CreateAuthentication(
+                    greetings,
+                    _connectionOptions.UserName,
+                    _connectionOptions.Password);
+
+                await _logicalConnection.SendRequest<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
+            }
+        }
+
         public void Dispose()
         {
             _connectionOptions.PhysicalConnection.Dispose();

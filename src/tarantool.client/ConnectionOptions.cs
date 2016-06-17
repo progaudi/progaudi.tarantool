@@ -24,5 +24,7 @@ namespace Tarantool.Client
         public IResponseReaderFactory ResponseReaderFactory { get; set; } = new ResponseReaderFactory();
 
         public IRequestQueue RequestQueue { get; set; } = new RequestQueue();
+
+        public bool GuestMode { get; set; } = true;
     }
 }

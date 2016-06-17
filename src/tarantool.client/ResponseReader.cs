@@ -35,9 +35,26 @@ namespace Tarantool.Client
 
         private void EndReading(IAsyncResult ar)
         {
-            throw new NotImplementedException();
+            var bytesRead = _physicalConnection.EndRead(ar);
+            if (ProcessReadBytes(bytesRead))
+            {
+                BeginReading();
+            }
+            else
+            {
+                CancelAllPendingRequests();
+            }
         }
-        
+
+        private void CancelAllPendingRequests()
+        {
+            var responses = _logicalConnection.PopAllResponseCompletionSources();
+            foreach (var response in responses)
+            {
+                response.SetException(new InvalidOperationException("Can't read from physical connection."));
+            }
+        }
+
         private bool ProcessReadBytes(int bytesRead)
         {
             if (bytesRead <= 0)
@@ -97,7 +114,7 @@ namespace Tarantool.Client
         {
             var header = MsgPackSerializer.Deserialize<ResponseHeader>(result, _connectionOptions.MsgPackContext);
 
-            var tcs = _logicalConnection.GetResponseCompletionSource(header.RequestId);
+            var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId);
             tcs.SetResult(result);
         }
 
