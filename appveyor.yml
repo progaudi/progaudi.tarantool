@@ -32,3 +32,5 @@ build:
   verbosity: minimal
 
 deploy: off
+
+test: off
