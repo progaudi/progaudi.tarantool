@@ -25,7 +25,7 @@ install:
 
 build:
   parallel: true
-  project: tarantool-dnx.sln
+  project: TarantoolClient.sln
   verbosity: minimal
 
 deploy: off
