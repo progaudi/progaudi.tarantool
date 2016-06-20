@@ -14,6 +14,8 @@ namespace Tarantool.Client
     {
         private readonly ILogicalConnection _logicalConnection;
 
+        private Index PrimaryIndex => Indices.First();
+
         public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields, ILogicalConnection logicalConnection)
         {
             Id = id;
@@ -149,6 +151,9 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        private Index PrimaryIndex => Indices.First();
+        public override string ToString()
+        {
+            return $"{Name}, id={Id}";
+        }
     }
 }

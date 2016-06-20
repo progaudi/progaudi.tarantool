@@ -46,9 +46,9 @@ namespace Tarantool.Client.Tests.Schema
         }
 
         [Test]
-        public async Task returns_space()
+        public async Task returns_space_by_id()
         {
-            const uint VSpaceId = 0x121; // that space always exist and contains other spaces.
+            const uint VSpaceId = 0x119; // that space always exist and contains other spaces.
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
@@ -63,6 +63,26 @@ namespace Tarantool.Client.Tests.Schema
             var space = await schema.GetSpaceAsync(VSpaceId);
 
             space.Id.ShouldBe(VSpaceId);
+        }
+
+        [Test]
+        public async Task returns_space_by_name()
+        {
+            const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
+            var options = new ConnectionOptions()
+            {
+                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
+            };
+
+            var tarantoolClient = new Client.Box(options);
+
+            await tarantoolClient.ConnectAsync();
+
+            var schema = tarantoolClient.GetSchema();
+
+            var space = await schema.GetSpaceAsync(VSpaceName);
+
+            space.Name.ShouldBe(VSpaceName);
         }
     }
 }

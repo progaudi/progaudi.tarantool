@@ -174,5 +174,10 @@ namespace Tarantool.Client
         {
             throw new NotImplementedException();
         }
+
+        public override string ToString()
+        {
+            return $"{Name}, id={Id}, spaceId={SpaceId}";
+        }
     }
 }
