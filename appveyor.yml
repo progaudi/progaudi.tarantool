@@ -42,4 +42,4 @@ build:
 before_test:
   - ps: tarantool.cmd
  
- deploy: off
+deploy: off
