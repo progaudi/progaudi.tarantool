@@ -22,7 +22,6 @@ init:
 
 install:
   - choco install -y mingw
-  - choco install -y virtualbox
   - choco install -y docker-machine
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
 
@@ -30,7 +29,7 @@ before_build:
   - nuget restore
 
 build_script:
-  - docker-machine.exe create -d virtualbox dev
+  - docker-machine.exe create -d hyperv dev
   - ps: docker-machine.exe env dev --shell powershell | Invoke-Expression
 
 build:
