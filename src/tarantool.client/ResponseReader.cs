@@ -70,20 +70,33 @@ namespace Tarantool.Client
             var offset = 0;
             var handled = ProcessBuffer(ref offset);
             _connectionOptions.LogWriter?.WriteLine("Processed: " + handled);
-            if (handled != 0)
+
+            if (handled == 0)
             {
-                // read stuff
-                var remainingBytesCount = _buffer.Length - offset;
-                if (remainingBytesCount > 0)
-                {
-                    _connectionOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
-                    //  if anything was left over, we need to copy it to
-                    // the start of the buffer so it can be used next time
-                    Buffer.BlockCopy(_buffer, offset, _buffer, 0, remainingBytesCount);
-                }
-                _bytesRead = remainingBytesCount;
+                return true;
             }
+
+            if (!UnprocessedBytesLeft(offset, bytesRead))
+            {
+                _bytesRead = 0;
+                return true;
+            }
+
+            var remainingBytesCount = _buffer.Length - offset;
+            if (remainingBytesCount > 0)
+            {
+                _connectionOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
+                //  if anything was left over, we need to copy it to
+                // the start of the buffer so it can be used next time
+                Buffer.BlockCopy(_buffer, offset, _buffer, 0, remainingBytesCount);
+            }
+            _bytesRead = remainingBytesCount;
             return true;
+        }
+
+        private bool UnprocessedBytesLeft(int offset, int bytesRead)
+        {
+            return offset != bytesRead;
         }
 
         private int ProcessBuffer(ref int offset)
