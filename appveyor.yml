@@ -23,6 +23,9 @@ init:
 install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
 
+before_build:
+  - nuget restore
+
 build:
   parallel: true
   project: TarantoolClient.sln
