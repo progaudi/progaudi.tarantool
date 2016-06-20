@@ -46,7 +46,7 @@ namespace Tarantool.Client.IProto.Converters
 
             var fields = _fieldConverter.Read(reader);
 
-            return new Space(id, fieldCount, name, null, engine, fields.AsReadOnly(), null);
+            return new Space(id, fieldCount, name, null, engine, fields.AsReadOnly());
         }
     }
 }

@@ -12,16 +12,10 @@ namespace Tarantool.Client
     public class Schema
     {
         private const int VSpace = 0x119;
-        
-        private const int VIndex = 0x121;
 
         private const int SpaceById = 0;
 
         private const int SpaceByName = 2;
-
-        private const int IndexById = 0;
-
-        private const int IndexByName = 2;
 
         private readonly ILogicalConnection _logicalConnection;
 
@@ -44,7 +38,10 @@ namespace Tarantool.Client
             if(!response.Data.Any())
                 throw new ArgumentException($"Space with name '{name}' was found!");
 
-            return response.Data.Single();
+            var result = response.Data.Single();
+            result.Connection = _logicalConnection;
+
+            return result;
         }
 
         public async Task<Space> GetSpaceAsync(uint id)
@@ -56,31 +53,11 @@ namespace Tarantool.Client
             if (!response.Data.Any())
                 throw new ArgumentException($"Space with id '{id}' was not found!");
 
-            return response.Data.Single();
+            var result = response.Data.Single();
+            result.Connection = _logicalConnection;
+
+            return result;
         }
 
-        public Task<Index> GetIndexAsync(string name)
-        {
-            var selectIndexRequest = new SelectPacket<IProto.Tuple<string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
-
-            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<string>>, ResponsePacket<Index[]>>(selectIndexRequest);
-
-            if (!response.Data.Any())
-                throw new ArgumentException($"Index with name '{name}' was not found!");
-
-            return response.Data.Single();
-        }
-
-        public async Task<Index> GetIndexAsync(uint id)
-        {
-            var selectIndexRequest = new SelectPacket<IProto.Tuple<uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
-
-            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<uint>>, ResponsePacket<Index[]>>(selectIndexRequest);
-
-            if (!response.Data.Any())
-                throw new ArgumentException($"Index with id '{id}' was found!");
-
-            return response.Data.Single();
-        }
     }
 }

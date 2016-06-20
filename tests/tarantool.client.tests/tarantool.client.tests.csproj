@@ -35,6 +35,7 @@
     <Compile Include="Box\ConnectAsync_Should.cs" />
     <Compile Include="AuthenticationPacketTest.cs" />
     <Compile Include="Schema\GetSpaceAsync_Should.cs" />
+    <Compile Include="Space\GetIndexAsync_Should.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\tarantool.client\tarantool.client.csproj">
