@@ -21,7 +21,6 @@ init:
   - git config --global core.autocrlf true
 
 install:
-  - powershell -file cpuid.ps1
   - choco install -y mingw
   - choco install -y virtualbox
   - choco install -y docker-machine
