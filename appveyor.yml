@@ -25,16 +25,19 @@ cache:
 
 init:
   - git config --global core.autocrlf true
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
+  - choco install -y docker
+  - choco install -y virtualbox
+  - choco install -y --x86 docker-machine
 
 before_build:
   - nuget restore
 
-on_finish:
-- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+# Uncomment to debug via rdp
+#on_finish:
+#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 build:
   parallel: true
@@ -42,6 +45,11 @@ build:
   verbosity: minimal
 
 before_test:
-  - ps: tarantool.cmd
- 
+  - .\docker-machine.exe -D create -d virtualbox --virtualbox-no-vtx-check --virtualbox-hostonly-nictype "Am79C973" --virtualbox-boot2docker-url https://github.com/StefanScherer/boot2docker/releases/download/v1.10.1-386/boot2docker.iso dev
+  - .\docker-machine.exe ls
+  - .\docker-machine.exe env --shell powershell dev
+  - ps: .\docker-machine.exe env --shell powershell dev | iex
+  - ps: .\docker.exe version
+  - ps: .\docker.exe run --rm -t 32bit/ubuntu:14.04 echo hello
+
 deploy: off
