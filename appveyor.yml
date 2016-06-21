@@ -13,10 +13,6 @@ install:
   - choco install -y vagrant
   - choco install -y virtualbox
   - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
-  - vagrant -v
-  - VBoxManage -v
-  - ssh -V
-  - ipconfig /all
 test_script:
   - vagrant up
 
