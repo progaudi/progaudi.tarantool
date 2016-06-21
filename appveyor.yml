@@ -10,18 +10,11 @@ build_script:
   #- .\VirtualBox-5.0.14-105127-Win.exe -s -l -msiparams ADDLOCAL=VBoxApplication,VBoxUSB,VBoxNetworkAdp REBOOT=ReallySuppress
   #- AppVeyor DownloadFile https://github.com/StefanScherer/boot2docker/releases/download/v1.10.1-386/docker-machine-Windows-i386.exe
   #- copy docker-machine-Windows-i386.exe docker-machine.exe
-  - choco install -y docker
+  - choco install -y vagrant
   - choco install -y virtualbox
-  - choco install -y --x86 docker-machine
 
 test_script:
-  - docker-machine --version
-  - docker-machine create -d virtualbox --virtualbox-no-vtx-check --virtualbox-cpu-count "1" --virtualbox-disk-size "4000" --virtualbox-memory "512" --virtualbox-nat-nictype "Am79C973" --virtualbox-hostonly-nictype "Am79C973" dev
-  - docker-machine ls
-  - docker-machine env --shell powershell dev
-  - ps: docker-machine env --shell powershell dev | iex
-  - ps: docker version
-  - ps: docker run --rm -t 32bit/ubuntu:14.04 echo hello
+  - vagrant up
 
 artifacts:
   - path: screenshot.png
