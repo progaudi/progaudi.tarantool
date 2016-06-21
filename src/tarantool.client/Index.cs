@@ -44,7 +44,7 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<ResponsePacket<TTuple[]>> Select<TTuple, TKey>(TKey key, SelectOptions options = null)
+        public async Task<ResponsePacket<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null)
             where TKey : ITuple
             where TTuple : ITuple
         {
@@ -147,7 +147,19 @@ namespace Tarantool.Client
             return await LogicalConnection.SendRequest<UpdatePacket<TKey, TUpdate>, ResponsePacket<TTuple[]>>(updateRequest);
         }
 
-        public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
+        public async Task<ResponsePacket<TTuple[]>> Upsert<TKey, TUpdate, TTuple>(TKey key, UpdateOperation<TUpdate> updateOperation)
+            where TKey : ITuple
+            where TTuple : ITuple
+        {
+            var updateRequest = new UpsertPacket<TKey, TUpdate>(
+                SpaceId,
+                key,
+                updateOperation);
+
+            return await LogicalConnection.SendRequest<UpsertPacket<TKey, TUpdate>, ResponsePacket<TTuple[]>>(updateRequest);
+        }
+
+        public async Task<ResponsePacket<TTuple[]>> Delete<TKey, TTuple>(TKey key)
             where TKey : ITuple
         {
             var deleteRequest = new DeletePacket<TKey>(SpaceId, Id, key);

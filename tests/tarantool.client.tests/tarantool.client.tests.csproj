@@ -34,6 +34,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Box\ConnectAsync_Should.cs" />
     <Compile Include="AuthenticationPacketTest.cs" />
+    <Compile Include="Index\Smoke.cs" />
     <Compile Include="Schema\GetSpaceAsync_Should.cs" />
     <Compile Include="Space\GetIndexAsync_Should.cs" />
     <Compile Include="Space\Smoke.cs" />

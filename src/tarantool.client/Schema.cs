@@ -35,11 +35,11 @@ namespace Tarantool.Client
 
             var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<string>>, ResponsePacket<Space[]>>(selectIndexRequest);
 
-            if(!response.Data.Any())
+            var result = response.Data.SingleOrDefault();
+            if (result == null)
                 throw new ArgumentException($"Space with name '{name}' was found!");
-
-            var result = response.Data.Single();
-            result.Connection = _logicalConnection;
+            
+            result.LogicalConnection = _logicalConnection;
 
             return result;
         }
@@ -50,11 +50,11 @@ namespace Tarantool.Client
 
             var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<uint>>, ResponsePacket<Space[]>>(selectIndexRequest);
 
-            if (!response.Data.Any())
+            var result = response.Data.SingleOrDefault();
+            if (result == null)
                 throw new ArgumentException($"Space with id '{id}' was not found!");
 
-            var result = response.Data.Single();
-            result.Connection = _logicalConnection;
+            result.LogicalConnection = _logicalConnection;
 
             return result;
         }
