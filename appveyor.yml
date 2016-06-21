@@ -1,22 +1,41 @@
-version: "{build}"
+version: 0.0.{build}
+skip_tags: true
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+
+nuget:
+  disable_publish_on_pr: true
+
+configuration:
+  - Release
+
+matrix:
+  fast_finish: false
+
+init:
+  - git config --global core.autocrlf true
+
+install:
+  - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
+  - choco install -y vagrant
+  - choco install -y virtualbox
+  - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
+  - vagrant up
+
+before_build:
+  - nuget restore
+
+build:
+  parallel: true
+  project: TarantoolClient.sln
+  verbosity: minimal
+
+deploy: off
 
 # Uncomment to debug via RDP
 #on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
-build_script:
-  #- AppVeyor DownloadFile http://download.virtualbox.org/virtualbox/5.0.14/VirtualBox-5.0.14-105127-Win.exe
-  #- .\VirtualBox-5.0.14-105127-Win.exe -s -l -msiparams ADDLOCAL=VBoxApplication,VBoxUSB,VBoxNetworkAdp REBOOT=ReallySuppress
-  #- AppVeyor DownloadFile https://github.com/StefanScherer/boot2docker/releases/download/v1.10.1-386/docker-machine-Windows-i386.exe
-  #- copy docker-machine-Windows-i386.exe docker-machine.exe
-  - vagrant up
-
-install:
-  - choco install -y vagrant
-  - choco install -y virtualbox
-  - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
-test: off
-
-artifacts:
-  - path: screenshot.png
-    name: Release
