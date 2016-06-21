@@ -66,7 +66,6 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-
         public async Task<Index> GetIndexAsync(string indexName)
         {
             var selectIndexRequest = new SelectPacket<IProto.Tuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, IProto.Tuple.Create(Id, indexName));

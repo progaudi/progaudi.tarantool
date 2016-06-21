@@ -1,7 +1,5 @@
 using MsgPack.Light;
 
-using Shouldly;
-
 namespace Tarantool.Client.IProto.Converters
 {
     public class TupleConverter : IMsgPackConverter<Tuple>
@@ -26,7 +24,12 @@ namespace Tarantool.Client.IProto.Converters
 
         public Tuple Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(0u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 0u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
 
             return Tuple.Create();
         }
@@ -57,7 +60,13 @@ namespace Tarantool.Client.IProto.Converters
 
         public Tuple<T1> Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(1u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 1u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
 
             return Tuple.Create(item1);
@@ -92,7 +101,13 @@ namespace Tarantool.Client.IProto.Converters
 
         public Tuple<T1, T2> Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(2u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 2u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
 
@@ -131,7 +146,13 @@ namespace Tarantool.Client.IProto.Converters
 
         public Tuple<T1, T2, T3> Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(3u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 3u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
             var item3 = _t3Converter.Read(reader);
@@ -174,7 +195,13 @@ namespace Tarantool.Client.IProto.Converters
 
         public Tuple<T1, T2, T3, T4> Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(4u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 4u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
             var item3 = _t3Converter.Read(reader);
@@ -221,7 +248,13 @@ namespace Tarantool.Client.IProto.Converters
 
         public Tuple<T1, T2, T3, T4, T5> Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(5u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 5u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
             var item3 = _t3Converter.Read(reader);
@@ -273,7 +306,13 @@ namespace Tarantool.Client.IProto.Converters
         public Tuple<T1, T2, T3, T4, T5, T6> Read(
             IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(6u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 6u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
             var item3 = _t3Converter.Read(reader);
@@ -329,7 +368,13 @@ namespace Tarantool.Client.IProto.Converters
         public Tuple<T1, T2, T3, T4, T5, T6, T7> Read(
             IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(7u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 7u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
             var item3 = _t3Converter.Read(reader);
@@ -389,7 +434,13 @@ namespace Tarantool.Client.IProto.Converters
         public Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> Read(
             IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(8u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 8u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
             var item3 = _t3Converter.Read(reader);

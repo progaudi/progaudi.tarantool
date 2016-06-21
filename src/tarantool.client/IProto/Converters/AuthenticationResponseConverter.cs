@@ -2,9 +2,6 @@
 
 using MsgPack.Light;
 
-using Shouldly;
-
-using Tarantool.Client.IProto.Data;
 using Tarantool.Client.IProto.Data.Packets;
 
 namespace Tarantool.Client.IProto.Converters
@@ -23,9 +20,11 @@ namespace Tarantool.Client.IProto.Converters
         public AuthenticationResponse Read(IMsgPackReader reader)
         {
             var length = reader.ReadMapLength();
-
-            length.HasValue.ShouldBeTrue();
-            length.Value.ShouldBe((uint)0);
+            
+            if (length != 0)
+            {
+                throw ExceptionHelper.InvalidMapLength(0, length);
+            }
 
             return new AuthenticationResponse();
         }

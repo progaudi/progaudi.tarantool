@@ -43,7 +43,7 @@
     <Compile Include="RequestQueue.cs" />
     <Compile Include="LogicalConnection.cs" />
     <Compile Include="ConnectionOptions.cs" />
-    <Compile Include="ExceptionHelper.cs" />
+    <Compile Include="Utils\ExceptionHelper.cs" />
     <Compile Include="FieldType.cs" />
     <Compile Include="IBox.cs" />
     <Compile Include="ILogicalConnection.cs" />
@@ -124,10 +124,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="msgpack.light, Version=0.5.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\msgpack.light.0.5.3\lib\net451\msgpack.light.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Shouldly, Version=2.7.0.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Shouldly.2.7.0\lib\net40\Shouldly.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

@@ -2,8 +2,6 @@
 
 using MsgPack.Light;
 
-using Shouldly;
-
 using Tarantool.Client.IProto.Data;
 
 namespace Tarantool.Client.IProto.Converters

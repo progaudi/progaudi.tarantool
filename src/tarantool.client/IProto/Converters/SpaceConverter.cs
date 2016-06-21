@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 using MsgPack.Light;
 
-using Shouldly;
-
 namespace Tarantool.Client.IProto.Converters
 {
     public class SpaceConverter : IMsgPackConverter<Space>
@@ -29,9 +27,13 @@ namespace Tarantool.Client.IProto.Converters
 
         public Space Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(7u);
+            var actual = reader.ReadArrayLength();
+            const uint expected = 7u;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
 
-        
             var id = _uintConverter.Read(reader);
 
             //TODO Find what skipped number means

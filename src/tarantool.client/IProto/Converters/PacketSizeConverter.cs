@@ -3,8 +3,6 @@ using System.Linq;
 
 using MsgPack.Light;
 
-using Shouldly;
-
 namespace Tarantool.Client.IProto.Converters
 {
     public class PacketSizeConverter : IMsgPackConverter<PacketSize>
@@ -25,7 +23,10 @@ namespace Tarantool.Client.IProto.Converters
         public PacketSize Read(IMsgPackReader reader)
         {
             var type = reader.ReadDataType();
-            type.ShouldBe(DataTypes.UInt32);
+            if (type != DataTypes.UInt32)
+            {
+                throw ExceptionHelper.UnexpectedDataType(DataTypes.UInt32, type);
+            }
 
             var requestIdBytes = reader.ReadBytes(4);
             return new PacketSize(BitConverter.ToUInt32(requestIdBytes.Array.Reverse().ToArray(), 0));

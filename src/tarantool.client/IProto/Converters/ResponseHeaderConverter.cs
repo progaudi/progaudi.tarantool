@@ -2,8 +2,6 @@
 
 using MsgPack.Light;
 
-using Shouldly;
-
 using Tarantool.Client.IProto.Data;
 
 namespace Tarantool.Client.IProto.Converters
@@ -30,18 +28,31 @@ namespace Tarantool.Client.IProto.Converters
 
         public ResponseHeader Read(IMsgPackReader reader)
         {
-            reader.ReadMapLength().ShouldBe(3u);
+            var length = reader.ReadMapLength();
+            if (length != 3u)
+            {
+                throw ExceptionHelper.InvalidMapLength(3u, length);
+            }
 
-            _keyConverter.Read(reader).ShouldBe(Key.Code);
+            ReadKey(reader, Key.Code);
             var code = _codeConverter.Read(reader);
 
-            _keyConverter.Read(reader).ShouldBe(Key.Sync);
+            ReadKey(reader, Key.Sync);
             var sync = _requestIdConverter.Read(reader);
 
-            _keyConverter.Read(reader).ShouldBe(Key.SchemaId);
+            ReadKey(reader, Key.SchemaId);
             var schemaId = _ulongConverter.Read(reader);
 
             return new ResponseHeader(code, sync, schemaId);
+        }
+
+        private void ReadKey(IMsgPackReader reader, Key expected)
+        {
+            var actual = _keyConverter.Read(reader);
+            if (actual != expected)
+            {
+                throw ExceptionHelper.UnexpectedKey(expected, actual);
+            }
         }
     }
 }

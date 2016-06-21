@@ -2,8 +2,6 @@
 
 using MsgPack.Light;
 
-using Shouldly;
-
 using Tarantool.Client.IProto.Data;
 using Tarantool.Client.IProto.Data.Packets;
 
@@ -32,14 +30,22 @@ namespace Tarantool.Client.IProto.Converters
 
             var length = reader.ReadMapLength();
 
-            length.HasValue.ShouldBeTrue();
+            if (!length.HasValue)
+            {
+                throw new ArgumentException("Map length should not be null!");
+            }
 
             if (length.Value <= 0u)
             {
                 return new ResponsePacket<T>(data);
             }
 
-            _keyConverter.Read(reader).ShouldBe(Key.Data);
+            var dataKey = _keyConverter.Read(reader);
+            if (dataKey != Key.Data)
+            {
+                throw ExceptionHelper.UnexpectedKey(Key.Data, dataKey);
+            }
+
             data = _dataConverter.Read(reader);
 
             return new ResponsePacket<T>(data);

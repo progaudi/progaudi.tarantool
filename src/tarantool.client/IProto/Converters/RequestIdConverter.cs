@@ -3,8 +3,6 @@ using System.Linq;
 
 using MsgPack.Light;
 
-using Shouldly;
-
 using Tarantool.Client.IProto.Data;
 
 namespace Tarantool.Client.IProto.Converters
@@ -27,7 +25,10 @@ namespace Tarantool.Client.IProto.Converters
         public RequestId Read(IMsgPackReader reader)
         {
             var type = reader.ReadDataType();
-            type.ShouldBe(DataTypes.UInt64);
+            if (type != DataTypes.UInt64)
+            {
+                throw ExceptionHelper.UnexpectedDataType(DataTypes.UInt64, type);
+            }
 
             var allbytes = reader.ReadBytes(8);
             var requestIdBytes = allbytes.Array.Skip(allbytes.Offset).Take(allbytes.Count).Reverse().ToArray();

@@ -1,7 +1,5 @@
 ﻿using MsgPack.Light;
 
-using Shouldly;
-
 namespace Tarantool.Client.IProto.Converters
 {
     public class IndexPartConverter : IMsgPackConverter<IndexPart>
@@ -22,9 +20,13 @@ namespace Tarantool.Client.IProto.Converters
 
         public IndexPart Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(2u);
+            var length = reader.ReadArrayLength();
+            if (length != 2u)
+            {
+                throw ExceptionHelper.InvalidArrayLength(2u, length);
+            }
 
-        
+
             var fieldNo = _uintConverter.Read(reader);
             var indexPartType = _indexPartTypeConverter.Read(reader);
 

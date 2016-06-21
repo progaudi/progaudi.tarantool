@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 using MsgPack.Light;
 
-using Shouldly;
-
 namespace Tarantool.Client.IProto.Converters
 {
     public class IndexConverter : IMsgPackConverter<Index>
@@ -31,7 +29,12 @@ namespace Tarantool.Client.IProto.Converters
 
         public Index Read(IMsgPackReader reader)
         {
-            reader.ReadArrayLength().ShouldBe(6u);
+            var length = reader.ReadArrayLength();
+
+            if (length != 6u)
+            {
+                throw ExceptionHelper.InvalidArrayLength(6u, length);
+            }
         
             var spaceId = _uintConverter.Read(reader);
             var id= _uintConverter.Read(reader);

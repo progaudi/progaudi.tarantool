@@ -2,8 +2,6 @@ using System;
 
 using MsgPack.Light;
 
-using Shouldly;
-
 using Tarantool.Client.IProto.Data;
 using Tarantool.Client.IProto.Data.Packets;
 
@@ -30,11 +28,17 @@ namespace Tarantool.Client.IProto.Converters
             string errorMessage = null;
             var length = reader.ReadMapLength();
 
-            length.HasValue.ShouldBeTrue();
+            if (length != 1u)
+            {
+                throw ExceptionHelper.InvalidMapLength(1u, length);
+            }
 
-            length.ShouldBe(1u);
+            var errorKey = _keyConverter.Read(reader);
+            if (errorKey != Key.Error)
+            {
+                throw ExceptionHelper.UnexpectedKey(Key.Error, errorKey);
+            }
 
-            _keyConverter.Read(reader).ShouldBe(Key.Error);
             errorMessage = _stringConverter.Read(reader);
 
             return new ErrorResponsePacket(errorMessage);
