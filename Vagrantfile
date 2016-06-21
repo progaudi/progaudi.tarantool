@@ -24,7 +24,6 @@ EOF
 
 sudo apt-get update
 sudo apt-get -y install tarantool dos2unix"
-end
 
     config.vm.provision "copy lua config",
         type: "shell",
@@ -39,3 +38,5 @@ end
         inline: "tarantool /opt/tarantool/tarantool.lua"
 
     config.vm.network "forwarded_port", guest: 3301, host: 3301
+
+end
