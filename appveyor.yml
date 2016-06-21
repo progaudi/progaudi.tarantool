@@ -9,9 +9,14 @@ build_script:
   #- .\VirtualBox-5.0.14-105127-Win.exe -s -l -msiparams ADDLOCAL=VBoxApplication,VBoxUSB,VBoxNetworkAdp REBOOT=ReallySuppress
   #- AppVeyor DownloadFile https://github.com/StefanScherer/boot2docker/releases/download/v1.10.1-386/docker-machine-Windows-i386.exe
   #- copy docker-machine-Windows-i386.exe docker-machine.exe
+install:
   - choco install -y vagrant
   - choco install -y virtualbox
-
+  - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
+  - vagrant -v
+  - VBoxManage -v
+  - ssh -V
+  - ipconfig /all
 test_script:
   - vagrant up
 
