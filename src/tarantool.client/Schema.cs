@@ -22,7 +22,7 @@ namespace Tarantool.Client
             _logicalConnection = logicalConnection;
         }
 
-        public async Task<Space> CreateSpaceAsync(string spaceName, SpaceCreationOptions options = null)
+        public Task<Space> CreateSpaceAsync(string spaceName, SpaceCreationOptions options = null)
         {
             throw new NotImplementedException();
         }
@@ -43,7 +43,7 @@ namespace Tarantool.Client
             return response.Data.Single();
         }
 
-        public async Task<Index> GetIndexAsync(string name)
+        public Task<Index> GetIndexAsync(string name)
         {
             throw new NotImplementedException();
         }
