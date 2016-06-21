@@ -14,7 +14,17 @@ build_script:
   - choco install -y docker
 
 test_script:
-  - .\docker-machine.exe -D create -d virtualbox --virtualbox-no-vtx-check --virtualbox-nictype "Am79C973" --virtualbox-hostonly-nictype "Am79C973" --virtualbox-boot2docker-url https://github.com/StefanScherer/boot2docker/releases/download/v1.10.1-386/boot2docker.iso dev
+  - >
+    .\docker-machine.exe
+        -D create
+        -d virtualbox
+        --virtualbox-no-vtx-check
+        --virtualbox-cpu-count "1"
+        --virtualbox-disk-size "4000"
+        --virtualbox-memory "512"
+        --virtualbox-nictype "Am79C973"
+        --virtualbox-hostonly-nictype "Am79C973"
+        --virtualbox-boot2docker-url https://github.com/StefanScherer/boot2docker/releases/download/v1.10.1-386/boot2docker.iso dev
   - .\docker-machine.exe ls
   - .\docker-machine.exe env --shell powershell dev
   - ps: .\docker-machine.exe env --shell powershell dev | iex
