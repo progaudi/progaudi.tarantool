@@ -13,6 +13,13 @@ nuget:
 configuration:
   - Release
 
+clone_depth: 1
+
+# build cache to preserve files/folders between builds
+cache:
+  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+  - '%LocalAppData%\NuGet\Cache'
+
 matrix:
   fast_finish: false
 

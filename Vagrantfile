@@ -8,6 +8,7 @@ Vagrant.configure(2) do |config|
         vb.customize ["modifyvm", :id, "--nictype1", "Am79C973"]
     end
     config.vm.boot_timeout = 1200
+    config.vm.hostname = "ubuntu-xenial"
 
     config.vm.provision "install tarantool",
         type: "shell",
@@ -25,11 +26,22 @@ EOF
 sudo apt-get update
 sudo apt-get -y install tarantool dos2unix"
 
-    config.vm.provision "copy lua config",
+    config.vm.provision "create tarantool config directiory",
         type: "shell",
         binary: true,
         keep_color: true,
-        inline: "mkdir -p /opt/tarantool && cp /vagrant/tarantool.lua /opt/tarantool/tarantool.lua && dos2unix /opt/tarantool/tarantool.lua"
+        inline: "mkdir -p /opt/tarantool"
+
+    config.vm.provision "copy tarantool config",
+        type: "file",
+        source: "tarantool.lua",
+        destination: "/opt/tarantool/tarantool.lua"
+
+    config.vm.provision "fix newlines, if any problems",
+        type: "shell",
+        binary: true,
+        keep_color: true,
+        inline: "dos2unix /opt/tarantool/tarantool.lua"
 
     config.vm.provision "run tarantool",
         type: "shell",
@@ -38,5 +50,4 @@ sudo apt-get -y install tarantool dos2unix"
         inline: "tarantool /opt/tarantool/tarantool.lua"
 
     config.vm.network "forwarded_port", guest: 3301, host: 3301
-
 end
