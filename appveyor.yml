@@ -1,20 +1,21 @@
 version: "{build}"
 
 # Uncomment to debug via RDP
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 build_script:
   #- AppVeyor DownloadFile http://download.virtualbox.org/virtualbox/5.0.14/VirtualBox-5.0.14-105127-Win.exe
   #- .\VirtualBox-5.0.14-105127-Win.exe -s -l -msiparams ADDLOCAL=VBoxApplication,VBoxUSB,VBoxNetworkAdp REBOOT=ReallySuppress
   #- AppVeyor DownloadFile https://github.com/StefanScherer/boot2docker/releases/download/v1.10.1-386/docker-machine-Windows-i386.exe
   #- copy docker-machine-Windows-i386.exe docker-machine.exe
+  - vagrant up
+
 install:
   - choco install -y vagrant
   - choco install -y virtualbox
   - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
-test_script:
-  - vagrant up
+test: off
 
 artifacts:
   - path: screenshot.png
