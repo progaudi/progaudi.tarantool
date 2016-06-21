@@ -68,7 +68,7 @@ namespace Tarantool.Client
             _bytesRead += bytesRead;
             _connectionOptions.LogWriter?.WriteLine("More bytes available: " + bytesRead + " (" + _bytesRead + ")");
             var offset = 0;
-            var handled = ProcessBuffer(ref offset);
+            var handled = ProcessBuffer(ref offset, bytesRead);
             _connectionOptions.LogWriter?.WriteLine("Processed: " + handled);
 
             if (handled == 0)
@@ -99,7 +99,7 @@ namespace Tarantool.Client
             return offset != bytesRead;
         }
 
-        private int ProcessBuffer(ref int offset)
+        private int ProcessBuffer(ref int offset, int bytesRead)
         {
             var messageCount = 0;
             bool nonEmptyResult;
@@ -107,7 +107,7 @@ namespace Tarantool.Client
             {
                 int tmpOffset = offset;
                 // we want TryParseResult to be able to mess with these without consequence
-                var result = TryParseResult(ref tmpOffset);
+                var result = TryParseResult(ref tmpOffset, bytesRead);
                 nonEmptyResult = result != null && result.Length > 0;
                 if (!nonEmptyResult)
                 {
@@ -144,8 +144,11 @@ namespace Tarantool.Client
             } 
         }
 
-        private byte[] TryParseResult(ref int offset)
+        private byte[] TryParseResult(ref int offset, int bytesRead)
         {
+            if (!UnprocessedBytesLeft(offset, bytesRead))
+                return null;
+
             const int headerSizeBufferSize = 5;
             var headerSizeBuffer = new byte[headerSizeBufferSize];
             Array.Copy(_buffer, offset, headerSizeBuffer, 0, headerSizeBufferSize);
