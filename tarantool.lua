@@ -1,7 +1,8 @@
 box.cfg
-	{
-	 listen = 3301
-	}
+{
+  listen = 3301,
+  slab_alloc_arena = 0.1
+}
 
 box.schema.user.passwd('')
 box.schema.user.grant('guest','read,write,execute','universe')
