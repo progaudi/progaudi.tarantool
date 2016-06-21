@@ -21,6 +21,10 @@ box.cfg
   work_dir = work_dir
 }
 
+tester = box.schema.space.create('space_with_primary_only_index')
+tester:create_index('primary', {type='hash',  parts={1, 'NUM'}})
+
+
 box.schema.user.passwd('')
 box.schema.user.grant('guest','read,write,execute','universe')
 

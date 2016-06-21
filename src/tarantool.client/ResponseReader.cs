@@ -135,7 +135,7 @@ namespace Tarantool.Client
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
                 var errorResponse = MsgPackSerializer.Deserialize<ErrorResponsePacket>(resultStream, _connectionOptions.MsgPackContext);
-                tcs.SetException(new ArgumentException($"Tarantool returns an error with code:{header.Code}  and message: {errorResponse.ErrorMessage}"));
+                tcs.SetException(new ArgumentException($"Tarantool returns an error with code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}"));
             }
             else
             {

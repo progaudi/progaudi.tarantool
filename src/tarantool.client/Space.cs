@@ -18,10 +18,17 @@ namespace Tarantool.Client
 
         private const int IndexByName = 2;
 
+        private const uint PrimaryIndexId = 0;
+
+        private Index _primaryIndex;
+
+        private async Task<Index> GetPrimaryIndex()
+        {
+            return _primaryIndex ?? (_primaryIndex = await GetIndexAsync(PrimaryIndexId));
+        }
+
         public ILogicalConnection Connection { get; set; }
-
-        private Index PrimaryIndex => Indices.First();
-
+        
         public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
         {
             Id = id;
@@ -95,7 +102,8 @@ namespace Tarantool.Client
           where TKey : ITuple
           where TTuple : ITuple
         {
-            var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, uint.MaxValue, 0, Iterator.Eq, selectKey);
+            var primaryIndex = await GetPrimaryIndex();
+            var selectRequest = new SelectPacket<TKey>(Id, primaryIndex.Id, uint.MaxValue, 0, Iterator.Eq, selectKey);
             return await Connection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectRequest);
         }
 
@@ -103,7 +111,8 @@ namespace Tarantool.Client
             where TKey : ITuple
           where TTuple : ITuple
         {
-            var selectRequest = new SelectPacket<TKey>(Id, PrimaryIndex.Id, 1, 0, Iterator.Eq, key);
+            var primaryIndex = await GetPrimaryIndex();
+            var selectRequest = new SelectPacket<TKey>(Id, primaryIndex.Id, 1, 0, Iterator.Eq, key);
             var response = await Connection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectRequest);
             return response.Data.Single();
         }
@@ -111,8 +120,8 @@ namespace Tarantool.Client
         public async Task<ResponsePacket<TTuple[]>> Replace<TTuple>(TTuple tuple)
             where TTuple : ITuple
         {
-            var insertRequest = new ReplacePacket<TTuple>(Id, tuple);
-            return await Connection.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(insertRequest);
+            var replaceRequest = new ReplacePacket<TTuple>(Id, tuple);
+            return await Connection.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(replaceRequest);
         }
 
         public async Task<T> Put<T>(T tuple)
@@ -126,15 +135,24 @@ namespace Tarantool.Client
             where TKey : ITuple
             where TTuple : ITuple
         {
-            var updateRequest = new UpdatePacket<TKey, TUpdate>(Id, PrimaryIndex.Id, key, updateOperation);
+            var primaryIndex = await GetPrimaryIndex();
+            var updateRequest = new UpdatePacket<TKey, TUpdate>(Id, primaryIndex.Id, key, updateOperation);
             return await Connection.SendRequest<UpdatePacket<TKey, TUpdate>, ResponsePacket<TTuple[]>>(updateRequest);
         }
 
-        public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
+        public async Task<ResponsePacket<TTuple[]>> Upsert<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
+         where TTuple : ITuple
+        {
+            var upsertRequest = new UpsertPacket<TTuple, TUpdate>(Id, tuple, updateOperation);
+            return await Connection.SendRequest<UpsertPacket<TTuple, TUpdate>, ResponsePacket<TTuple[]>>(upsertRequest);
+        }
+
+        public async Task<ResponsePacket<TTuple[]>> Delete<TKey, TTuple>(TKey key)
            where TTuple : ITuple
            where TKey : ITuple
         {
-            var deleteRequest = new DeletePacket<TKey>(Id, PrimaryIndex.Id, key);
+            var primaryIndex = await GetPrimaryIndex();
+            var deleteRequest = new DeletePacket<TKey>(Id, primaryIndex.Id, key);
             return await Connection.SendRequest<DeletePacket<TKey>, ResponsePacket<TTuple[]>>(deleteRequest);
         }
 
@@ -152,7 +170,8 @@ namespace Tarantool.Client
         public async Task<ResponsePacket<TTuple[]>> Increment<TTuple, TKey>(TKey key)
             where TKey : ITuple
         {
-            var lastFieldKeyNumber = PrimaryIndex.Parts.Max(part => part.FieldNo);
+            var primaryIndex = await GetPrimaryIndex();
+            var lastFieldKeyNumber = primaryIndex.Parts.Max(part => part.FieldNo);
             var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
                 UpdateOperation<int>.CreateAddition(1, (int)lastFieldKeyNumber + 1));
 
@@ -162,7 +181,8 @@ namespace Tarantool.Client
         public async Task<ResponsePacket<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
             where TKey : ITuple
         {
-            var lastFieldKeyNumber = PrimaryIndex.Parts.Max(part => part.FieldNo);
+            var primaryIndex = await GetPrimaryIndex();
+            var lastFieldKeyNumber = primaryIndex.Parts.Max(part => part.FieldNo);
             var upsertRequest = new UpsertPacket<TKey, int>(Id, key,
                 UpdateOperation<int>.CreateAddition(-1, (int)lastFieldKeyNumber + 1));
 

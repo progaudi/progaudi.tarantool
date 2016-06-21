@@ -4,7 +4,7 @@ namespace Tarantool.Client.IProto.Data.Packets
         where T : ITuple
     {
         public ReplacePacket(uint spaceId, T tuple)
-            : base(CommandCode.Insert, spaceId, tuple)
+            : base(CommandCode.Replace, spaceId, tuple)
         {
         }
     }
