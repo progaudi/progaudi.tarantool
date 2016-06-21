@@ -37,6 +37,7 @@
     <Compile Include="Schema\GetSpaceAsync_Should.cs" />
     <Compile Include="Space\GetIndexAsync_Should.cs" />
     <Compile Include="Space\Smoke.cs" />
+    <Compile Include="Space\Unsert_Should.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\tarantool.client\tarantool.client.csproj">

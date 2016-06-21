@@ -17,7 +17,7 @@ namespace Tarantool.Client.Tests.Space
         [Test]
         public async Task Test()
         {
-            const string spaceName = "space_with_primary_only_index";
+            const string spaceName = "primary_only_index";
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
