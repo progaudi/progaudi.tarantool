@@ -3,8 +3,8 @@ version: "{build}"
 # Uncomment to debug via RDP
 #init:
 #  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-#on_finish:
-#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 build_script:
   - AppVeyor DownloadFile http://download.virtualbox.org/virtualbox/5.0.14/VirtualBox-5.0.14-105127-Win.exe
@@ -18,8 +18,8 @@ test_script:
   - .\docker-machine.exe ls
   - .\docker-machine.exe env --shell powershell dev
   - ps: .\docker-machine.exe env --shell powershell dev | iex
-  - ps: .\docker.exe version
-  - ps: .\docker.exe run --rm -t 32bit/ubuntu:14.04 echo hello
+  - ps: docker.exe version
+  - ps: docker.exe run --rm -t 32bit/ubuntu:14.04 echo hello
 
 artifacts:
   - path: screenshot.png
