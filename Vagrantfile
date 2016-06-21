@@ -30,7 +30,7 @@ sudo apt-get -y install tarantool dos2unix"
         type: "shell",
         binary: true,
         keep_color: true,
-        inline: "mkdir -p /opt/tarantool"
+        inline: "mkdir -p /opt/tarantool && chmod 0777 /opt/tarantool"
 
     config.vm.provision "copy tarantool config",
         type: "file",
