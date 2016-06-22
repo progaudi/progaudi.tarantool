@@ -3,8 +3,9 @@
 using MsgPack.Light;
 
 using Tarantool.Client.IProto.Data;
+using Tarantool.Client.IProto.Data.Packets;
 
-namespace Tarantool.Client
+namespace Tarantool.Client.Utils
 {
     public static class ExceptionHelper
     {
@@ -32,5 +33,41 @@ namespace Tarantool.Client
         {
             return new ArgumentException($"Unexpected data type: {expected} is expected, but got {actual}.");
         }
+
+        public static Exception NotConnected()
+        {
+            return new InvalidOperationException("Can't perform any operations before connected.");
+        }
+
+        public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponsePacket errorResponse)
+        {
+            return new ArgumentException($"Tarantool returns an error with code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}");
+        }
+
+        public static ArgumentOutOfRangeException WrongRequestId(RequestId requestId)
+        {
+            return new ArgumentOutOfRangeException($"Can't find pending request with id = {requestId}");
+        }
+
+        public static ArgumentException InvalidSpaceName(string name)
+        {
+            return new ArgumentException($"Space with name '{name}' was found!");
+        }
+
+        public static ArgumentException InvalidSpaceId(uint id)
+        {
+            return new ArgumentException($"Space with id '{id}' was not found!");
+        }
+
+        public static ArgumentException InvalidIndexName(string indexName, string space)
+        {
+            return new ArgumentException($"Index with name '{indexName}' was not found in space {space}!");
+        }
+
+        public static ArgumentException InvalidIndexId(uint indexId, string space)
+        {
+            return new ArgumentException($"Index with id '{indexId}' was found in space {space}!");
+        }
+
     }
 }

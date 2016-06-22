@@ -35,7 +35,7 @@ namespace Tarantool.Client.Tests.Space
             {
                 insertResponse = await space.Insert(Tuple.Create(2, "Music"));
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 var deleteResponse = await space.Delete<IProto.Tuple<int>, IProto.Tuple<int, string, double>>(Tuple.Create(2));
                 insertResponse = await space.Insert(Tuple.Create(2, "Music"));

@@ -32,23 +32,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="AsyncLazy.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="IProto\Converters\AuthenticationResponseConverter.cs" />
     <Compile Include="IProto\PacketSize.cs" />
     <Compile Include="IProto\Converters\PacketSizeConverter.cs" />
     <Compile Include="IProto\Converters\RequestIdConverter.cs" />
     <Compile Include="IProto\Data\RequestId.cs" />
-    <Compile Include="IRequestQueue.cs" />
-    <Compile Include="IResponseReader.cs" />
-    <Compile Include="IResponseReaderFactory.cs" />
-    <Compile Include="RequestQueue.cs" />
     <Compile Include="LogicalConnection.cs" />
     <Compile Include="ConnectionOptions.cs" />
     <Compile Include="Utils\ExceptionHelper.cs" />
     <Compile Include="FieldType.cs" />
-    <Compile Include="IBox.cs" />
-    <Compile Include="ILogicalConnection.cs" />
-    <Compile Include="IPhysicalConnection.cs" />
-    <Compile Include="Ilog.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="IndexCreationOptions.cs" />
     <Compile Include="IndexPart.cs" />
@@ -102,12 +96,10 @@
     <Compile Include="IProto\Data\UpdateOperations\UpdateOperationType.cs" />
     <Compile Include="IProto\Sha1Utils.cs" />
     <Compile Include="IProto\Tuple.cs" />
-    <Compile Include="Log.cs" />
     <Compile Include="MsgPackContextFactory.cs" />
     <Compile Include="Box.cs" />
     <Compile Include="NetworkStreamPhysicalConnection.cs" />
     <Compile Include="ResponseReader.cs" />
-    <Compile Include="ResponseReaderFactory.cs" />
     <Compile Include="Schema.cs" />
     <Compile Include="SelectOptions.cs" />
     <Compile Include="Space.cs" />

@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Tarantool.Client.Utils
 {
-    public class StringValueAttribute : System.Attribute
+    public class StringValueAttribute : Attribute
     {
         public StringValueAttribute(string value)
         {

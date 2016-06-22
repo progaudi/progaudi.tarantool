@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Tarantool.Client.IProto.Data;
 using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Utils;
 
 using Tuple = Tarantool.Client.IProto.Tuple;
 
@@ -17,9 +18,9 @@ namespace Tarantool.Client
 
         private const int SpaceByName = 2;
 
-        private readonly ILogicalConnection _logicalConnection;
+        private readonly LogicalConnection _logicalConnection;
 
-        public Schema(ILogicalConnection logicalConnection)
+        public Schema(LogicalConnection logicalConnection)
         {
             _logicalConnection = logicalConnection;
         }
@@ -37,13 +38,15 @@ namespace Tarantool.Client
 
             var result = response.Data.SingleOrDefault();
             if (result == null)
-                throw new ArgumentException($"Space with name '{name}' was found!");
-            
+            {
+                throw ExceptionHelper.InvalidSpaceName(name);
+            }
+
             result.LogicalConnection = _logicalConnection;
 
             return result;
         }
-
+       
         public async Task<Space> GetSpaceAsync(uint id)
         {
             var selectIndexRequest = new SelectPacket<IProto.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
@@ -52,12 +55,13 @@ namespace Tarantool.Client
 
             var result = response.Data.SingleOrDefault();
             if (result == null)
-                throw new ArgumentException($"Space with id '{id}' was not found!");
+            {
+                throw ExceptionHelper.InvalidSpaceId(id);
+            }
 
             result.LogicalConnection = _logicalConnection;
 
             return result;
         }
-
     }
 }

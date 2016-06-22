@@ -37,7 +37,7 @@ namespace Tarantool.Client.Tests.Index
             {
                 insertResponse = await index.Insert(Tuple.Create(2, "Music"));
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 var deleteResponse = await index.Delete<IProto.Tuple<int>, IProto.Tuple<int, string, double>>(Tuple.Create(2));
                 insertResponse = await index.Insert(Tuple.Create(2, "Music"));

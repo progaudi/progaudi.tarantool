@@ -2,30 +2,34 @@
 using System.Threading.Tasks;
 
 using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
 {
-    public class Box : IBox
+    public class Box
     {
         private readonly ConnectionOptions _connectionOptions;
 
-        private readonly ILogicalConnection _logicalConnection;
+        private readonly LogicalConnection _logicalConnection;
 
-        private readonly IResponseReader _responseReader;
+        private readonly ResponseReader _responseReader;
+
+        private readonly NetworkStreamPhysicalConnection _physicalConnection;
 
         public Box(ConnectionOptions options)
         {
             _connectionOptions = options;
-            _logicalConnection = new LogicalConnection(options);
-            _responseReader = options.ResponseReaderFactory.Create(_logicalConnection, options);
+            _physicalConnection = new NetworkStreamPhysicalConnection();
+            _logicalConnection = new LogicalConnection(options, _physicalConnection);
+            _responseReader = new ResponseReader(_logicalConnection, options, _physicalConnection);
         }
 
         public async Task ConnectAsync()
         {
-            _connectionOptions.PhysicalConnection.Connect(_connectionOptions);
+            _physicalConnection.Connect(_connectionOptions);
          
             var greetingsResponseBytes = new byte[128];
-            var readCount = await _connectionOptions.PhysicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
             if (readCount != greetingsResponseBytes.Length)
             {
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
@@ -35,10 +39,20 @@ namespace Tarantool.Client
 
             _responseReader.BeginReading();
 
-            await TryLogin(greetings);
+            await LoginIfNotGuest(greetings);
         }
 
-        private async Task TryLogin(GreetingsResponse greetings)
+        public void Dispose()
+        {
+            _physicalConnection.Dispose();
+        }
+
+        public Schema GetSchema()
+        {
+            return new Schema(_logicalConnection);
+        }
+
+        private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
             if (string.IsNullOrEmpty(_connectionOptions.UserName))
             {
@@ -49,6 +63,11 @@ namespace Tarantool.Client
             }
             else
             {
+                if (_connectionOptions.GuestMode)
+                {
+                    return;
+                }
+
                 var authenticateRequest = AuthenticationPacket.Create(
                     greetings,
                     _connectionOptions.UserName,
@@ -56,16 +75,6 @@ namespace Tarantool.Client
 
                 await _logicalConnection.SendRequest<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
             }
-        }
-
-        public void Dispose()
-        {
-            _connectionOptions.PhysicalConnection.Dispose();
-        }
-        
-        public Schema GetSchema()
-        {
-            return new Schema(_logicalConnection);
         }
     }
 }

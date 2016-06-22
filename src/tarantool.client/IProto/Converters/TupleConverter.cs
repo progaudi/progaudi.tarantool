@@ -1,5 +1,7 @@
 using MsgPack.Light;
 
+using Tarantool.Client.Utils;
+
 namespace Tarantool.Client.IProto.Converters
 {
     public class TupleConverter : IMsgPackConverter<Tuple>

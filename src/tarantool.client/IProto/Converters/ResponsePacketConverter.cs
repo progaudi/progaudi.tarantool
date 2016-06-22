@@ -4,6 +4,7 @@ using MsgPack.Light;
 
 using Tarantool.Client.IProto.Data;
 using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.IProto.Converters
 {

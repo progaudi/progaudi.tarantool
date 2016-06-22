@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using MsgPack.Light;
 
+using Tarantool.Client.Utils;
+
 namespace Tarantool.Client.IProto.Converters
 {
     public class SpaceConverter : IMsgPackConverter<Space>

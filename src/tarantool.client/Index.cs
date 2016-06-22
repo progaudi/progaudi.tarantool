@@ -14,7 +14,7 @@ namespace Tarantool.Client
 {
     public class Index
     {
-        public ILogicalConnection LogicalConnection { get; set; }
+        public LogicalConnection LogicalConnection { get; set; }
 
         public Index(uint id, uint spaceId, string name, bool unique, IndexType type, IReadOnlyList<IndexPart> parts)
         {

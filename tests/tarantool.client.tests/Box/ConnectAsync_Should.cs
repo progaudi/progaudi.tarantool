@@ -19,7 +19,6 @@ namespace Tarantool.Client.Tests.Box
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriter(),
-                StreamBufferSize = 1,
                 UserName = null,
                 GuestMode = false
             };
@@ -37,7 +36,6 @@ namespace Tarantool.Client.Tests.Box
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriter(),
-                StreamBufferSize = 1,
                 UserName = null,
                 GuestMode = true
             };
@@ -55,9 +53,9 @@ namespace Tarantool.Client.Tests.Box
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriter(),
-                StreamBufferSize = 1,
                 UserName = "operator",
-                Password = "wrongPassword"
+                Password = "wrongPassword",
+                GuestMode = false
             };
 
             var tarantoolClient = new Client.Box(options);
@@ -73,9 +71,9 @@ namespace Tarantool.Client.Tests.Box
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriter(),
-                StreamBufferSize = 1,
                 UserName = "notSetPassword",
-                Password = string.Empty
+                Password = string.Empty,
+                GuestMode = false
             };
 
             var tarantoolClient = new Client.Box(options);
@@ -91,7 +89,6 @@ namespace Tarantool.Client.Tests.Box
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriter(),
-                StreamBufferSize = 1,
                 UserName = "emptyPassword",
                 Password = string.Empty
             };
