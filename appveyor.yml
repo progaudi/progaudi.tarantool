@@ -11,8 +11,14 @@ nuget:
   disable_publish_on_pr: true
 
 configuration:
-  - Debug
   - Release
+
+clone_depth: 1
+
+# build cache to preserve files/folders between builds
+cache:
+  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+  - '%LocalAppData%\NuGet\Cache'
 
 matrix:
   fast_finish: false
@@ -22,6 +28,9 @@ init:
 
 install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
+  - scripts\install\vagrant.cmd
+  - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
+  - vagrant up
 
 before_build:
   - nuget restore
@@ -33,4 +42,6 @@ build:
 
 deploy: off
 
-test: off
+# Uncomment to debug via RDP
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

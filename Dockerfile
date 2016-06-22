@@ -1,10 +1,10 @@
 FROM tarantool/tarantool
 
-RUN mkdir -p /etc/tarantool/client-tests
+RUN mkdir -p /opt/tarantool/work_dir
 
-COPY tarantool.lua /etc/tarantool/client-tests/tarantool.lua
+COPY tarantool.lua /opt/tarantool/tarantool.lua
 
 RUN apt-get install -qqy dos2unix && \
-	dos2unix /etc/tarantool/client-tests/tarantool.lua
+	dos2unix /opt/tarantool/tarantool.lua
 
-CMD ["tarantool", "/etc/tarantool/client-tests/tarantool.lua"]
+CMD ["tarantool", "/opt/tarantool/tarantool.lua"]

@@ -1,7 +1,25 @@
+local port = 3301
+local max_memory_gb = 0.1
+local background = false
+local logger = nil
+local pid_file = nil
+local work_dir = '/opt/tarantool/work_dir'
+
+if arg[1] == "daemon" then
+    background = true
+    logger = "tarantool.log"
+    pid_file = "tarantool.pid"
+end
+
 box.cfg
-	{
-	 listen = 3301
-	}
+{
+  listen = port,
+  slab_alloc_arena = max_memory_gb,
+  logger = logger,
+  pid_file = pid_file,
+  background = background,
+  work_dir = work_dir
+}
 
 box.schema.user.passwd('')
 box.schema.user.grant('guest','read,write,execute','universe')
