@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Requests;
+using Tarantool.Client.Model.Responses;
 using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
@@ -68,12 +70,12 @@ namespace Tarantool.Client
                     return;
                 }
 
-                var authenticateRequest = AuthenticationPacket.Create(
+                var authenticateRequest = AuthenticationRequest.Create(
                     greetings,
                     _connectionOptions.UserName,
                     _connectionOptions.Password);
 
-                await _logicalConnection.SendRequest<AuthenticationPacket, AuthenticationResponse>(authenticateRequest);
+                await _logicalConnection.SendRequest<AuthenticationRequest, AuthenticationResponse>(authenticateRequest);
             }
         }
     }

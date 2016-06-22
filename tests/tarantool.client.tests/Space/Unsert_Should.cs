@@ -6,9 +6,10 @@ using NUnit.Framework;
 
 using Shouldly;
 
-using Tarantool.Client.IProto.Data.UpdateOperations;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.UpdateOperations;
 
-using Tuple = Tarantool.Client.IProto.Tuple;
+using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client.Tests.Space
 {
@@ -31,7 +32,7 @@ namespace Tarantool.Client.Tests.Space
 
             var space = await schema.GetSpaceAsync(spaceName);
 
-            await space.Upsert(Tuple.Create(5), UpdateOperation<int>.CreateAddition(1, 2)).ShouldThrowAsync<ArgumentException>();
+            await space.Upsert(Tuple.Create(5), UpdateOperation.CreateAddition(1, 2)).ShouldThrowAsync<ArgumentException>();
         }
     }
 }

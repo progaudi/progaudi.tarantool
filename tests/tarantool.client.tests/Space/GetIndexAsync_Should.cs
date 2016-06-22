@@ -1,11 +1,12 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
 
 using Shouldly;
+
+using Tarantool.Client.Model;
 
 namespace Tarantool.Client.Tests.Space
 {

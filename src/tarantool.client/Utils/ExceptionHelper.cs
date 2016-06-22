@@ -2,8 +2,10 @@
 
 using MsgPack.Light;
 
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Enums;
+using Tarantool.Client.Model.Headers;
+using Tarantool.Client.Model.Responses;
 
 namespace Tarantool.Client.Utils
 {
@@ -39,7 +41,7 @@ namespace Tarantool.Client.Utils
             return new InvalidOperationException("Can't perform any operations before connected.");
         }
 
-        public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponsePacket errorResponse)
+        public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponse errorResponse)
         {
             return new ArgumentException($"Tarantool returns an error with code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}");
         }

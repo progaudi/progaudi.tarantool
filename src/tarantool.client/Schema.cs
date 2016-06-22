@@ -2,11 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Enums;
+using Tarantool.Client.Model.Requests;
+using Tarantool.Client.Model.Responses;
 using Tarantool.Client.Utils;
 
-using Tuple = Tarantool.Client.IProto.Tuple;
+using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client
 {
@@ -32,9 +34,9 @@ namespace Tarantool.Client
 
         public async Task<Space> GetSpaceAsync(string name)
         {
-            var selectIndexRequest = new SelectPacket<IProto.Tuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
+            var selectIndexRequest = new SelectRequest<Model.Tuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
 
-            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<string>>, ResponsePacket<Space[]>>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<string>>, DataResponse<Space[]>>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)
@@ -49,9 +51,9 @@ namespace Tarantool.Client
        
         public async Task<Space> GetSpaceAsync(uint id)
         {
-            var selectIndexRequest = new SelectPacket<IProto.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
+            var selectIndexRequest = new SelectRequest<Model.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
 
-            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<uint>>, ResponsePacket<Space[]>>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<uint>>, DataResponse<Space[]>>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)

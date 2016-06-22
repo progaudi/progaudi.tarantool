@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
+using Tarantool.Client.Model;
 using Tarantool.Client.Utils;
 
 namespace Tarantool.Client

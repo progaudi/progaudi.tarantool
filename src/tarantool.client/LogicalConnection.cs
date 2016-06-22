@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 using MsgPack.Light;
 
-using Tarantool.Client.IProto;
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Headers;
+using Tarantool.Client.Model.Requests;
 using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
@@ -31,7 +31,7 @@ namespace Tarantool.Client
             _physicalConnection = physicalConnection;
         }
 
-        public async Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequestPacket
+        public async Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequest
         {
             var serializedRequest = MsgPackSerializer.Serialize(request, _msgPackContext);
 
@@ -74,7 +74,7 @@ namespace Tarantool.Client
             TRequest request,
             RequestId requestId,
             byte[] serializedRequest,
-            out long headerLength) where TRequest : IRequestPacket
+            out long headerLength) where TRequest : IRequest
         {
             var packetSizeBuffer = new byte[Constants.PacketSizeBufferSize + Constants.MaxHeaderLength];
             var stream = new MemoryStream(packetSizeBuffer);

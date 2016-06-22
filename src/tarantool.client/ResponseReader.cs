@@ -3,8 +3,10 @@ using System.IO;
 
 using MsgPack.Light;
 
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Enums;
+using Tarantool.Client.Model.Headers;
+using Tarantool.Client.Model.Responses;
 using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
@@ -141,7 +143,7 @@ namespace Tarantool.Client
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
-                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponsePacket>(resultStream, _connectionOptions.MsgPackContext);
+                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _connectionOptions.MsgPackContext);
                 tcs.SetException(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else

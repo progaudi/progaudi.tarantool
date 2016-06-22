@@ -1,7 +1,7 @@
 ﻿using MsgPack.Light;
 
-using Tarantool.Client.IProto.Converters;
-using Tarantool.Client.IProto.Data;
+using Tarantool.Client.Converters;
+using Tarantool.Client.Model.Enums;
 
 namespace Tarantool.Client
 {

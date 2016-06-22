@@ -6,6 +6,8 @@ using NUnit.Framework;
 
 using Shouldly;
 
+using Tarantool.Client.Model;
+
 namespace Tarantool.Client.Tests.Schema
 {
     [TestFixture]
