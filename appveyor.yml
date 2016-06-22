@@ -28,8 +28,7 @@ init:
 
 install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
-  - choco install -y vagrant
-  - choco install -y virtualbox
+  - scripts\install\vagrant.cmd
   - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
   - vagrant up
 

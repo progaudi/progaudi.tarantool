@@ -30,24 +30,28 @@ sudo apt-get -y install tarantool dos2unix"
         type: "shell",
         binary: true,
         keep_color: true,
-        inline: "mkdir -p /opt/tarantool && chmod 0777 /opt/tarantool"
+        inline: "mkdir -p /opt/tarantool/work_dir && chmod 0777 /opt/tarantool",
+        run: "always"
 
     config.vm.provision "copy tarantool config",
         type: "file",
         source: "tarantool.lua",
-        destination: "/opt/tarantool/tarantool.lua"
+        destination: "/opt/tarantool/tarantool.lua",
+        run: "always"
 
     config.vm.provision "fix newlines, if any problems",
         type: "shell",
         binary: true,
         keep_color: true,
-        inline: "dos2unix /opt/tarantool/tarantool.lua"
+        inline: "dos2unix /opt/tarantool/tarantool.lua",
+        run: "always"
 
     config.vm.provision "run tarantool",
         type: "shell",
         binary: true,
         keep_color: true,
-        inline: "tarantool /opt/tarantool/tarantool.lua"
+        inline: "tarantool /opt/tarantool/tarantool.lua daemon",
+        run: "always"
 
     config.vm.network "forwarded_port", guest: 3301, host: 3301
 end
