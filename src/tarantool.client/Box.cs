@@ -26,12 +26,12 @@ namespace Tarantool.Client
             _responseReader = new ResponseReader(_logicalConnection, options, _physicalConnection);
         }
 
-        public async Task ConnectAsync()
+        public async Task Connect()
         {
             _physicalConnection.Connect(_connectionOptions);
          
             var greetingsResponseBytes = new byte[128];
-            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            var readCount = await _physicalConnection.Read(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
             if (readCount != greetingsResponseBytes.Length)
             {
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);

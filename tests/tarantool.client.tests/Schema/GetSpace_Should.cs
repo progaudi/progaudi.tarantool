@@ -8,91 +8,106 @@ using Shouldly;
 
 using Tarantool.Client.Model;
 
-namespace Tarantool.Client.Tests.Space
+namespace Tarantool.Client.Tests.Schema
 {
     [TestFixture]
-    public class GetIndexAsync_Should
+    public class GetSpace_Should
     {
         [Test]
         public async Task throw_expection_for_non_existing_space_by_name()
         {
-            const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };
+
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(VSpaceName);
-
-            await space.GetIndexAsync("non-existing").ShouldThrowAsync<ArgumentException>();
+            await schema.GetSpace("non-existing").ShouldThrowAsync<ArgumentException>();
         }
 
         [Test]
         public async Task throw_expection_for_non_existing_space_by_id()
         {
-            const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };
+
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(VSpaceName);
-
-            await space.GetIndexAsync(12341234).ShouldThrowAsync<ArgumentException>();
+            await schema.GetSpace(12341234).ShouldThrowAsync<ArgumentException>();
         }
 
         [Test]
         public async Task returns_space_by_id()
         {
-            const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            const uint indexId = 2;
+            const uint VSpaceId = 0x119; // that space always exist and contains other spaces.
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };
+
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(VSpaceName);
+            var space = await schema.GetSpace(VSpaceId);
 
-            var index = await space.GetIndexAsync(indexId);
-
-            index.Id.ShouldBe(indexId);
+            space.Id.ShouldBe(VSpaceId);
         }
 
         [Test]
         public async Task returns_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            const string indexName = "owner";
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };
+
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(VSpaceName);
+            var space = await schema.GetSpace(VSpaceName);
 
-            var index = await space.GetIndexAsync(indexName);
+            space.Name.ShouldBe(VSpaceName);
+        }
 
-            index.Name.ShouldBe(indexName);
+        [Test]
+        public async Task read_multiple_spaces_in_a_row()
+        {
+            const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
+            var options = new ConnectionOptions()
+            {
+                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
+            };
+
+            var tarantoolClient = new Client.Box(options);
+
+            await tarantoolClient.Connect();
+
+            var schema = tarantoolClient.GetSchema();
+
+            for (int i = 0; i < 10; i++)
+            {
+                var space = await schema.GetSpace(VSpaceName);
+
+                space.Name.ShouldBe(VSpaceName);
+            }
         }
     }
 }

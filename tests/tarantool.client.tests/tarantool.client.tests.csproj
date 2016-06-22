@@ -32,13 +32,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Box\ConnectAsync_Should.cs" />
+    <Compile Include="Box\Connect_Should.cs" />
     <Compile Include="AuthenticationPacketTest.cs" />
     <Compile Include="Index\Smoke.cs" />
-    <Compile Include="Schema\GetSpaceAsync_Should.cs" />
-    <Compile Include="Space\GetIndexAsync_Should.cs" />
+    <Compile Include="Schema\GetSpace_Should.cs" />
+    <Compile Include="Space\GetIndex_Should.cs" />
     <Compile Include="Space\Smoke.cs" />
-    <Compile Include="Space\Unsert_Should.cs" />
+    <Compile Include="Space\Upsert_Should.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\tarantool.client\tarantool.client.csproj">

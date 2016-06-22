@@ -37,7 +37,7 @@ namespace Tarantool.Client
             Engine = engine;
             Fields = fields;
 
-            _primaryIndex = new AsyncLazy<Index>(() => GetIndexAsync(PrimaryIndexId));
+            _primaryIndex = new AsyncLazy<Index>(() => GetIndex(PrimaryIndexId));
         }
 
         public uint Id { get; }
@@ -67,7 +67,7 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<Index> GetIndexAsync(string indexName)
+        public async Task<Index> GetIndex(string indexName)
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(Id, indexName));
 
@@ -85,7 +85,7 @@ namespace Tarantool.Client
             return result;
         }
 
-        public async Task<Index> GetIndexAsync(uint indexId)
+        public async Task<Index> GetIndex(uint indexId)
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<uint, uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(Id, indexId));
 

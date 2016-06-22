@@ -12,7 +12,7 @@ using Tarantool.Client.Model;
 namespace Tarantool.Client.Tests.Box
 {
     [TestFixture]
-    public class ConnectAsync_Should
+    public class Connect_Should
     {
         [Test]
         public async Task throw_exception_if_UserName_is_null_and_not_GuestMode()
@@ -28,7 +28,7 @@ namespace Tarantool.Client.Tests.Box
             var tarantoolClient = new Client.Box(options);
 
 
-            await tarantoolClient.ConnectAsync().ShouldThrowAsync<InvalidOperationException>();
+            await tarantoolClient.Connect().ShouldThrowAsync<InvalidOperationException>();
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace Tarantool.Client.Tests.Box
             var tarantoolClient = new Client.Box(options);
 
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace Tarantool.Client.Tests.Box
             var tarantoolClient = new Client.Box(options);
 
 
-            await tarantoolClient.ConnectAsync().ShouldThrowAsync<ArgumentException>();
+            await tarantoolClient.Connect().ShouldThrowAsync<ArgumentException>();
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace Tarantool.Client.Tests.Box
             var tarantoolClient = new Client.Box(options);
 
 
-            await tarantoolClient.ConnectAsync().ShouldThrowAsync<ArgumentException>();
+            await tarantoolClient.Connect().ShouldThrowAsync<ArgumentException>();
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace Tarantool.Client.Tests.Box
             var tarantoolClient = new Client.Box(options);
 
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace Tarantool.Client.Tests.Box
 
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
         }
     }
 }

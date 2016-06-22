@@ -25,11 +25,11 @@ namespace Tarantool.Client.Tests.Space
             };
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(spaceName);
+            var space = await schema.GetSpace(spaceName);
 
             DataResponse<Model.Tuple<int, string>[]> insertDataResponse;
             try

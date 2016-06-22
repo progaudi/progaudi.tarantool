@@ -14,7 +14,7 @@ using Tuple = Tarantool.Client.Model.Tuple;
 namespace Tarantool.Client.Tests.Space
 {
     [TestFixture]
-    public class Unsert_Should
+    public class Upsert_Should
     {
         [Test]
         public async Task throw_expection_on_space_with_secondary_index()
@@ -26,11 +26,11 @@ namespace Tarantool.Client.Tests.Space
             };
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(spaceName);
+            var space = await schema.GetSpace(spaceName);
 
             await space.Upsert(Tuple.Create(5), UpdateOperation.CreateAddition(1, 2)).ShouldThrowAsync<ArgumentException>();
         }

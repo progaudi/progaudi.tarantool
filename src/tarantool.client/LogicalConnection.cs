@@ -41,8 +41,8 @@ namespace Tarantool.Client
             long headerLength;
             var headerBuffer = CreateAndSerializeBuffer(request, requestId, serializedRequest, out headerLength);
 
-            await _physicalConnection.WriteAsync(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
-            await _physicalConnection.WriteAsync(serializedRequest, 0, serializedRequest.Length);
+            await _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+            await _physicalConnection.Write(serializedRequest, 0, serializedRequest.Length);
 
             var responseBytes = await responseTask;
 

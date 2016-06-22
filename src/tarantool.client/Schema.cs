@@ -32,7 +32,7 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<Space> GetSpaceAsync(string name)
+        public async Task<Space> GetSpace(string name)
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
 
@@ -49,7 +49,7 @@ namespace Tarantool.Client
             return result;
         }
        
-        public async Task<Space> GetSpaceAsync(uint id)
+        public async Task<Space> GetSpace(uint id)
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
 

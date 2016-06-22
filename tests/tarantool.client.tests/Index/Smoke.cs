@@ -25,13 +25,13 @@ namespace Tarantool.Client.Tests.Index
             };
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(spaceName);
+            var space = await schema.GetSpace(spaceName);
 
-            var index = await space.GetIndexAsync("primary");
+            var index = await space.GetIndex("primary");
 
             DataResponse<Model.Tuple<int, string>[]> insertDataResponse;
             try
@@ -68,13 +68,13 @@ namespace Tarantool.Client.Tests.Index
             };
             var tarantoolClient = new Client.Box(options);
 
-            await tarantoolClient.ConnectAsync();
+            await tarantoolClient.Connect();
 
             var schema = tarantoolClient.GetSchema();
 
-            var space = await schema.GetSpaceAsync(spaceName);
+            var space = await schema.GetSpace(spaceName);
 
-            var index = await space.GetIndexAsync("treeIndex");
+            var index = await space.GetIndex("treeIndex");
 
             var min2 = index.Min<Model.Tuple<int, int, int>, Model.Tuple<int>>(Tuple.Create(3));
             var min = index.Min<Model.Tuple<int, string, double>>();

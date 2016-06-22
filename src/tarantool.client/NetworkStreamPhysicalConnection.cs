@@ -26,21 +26,21 @@ namespace Tarantool.Client
             _stream = new NetworkStream(_socket, true);
         }
 
-        public async Task<int> ReadAsync(byte[] buffer, int offset, int count)
+        public async Task<int> Read(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
 
             return await _stream.ReadAsync(buffer, offset, count);
         }
 
-        public async Task WriteAsync(byte[] buffer, int offset, int count)
+        public async Task Write(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
 
             await _stream.WriteAsync(buffer, offset, count);
         }
 
-        public async Task FlushAsync()
+        public async Task Flush()
         {
             CheckConnectionStatus();
 
