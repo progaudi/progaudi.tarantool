@@ -7,18 +7,18 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class AuthenticationResponseConverter : IMsgPackConverter<AuthenticationResponse>
+    public class EmptyResponseConverter : IMsgPackConverter<EmptyResponse>
     {
         public void Initialize(MsgPackContext context)
         {
         }
 
-        public void Write(AuthenticationResponse value, IMsgPackWriter writer)
+        public void Write(EmptyResponse value, IMsgPackWriter writer)
         {
             throw new NotImplementedException();
         }
 
-        public AuthenticationResponse Read(IMsgPackReader reader)
+        public EmptyResponse Read(IMsgPackReader reader)
         {
             var length = reader.ReadMapLength();
             
@@ -27,7 +27,7 @@ namespace Tarantool.Client.Converters
                 throw ExceptionHelper.InvalidMapLength(0, length);
             }
 
-            return new AuthenticationResponse();
+            return new EmptyResponse();
         }
     }
 }

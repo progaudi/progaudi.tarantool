@@ -71,7 +71,7 @@ namespace Tarantool.Client
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(Id, indexName));
 
-            var response = await LogicalConnection.SendRequest<SelectRequest<Model.Tuple<uint, string>>, DataResponse<Index[]>>(selectIndexRequest);
+            var response = await LogicalConnection.SendRequest<SelectRequest<Model.Tuple<uint, string>>, Index>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
 
@@ -89,7 +89,7 @@ namespace Tarantool.Client
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<uint, uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(Id, indexId));
 
-            var response = await LogicalConnection.SendRequest<SelectRequest<Model.Tuple<uint, uint>>, DataResponse<Index[]>>(selectIndexRequest);
+            var response = await LogicalConnection.SendRequest<SelectRequest<Model.Tuple<uint, uint>>, Index>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
 
@@ -107,7 +107,7 @@ namespace Tarantool.Client
             where TTuple : ITuple
         {
             var insertRequest = new InsertRequest<TTuple>(Id, tuple);
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, DataResponse<TTuple[]>>(insertRequest);
+            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
         }
 
         public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey)
@@ -115,7 +115,7 @@ namespace Tarantool.Client
           where TTuple : ITuple
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, uint.MaxValue, 0, Iterator.Eq, selectKey);
-            return await LogicalConnection.SendRequest<SelectRequest<TKey>, DataResponse<TTuple[]>>(selectRequest);
+            return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
         }
 
         public async Task<TTuple> Get<TKey, TTuple>(TKey key)
@@ -123,7 +123,7 @@ namespace Tarantool.Client
           where TTuple : ITuple
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, 1, 0, Iterator.Eq, key);
-            var response = await LogicalConnection.SendRequest<SelectRequest<TKey>, DataResponse<TTuple[]>>(selectRequest);
+            var response = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
             return response.Data.Single();
         }
 
@@ -131,7 +131,7 @@ namespace Tarantool.Client
             where TTuple : ITuple
         {
             var replaceRequest = new ReplaceRequest<TTuple>(Id, tuple);
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, DataResponse<TTuple[]>>(replaceRequest);
+            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
         }
 
         public async Task<T> Put<T>(T tuple)
@@ -146,14 +146,14 @@ namespace Tarantool.Client
             where TTuple : ITuple
         {
             var updateRequest = new UpdateRequest<TKey, TUpdate>(Id, PrimaryIndexId, key, updateOperation);
-            return await LogicalConnection.SendRequest<UpdateRequest<TKey, TUpdate>, DataResponse<TTuple[]>>(updateRequest);
+            return await LogicalConnection.SendRequest<UpdateRequest<TKey, TUpdate>, TTuple>(updateRequest);
         }
 
         public async Task<DataResponse<TTuple[]>> Upsert<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
          where TTuple : ITuple
         {
             var upsertRequest = new UpsertRequest<TTuple, TUpdate>(Id, tuple, updateOperation);
-            return await LogicalConnection.SendRequest<UpsertRequest<TTuple, TUpdate>, DataResponse<TTuple[]>>(upsertRequest);
+            return await LogicalConnection.SendRequest<UpsertRequest<TTuple, TUpdate>, TTuple>(upsertRequest);
         }
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
@@ -161,7 +161,7 @@ namespace Tarantool.Client
            where TKey : ITuple
         {
             var deleteRequest = new DeleteRequest<TKey>(Id, PrimaryIndexId, key);
-            return await LogicalConnection.SendRequest<DeleteRequest<TKey>, DataResponse<TTuple[]>>(deleteRequest);
+            return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
         }
 
         public uint Count<TKey>(TKey key)
@@ -177,24 +177,26 @@ namespace Tarantool.Client
 
         public async Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key)
             where TKey : ITuple
+            where TTuple : ITuple
         {
             var primaryIndex = await _primaryIndex;
             var lastFieldKeyNumber = primaryIndex.Parts.Max(part => part.FieldNo);
             var upsertRequest = new UpsertRequest<TKey, int>(Id, key,
                 UpdateOperation.CreateAddition(1, (int)lastFieldKeyNumber + 1));
 
-            return await LogicalConnection.SendRequest<UpsertRequest<TKey, int>, DataResponse<TTuple[]>>(upsertRequest);
+            return await LogicalConnection.SendRequest<UpsertRequest<TKey, int>, TTuple>(upsertRequest);
         }
 
         public async Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
             where TKey : ITuple
+            where TTuple : ITuple
         {
             var primaryIndex = await _primaryIndex;
             var lastFieldKeyNumber = primaryIndex.Parts.Max(part => part.FieldNo);
             var upsertRequest = new UpsertRequest<TKey, int>(Id, key,
                 UpdateOperation.CreateAddition(-1, (int)lastFieldKeyNumber + 1));
 
-            return await LogicalConnection.SendRequest<UpsertRequest<TKey, int>, DataResponse<TTuple[]>>(upsertRequest);
+            return await LogicalConnection.SendRequest<UpsertRequest<TKey, int>, TTuple>(upsertRequest);
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)

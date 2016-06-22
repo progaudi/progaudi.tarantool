@@ -29,7 +29,7 @@ namespace Tarantool.Client
             result.RegisterConverter(new RequestHeaderConverter());
 
             result.RegisterConverter(new AuthenticationPacketConverter());
-            result.RegisterConverter(new AuthenticationResponseConverter());
+            result.RegisterConverter(new EmptyResponseConverter());
             result.RegisterConverter(new ErrorResponsePacketConverter());
 
             result.RegisterConverter(new SpaceFieldConverter());

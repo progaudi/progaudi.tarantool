@@ -34,7 +34,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Utils\AsyncLazy.cs" />
     <Compile Include="Model\Constants.cs" />
-    <Compile Include="Converters\AuthenticationResponseConverter.cs" />
+    <Compile Include="Converters\EmptyResponseConverter.cs" />
     <Compile Include="Model\PacketSize.cs" />
     <Compile Include="Converters\PacketSizeConverter.cs" />
     <Compile Include="Converters\RequestIdConverter.cs" />
@@ -72,7 +72,7 @@
     <Compile Include="Converters\UpsertPacketConverter.cs" />
     <Compile Include="Model\Enums\CommandCode.cs" />
     <Compile Include="Model\Headers\HeaderBase.cs" />
-    <Compile Include="Model\Responses\AuthenticationResponse.cs" />
+    <Compile Include="Model\Responses\EmptyResponse.cs" />
     <Compile Include="Model\Requests\InsertRequest.cs" />
     <Compile Include="Model\Requests\ReplaceRequest.cs" />
     <Compile Include="Model\Headers\ResponseHeader.cs" />

@@ -36,7 +36,7 @@ namespace Tarantool.Client
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
 
-            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<string>>, DataResponse<Space[]>>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<string>>, Space>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)
@@ -53,7 +53,7 @@ namespace Tarantool.Client
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
 
-            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<uint>>, DataResponse<Space[]>>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<uint>>, Space>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)

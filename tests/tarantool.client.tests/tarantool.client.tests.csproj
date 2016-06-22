@@ -32,8 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Box\Call_Should.cs" />
     <Compile Include="Box\Connect_Should.cs" />
     <Compile Include="AuthenticationPacketTest.cs" />
+    <Compile Include="Box\Eval_Should.cs" />
     <Compile Include="Index\Smoke.cs" />
     <Compile Include="Schema\GetSpace_Should.cs" />
     <Compile Include="Space\GetIndex_Should.cs" />

@@ -10,6 +10,7 @@ using MsgPack.Light;
 using Tarantool.Client.Model;
 using Tarantool.Client.Model.Headers;
 using Tarantool.Client.Model.Requests;
+using Tarantool.Client.Model.Responses;
 using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
@@ -31,23 +32,16 @@ namespace Tarantool.Client
             _physicalConnection = physicalConnection;
         }
 
-        public async Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequest
+        public async Task SendRequestWithoutResponse<TRequest>(TRequest request)
+            where TRequest : IRequest
         {
-            var serializedRequest = MsgPackSerializer.Serialize(request, _msgPackContext);
+            await SendRequestImpl<TRequest, EmptyResponse>(request);
+        }
 
-            var requestId = GetRequestId();
-            var responseTask = GetResponseTask(requestId);
-
-            long headerLength;
-            var headerBuffer = CreateAndSerializeBuffer(request, requestId, serializedRequest, out headerLength);
-
-            await _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
-            await _physicalConnection.Write(serializedRequest, 0, serializedRequest.Length);
-
-            var responseBytes = await responseTask;
-
-            var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
-            return deserializedResponse;
+        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
+            where TRequest : IRequest
+        {
+            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
         }
 
         public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
@@ -68,6 +62,26 @@ namespace Tarantool.Client
             var result = _pendingRequests.Values.ToArray();
             _pendingRequests.Clear();
             return result;
+        }
+
+        private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
+         where TRequest : IRequest
+        {
+            var serializedRequest = MsgPackSerializer.Serialize(request, _msgPackContext);
+
+            var requestId = GetRequestId();
+            var responseTask = GetResponseTask(requestId);
+
+            long headerLength;
+            var headerBuffer = CreateAndSerializeBuffer(request, requestId, serializedRequest, out headerLength);
+
+            await _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+            await _physicalConnection.Write(serializedRequest, 0, serializedRequest.Length);
+
+            var responseBytes = await responseTask;
+
+            var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
+            return deserializedResponse;
         }
 
         private byte[] CreateAndSerializeBuffer<TRequest>(
