@@ -107,7 +107,6 @@ namespace Tarantool.Client
         private RequestId GetRequestId()
         {
             var ulongRequestId = (long)_currentRequestId.Value;
-            Interlocked.CompareExchange(ref ulongRequestId, 0, Constants.MaxRequestId);
             Interlocked.Increment(ref ulongRequestId);
 
             return _currentRequestId;
