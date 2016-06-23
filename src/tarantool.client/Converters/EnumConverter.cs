@@ -5,6 +5,8 @@ using System.Reflection;
 
 using MsgPack.Light;
 
+using Tarantool.Client.Utils;
+
 namespace Tarantool.Client.Converters
 {
     public class EnumConverter<T> : IMsgPackConverter<T>
@@ -66,7 +68,7 @@ namespace Tarantool.Client.Converters
             var enumTypeInfo = typeof(T).GetTypeInfo();
             if (!enumTypeInfo.IsEnum)
             {
-                throw new InvalidOperationException($"Enum expected, but got {typeof(T)}.");
+                throw ExceptionHelper.EnumExpected(enumTypeInfo);
             }
         }
 
@@ -81,10 +83,10 @@ namespace Tarantool.Client.Converters
             }
             else
             {
-                throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
+                throw ExceptionHelper.UnexpectedEnumUnderlyingType(enumUnderlyingType);
             }
         }
-
+        
         public T Read(IMsgPackReader reader)
         {
             var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));
@@ -94,7 +96,7 @@ namespace Tarantool.Client.Converters
                 return readMethod(reader);
             }
 
-            throw new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
+            throw ExceptionHelper.UnexpectedEnumUnderlyingType(enumUnderlyingType);
         }
     }
 }

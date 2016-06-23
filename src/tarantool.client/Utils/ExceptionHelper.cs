@@ -23,7 +23,7 @@ namespace Tarantool.Client.Utils
 
         public static Exception UnexpectedKey(Key actual, params Key[] expected)
         {
-            return new ArgumentException($"Unexpected key: {string.Join(", ", expected)} is expected, but got {actual}.");
+            return new ArgumentException($"Unexpected key: {String.Join(", ", expected)} is expected, but got {actual}.");
         }
 
         public static Exception InvalidArrayLength(uint expected, uint? actual)
@@ -79,6 +79,31 @@ namespace Tarantool.Client.Utils
         public static InvalidOperationException EmptyUsernameInGuestMode()
         {
             return new InvalidOperationException("Empty username in non-guest mode! Please specify username or enable guest mode.");
+        }
+
+        public static InvalidOperationException EnumExpected(Type type)
+        {
+            return new InvalidOperationException($"Enum expected, but got {type}.");
+        }
+
+        public static InvalidOperationException UnexpectedEnumUnderlyingType(Type enumUnderlyingType)
+        {
+            return new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
+        }
+
+        public static ArgumentException UnknownIndexCreationOption(string key)
+        {
+            return new ArgumentException($"Unknown index creation option: {key}");
+        }
+
+        public static ArgumentException UnexpectedSpaceFieldKey(string key)
+        {
+            return new ArgumentException($"Invalid SpaceField key: {key}");
+        }
+
+        public static NotSupportedException WrongIndexType(string indexType, string operation)
+        {
+            return new NotSupportedException($"Only {indexType} indicies support {operation} operation.");
         }
     }
 }

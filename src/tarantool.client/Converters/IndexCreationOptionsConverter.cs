@@ -3,6 +3,7 @@
 using MsgPack.Light;
 
 using Tarantool.Client.Model;
+using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
@@ -36,7 +37,7 @@ namespace Tarantool.Client.Converters
                         unique = boolConverter.Read(reader);
                         break;
                     default:
-                        throw new ArgumentException($"Unknown index creation option: {key}");
+                        throw ExceptionHelper.UnknownIndexCreationOption(key);
                 }
             }
 

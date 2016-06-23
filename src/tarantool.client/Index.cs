@@ -8,6 +8,7 @@ using Tarantool.Client.Model.Enums;
 using Tarantool.Client.Model.Requests;
 using Tarantool.Client.Model.Responses;
 using Tarantool.Client.Model.UpdateOperations;
+using Tarantool.Client.Utils;
 
 using Tuple = Tarantool.Client.Model.Tuple;
 
@@ -92,7 +93,7 @@ namespace Tarantool.Client
         {
             if (Type != IndexType.Tree)
             {
-                throw new NotSupportedException("Only TREE indicies support min opration.");
+                throw ExceptionHelper.WrongIndexType("TREE", "min");
             }
             var iterator = key == null ? Iterator.Eq : Iterator.Ge;
 
@@ -114,7 +115,7 @@ namespace Tarantool.Client
         {
             if (Type != IndexType.Tree)
             {
-                throw new NotSupportedException("Only TREE indicies support max opration.");
+                throw ExceptionHelper.WrongIndexType("TREE", "max");
             }
             var iterator = key == null ? Iterator.Req : Iterator.Le;
 

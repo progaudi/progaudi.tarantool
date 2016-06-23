@@ -4,6 +4,7 @@ using MsgPack.Light;
 
 using Tarantool.Client.Model;
 using Tarantool.Client.Model.Enums;
+using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
@@ -42,7 +43,7 @@ namespace Tarantool.Client.Converters
                         type = _typeConverter.Read(reader);
                         break;
                     default:
-                        throw new ArgumentException($"Invalid SpaceField key: {key}");
+                        throw ExceptionHelper.UnexpectedSpaceFieldKey(key);
                 }
             }
 

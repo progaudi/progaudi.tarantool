@@ -22,7 +22,9 @@ namespace Tarantool.Client.Utils
             string enumStringValue = null;
 
             if (!type.GetTypeInfo().IsEnum)
-                throw new ArgumentException($"Supplied type must be an Enum.  Type was {type}");
+            {
+                throw ExceptionHelper.EnumExpected(type);
+            }
 
             if (!Enum.TryParse(stringValue, ignoreCase, out output))
             {

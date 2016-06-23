@@ -23,7 +23,7 @@ namespace Tarantool.Client.Converters
             var enumTypeInfo = typeof(T).GetTypeInfo();
             if (!enumTypeInfo.IsEnum)
             {
-                throw new InvalidOperationException($"Enum expected, but got {typeof(T)}.");
+                throw ExceptionHelper.EnumExpected(enumTypeInfo);
             }
         }
 
