@@ -39,18 +39,24 @@ namespace Tarantool.Client
 
             var greetings = new GreetingsResponse(greetingsResponseBytes);
 
+            _connectionOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
+
             _responseReader.BeginReading();
+
+            _connectionOptions.LogWriter?.WriteLine("Server responses reading started.");
 
             await LoginIfNotGuest(greetings);
         }
 
         public void Dispose()
         {
+            _connectionOptions.LogWriter?.WriteLine("Box is disposing...");
             _physicalConnection.Dispose();
         }
 
         public Schema GetSchema()
         {
+            _connectionOptions.LogWriter?.WriteLine("Schema acquiring...");
             return new Schema(_logicalConnection);
         }
 
@@ -82,6 +88,8 @@ namespace Tarantool.Client
             {
                 if (_connectionOptions.GuestMode)
                 {
+                    _connectionOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
+
                     return;
                 }
 
@@ -91,6 +99,7 @@ namespace Tarantool.Client
                     _connectionOptions.Password);
 
                 await _logicalConnection.SendRequestWithoutResponse(authenticateRequest);
+                _connectionOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
             }
         }
     }

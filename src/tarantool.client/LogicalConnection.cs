@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -26,9 +25,12 @@ namespace Tarantool.Client
         private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
+        private readonly TextWriter _logWriter;
+
         public LogicalConnection(ConnectionOptions options, NetworkStreamPhysicalConnection physicalConnection)
         {
             _msgPackContext = options.MsgPackContext;
+            _logWriter = options.LogWriter;
             _physicalConnection = physicalConnection;
         }
 
@@ -67,18 +69,22 @@ namespace Tarantool.Client
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
          where TRequest : IRequest
         {
-            var serializedRequest = MsgPackSerializer.Serialize(request, _msgPackContext);
+            var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
 
             var requestId = GetRequestId();
             var responseTask = GetResponseTask(requestId);
 
             long headerLength;
-            var headerBuffer = CreateAndSerializeBuffer(request, requestId, serializedRequest, out headerLength);
+            var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out headerLength);
 
+            _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
             await _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
-            await _physicalConnection.Write(serializedRequest, 0, serializedRequest.Length);
+
+            _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
+            await _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
 
             var responseBytes = await responseTask;
+            _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseBytes.Length}.");
 
             var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
             return deserializedResponse;

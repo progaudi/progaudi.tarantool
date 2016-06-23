@@ -21,9 +21,11 @@ namespace Tarantool.Client
 
         public void Connect(ConnectionOptions options)
         {
+            options.LogWriter?.WriteLine("Starting socket connection...");
             _socket = new Socket(options.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _socket.Connect(options.EndPoint);
             _stream = new NetworkStream(_socket, true);
+            options.LogWriter?.WriteLine("Socket connection established.");
         }
 
         public async Task<int> Read(byte[] buffer, int offset, int count)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using Tarantool.Client.Model.Enums;
 using Tarantool.Client.Model.Responses;
@@ -39,6 +40,16 @@ namespace Tarantool.Client.Model.Requests
             var scrambleBytes = Sha1Utils.Xor(step1, step3);
 
             return scrambleBytes;
+        }
+
+        public override string ToString()
+        {
+            return $"Username: {Username}, Scramble: {ToReadableString(Scramble)}";
+        }
+
+        private static string ToReadableString(byte[] bytes)
+        {
+            return string.Concat(bytes.Select(b => b.ToString("X")));
         }
     }
 }

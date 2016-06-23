@@ -37,12 +37,15 @@ namespace Tarantool.Client
         {
             var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
 
+            _connectionOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
+
             _physicalConnection.BeginRead(_buffer, _bufferOffset, freeBufferSpace, EndReading, this);
         }
 
         private void EndReading(IAsyncResult ar)
         {
             var readBytesCount = _physicalConnection.EndRead(ar);
+            _connectionOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
 
             if (ProcessReadBytes(readBytesCount))
             {
@@ -56,6 +59,7 @@ namespace Tarantool.Client
 
         private void CancelAllPendingRequests()
         {
+            _connectionOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
             var responses = _logicalConnection.PopAllResponseCompletionSources();
             foreach (var response in responses)
             {
@@ -165,6 +169,8 @@ namespace Tarantool.Client
                 var responseBuffer = new byte[packetSize];
                 Array.Copy(_buffer, offset, responseBuffer, 0, packetSize);
                 offset += packetSize;
+
+                _connectionOptions.LogWriter?.WriteLine($"Packet with length {packetSize} successfully parsed.");
 
                 _currentPacketSize = null;
 
