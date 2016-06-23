@@ -1,44 +1,53 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 
 using MsgPack.Light;
 
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Enums;
+using Tarantool.Client.Model.Headers;
+using Tarantool.Client.Model.Responses;
+using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
 {
-    public class ResponseReader : IResponseReader
+    internal class ResponseReader : IResponseReader
     {
-        private readonly IPhysicalConnection _physicalConnection;
+        private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
         private readonly ILogicalConnection _logicalConnection;
 
         private readonly ConnectionOptions _connectionOptions;
 
-        private byte[] _buffer = new byte[512];
+        private byte[] _buffer;
 
-        private int _bytesRead;
+        private int _bufferOffset;
 
-        public ResponseReader(ILogicalConnection logicalConnection, ConnectionOptions connectionOptions)
+        private int? _currentPacketSize;
+
+        public ResponseReader(ILogicalConnection logicalConnection, ConnectionOptions connectionOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
-            _physicalConnection = connectionOptions.PhysicalConnection;
+            _physicalConnection = physicalConnection;
             _logicalConnection = logicalConnection;
             _connectionOptions = connectionOptions;
+            _buffer = new byte[connectionOptions.StreamBufferSize];
         }
 
         public void BeginReading()
         {
             var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
 
-            _physicalConnection.BeginRead(_buffer, _bytesRead, freeBufferSpace, EndReading, this);
+            _connectionOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
+
+            _physicalConnection.BeginRead(_buffer, _bufferOffset, freeBufferSpace, EndReading, this);
         }
 
         private void EndReading(IAsyncResult ar)
         {
-            var bytesRead = _physicalConnection.EndRead(ar);
-            if (ProcessReadBytes(bytesRead))
+            var readBytesCount = _physicalConnection.EndRead(ar);
+            _connectionOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
+
+            if (ProcessReadBytes(readBytesCount))
             {
                 BeginReading();
             }
@@ -50,6 +59,7 @@ namespace Tarantool.Client
 
         private void CancelAllPendingRequests()
         {
+            _connectionOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
             var responses = _logicalConnection.PopAllResponseCompletionSources();
             foreach (var response in responses)
             {
@@ -57,55 +67,71 @@ namespace Tarantool.Client
             }
         }
 
-        private bool ProcessReadBytes(int bytesRead)
+        private bool ProcessReadBytes(int readBytesCount)
         {
-            if (bytesRead <= 0)
+            if (readBytesCount <= 0)
             {
                 _connectionOptions.LogWriter?.WriteLine("EOF");
                 return false;
             }
 
-            _bytesRead += bytesRead;
-            _connectionOptions.LogWriter?.WriteLine("More bytes available: " + bytesRead + " (" + _bytesRead + ")");
+            _bufferOffset += readBytesCount;
+            _connectionOptions.LogWriter?.WriteLine("More bytes available: " + readBytesCount + " (" + _bufferOffset + ")");
+
             var offset = 0;
-            var handled = ProcessBuffer(ref offset);
-            _connectionOptions.LogWriter?.WriteLine("Processed: " + handled);
-            if (handled != 0)
+            var handledMessagesCount = ReadMessages(ref offset, readBytesCount);
+            _connectionOptions.LogWriter?.WriteLine("Processed: " + handledMessagesCount);
+
+            if (handledMessagesCount == 0)
             {
-                // read stuff
-                var remainingBytesCount = _buffer.Length - offset;
-                if (remainingBytesCount > 0)
-                {
-                    _connectionOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
-                    //  if anything was left over, we need to copy it to
-                    // the start of the buffer so it can be used next time
-                    Buffer.BlockCopy(_buffer, offset, _buffer, 0, remainingBytesCount);
-                }
-                _bytesRead = remainingBytesCount;
+                return true;
             }
+
+            if (!UnprocessedBytesLeft(offset, readBytesCount))
+            {
+                _bufferOffset = 0;
+                return true;
+            }
+
+            ProcessRemainingBytes(offset);
+
             return true;
         }
 
-        private int ProcessBuffer(ref int offset)
+        private void ProcessRemainingBytes(int offset)
+        {
+            var remainingBytesCount = _buffer.Length - offset;
+            if (remainingBytesCount > 0)
+            {
+                _connectionOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
+                //  if anything was left over, we need to copy it to
+                // the start of the buffer so it can be used next time
+                Buffer.BlockCopy(_buffer, offset, _buffer, 0, remainingBytesCount);
+            }
+            _bufferOffset = remainingBytesCount;
+        }
+
+        private bool UnprocessedBytesLeft(int offset, int bytesRead)
+        {
+            return offset != bytesRead;
+        }
+
+        private int ReadMessages(ref int offset, int bytesRead)
         {
             var messageCount = 0;
             bool nonEmptyResult;
             do
             {
-                int tmpOffset = offset;
-                // we want TryParseResult to be able to mess with these without consequence
-                var result = TryParseResult(ref tmpOffset);
-                nonEmptyResult = result != null && result.Length > 0;
+                var response = TryReadResponse(ref offset, bytesRead);
+                nonEmptyResult = response != null && response.Length > 0;
                 if (!nonEmptyResult)
                 {
                     continue;
                 }
 
                 messageCount++;
-                // entire message: update the external counters
-                offset = tmpOffset;
 
-                MatchResult(result);
+                MatchResult(response);
             } while (nonEmptyResult);
 
             return messageCount;
@@ -121,8 +147,8 @@ namespace Tarantool.Client
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
-                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponsePacket>(resultStream, _connectionOptions.MsgPackContext);
-                tcs.SetException(new ArgumentException($"Tarantool returns an error with code:{header.Code}  and message: {errorResponse.ErrorMessage}"));
+                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _connectionOptions.MsgPackContext);
+                tcs.SetException(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else
             {
@@ -130,16 +156,13 @@ namespace Tarantool.Client
                 tcs.SetResult(resultStream);
             } 
         }
-
-        private byte[] TryParseResult(ref int offset)
+        
+        private byte[] TryReadResponse(ref int offset, int bytesRead)
         {
-            const int headerSizeBufferSize = 5;
-            var headerSizeBuffer = new byte[headerSizeBufferSize];
-            Array.Copy(_buffer, offset, headerSizeBuffer, 0, headerSizeBufferSize);
-            offset += headerSizeBufferSize;
+            if (!UnprocessedBytesLeft(offset, bytesRead))
+                return null;
 
-            //TODO don't read packet size each time
-            var packetSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer);
+            var packetSize = GetPacketSize(ref offset);
 
             if (PacketCompletelyRead(packetSize, offset))
             {
@@ -147,27 +170,52 @@ namespace Tarantool.Client
                 Array.Copy(_buffer, offset, responseBuffer, 0, packetSize);
                 offset += packetSize;
 
+                _connectionOptions.LogWriter?.WriteLine($"Packet with length {packetSize} successfully parsed.");
+
+                _currentPacketSize = null;
+
                 return responseBuffer;
+            }
+
+            _currentPacketSize = packetSize;
+            return null;
+        }
+
+        private int GetPacketSize(ref int offset)
+        {
+            int packetSize;
+
+            if (!_currentPacketSize.HasValue)
+            {
+                var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
+                Array.Copy(_buffer, offset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
+                offset += Constants.PacketSizeBufferSize;
+
+                packetSize = (int) MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer);
             }
             else
             {
-                return null;
+                packetSize = _currentPacketSize.Value;
             }
+
+            return packetSize;
         }
 
         private bool PacketCompletelyRead(int packetSize, int offset)
         {
-            return packetSize == _bytesRead - offset;
+            return packetSize == _bufferOffset - offset;
         }
 
         private int EnsureSpaceAndComputeBytesToRead()
         {
-            int space = _buffer.Length - _bytesRead;
-            if (space == 0)
+            var space = _buffer.Length - _bufferOffset;
+            if (space != 0)
             {
-                Array.Resize(ref _buffer, _buffer.Length * 2);
-                space = _buffer.Length - _bytesRead;
+                return space;
             }
+
+            Array.Resize(ref _buffer, _buffer.Length * 2);
+            space = _buffer.Length - _bufferOffset;
             return space;
         }
 

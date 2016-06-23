@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -7,61 +6,44 @@ using System.Threading.Tasks;
 
 using MsgPack.Light;
 
-using Tarantool.Client.IProto;
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Headers;
+using Tarantool.Client.Model.Requests;
+using Tarantool.Client.Model.Responses;
+using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
 {
-    public class LogicalConnection : ILogicalConnection
+    internal class LogicalConnection : ILogicalConnection
     {
-        private const long MaxRequestId = long.MaxValue / 2;
-
         private readonly MsgPackContext _msgPackContext;
 
-        private readonly IPhysicalConnection _physicalConnection;
-
-        private const int MaxHeaderLength = 13;
-
-        private const int LengthLength = 5;
+        private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
         private RequestId _currentRequestId = new RequestId(0);
 
         private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
-        public LogicalConnection(ConnectionOptions options)
+        private readonly TextWriter _logWriter;
+
+        public LogicalConnection(ConnectionOptions options, INetworkStreamPhysicalConnection physicalConnection)
         {
             _msgPackContext = options.MsgPackContext;
-            _physicalConnection = options.PhysicalConnection;
+            _logWriter = options.LogWriter;
+            _physicalConnection = physicalConnection;
         }
 
-        public async Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequestPacket
+        public async Task SendRequestWithoutResponse<TRequest>(TRequest request)
+            where TRequest : IRequest
         {
-            var serializedRequest = MsgPackSerializer.Serialize(request, _msgPackContext);
+            await SendRequestImpl<TRequest, EmptyResponse>(request);
+        }
 
-            var buffer = new byte[LengthLength + MaxHeaderLength];
-            var stream = new MemoryStream(buffer);
-
-            var requestId = GetRequestId();
-            var responseTask = GetResponseTask(requestId);
-
-            var requestHeader = new RequestHeader(request.Code, requestId);
-            stream.Seek(LengthLength, SeekOrigin.Begin);
-            MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
-
-            var headerLength = stream.Position - LengthLength;
-            var packetLength = new PacketSize((uint)(headerLength + serializedRequest.Length));
-            stream.Seek(0, SeekOrigin.Begin);
-            MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
-
-            await _physicalConnection.WriteAsync(buffer, 0, LengthLength + (int)headerLength);
-            await _physicalConnection.WriteAsync(serializedRequest, 0, serializedRequest.Length);
-
-            var responseBytes = await responseTask;
-
-            var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
-            return deserializedResponse;
+        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
+            where TRequest : IRequest
+        {
+            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
         }
 
         public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
@@ -69,7 +51,7 @@ namespace Tarantool.Client
             TaskCompletionSource<MemoryStream> request;
             if (!_pendingRequests.TryGetValue(requestId, out request))
             {
-                throw new ArgumentOutOfRangeException($"Can't find pending request with id = {requestId}");
+                throw ExceptionHelper.WrongRequestId(requestId);
             }
 
             _pendingRequests.Remove(requestId);
@@ -84,10 +66,53 @@ namespace Tarantool.Client
             return result;
         }
 
+        private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
+         where TRequest : IRequest
+        {
+            var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
+
+            var requestId = GetRequestId();
+            var responseTask = GetResponseTask(requestId);
+
+            long headerLength;
+            var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out headerLength);
+
+            _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
+            await _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+
+            _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
+            await _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+
+            var responseBytes = await responseTask;
+            _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseBytes.Length}.");
+
+            var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
+            return deserializedResponse;
+        }
+
+        private byte[] CreateAndSerializeBuffer<TRequest>(
+            TRequest request,
+            RequestId requestId,
+            byte[] serializedRequest,
+            out long headerLength) where TRequest : IRequest
+        {
+            var packetSizeBuffer = new byte[Constants.PacketSizeBufferSize + Constants.MaxHeaderLength];
+            var stream = new MemoryStream(packetSizeBuffer);
+
+            var requestHeader = new RequestHeader(request.Code, requestId);
+            stream.Seek(Constants.PacketSizeBufferSize, SeekOrigin.Begin);
+            MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
+
+            headerLength = stream.Position - Constants.PacketSizeBufferSize;
+            var packetLength = new PacketSize((uint)(headerLength + serializedRequest.Length));
+            stream.Seek(0, SeekOrigin.Begin);
+            MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
+            return packetSizeBuffer;
+        }
+
         private RequestId GetRequestId()
         {
             var ulongRequestId = (long)_currentRequestId.Value;
-            Interlocked.CompareExchange(ref ulongRequestId, 0, MaxRequestId);
             Interlocked.Increment(ref ulongRequestId);
 
             return _currentRequestId;

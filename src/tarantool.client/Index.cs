@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Tarantool.Client.IProto;
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
-using Tarantool.Client.IProto.Data.UpdateOperations;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Enums;
+using Tarantool.Client.Model.Requests;
+using Tarantool.Client.Model.Responses;
+using Tarantool.Client.Model.UpdateOperations;
+using Tarantool.Client.Utils;
 
-using Tuple = Tarantool.Client.IProto.Tuple;
+using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client
 {
@@ -44,11 +46,11 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<ResponsePacket<TTuple[]>> Select<TTuple, TKey>(TKey key, SelectOptions options = null)
+        public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null)
             where TKey : ITuple
             where TTuple : ITuple
         {
-            var selectRequest = new SelectPacket<TKey>(
+            var selectRequest = new SelectRequest<TKey>(
                 SpaceId,
                 Id,
                 options?.Limit ?? uint.MaxValue,
@@ -56,27 +58,27 @@ namespace Tarantool.Client
                 options?.Iterator ?? Iterator.Eq,
                 key);
 
-            return await LogicalConnection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectRequest);
+            return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        public async Task<ResponsePacket<TTuple[]>> Insert<TTuple>(TTuple tuple)
+        public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
             where TTuple : ITuple
         {
-            var insertRequest = new InsertPacket<TTuple>(SpaceId, tuple);
+            var insertRequest = new InsertRequest<TTuple>(SpaceId, tuple);
 
-            return await LogicalConnection.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(insertRequest);
+            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        public async Task<ResponsePacket<TTuple[]>> Replace<TTuple>(TTuple tuple)
+        public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
             where TTuple : ITuple
         {
-            var replaceRequest = new ReplacePacket<TTuple>(SpaceId, tuple);
+            var replaceRequest = new ReplaceRequest<TTuple>(SpaceId, tuple);
 
-            return await LogicalConnection.SendRequest<InsertReplacePacket<TTuple>, ResponsePacket<TTuple[]>>(replaceRequest);
+            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
         }
 
         public async Task<TTuple> Min<TTuple>()
@@ -91,13 +93,13 @@ namespace Tarantool.Client
         {
             if (Type != IndexType.Tree)
             {
-                throw new NotSupportedException("Only TREE indicies support min opration.");
+                throw ExceptionHelper.WrongIndexType("TREE", "min");
             }
             var iterator = key == null ? Iterator.Eq : Iterator.Ge;
 
-            var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
+            var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var minResponse = await LogicalConnection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectPacket);
+            var minResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket);
             return minResponse.Data.SingleOrDefault();
         }
 
@@ -113,13 +115,13 @@ namespace Tarantool.Client
         {
             if (Type != IndexType.Tree)
             {
-                throw new NotSupportedException("Only TREE indicies support max opration.");
+                throw ExceptionHelper.WrongIndexType("TREE", "max");
             }
             var iterator = key == null ? Iterator.Req : Iterator.Le;
 
-            var selectPacket = new SelectPacket<TKey>(SpaceId, Id, 1, 0, iterator, key);
+            var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var maxResponse = await LogicalConnection.SendRequest<SelectPacket<TKey>, ResponsePacket<TTuple[]>>(selectPacket);
+            var maxResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket);
             return maxResponse.Data.SingleOrDefault();
         }
 
@@ -135,24 +137,38 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<ResponsePacket<TTuple[]>> Update<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public async Task<DataResponse<TTuple[]>> Update<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
             where TKey : ITuple
+            where TTuple : ITuple
         {
-            var updateRequest = new UpdatePacket<TKey, TUpdate>(
+            var updateRequest = new UpdateRequest<TKey, TUpdate>(
                 SpaceId,
                 Id,
                 key,
                 updateOperation);
 
-            return await LogicalConnection.SendRequest<UpdatePacket<TKey, TUpdate>, ResponsePacket<TTuple[]>>(updateRequest);
+            return await LogicalConnection.SendRequest<UpdateRequest<TKey, TUpdate>, TTuple>(updateRequest);
         }
 
-        public async Task<ResponsePacket<TTuple[]>> Delete<TTuple, TKey>(TKey key)
+        public async Task<DataResponse<TTuple[]>> Upsert<TKey, TUpdate, TTuple>(TKey key, UpdateOperation<TUpdate> updateOperation)
             where TKey : ITuple
+            where TTuple : ITuple
         {
-            var deleteRequest = new DeletePacket<TKey>(SpaceId, Id, key);
+            var updateRequest = new UpsertRequest<TKey, TUpdate>(
+                SpaceId,
+                key,
+                updateOperation);
 
-            return await LogicalConnection.SendRequest<DeletePacket<TKey>, ResponsePacket<TTuple[]>>(deleteRequest);
+            return await LogicalConnection.SendRequest<UpsertRequest<TKey, TUpdate>, TTuple>(updateRequest);
+        }
+
+        public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
+            where TKey : ITuple
+            where TTuple : ITuple
+        {
+            var deleteRequest = new DeleteRequest<TKey>(SpaceId, Id, key);
+
+            return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
         }
 
         public void Alter(IndexCreationOptions options)
@@ -173,6 +189,11 @@ namespace Tarantool.Client
         public uint BSize()
         {
             throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return $"{Name}, id={Id}, spaceId={SpaceId}";
         }
     }
 }

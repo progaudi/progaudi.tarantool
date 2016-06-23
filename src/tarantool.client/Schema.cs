@@ -2,10 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Enums;
+using Tarantool.Client.Model.Requests;
+using Tarantool.Client.Model.Responses;
+using Tarantool.Client.Utils;
 
-using Tuple = Tarantool.Client.IProto.Tuple;
+using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client
 {
@@ -13,7 +16,9 @@ namespace Tarantool.Client
     {
         private const int VSpace = 0x119;
 
-        private const int VIndex = 0x121;
+        private const int SpaceById = 0;
+
+        private const int SpaceByName = 2;
 
         private readonly ILogicalConnection _logicalConnection;
 
@@ -27,33 +32,38 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<Space> GetSpaceAsync(string name)
+        public async Task<Space> GetSpace(string name)
         {
-            var selectIndexRequest = new SelectPacket<IProto.Tuple<string>>(VSpace, 0, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
+            var selectIndexRequest = new SelectRequest<Model.Tuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
 
-            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<string>>, ResponsePacket<Space[]>>(selectIndexRequest);
-            return response.Data.Single();
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<string>>, Space>(selectIndexRequest);
+
+            var result = response.Data.SingleOrDefault();
+            if (result == null)
+            {
+                throw ExceptionHelper.InvalidSpaceName(name);
+            }
+
+            result.LogicalConnection = _logicalConnection;
+
+            return result;
         }
-
-        public async Task<Space> GetSpaceAsync(uint id)
+       
+        public async Task<Space> GetSpace(uint id)
         {
-            var selectIndexRequest = new SelectPacket<IProto.Tuple<uint>>(VSpace, 0, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
+            var selectIndexRequest = new SelectRequest<Model.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
 
-            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<uint>>, ResponsePacket<Space[]>>(selectIndexRequest);
-            return response.Data.Single();
-        }
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<uint>>, Space>(selectIndexRequest);
 
-        public Task<Index> GetIndexAsync(string name)
-        {
-            throw new NotImplementedException();
-        }
+            var result = response.Data.SingleOrDefault();
+            if (result == null)
+            {
+                throw ExceptionHelper.InvalidSpaceId(id);
+            }
 
-        public async Task<Index> GetIndexAsync(uint id)
-        {
-            var selectIndexRequest = new SelectPacket<IProto.Tuple<int>>(VIndex, 0, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(0));
+            result.LogicalConnection = _logicalConnection;
 
-            var response = await _logicalConnection.SendRequest<SelectPacket<IProto.Tuple<int>>, ResponsePacket<Index>>(selectIndexRequest);
-            return response.Data;
+            return result;
         }
     }
 }

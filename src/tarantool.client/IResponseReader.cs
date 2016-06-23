@@ -1,4 +1,4 @@
-﻿namespace Tarantool.Client
+namespace Tarantool.Client
 {
     public interface IResponseReader
     {

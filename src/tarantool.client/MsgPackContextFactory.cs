@@ -1,7 +1,7 @@
 ﻿using MsgPack.Light;
 
-using Tarantool.Client.IProto.Converters;
-using Tarantool.Client.IProto.Data;
+using Tarantool.Client.Converters;
+using Tarantool.Client.Model.Enums;
 
 namespace Tarantool.Client
 {
@@ -29,7 +29,7 @@ namespace Tarantool.Client
             result.RegisterConverter(new RequestHeaderConverter());
 
             result.RegisterConverter(new AuthenticationPacketConverter());
-            result.RegisterConverter(new AuthenticationResponseConverter());
+            result.RegisterConverter(new EmptyResponseConverter());
             result.RegisterConverter(new ErrorResponsePacketConverter());
 
             result.RegisterConverter(new SpaceFieldConverter());

@@ -1,16 +1,20 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-using Tarantool.Client.IProto.Data;
-using Tarantool.Client.IProto.Data.Packets;
+using Tarantool.Client.Model;
+using Tarantool.Client.Model.Requests;
+using Tarantool.Client.Model.Responses;
 
 namespace Tarantool.Client
 {
     public interface ILogicalConnection
     {
-        Task<TResponse> SendRequest<TRequest, TResponse>(TRequest request)
-            where TRequest : IRequestPacket;
+        Task SendRequestWithoutResponse<TRequest>(TRequest request)
+            where TRequest : IRequest;
+
+        Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
+            where TRequest : IRequest;
 
         TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId);
 

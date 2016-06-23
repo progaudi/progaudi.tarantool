@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Tarantool.Client.Utils
 {
-    public class StringValueAttribute : System.Attribute
+    internal class StringValueAttribute : Attribute
     {
         public StringValueAttribute(string value)
         {
@@ -13,7 +13,7 @@ namespace Tarantool.Client.Utils
         public string Value { get; }
     }
 
-    public class StringEnum
+    internal class StringEnum
     {
         public static T Parse<T>(Type type, string stringValue, bool ignoreCase)
             where T : struct
@@ -22,7 +22,9 @@ namespace Tarantool.Client.Utils
             string enumStringValue = null;
 
             if (!type.GetTypeInfo().IsEnum)
-                throw new ArgumentException($"Supplied type must be an Enum.  Type was {type}");
+            {
+                throw ExceptionHelper.EnumExpected(type);
+            }
 
             if (!Enum.TryParse(stringValue, ignoreCase, out output))
             {

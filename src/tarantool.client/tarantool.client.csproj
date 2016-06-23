@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <OutputPath>..\..\artifacts\bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>..\..\artifacts\obj\$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
-	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,88 +32,83 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="IProto\Converters\AuthenticationResponseConverter.cs" />
-    <Compile Include="IProto\PacketSize.cs" />
-    <Compile Include="IProto\Converters\PacketSizeConverter.cs" />
-    <Compile Include="IProto\Converters\RequestIdConverter.cs" />
-    <Compile Include="IProto\Data\RequestId.cs" />
-    <Compile Include="IRequestQueue.cs" />
-    <Compile Include="IResponseReader.cs" />
-    <Compile Include="IResponseReaderFactory.cs" />
-    <Compile Include="RequestQueue.cs" />
-    <Compile Include="LogicalConnection.cs" />
-    <Compile Include="ConnectionOptions.cs" />
-    <Compile Include="ExceptionHelper.cs" />
-    <Compile Include="FieldType.cs" />
-    <Compile Include="IBox.cs" />
     <Compile Include="ILogicalConnection.cs" />
-    <Compile Include="IPhysicalConnection.cs" />
-    <Compile Include="Ilog.cs" />
+    <Compile Include="INetworkStreamPhysicalConnection.cs" />
+    <Compile Include="IResponseReader.cs" />
+    <Compile Include="Utils\AsyncLazy.cs" />
+    <Compile Include="Model\Constants.cs" />
+    <Compile Include="Converters\EmptyResponseConverter.cs" />
+    <Compile Include="Model\PacketSize.cs" />
+    <Compile Include="Converters\PacketSizeConverter.cs" />
+    <Compile Include="Converters\RequestIdConverter.cs" />
+    <Compile Include="Model\RequestId.cs" />
+    <Compile Include="LogicalConnection.cs" />
+    <Compile Include="Model\ConnectionOptions.cs" />
+    <Compile Include="Utils\ExceptionHelper.cs" />
+    <Compile Include="Model\Enums\FieldType.cs" />
     <Compile Include="Index.cs" />
-    <Compile Include="IndexCreationOptions.cs" />
-    <Compile Include="IndexPart.cs" />
-    <Compile Include="IndexPartType.cs" />
-    <Compile Include="IndexType.cs" />
-    <Compile Include="IProto\Converters\AuthenticationPacketConverter.cs" />
-    <Compile Include="IProto\Converters\CallPacketConverter.cs" />
-    <Compile Include="IProto\Converters\DeletePacketConverter.cs" />
-    <Compile Include="IProto\Converters\EnumConverter.cs" />
-    <Compile Include="IProto\Converters\ErrorResponsePacketConverter.cs" />
-    <Compile Include="IProto\Converters\EvalPacketConverter.cs" />
-    <Compile Include="IProto\Converters\FromStringEnumConverter.cs" />
-    <Compile Include="IProto\Converters\RequestHeaderConverter.cs" />
-    <Compile Include="IProto\Converters\ResponseHeaderConverter.cs" />
-    <Compile Include="IProto\Converters\IndexConverter.cs" />
-    <Compile Include="IProto\Converters\IndexCreationOptionsConverter.cs" />
-    <Compile Include="IProto\Converters\IndexPartConverter.cs" />
-    <Compile Include="IProto\Converters\InsertReplacePacketConverter.cs" />
-    <Compile Include="IProto\Converters\ResponsePacketConverter.cs" />
-    <Compile Include="IProto\Converters\SelectPacketConverter.cs" />
-    <Compile Include="IProto\Converters\SpaceConverter.cs" />
-    <Compile Include="IProto\Converters\SpaceFieldConverter.cs" />
-    <Compile Include="IProto\Converters\StringSliceOperationConverter.cs" />
-    <Compile Include="IProto\Converters\TupleConverter.cs" />
-    <Compile Include="IProto\Converters\UpdateOperationConverter.cs" />
-    <Compile Include="IProto\Converters\UpdatePacketConverter.cs" />
-    <Compile Include="IProto\Converters\UpsertPacketConverter.cs" />
-    <Compile Include="IProto\Data\CommandCode.cs" />
-    <Compile Include="IProto\Data\HeaderBase.cs" />
-    <Compile Include="IProto\Data\Packets\AuthenticationResponse.cs" />
-    <Compile Include="IProto\Data\Packets\InsertPacket.cs" />
-    <Compile Include="IProto\Data\Packets\ReplacePacket.cs" />
-    <Compile Include="IProto\Data\ResponseHeader.cs" />
-    <Compile Include="IProto\Data\Iterator.cs" />
-    <Compile Include="IProto\Data\Key.cs" />
-    <Compile Include="IProto\Data\Packets\AuthenticationPacket.cs" />
-    <Compile Include="IProto\Data\Packets\CallPacket.cs" />
-    <Compile Include="IProto\Data\Packets\DeletePacket.cs" />
-    <Compile Include="IProto\Data\Packets\EvalPacket.cs" />
-    <Compile Include="IProto\Data\Packets\GreetingsResponse.cs" />
-    <Compile Include="IProto\Data\Packets\InsertReplacePacket.cs" />
-    <Compile Include="IProto\Data\Packets\ErrorResponsePacket.cs" />
-    <Compile Include="IProto\Data\Packets\ResponsePacket.cs" />
-    <Compile Include="IProto\Data\Packets\SelectPacket.cs" />
-    <Compile Include="IProto\Data\Packets\IRequestPacket.cs" />
-    <Compile Include="IProto\Data\Packets\UpdatePacket.cs" />
-    <Compile Include="IProto\Data\Packets\UpsertPacket.cs" />
-    <Compile Include="IProto\Data\RequestHeader.cs" />
-    <Compile Include="IProto\Data\UpdateOperations\StringOperations.cs" />
-    <Compile Include="IProto\Data\UpdateOperations\UpdateOperation.cs" />
-    <Compile Include="IProto\Data\UpdateOperations\UpdateOperationType.cs" />
-    <Compile Include="IProto\Sha1Utils.cs" />
-    <Compile Include="IProto\Tuple.cs" />
-    <Compile Include="Log.cs" />
+    <Compile Include="Model\IndexCreationOptions.cs" />
+    <Compile Include="Model\IndexPart.cs" />
+    <Compile Include="Model\Enums\IndexPartType.cs" />
+    <Compile Include="Model\Enums\IndexType.cs" />
+    <Compile Include="Converters\AuthenticationPacketConverter.cs" />
+    <Compile Include="Converters\CallPacketConverter.cs" />
+    <Compile Include="Converters\DeletePacketConverter.cs" />
+    <Compile Include="Converters\EnumConverter.cs" />
+    <Compile Include="Converters\ErrorResponsePacketConverter.cs" />
+    <Compile Include="Converters\EvalPacketConverter.cs" />
+    <Compile Include="Converters\FromStringEnumConverter.cs" />
+    <Compile Include="Converters\RequestHeaderConverter.cs" />
+    <Compile Include="Converters\ResponseHeaderConverter.cs" />
+    <Compile Include="Converters\IndexConverter.cs" />
+    <Compile Include="Converters\IndexCreationOptionsConverter.cs" />
+    <Compile Include="Converters\IndexPartConverter.cs" />
+    <Compile Include="Converters\InsertReplacePacketConverter.cs" />
+    <Compile Include="Converters\ResponsePacketConverter.cs" />
+    <Compile Include="Converters\SelectPacketConverter.cs" />
+    <Compile Include="Converters\SpaceConverter.cs" />
+    <Compile Include="Converters\SpaceFieldConverter.cs" />
+    <Compile Include="Converters\StringSliceOperationConverter.cs" />
+    <Compile Include="Converters\TupleConverter.cs" />
+    <Compile Include="Converters\UpdateOperationConverter.cs" />
+    <Compile Include="Converters\UpdatePacketConverter.cs" />
+    <Compile Include="Converters\UpsertPacketConverter.cs" />
+    <Compile Include="Model\Enums\CommandCode.cs" />
+    <Compile Include="Model\Headers\HeaderBase.cs" />
+    <Compile Include="Model\Responses\EmptyResponse.cs" />
+    <Compile Include="Model\Requests\InsertRequest.cs" />
+    <Compile Include="Model\Requests\ReplaceRequest.cs" />
+    <Compile Include="Model\Headers\ResponseHeader.cs" />
+    <Compile Include="Model\Enums\Iterator.cs" />
+    <Compile Include="Model\Enums\Key.cs" />
+    <Compile Include="Model\Requests\AuthenticationRequest.cs" />
+    <Compile Include="Model\Requests\CallRequest.cs" />
+    <Compile Include="Model\Requests\DeleteRequest.cs" />
+    <Compile Include="Model\Requests\EvalRequest.cs" />
+    <Compile Include="Model\Responses\GreetingsResponse.cs" />
+    <Compile Include="Model\Requests\InsertReplaceRequest.cs" />
+    <Compile Include="Model\Responses\ErrorResponse.cs" />
+    <Compile Include="Model\Responses\DataResponse.cs" />
+    <Compile Include="Model\Requests\SelectRequest.cs" />
+    <Compile Include="Model\Requests\IRequest.cs" />
+    <Compile Include="Model\Requests\UpdateRequest.cs" />
+    <Compile Include="Model\Requests\UpsertRequest.cs" />
+    <Compile Include="Model\Headers\RequestHeader.cs" />
+    <Compile Include="Model\UpdateOperations\StringOperations.cs" />
+    <Compile Include="Model\UpdateOperations\UpdateOperation.cs" />
+    <Compile Include="Model\UpdateOperations\UpdateOperationType.cs" />
+    <Compile Include="Utils\Sha1Utils.cs" />
+    <Compile Include="Model\Tuple.cs" />
     <Compile Include="MsgPackContextFactory.cs" />
     <Compile Include="Box.cs" />
     <Compile Include="NetworkStreamPhysicalConnection.cs" />
     <Compile Include="ResponseReader.cs" />
-    <Compile Include="ResponseReaderFactory.cs" />
     <Compile Include="Schema.cs" />
-    <Compile Include="SelectOptions.cs" />
+    <Compile Include="Model\SelectOptions.cs" />
     <Compile Include="Space.cs" />
-    <Compile Include="SpaceCreationOptions.cs" />
-    <Compile Include="SpaceField.cs" />
-    <Compile Include="StorageEngine.cs" />
+    <Compile Include="Model\SpaceCreationOptions.cs" />
+    <Compile Include="Model\SpaceField.cs" />
+    <Compile Include="Model\Enums\StorageEngine.cs" />
     <Compile Include="Utils\StringEnum.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -124,10 +119,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="msgpack.light, Version=0.5.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\msgpack.light.0.5.3\lib\net451\msgpack.light.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Shouldly, Version=2.7.0.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Shouldly.2.7.0\lib\net40\Shouldly.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
