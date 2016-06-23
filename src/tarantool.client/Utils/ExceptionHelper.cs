@@ -9,7 +9,7 @@ using Tarantool.Client.Model.Responses;
 
 namespace Tarantool.Client.Utils
 {
-    public static class ExceptionHelper
+    internal static class ExceptionHelper
     {
         public static Exception UnexpectedGreetingBytesCount(int readCount)
         {

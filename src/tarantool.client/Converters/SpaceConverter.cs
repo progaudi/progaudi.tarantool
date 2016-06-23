@@ -9,7 +9,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class SpaceConverter : IMsgPackConverter<Space>
+    internal class SpaceConverter : IMsgPackConverter<Space>
     {
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<string> _stringConverter;

@@ -26,7 +26,7 @@ namespace Tarantool.Client
 
         private readonly AsyncLazy<Index> _primaryIndex;
 
-        public LogicalConnection LogicalConnection { get; set; }
+        public ILogicalConnection LogicalConnection { get; set; }
         
         public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
         {

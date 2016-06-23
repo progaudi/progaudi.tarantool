@@ -1,6 +1,6 @@
 ﻿namespace Tarantool.Client.Model
 {
-    public class PacketSize
+    internal class PacketSize
     {
         public PacketSize(uint value)
         {

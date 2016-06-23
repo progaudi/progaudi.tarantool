@@ -6,7 +6,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class IndexPartConverter : IMsgPackConverter<IndexPart>
+    internal class IndexPartConverter : IMsgPackConverter<IndexPart>
     {
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<IndexPartType> _indexPartTypeConverter;

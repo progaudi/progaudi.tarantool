@@ -8,7 +8,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
 {
-    public class NetworkStreamPhysicalConnection
+    internal class NetworkStreamPhysicalConnection : INetworkStreamPhysicalConnection
     {
         private Stream _stream;
 

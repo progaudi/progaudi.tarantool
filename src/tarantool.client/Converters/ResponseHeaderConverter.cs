@@ -9,7 +9,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class ResponseHeaderConverter : IMsgPackConverter<ResponseHeader>
+    internal class ResponseHeaderConverter : IMsgPackConverter<ResponseHeader>
     {
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<ulong> _ulongConverter;

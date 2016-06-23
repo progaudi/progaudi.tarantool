@@ -1,6 +1,6 @@
 ﻿namespace Tarantool.Client.Model
 {
-    public class Constants
+    internal class Constants
     {
         public const int MaxHeaderLength = 13;
 

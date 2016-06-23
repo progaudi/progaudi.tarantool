@@ -8,7 +8,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class ResponsePacketConverter<T> : IMsgPackConverter<DataResponse<T>>
+    internal class ResponsePacketConverter<T> : IMsgPackConverter<DataResponse<T>>
     {
         private IMsgPackConverter<Key> _keyConverter;
 

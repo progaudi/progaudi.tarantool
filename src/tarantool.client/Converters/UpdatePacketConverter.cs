@@ -9,7 +9,7 @@ using Tarantool.Client.Model.UpdateOperations;
 
 namespace Tarantool.Client.Converters
 {
-    public class UpdatePacketConverter<T, TUpdate> : IMsgPackConverter<UpdateRequest<T, TUpdate>>
+    internal class UpdatePacketConverter<T, TUpdate> : IMsgPackConverter<UpdateRequest<T, TUpdate>>
         where T : ITuple
     {
         private IMsgPackConverter<uint> _uintConverter;

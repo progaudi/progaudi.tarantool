@@ -8,7 +8,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class RequestIdConverter : IMsgPackConverter<RequestId>
+    internal class RequestIdConverter : IMsgPackConverter<RequestId>
     {
         public void Initialize(MsgPackContext context)
         {

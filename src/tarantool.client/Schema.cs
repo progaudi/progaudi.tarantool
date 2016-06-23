@@ -20,9 +20,9 @@ namespace Tarantool.Client
 
         private const int SpaceByName = 2;
 
-        private readonly LogicalConnection _logicalConnection;
+        private readonly ILogicalConnection _logicalConnection;
 
-        public Schema(LogicalConnection logicalConnection)
+        public Schema(ILogicalConnection logicalConnection)
         {
             _logicalConnection = logicalConnection;
         }

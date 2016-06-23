@@ -8,7 +8,7 @@ using Tarantool.Client.Model.Headers;
 
 namespace Tarantool.Client.Converters
 {
-    public class RequestHeaderConverter : IMsgPackConverter<RequestHeader>
+    internal class RequestHeaderConverter : IMsgPackConverter<RequestHeader>
     {
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<RequestId> _requestIdConverter;

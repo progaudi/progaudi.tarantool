@@ -8,7 +8,7 @@ using Tarantool.Client.Model.Requests;
 
 namespace Tarantool.Client.Converters
 {
-    public class InsertReplacePacketConverter<T> : IMsgPackConverter<InsertReplaceRequest<T>>
+    internal class InsertReplacePacketConverter<T> : IMsgPackConverter<InsertReplaceRequest<T>>
         where T : ITuple
     {
         private IMsgPackConverter<Key> _keyConverter;

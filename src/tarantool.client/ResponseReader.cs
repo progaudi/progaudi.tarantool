@@ -11,11 +11,11 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
 {
-    public class ResponseReader
+    internal class ResponseReader : IResponseReader
     {
-        private readonly NetworkStreamPhysicalConnection _physicalConnection;
+        private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private readonly LogicalConnection _logicalConnection;
+        private readonly ILogicalConnection _logicalConnection;
 
         private readonly ConnectionOptions _connectionOptions;
 
@@ -25,7 +25,7 @@ namespace Tarantool.Client
 
         private int? _currentPacketSize;
 
-        public ResponseReader(LogicalConnection logicalConnection, ConnectionOptions connectionOptions, NetworkStreamPhysicalConnection physicalConnection)
+        public ResponseReader(ILogicalConnection logicalConnection, ConnectionOptions connectionOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
             _physicalConnection = physicalConnection;
             _logicalConnection = logicalConnection;

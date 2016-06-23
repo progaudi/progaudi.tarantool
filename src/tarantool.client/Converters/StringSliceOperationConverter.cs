@@ -6,7 +6,7 @@ using Tarantool.Client.Model.UpdateOperations;
 
 namespace Tarantool.Client.Converters
 {
-    public class StringSliceOperationConverter : IMsgPackConverter<StringSliceOperation>
+    internal class StringSliceOperationConverter : IMsgPackConverter<StringSliceOperation>
     {
         private IMsgPackConverter<string> _stringConverter;
         private IMsgPackConverter<int> _intConverter;

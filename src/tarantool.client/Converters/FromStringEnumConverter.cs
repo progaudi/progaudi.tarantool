@@ -8,7 +8,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class FromStringEnumConverter<T> : IMsgPackConverter<T>
+    internal class FromStringEnumConverter<T> : IMsgPackConverter<T>
            where T : struct, IConvertible
     {
         private IMsgPackConverter<string> _stringConverter;

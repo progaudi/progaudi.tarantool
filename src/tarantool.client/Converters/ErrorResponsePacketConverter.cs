@@ -8,7 +8,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class ErrorResponsePacketConverter : IMsgPackConverter<ErrorResponse>
+    internal class ErrorResponsePacketConverter : IMsgPackConverter<ErrorResponse>
     {
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<string> _stringConverter;

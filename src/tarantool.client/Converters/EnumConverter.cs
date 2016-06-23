@@ -9,7 +9,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class EnumConverter<T> : IMsgPackConverter<T>
+    internal class EnumConverter<T> : IMsgPackConverter<T>
         where T : struct, IConvertible
     {
         private IMsgPackConverter<sbyte> _sbyteConverter;

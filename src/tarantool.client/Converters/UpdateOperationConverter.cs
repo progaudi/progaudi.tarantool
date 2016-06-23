@@ -6,7 +6,7 @@ using Tarantool.Client.Model.UpdateOperations;
 
 namespace Tarantool.Client.Converters
 {
-    public class UpdateOperationConverter<T> : IMsgPackConverter<UpdateOperation<T>>
+    internal class UpdateOperationConverter<T> : IMsgPackConverter<UpdateOperation<T>>
     {
         private IMsgPackConverter<string> _stringConverter;
         private IMsgPackConverter<int> _intConverter;

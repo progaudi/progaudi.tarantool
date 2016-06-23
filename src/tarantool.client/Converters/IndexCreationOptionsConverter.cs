@@ -1,13 +1,11 @@
-﻿using System;
-
-using MsgPack.Light;
+﻿using MsgPack.Light;
 
 using Tarantool.Client.Model;
 using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class IndexCreationOptionsConverter:IMsgPackConverter<IndexCreationOptions>
+    internal class IndexCreationOptionsConverter:IMsgPackConverter<IndexCreationOptions>
     {
         private MsgPackContext context;
 

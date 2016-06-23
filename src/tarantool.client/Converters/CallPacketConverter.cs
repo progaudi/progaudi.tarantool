@@ -8,7 +8,7 @@ using Tarantool.Client.Model.Requests;
 
 namespace Tarantool.Client.Converters
 {
-    public class CallPacketConverter<T> : IMsgPackConverter<CallRequest<T>>
+    internal class CallPacketConverter<T> : IMsgPackConverter<CallRequest<T>>
         where T : ITuple
     {
         private IMsgPackConverter<Key> _keyConverter;

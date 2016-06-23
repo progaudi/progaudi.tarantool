@@ -7,7 +7,7 @@ using Tarantool.Client.Model.Requests;
 
 namespace Tarantool.Client.Converters
 {
-    public class AuthenticationPacketConverter : IMsgPackConverter<AuthenticationRequest>
+    internal class AuthenticationPacketConverter : IMsgPackConverter<AuthenticationRequest>
     {
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<byte[]> _bytesConverter;

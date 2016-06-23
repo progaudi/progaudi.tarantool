@@ -8,7 +8,7 @@ using Tarantool.Client.Model.Requests;
 
 namespace Tarantool.Client.Converters
 {
-    public class DeletePacketConverter<T> : IMsgPackConverter<DeleteRequest<T>>
+    internal class DeletePacketConverter<T> : IMsgPackConverter<DeleteRequest<T>>
         where T: ITuple
     {
         private IMsgPackConverter<Key> _keyConverter;

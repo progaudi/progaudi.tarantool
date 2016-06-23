@@ -14,11 +14,11 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
 {
-    public class LogicalConnection
+    internal class LogicalConnection : ILogicalConnection
     {
         private readonly MsgPackContext _msgPackContext;
 
-        private readonly NetworkStreamPhysicalConnection _physicalConnection;
+        private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
         private RequestId _currentRequestId = new RequestId(0);
 
@@ -27,7 +27,7 @@ namespace Tarantool.Client
 
         private readonly TextWriter _logWriter;
 
-        public LogicalConnection(ConnectionOptions options, NetworkStreamPhysicalConnection physicalConnection)
+        public LogicalConnection(ConnectionOptions options, INetworkStreamPhysicalConnection physicalConnection)
         {
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;

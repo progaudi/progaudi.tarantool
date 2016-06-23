@@ -5,7 +5,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class TupleConverter : IMsgPackConverter<Tuple>
+    internal class TupleConverter : IMsgPackConverter<Tuple>
     {
         private IMsgPackConverter<object> _nullConverter;
 

@@ -7,7 +7,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class EmptyResponseConverter : IMsgPackConverter<EmptyResponse>
+    internal class EmptyResponseConverter : IMsgPackConverter<EmptyResponse>
     {
         public void Initialize(MsgPackContext context)
         {

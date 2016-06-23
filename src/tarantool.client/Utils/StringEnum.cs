@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Tarantool.Client.Utils
 {
-    public class StringValueAttribute : Attribute
+    internal class StringValueAttribute : Attribute
     {
         public StringValueAttribute(string value)
         {
@@ -13,7 +13,7 @@ namespace Tarantool.Client.Utils
         public string Value { get; }
     }
 
-    public class StringEnum
+    internal class StringEnum
     {
         public static T Parse<T>(Type type, string stringValue, bool ignoreCase)
             where T : struct

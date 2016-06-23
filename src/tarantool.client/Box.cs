@@ -12,11 +12,11 @@ namespace Tarantool.Client
     {
         private readonly ConnectionOptions _connectionOptions;
 
-        private readonly LogicalConnection _logicalConnection;
+        private readonly ILogicalConnection _logicalConnection;
 
-        private readonly ResponseReader _responseReader;
+        private readonly IResponseReader _responseReader;
 
-        private readonly NetworkStreamPhysicalConnection _physicalConnection;
+        private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
         public Box(ConnectionOptions options)
         {

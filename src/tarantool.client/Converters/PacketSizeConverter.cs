@@ -8,7 +8,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class PacketSizeConverter : IMsgPackConverter<PacketSize>
+    internal class PacketSizeConverter : IMsgPackConverter<PacketSize>
     {
         public void Initialize(MsgPackContext context)
         {

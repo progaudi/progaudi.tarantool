@@ -9,7 +9,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client.Converters
 {
-    public class IndexConverter : IMsgPackConverter<Index>
+    internal class IndexConverter : IMsgPackConverter<Index>
     {
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<string> _stringConverter;
