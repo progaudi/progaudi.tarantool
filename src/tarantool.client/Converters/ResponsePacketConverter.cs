@@ -30,21 +30,15 @@ namespace Tarantool.Client.Converters
             var data = default(T);
 
             var length = reader.ReadMapLength();
-
-            if (!length.HasValue)
+            if (length != 1u)
             {
-                throw new ArgumentException("Map length should not be null!");
-            }
-
-            if (length.Value <= 0u)
-            {
-                return new DataResponse<T>(data);
+                throw ExceptionHelper.InvalidMapLength(3u, length);
             }
 
             var dataKey = _keyConverter.Read(reader);
             if (dataKey != Key.Data)
             {
-                throw ExceptionHelper.UnexpectedKey(Key.Data, dataKey);
+                throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data);
             }
 
             data = _dataConverter.Read(reader);

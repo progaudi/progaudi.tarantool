@@ -37,25 +37,46 @@ namespace Tarantool.Client.Converters
                 throw ExceptionHelper.InvalidMapLength(3u, length);
             }
 
-            ReadKey(reader, Key.Code);
-            var code = _codeConverter.Read(reader);
+            CommandCode? code = null;
+            RequestId? sync = null;
+            ulong? schemaId = null;
 
-            ReadKey(reader, Key.Sync);
-            var sync = _requestIdConverter.Read(reader);
-
-            ReadKey(reader, Key.SchemaId);
-            var schemaId = _ulongConverter.Read(reader);
-
-            return new ResponseHeader(code, sync, schemaId);
-        }
-
-        private void ReadKey(IMsgPackReader reader, Key expected)
-        {
-            var actual = _keyConverter.Read(reader);
-            if (actual != expected)
+            for (int i = 0; i < length.Value; i++)
             {
-                throw ExceptionHelper.UnexpectedKey(expected, actual);
+                var key = _keyConverter.Read(reader);
+
+                switch (key)
+                {
+                    case Key.Code:
+                        code = _codeConverter.Read(reader);
+                        break;
+                    case Key.Sync:
+                        sync = _requestIdConverter.Read(reader);
+                        break;
+                    case Key.SchemaId:
+                        schemaId = _ulongConverter.Read(reader);
+                        break;
+                    default:
+                        throw ExceptionHelper.UnexpectedKey(key, Key.Code, Key.Sync, Key.SchemaId);
+                }
             }
+
+            if (!code.HasValue)
+            {
+                throw ExceptionHelper.PropertyUnspecified("Code");
+            }
+
+            if (!sync.HasValue)
+            {
+                throw ExceptionHelper.PropertyUnspecified("Sync");
+            }
+
+            if (!schemaId.HasValue)
+            {
+                throw ExceptionHelper.PropertyUnspecified("SchemaId");
+            }
+
+            return new ResponseHeader(code.Value, sync.Value, schemaId.Value);
         }
     }
 }

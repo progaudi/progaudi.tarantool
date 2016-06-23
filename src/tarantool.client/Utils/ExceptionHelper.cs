@@ -21,9 +21,9 @@ namespace Tarantool.Client.Utils
             return new ArgumentException($"Invalid map length: {expected} is expected, but got {actual}.");
         }
 
-        public static Exception UnexpectedKey(Key expected, Key actual)
+        public static Exception UnexpectedKey(Key actual, params Key[] expected)
         {
-            return new ArgumentException($"Unexpected key: {expected} is expected, but got {actual}.");
+            return new ArgumentException($"Unexpected key: {string.Join(", ", expected)} is expected, but got {actual}.");
         }
 
         public static Exception InvalidArrayLength(uint expected, uint? actual)
@@ -71,5 +71,9 @@ namespace Tarantool.Client.Utils
             return new ArgumentException($"Index with id '{indexId}' was found in space {space}!");
         }
 
+        public static Exception PropertyUnspecified(string propertyName)
+        {
+            return new ArgumentException($"Property '{propertyName}' is not specified!");
+        }
     }
 }

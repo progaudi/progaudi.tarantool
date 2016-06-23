@@ -37,7 +37,7 @@ namespace Tarantool.Client.Converters
             var errorKey = _keyConverter.Read(reader);
             if (errorKey != Key.Error)
             {
-                throw ExceptionHelper.UnexpectedKey(Key.Error, errorKey);
+                throw ExceptionHelper.UnexpectedKey(errorKey, Key.Error);
             }
 
             errorMessage = _stringConverter.Read(reader);
