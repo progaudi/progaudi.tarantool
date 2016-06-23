@@ -75,7 +75,7 @@ namespace Tarantool.Client
             {
                 if (!_connectionOptions.GuestMode)
                 {
-                    throw new InvalidOperationException("Empty username in non-guest mode!");
+                    throw ExceptionHelper.EmptyUsernameInGuestMode();
                 }
             }
             else

@@ -38,7 +38,7 @@ namespace Tarantool.Client.Utils
 
         public static Exception NotConnected()
         {
-            return new InvalidOperationException("Can't perform any operations before connected.");
+            return new InvalidOperationException("Can't perform operation. Looks like we are not connected to tarantool. Call 'Connect' method before calling any other operations.");
         }
 
         public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponse errorResponse)
@@ -74,6 +74,11 @@ namespace Tarantool.Client.Utils
         public static Exception PropertyUnspecified(string propertyName)
         {
             return new ArgumentException($"Property '{propertyName}' is not specified!");
+        }
+
+        public static InvalidOperationException EmptyUsernameInGuestMode()
+        {
+            return new InvalidOperationException("Empty username in non-guest mode! Please specify username or enable guest mode.");
         }
     }
 }
