@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -22,8 +23,8 @@ namespace Tarantool.Client
 
         private RequestId _currentRequestId = new RequestId(0);
 
-        private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
-            new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
+            new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
         private readonly TextWriter _logWriter;
 
@@ -49,12 +50,11 @@ namespace Tarantool.Client
         public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
         {
             TaskCompletionSource<MemoryStream> request;
-            if (!_pendingRequests.TryGetValue(requestId, out request))
+
+            if (!_pendingRequests.TryRemove(requestId, out request))
             {
                 throw ExceptionHelper.WrongRequestId(requestId);
             }
-
-            _pendingRequests.Remove(requestId);
 
             return request;
         }
@@ -124,7 +124,10 @@ namespace Tarantool.Client
         private Task<MemoryStream> GetResponseTask(RequestId requestId)
         {
             var tcs = new TaskCompletionSource<MemoryStream>();
-            _pendingRequests.Add(requestId, tcs);
+            if (!_pendingRequests.TryAdd(requestId, tcs))
+            {
+                
+            }
             return tcs.Task;
         }
     }

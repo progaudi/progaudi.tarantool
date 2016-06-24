@@ -176,6 +176,10 @@ namespace Tarantool.Client
 
                 return responseBuffer;
             }
+            else
+            {
+                _connectionOptions.LogWriter?.WriteLine($"Packet  with length {packetSize} is not completely read.");
+            }
 
             _currentPacketSize = packetSize;
             return null;
@@ -203,7 +207,7 @@ namespace Tarantool.Client
 
         private bool PacketCompletelyRead(int packetSize, int offset)
         {
-            return packetSize == _bufferOffset - offset;
+            return packetSize <= _bufferOffset - offset;
         }
 
         private int EnsureSpaceAndComputeBytesToRead()

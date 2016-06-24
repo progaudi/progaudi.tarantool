@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <OutputPath>..\..\artifacts\bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>..\..\artifacts\obj\$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
-	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,6 +37,7 @@
     <Compile Include="AuthenticationPacketTest.cs" />
     <Compile Include="Box\Eval_Should.cs" />
     <Compile Include="Index\Smoke.cs" />
+    <Compile Include="Performance.cs" />
     <Compile Include="Schema\GetSpace_Should.cs" />
     <Compile Include="Space\GetIndex_Should.cs" />
     <Compile Include="Space\Smoke.cs" />

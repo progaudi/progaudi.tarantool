@@ -43,7 +43,19 @@ namespace Tarantool.Client.Utils
 
         public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponse errorResponse)
         {
-            return new ArgumentException($"Tarantool returns an error for request with id: {header.RequestId}, code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}");
+            var detailedMessage = GetDetailedTarantoolMessage(header.Code);
+            return new ArgumentException($"Tarantool returns an error for request with id: {header.RequestId}, code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}. {detailedMessage}");
+        }
+
+        private static string GetDetailedTarantoolMessage(CommandCode code)
+        {
+            switch ((uint)code)
+            {
+                case 0x8012:
+                    return "If index part type is NUM, unsingned int should be used.";
+            }
+
+            return null;
         }
 
         public static ArgumentOutOfRangeException WrongRequestId(RequestId requestId)
