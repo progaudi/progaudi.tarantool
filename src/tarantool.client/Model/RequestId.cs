@@ -18,5 +18,10 @@
         {
             return new RequestId(id);
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

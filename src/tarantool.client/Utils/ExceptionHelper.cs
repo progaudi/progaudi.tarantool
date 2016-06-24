@@ -43,7 +43,7 @@ namespace Tarantool.Client.Utils
 
         public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponse errorResponse)
         {
-            return new ArgumentException($"Tarantool returns an error with code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}");
+            return new ArgumentException($"Tarantool returns an error for request with id: {header.RequestId}, code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}");
         }
 
         public static ArgumentOutOfRangeException WrongRequestId(RequestId requestId)

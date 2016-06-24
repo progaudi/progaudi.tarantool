@@ -35,11 +35,11 @@ namespace Tarantool.Client
             return await _stream.ReadAsync(buffer, offset, count);
         }
 
-        public async Task Write(byte[] buffer, int offset, int count)
+        public void Write(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
 
-            await _stream.WriteAsync(buffer, offset, count);
+            _stream.Write(buffer, offset, count);
         }
 
         public async Task Flush()

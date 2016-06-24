@@ -77,11 +77,14 @@ namespace Tarantool.Client
             long headerLength;
             var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out headerLength);
 
-            _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-            await _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+            lock (_physicalConnection)
+            {
+                _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
+                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength);
 
-            _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
-            await _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+                _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
+                _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+            }
 
             var responseBytes = await responseTask;
             _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseBytes.Length}.");
@@ -112,9 +115,9 @@ namespace Tarantool.Client
 
         private RequestId GetRequestId()
         {
-            var ulongRequestId = (long)_currentRequestId.Value;
-            Interlocked.Increment(ref ulongRequestId);
-
+            var longRequestId = (long)_currentRequestId.Value;
+            Interlocked.Increment(ref longRequestId);
+            _currentRequestId = (RequestId)(ulong)longRequestId;
             return _currentRequestId;
         }
 
