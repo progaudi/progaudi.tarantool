@@ -150,16 +150,15 @@ namespace Tarantool.Client
             return await LogicalConnection.SendRequest<UpdateRequest<TKey, TUpdate>, TTuple>(updateRequest);
         }
 
-        public async Task<DataResponse<TTuple[]>> Upsert<TKey, TUpdate, TTuple>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public async Task Upsert<TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
             where TKey : ITuple
-            where TTuple : ITuple
         {
             var updateRequest = new UpsertRequest<TKey, TUpdate>(
                 SpaceId,
                 key,
                 updateOperation);
 
-            return await LogicalConnection.SendRequest<UpsertRequest<TKey, TUpdate>, TTuple>(updateRequest);
+            await LogicalConnection.SendRequestWithEmptyResponse(updateRequest);
         }
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)

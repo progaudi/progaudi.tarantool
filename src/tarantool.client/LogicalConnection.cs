@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,10 +22,13 @@ namespace Tarantool.Client
 
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private RequestId _currentRequestId = new RequestId(0);
+        private long _currentRequestId = 0;
 
         private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+
+        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _answeredRequests =
+          new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
         private readonly TextWriter _logWriter;
 
@@ -35,7 +39,7 @@ namespace Tarantool.Client
             _physicalConnection = physicalConnection;
         }
 
-        public async Task SendRequestWithoutResponse<TRequest>(TRequest request)
+        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
             where TRequest : IRequest
         {
             await SendRequestImpl<TRequest, EmptyResponse>(request);
@@ -47,16 +51,42 @@ namespace Tarantool.Client
             return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
         }
 
-        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
+        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
         {
             TaskCompletionSource<MemoryStream> request;
 
             if (!_pendingRequests.TryRemove(requestId, out request))
             {
+                TaskCompletionSource<MemoryStream> alreadyAnsweredRequest;
+
+                if (_answeredRequests.TryGetValue(requestId, out alreadyAnsweredRequest))
+                {
+                    var firstAnswer = ToReadableString(ReadFully(alreadyAnsweredRequest.Task.Result));
+                    var secondAnser = ToReadableString(ReadFully(resultStream));
+                    throw ExceptionHelper.AlreadyMappedResponse(requestId, firstAnswer, secondAnser);
+                }
+
                 throw ExceptionHelper.WrongRequestId(requestId);
             }
 
+            _answeredRequests.TryAdd(requestId, request);
+
             return request;
+        }
+
+        public static byte[] ReadFully(Stream input)
+        {
+            input.Position = 0;
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
         }
 
         public IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources()
@@ -80,17 +110,31 @@ namespace Tarantool.Client
             lock (_physicalConnection)
             {
                 _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength);
+                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
 
                 _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
                 _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
             }
 
-            var responseBytes = await responseTask;
-            _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseBytes.Length}.");
+            try
+            {
+                var responseStream = await responseTask;
+                _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
 
-            var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseBytes, _msgPackContext);
-            return deserializedResponse;
+                var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
+                return deserializedResponse;
+            }
+            catch (ArgumentException e)
+            {
+                _logWriter?.WriteLine(
+                    $"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                throw e;
+            }
+        }
+
+        private static string ToReadableString(byte[] bytes)
+        {
+            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
         }
 
         private byte[] CreateAndSerializeBuffer<TRequest>(
@@ -115,10 +159,8 @@ namespace Tarantool.Client
 
         private RequestId GetRequestId()
         {
-            var longRequestId = (long)_currentRequestId.Value;
-            Interlocked.Increment(ref longRequestId);
-            _currentRequestId = (RequestId)(ulong)longRequestId;
-            return _currentRequestId;
+            var requestId = Interlocked.Increment(ref _currentRequestId);
+            return (RequestId)(ulong)requestId;
         }
 
         private Task<MemoryStream> GetResponseTask(RequestId requestId)
@@ -126,8 +168,9 @@ namespace Tarantool.Client
             var tcs = new TaskCompletionSource<MemoryStream>();
             if (!_pendingRequests.TryAdd(requestId, tcs))
             {
-                
+                throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
             }
+
             return tcs.Task;
         }
     }

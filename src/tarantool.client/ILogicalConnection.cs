@@ -10,13 +10,13 @@ namespace Tarantool.Client
 {
     public interface ILogicalConnection
     {
-        Task SendRequestWithoutResponse<TRequest>(TRequest request)
+        Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
             where TRequest : IRequest;
 
         Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest;
 
-        TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId);
+        TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream);
 
         IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources();
     }

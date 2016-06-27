@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace Tarantool.Client.Tests
         [Ignore("Added just for profiling")]
         public void MultithreadTest()
         {
-            var logWriter = Console.Out;
+            TextWriter logWriter = Console.Out;
             var threadsCount = 100;
             const string spaceName = "performance";
 
@@ -58,7 +59,7 @@ namespace Tarantool.Client.Tests
 
     public class TestClient
     {
-        private const uint OperationsCount = 100;
+        private const uint OperationsCount = 1000;
 
         private readonly Client.Index _index;
 

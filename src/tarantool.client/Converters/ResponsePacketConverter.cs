@@ -32,7 +32,7 @@ namespace Tarantool.Client.Converters
             var length = reader.ReadMapLength();
             if (length != 1u)
             {
-                throw ExceptionHelper.InvalidMapLength(3u, length);
+                throw ExceptionHelper.InvalidMapLength(length, 3u);
             }
 
             var dataKey = _keyConverter.Read(reader);

@@ -38,14 +38,14 @@ namespace Tarantool.Client.Tests.Space
             }
             catch (ArgumentException)
             {
-                var deleteResponse = await space.Delete<Model.Tuple<int>, Model.Tuple<int, string, double>>(Tuple.Create(2));
+                var deleteResponse = await space.Delete<Model.Tuple<uint>, Model.Tuple<uint, string, double>>(Tuple.Create(2u));
                 insertDataResponse = await space.Insert(Tuple.Create(2, "Music"));
             }
             
-            var selectResponse = await space.Select<Model.Tuple<int>, Model.Tuple<int, string>>(Tuple.Create(2));
+            var selectResponse = await space.Select<Model.Tuple<uint>, Model.Tuple<uint, string>>(Tuple.Create(2u));
             var replaceResponse = await space.Replace(Tuple.Create(2, "Car", -24.5));
-            var updateResponse = await space.Update<Model.Tuple<int>, int, Model.Tuple<int, string, double>> (Tuple.Create(2), UpdateOperation.CreateAddition(1, 2));
-            var upsertResponse = await space.Upsert(Tuple.Create(5), UpdateOperation.CreateAddition(1, 2));
+            var updateResponse = await space.Update<Model.Tuple<uint>, int, Model.Tuple<uint, string, double>> (Tuple.Create(2u), UpdateOperation.CreateAddition(1, 2));
+            await space.Upsert(Tuple.Create(5u, 20), UpdateOperation.CreateAssign(1, 1));
         }
     }
 }

@@ -75,10 +75,11 @@ namespace Tarantool.Client
                 return false;
             }
 
+            var offset = _bufferOffset;
             _bufferOffset += readBytesCount;
+
             _connectionOptions.LogWriter?.WriteLine("More bytes available: " + readBytesCount + " (" + _bufferOffset + ")");
 
-            var offset = 0;
             var handledMessagesCount = ReadMessages(ref offset, readBytesCount);
             _connectionOptions.LogWriter?.WriteLine("Processed: " + handledMessagesCount);
 
@@ -143,7 +144,7 @@ namespace Tarantool.Client
 
             var header = MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _connectionOptions.MsgPackContext);
 
-            var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId);
+            var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId, resultStream);
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
@@ -193,14 +194,14 @@ namespace Tarantool.Client
             {
                 var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
                 Array.Copy(_buffer, offset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
-                offset += Constants.PacketSizeBufferSize;
-
-                packetSize = (int) MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer);
+                packetSize = (int) MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer, _connectionOptions.MsgPackContext);
             }
             else
             {
                 packetSize = _currentPacketSize.Value;
             }
+
+            offset += Constants.PacketSizeBufferSize;
 
             return packetSize;
         }

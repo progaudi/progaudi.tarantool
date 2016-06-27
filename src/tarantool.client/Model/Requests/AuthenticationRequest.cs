@@ -49,7 +49,7 @@ namespace Tarantool.Client.Model.Requests
 
         private static string ToReadableString(byte[] bytes)
         {
-            return string.Concat(bytes.Select(b => b.ToString("X")));
+            return string.Concat(bytes.Select(b => b.ToString("X2 ")));
         }
     }
 }

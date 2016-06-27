@@ -98,7 +98,7 @@ namespace Tarantool.Client
                     _connectionOptions.UserName,
                     _connectionOptions.Password);
 
-                await _logicalConnection.SendRequestWithoutResponse(authenticateRequest);
+                await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
                 _connectionOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
             }
         }
