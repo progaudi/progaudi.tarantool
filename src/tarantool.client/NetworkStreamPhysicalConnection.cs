@@ -13,7 +13,7 @@ namespace Tarantool.Client
         private Stream _stream;
 
         private Socket _socket;
-        
+
         public void Dispose()
         {
             _stream.Dispose();
@@ -53,7 +53,7 @@ namespace Tarantool.Client
         {
             CheckConnectionStatus();
 
-            return _socket.BeginReceive(buffer, offset, count, SocketFlags.None, callback, state);
+            return _stream.BeginRead(buffer, offset, count, callback, state);
         }
 
         public int EndRead(IAsyncResult asyncResult)
