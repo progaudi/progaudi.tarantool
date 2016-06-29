@@ -32,9 +32,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="ILog.cs" />
     <Compile Include="ILogicalConnection.cs" />
     <Compile Include="INetworkStreamPhysicalConnection.cs" />
     <Compile Include="IResponseReader.cs" />
+    <Compile Include="StringWriterLog.cs" />
     <Compile Include="Utils\AsyncLazy.cs" />
     <Compile Include="Model\Constants.cs" />
     <Compile Include="Converters\EmptyResponseConverter.cs" />

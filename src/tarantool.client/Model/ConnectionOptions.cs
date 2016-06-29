@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 
 using MsgPack.Light;
 
@@ -9,7 +8,7 @@ namespace Tarantool.Client.Model
     {
         public EndPoint EndPoint { get; set; }
 
-        public TextWriter LogWriter { get; set; }
+        public ILog LogWriter { get; set; }
 
         public string UserName { get; set; }
 

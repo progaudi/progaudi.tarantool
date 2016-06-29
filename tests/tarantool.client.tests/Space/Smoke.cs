@@ -65,7 +65,7 @@ namespace Tarantool.Client.Tests.Space
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter()
+                LogWriter = new StringWriterLog()
             };
 
             var tarantoolClient = new Client.Box(options);

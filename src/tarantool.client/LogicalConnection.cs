@@ -27,7 +27,7 @@ namespace Tarantool.Client
         private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
-        private readonly TextWriter _logWriter;
+        private readonly ILog _logWriter;
 
         public LogicalConnection(ConnectionOptions options, INetworkStreamPhysicalConnection physicalConnection)
         {

@@ -20,7 +20,7 @@ namespace Tarantool.Client.Tests
         [Ignore("Added just for profiling")]
         public void MultithreadTest()
         {
-            TextWriter logWriter = Console.Out;
+            var logWriter = new StringWriterLog();
             var threadsCount = 100;
             const string spaceName = "performance";
 
