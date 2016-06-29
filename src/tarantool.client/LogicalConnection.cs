@@ -27,9 +27,6 @@ namespace Tarantool.Client
         private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
-        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _answeredRequests =
-          new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
-
         private readonly TextWriter _logWriter;
 
         public LogicalConnection(ConnectionOptions options, INetworkStreamPhysicalConnection physicalConnection)
@@ -57,19 +54,8 @@ namespace Tarantool.Client
 
             if (!_pendingRequests.TryRemove(requestId, out request))
             {
-                TaskCompletionSource<MemoryStream> alreadyAnsweredRequest;
-
-                if (_answeredRequests.TryGetValue(requestId, out alreadyAnsweredRequest))
-                {
-                    var firstAnswer = ToReadableString(ReadFully(alreadyAnsweredRequest.Task.Result));
-                    var secondAnser = ToReadableString(ReadFully(resultStream));
-                    throw ExceptionHelper.AlreadyMappedResponse(requestId, firstAnswer, secondAnser);
-                }
-
                 throw ExceptionHelper.WrongRequestId(requestId);
             }
-
-            _answeredRequests.TryAdd(requestId, request);
 
             return request;
         }
