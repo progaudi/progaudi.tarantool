@@ -39,8 +39,12 @@ build:
   parallel: true
   project: TarantoolClient.sln
   verbosity: minimal
+  publish_nuget: true    
 
 deploy: off
+
+artifacts:
+  - path: artifacts\bin\tarantool.client\Release\*.nupkg
 
 # Uncomment to debug via RDP
 #on_finish:

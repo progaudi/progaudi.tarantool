@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>tarantool.client</id>
+    <version>0.1.0</version>
+    <authors>roman-kozachenko, aensidhe</authors>
+    <owners>roman-kozachenko, aensidhe</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>C# tarantool client</description>
+    <releaseNotes>First release candidate</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Tarantool</tags>
+    <dependencies>
+      <dependency id="MsgPack.Light" version="0.5.5" />
+    </dependencies>
+  </metadata>
+</package>
