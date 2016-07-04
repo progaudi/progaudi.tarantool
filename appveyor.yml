@@ -7,13 +7,13 @@ assembly_info:
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}'
 
-nuget:
-  disable_publish_on_pr: true
-
 configuration:
   - Release
 
 clone_depth: 1
+
+nuget:
+  disable_publish_on_pr: true
 
 # build cache to preserve files/folders between builds
 cache:
