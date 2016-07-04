@@ -12,6 +12,9 @@ configuration:
 
 clone_depth: 1
 
+nuget:
+  disable_publish_on_pr: true
+
 # build cache to preserve files/folders between builds
 cache:
   - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
