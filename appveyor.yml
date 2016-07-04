@@ -42,6 +42,9 @@ build:
 
 deploy: off
 
+artifacts:
+  - path: artifacts\bin\tarantool.client\Release\*.nupkg
+
 # Uncomment to debug via RDP
 #on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
