@@ -39,6 +39,7 @@ build:
   parallel: true
   project: TarantoolClient.sln
   verbosity: minimal
+  publish_nuget: true    
 
 deploy: off
 
