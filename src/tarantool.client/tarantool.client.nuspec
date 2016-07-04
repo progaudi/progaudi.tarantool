@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>tarantool.client</id>
-    <version>0.1.0</version>
-    <authors>roman-kozachenko, aensidhe</authors>
-    <owners>roman-kozachenko, aensidhe</owners>
+    <id>Tarantool.CSharp</id>
+    <version>0.1.1</version>
+    <authors>roman.kozachenko, aensidhe</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# tarantool client</description>
     <releaseNotes>First release candidate</releaseNotes>
