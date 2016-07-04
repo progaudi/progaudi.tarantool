@@ -13,7 +13,7 @@ namespace Tarantool.Client
         private Stream _stream;
 
         private Socket _socket;
-        
+
         public void Dispose()
         {
             _stream.Dispose();
@@ -35,11 +35,11 @@ namespace Tarantool.Client
             return await _stream.ReadAsync(buffer, offset, count);
         }
 
-        public async Task Write(byte[] buffer, int offset, int count)
+        public void Write(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
 
-            await _stream.WriteAsync(buffer, offset, count);
+            _stream.Write(buffer, offset, count);
         }
 
         public async Task Flush()
@@ -53,7 +53,7 @@ namespace Tarantool.Client
         {
             CheckConnectionStatus();
 
-            return _socket.BeginReceive(buffer, offset, count, SocketFlags.None, callback, state);
+            return _stream.BeginRead(buffer, offset, count, callback, state);
         }
 
         public int EndRead(IAsyncResult asyncResult)

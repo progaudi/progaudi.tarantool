@@ -34,7 +34,7 @@ namespace Tarantool.Client.Converters
             var length = reader.ReadMapLength();
             if (length != 3u)
             {
-                throw ExceptionHelper.InvalidMapLength(3u, length);
+                throw ExceptionHelper.InvalidMapLength(length, 3u);
             }
 
             CommandCode? code = null;

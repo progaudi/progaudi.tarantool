@@ -11,6 +11,6 @@ namespace Tarantool.Client
         int EndRead(IAsyncResult asyncResult);
         Task Flush();
         Task<int> Read(byte[] buffer, int offset, int count);
-        Task Write(byte[] buffer, int offset, int count);
+        void Write(byte[] buffer, int offset, int count);
     }
 }

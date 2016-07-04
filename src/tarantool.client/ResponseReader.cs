@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 using MsgPack.Light;
 
@@ -21,9 +22,9 @@ namespace Tarantool.Client
 
         private byte[] _buffer;
 
-        private int _bufferOffset;
+        private int _readingOffset;
 
-        private int? _currentPacketSize;
+        private int _parsingOffset;
 
         public ResponseReader(ILogicalConnection logicalConnection, ConnectionOptions connectionOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
@@ -39,7 +40,7 @@ namespace Tarantool.Client
 
             _connectionOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
 
-            _physicalConnection.BeginRead(_buffer, _bufferOffset, freeBufferSpace, EndReading, this);
+            _physicalConnection.BeginRead(_buffer, _readingOffset, freeBufferSpace, EndReading, this);
         }
 
         private void EndReading(IAsyncResult ar)
@@ -74,76 +75,60 @@ namespace Tarantool.Client
                 _connectionOptions.LogWriter?.WriteLine("EOF");
                 return false;
             }
-
-            _bufferOffset += readBytesCount;
-            _connectionOptions.LogWriter?.WriteLine("More bytes available: " + readBytesCount + " (" + _bufferOffset + ")");
-
-            var offset = 0;
-            var handledMessagesCount = ReadMessages(ref offset, readBytesCount);
-            _connectionOptions.LogWriter?.WriteLine("Processed: " + handledMessagesCount);
-
-            if (handledMessagesCount == 0)
+            _readingOffset += readBytesCount;
+            var parsedResponsesCount = TryParseResponses();
+            _connectionOptions.LogWriter?.WriteLine("Processed: " + parsedResponsesCount);
+            if (!AllBytesProcessed())
             {
-                return true;
+                CopyRemainingBytesToBufferBegin();
             }
-
-            if (!UnprocessedBytesLeft(offset, readBytesCount))
-            {
-                _bufferOffset = 0;
-                return true;
-            }
-
-            ProcessRemainingBytes(offset);
 
             return true;
         }
 
-        private void ProcessRemainingBytes(int offset)
+        private void CopyRemainingBytesToBufferBegin()
         {
-            var remainingBytesCount = _buffer.Length - offset;
+            var remainingBytesCount = _readingOffset - _parsingOffset;
             if (remainingBytesCount > 0)
             {
                 _connectionOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
-                //  if anything was left over, we need to copy it to
-                // the start of the buffer so it can be used next time
-                Buffer.BlockCopy(_buffer, offset, _buffer, 0, remainingBytesCount);
+                Buffer.BlockCopy(_buffer, _parsingOffset, _buffer, 0, remainingBytesCount);
+                Array.Clear(_buffer, remainingBytesCount, _buffer.Length - remainingBytesCount);
             }
-            _bufferOffset = remainingBytesCount;
+
+            _readingOffset = remainingBytesCount;
+            _parsingOffset = 0;
         }
 
-        private bool UnprocessedBytesLeft(int offset, int bytesRead)
+        private bool AllBytesProcessed()
         {
-            return offset != bytesRead;
+            return _parsingOffset >= _readingOffset;
         }
 
-        private int ReadMessages(ref int offset, int bytesRead)
+        private int TryParseResponses()
         {
             var messageCount = 0;
             bool nonEmptyResult;
             do
             {
-                var response = TryReadResponse(ref offset, bytesRead);
-                nonEmptyResult = response != null && response.Length > 0;
+                var response = TryParseResponse();
+                nonEmptyResult = response != null;
                 if (!nonEmptyResult)
                 {
                     continue;
                 }
 
                 messageCount++;
-
                 MatchResult(response);
             } while (nonEmptyResult);
-
             return messageCount;
         }
 
         private void MatchResult(byte[] result)
         {
             var resultStream = new MemoryStream(result);
-
-            var header = MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _connectionOptions.MsgPackContext);
-
-            var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId);
+            var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _connectionOptions.MsgPackContext);
+            var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId, resultStream);
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
@@ -154,70 +139,70 @@ namespace Tarantool.Client
             {
                 _connectionOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
                 tcs.SetResult(resultStream);
-            } 
+            }
         }
         
-        private byte[] TryReadResponse(ref int offset, int bytesRead)
+        private byte[] TryParseResponse()
         {
-            if (!UnprocessedBytesLeft(offset, bytesRead))
-                return null;
-
-            var packetSize = GetPacketSize(ref offset);
-
-            if (PacketCompletelyRead(packetSize, offset))
+            if (AllBytesProcessed())
             {
-                var responseBuffer = new byte[packetSize];
-                Array.Copy(_buffer, offset, responseBuffer, 0, packetSize);
-                offset += packetSize;
+                return null;
+            }
 
-                _connectionOptions.LogWriter?.WriteLine($"Packet with length {packetSize} successfully parsed.");
+            var packetSize = GetPacketSize();
 
-                _currentPacketSize = null;
+            if (!packetSize.HasValue)
+            {
+                _connectionOptions.LogWriter?.WriteLine($"Can't read packet length, has less than {Constants.PacketSizeBufferSize} bytes.");
+                return null;
+            }
+
+            if (PacketCompletelyRead(packetSize.Value))
+            {
+                _parsingOffset += Constants.PacketSizeBufferSize;
+                var responseBuffer = new byte[packetSize.Value];
+                Array.Copy(_buffer, _parsingOffset, responseBuffer, 0, packetSize.Value);
+                _parsingOffset += packetSize.Value;
+
 
                 return responseBuffer;
             }
 
-            _currentPacketSize = packetSize;
+            _connectionOptions.LogWriter?.WriteLine($"Packet  with length {packetSize} is not completely read.");
+
             return null;
         }
 
-        private int GetPacketSize(ref int offset)
+        private int? GetPacketSize()
         {
-            int packetSize;
-
-            if (!_currentPacketSize.HasValue)
+            if (_readingOffset - _parsingOffset < Constants.PacketSizeBufferSize)
             {
-                var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
-                Array.Copy(_buffer, offset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
-                offset += Constants.PacketSizeBufferSize;
+                return null;
+            }
 
-                packetSize = (int) MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer);
-            }
-            else
-            {
-                packetSize = _currentPacketSize.Value;
-            }
+            var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
+            Array.Copy(_buffer, _parsingOffset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
+            var packetSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer, _connectionOptions.MsgPackContext);
 
             return packetSize;
         }
 
-        private bool PacketCompletelyRead(int packetSize, int offset)
+        private bool PacketCompletelyRead(int packetSize)
         {
-            return packetSize == _bufferOffset - offset;
+            return packetSize <= _readingOffset - _parsingOffset - Constants.PacketSizeBufferSize;
         }
 
         private int EnsureSpaceAndComputeBytesToRead()
         {
-            var space = _buffer.Length - _bufferOffset;
+            var space = _buffer.Length - _readingOffset;
             if (space != 0)
             {
                 return space;
             }
 
             Array.Resize(ref _buffer, _buffer.Length * 2);
-            space = _buffer.Length - _bufferOffset;
+            space = _buffer.Length - _readingOffset;
             return space;
         }
-
     }
 }

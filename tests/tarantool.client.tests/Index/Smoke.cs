@@ -44,18 +44,16 @@ namespace Tarantool.Client.Tests.Index
                 insertDataResponse = await index.Insert(Tuple.Create(2, "Music"));
             }
 
-            var selectResponse = await index.Select<Model.Tuple<int>, Model.Tuple<int, string>>(Tuple.Create(2));
+            var selectResponse = await index.Select<Model.Tuple<uint>, Model.Tuple<int, string>>(Tuple.Create(1029u));
             var replaceResponse = await index.Replace(Tuple.Create(2, "Car", -245.3));
             var updateResponse = await index.Update<Model.Tuple<int, string, double>, Model.Tuple<int>, int>(
                 Tuple.Create(2),
                 UpdateOperation.CreateAddition(100, 2));
 
-            var upsertResponse = await index.Upsert<Model.Tuple<int>, int, Model.Tuple<int, int>>(
-                Tuple.Create(5),
-                UpdateOperation.CreateAssign(2, 2));
-            upsertResponse = await index.Upsert<Model.Tuple<int>, int, Model.Tuple<int, int>>(
-                Tuple.Create(5),
-                UpdateOperation.CreateAddition(-2, 2));
+            await index.Upsert(Tuple.Create(5u), UpdateOperation.CreateAssign(2, 2));
+            await index.Upsert(Tuple.Create(5u), UpdateOperation.CreateAddition(-2, 2));
+
+            var selectResponse2 = index.Select<Model.Tuple<uint>, Model.Tuple<int, int, int>>(Tuple.Create(5u));
         }
 
         [Test]

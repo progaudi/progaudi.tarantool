@@ -20,7 +20,7 @@ namespace Tarantool.Client.Tests.Box
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter(),
+                LogWriter = new StringWriterLog(),
                 UserName = null,
                 GuestMode = false
             };
@@ -37,7 +37,7 @@ namespace Tarantool.Client.Tests.Box
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter(),
+                LogWriter = new StringWriterLog(),
                 UserName = null,
                 GuestMode = true
             };
@@ -54,7 +54,7 @@ namespace Tarantool.Client.Tests.Box
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter(),
+                LogWriter = new StringWriterLog(),
                 UserName = "operator",
                 Password = "wrongPassword",
                 GuestMode = false
@@ -72,7 +72,7 @@ namespace Tarantool.Client.Tests.Box
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter(),
+                LogWriter = new StringWriterLog(),
                 UserName = "notSetPassword",
                 Password = string.Empty,
                 GuestMode = false
@@ -90,7 +90,7 @@ namespace Tarantool.Client.Tests.Box
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter(),
+                LogWriter = new StringWriterLog(),
                 UserName = "emptyPassword",
                 Password = string.Empty
             };
@@ -107,7 +107,7 @@ namespace Tarantool.Client.Tests.Box
             var options = new ConnectionOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriter(),
+                LogWriter = new StringWriterLog(),
                 UserName = "operator",
                 Password = "operator"
 

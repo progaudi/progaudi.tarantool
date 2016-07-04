@@ -16,14 +16,14 @@ namespace Tarantool.Client.Utils
             return new ArgumentException($"Invalid greetings response length. 128 is expected, but got {readCount}.");
         }
         
-        public static Exception InvalidMapLength(uint expected, uint? actual)
+        public static Exception InvalidMapLength(uint? actual, params uint [] expected)
         {
-            return new ArgumentException($"Invalid map length: {expected} is expected, but got {actual}.");
+            return new ArgumentException($"Invalid map length: {string.Join(", ", expected)} is expected, but got {actual}.");
         }
 
         public static Exception UnexpectedKey(Key actual, params Key[] expected)
         {
-            return new ArgumentException($"Unexpected key: {String.Join(", ", expected)} is expected, but got {actual}.");
+            return new ArgumentException($"Unexpected key: {string.Join(", ", expected)} is expected, but got {actual}.");
         }
 
         public static Exception InvalidArrayLength(uint expected, uint? actual)
@@ -43,7 +43,19 @@ namespace Tarantool.Client.Utils
 
         public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponse errorResponse)
         {
-            return new ArgumentException($"Tarantool returns an error with code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}");
+            var detailedMessage = GetDetailedTarantoolMessage(header.Code);
+            return new ArgumentException($"Tarantool returns an error for request with id: {header.RequestId}, code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}. {detailedMessage}");
+        }
+
+        private static string GetDetailedTarantoolMessage(CommandCode code)
+        {
+            switch ((uint)code)
+            {
+                case 0x8012:
+                    return "If index part type is NUM, unsingned int should be used.";
+            }
+
+            return null;
         }
 
         public static ArgumentOutOfRangeException WrongRequestId(RequestId requestId)
@@ -104,6 +116,16 @@ namespace Tarantool.Client.Utils
         public static NotSupportedException WrongIndexType(string indexType, string operation)
         {
             return new NotSupportedException($"Only {indexType} indicies support {operation} operation.");
+        }
+
+        public static Exception RequestWithSuchIdAlreadySent(RequestId requestId)
+        {
+            return new ArgumentException($"Task with id {requestId} already sent.");
+        }
+
+        public static Exception AlreadyMappedResponse(RequestId requestId, string firstAnswer, string secondAnser)
+        {
+            return new InvalidOperationException($"Request with id = {requestId} is already answered! First answer is: '{firstAnswer}', second answer is: '{secondAnser}'");
         }
     }
 }

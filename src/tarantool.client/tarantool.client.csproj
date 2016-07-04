@@ -32,9 +32,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="ILog.cs" />
     <Compile Include="ILogicalConnection.cs" />
     <Compile Include="INetworkStreamPhysicalConnection.cs" />
     <Compile Include="IResponseReader.cs" />
+    <Compile Include="StringWriterLog.cs" />
     <Compile Include="Utils\AsyncLazy.cs" />
     <Compile Include="Model\Constants.cs" />
     <Compile Include="Converters\EmptyResponseConverter.cs" />
@@ -117,14 +119,16 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="msgpack.light, Version=0.5.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\msgpack.light.0.5.3\lib\net451\msgpack.light.dll</HintPath>
+    <Reference Include="msgpack.light, Version=0.5.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\msgpack.light.0.5.5\lib\net451\msgpack.light.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

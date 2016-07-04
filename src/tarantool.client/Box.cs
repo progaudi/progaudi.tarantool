@@ -8,7 +8,7 @@ using Tarantool.Client.Utils;
 
 namespace Tarantool.Client
 {
-    public class Box
+    public class Box : IDisposable
     {
         private readonly ConnectionOptions _connectionOptions;
 
@@ -51,6 +51,7 @@ namespace Tarantool.Client
         public void Dispose()
         {
             _connectionOptions.LogWriter?.WriteLine("Box is disposing...");
+            _connectionOptions.LogWriter?.Flush();
             _physicalConnection.Dispose();
         }
 
@@ -60,7 +61,7 @@ namespace Tarantool.Client
             return new Schema(_logicalConnection);
         }
 
-        public async Task<DataResponse<TResponse[]>>  Call<TTuple, TResponse>(string functionName, TTuple request)
+        public async Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple request)
             where TTuple : ITuple
             where TResponse : ITuple
         {
@@ -98,7 +99,7 @@ namespace Tarantool.Client
                     _connectionOptions.UserName,
                     _connectionOptions.Password);
 
-                await _logicalConnection.SendRequestWithoutResponse(authenticateRequest);
+                await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
                 _connectionOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
             }
         }

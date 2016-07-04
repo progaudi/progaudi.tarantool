@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <OutputPath>..\..\artifacts\bin\$(MSBuildProjectName)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>..\..\artifacts\obj\$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
-	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,6 +37,7 @@
     <Compile Include="AuthenticationPacketTest.cs" />
     <Compile Include="Box\Eval_Should.cs" />
     <Compile Include="Index\Smoke.cs" />
+    <Compile Include="Performance.cs" />
     <Compile Include="Schema\GetSpace_Should.cs" />
     <Compile Include="Space\GetIndex_Should.cs" />
     <Compile Include="Space\Smoke.cs" />
@@ -49,7 +50,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="JetBrains.Annotations, Version=10.1.4.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
@@ -57,8 +60,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="msgpack.light, Version=0.5.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\msgpack.light.0.5.3\lib\net451\msgpack.light.dll</HintPath>
+    <Reference Include="msgpack.light, Version=0.5.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\msgpack.light.0.5.5\lib\net451\msgpack.light.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NSubstitute, Version=1.10.0.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">

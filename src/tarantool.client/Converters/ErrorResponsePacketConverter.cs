@@ -31,7 +31,7 @@ namespace Tarantool.Client.Converters
 
             if (length != 1u)
             {
-                throw ExceptionHelper.InvalidMapLength(1u, length);
+                throw ExceptionHelper.InvalidMapLength(length, 1u);
             }
 
             var errorKey = _keyConverter.Read(reader);
