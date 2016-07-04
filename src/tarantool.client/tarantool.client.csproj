@@ -119,8 +119,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="msgpack.light, Version=0.5.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\msgpack.light.0.5.4\lib\net451\msgpack.light.dll</HintPath>
+    <Reference Include="msgpack.light, Version=0.5.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\msgpack.light.0.5.5\lib\net451\msgpack.light.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
