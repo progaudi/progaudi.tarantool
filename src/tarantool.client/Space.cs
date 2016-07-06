@@ -24,8 +24,6 @@ namespace Tarantool.Client
 
         private const uint PrimaryIndexId = 0;
 
-        private readonly AsyncLazy<Index> _primaryIndex;
-
         public ILogicalConnection LogicalConnection { get; set; }
         
         public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
@@ -36,8 +34,6 @@ namespace Tarantool.Client
             Indices = indices;
             Engine = engine;
             Fields = fields;
-
-            _primaryIndex = new AsyncLazy<Index>(() => GetIndex(PrimaryIndexId));
         }
 
         public uint Id { get; }
@@ -141,18 +137,18 @@ namespace Tarantool.Client
             return response.Data.First();
         }
 
-        public async Task<DataResponse<TTuple[]>> Update<TKey, TUpdate, TTuple>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public async Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations)
             where TKey : ITuple
             where TTuple : ITuple
         {
-            var updateRequest = new UpdateRequest<TKey, TUpdate>(Id, PrimaryIndexId, key, updateOperation);
-            return await LogicalConnection.SendRequest<UpdateRequest<TKey, TUpdate>, TTuple>(updateRequest);
+            var updateRequest = new UpdateRequest<TKey>(Id, PrimaryIndexId, key, updateOperations);
+            return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
         }
 
-        public async Task Upsert<TTuple, TUpdate>(TTuple tuple, UpdateOperation<TUpdate> updateOperation)
+        public async Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations)
          where TTuple : ITuple
         {
-            var upsertRequest = new UpsertRequest<TTuple, TUpdate>(Id, tuple, updateOperation);
+            var upsertRequest = new UpsertRequest<TTuple>(Id, tuple, updateOperations);
             await LogicalConnection.SendRequestWithEmptyResponse(upsertRequest);
         }
 
@@ -175,28 +171,20 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key)
+        public Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key)
             where TKey : ITuple
             where TTuple : ITuple
         {
-            var primaryIndex = await _primaryIndex;
-            var lastFieldKeyNumber = primaryIndex.Parts.Max(part => part.FieldNo);
-            var upsertRequest = new UpsertRequest<TKey, int>(Id, key,
-                UpdateOperation.CreateAddition(1, (int)lastFieldKeyNumber + 1));
-
-            return await LogicalConnection.SendRequest<UpsertRequest<TKey, int>, TTuple>(upsertRequest);
+            // Currently we can't impelment that method because Upsert returns void.
+           throw new NotImplementedException();
         }
 
-        public async Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
+        public Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
             where TKey : ITuple
             where TTuple : ITuple
         {
-            var primaryIndex = await _primaryIndex;
-            var lastFieldKeyNumber = primaryIndex.Parts.Max(part => part.FieldNo);
-            var upsertRequest = new UpsertRequest<TKey, int>(Id, key,
-                UpdateOperation.CreateAddition(-1, (int)lastFieldKeyNumber + 1));
-
-            return await LogicalConnection.SendRequest<UpsertRequest<TKey, int>, TTuple>(upsertRequest);
+            // Currently we can't impelment that method because Upsert returns void.
+            throw new NotImplementedException();
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)

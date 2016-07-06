@@ -48,12 +48,12 @@ namespace Tarantool.Client.Tests.Space
 
             var selectResponse = await space.Select<Model.Tuple<uint>, Model.Tuple<uint, string>>(Tuple.Create(2u));
             var replaceResponse = await space.Replace(Tuple.Create(2, "Car", -24.5));
-            var updateResponse =
-                await
-                    space.Update<Model.Tuple<uint>, int, Model.Tuple<uint, string, double>>(
-                        Tuple.Create(2u),
-                        UpdateOperation.CreateAddition(1, 2));
-            await space.Upsert(Tuple.Create(5u, 20), UpdateOperation.CreateAssign(1, 1));
+            var updateResponse = await space.Update<Model.Tuple<uint>, Model.Tuple<uint, string, double>>(
+                Tuple.Create(2u),
+                new UpdateOperation[] { UpdateOperation.CreateAddition(1, 2) });
+            await space.Upsert(
+                Tuple.Create(5u, 20),
+                new UpdateOperation[] { UpdateOperation.CreateAssign(1, 1) });
         }
 
 

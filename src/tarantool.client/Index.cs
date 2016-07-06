@@ -137,26 +137,26 @@ namespace Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<DataResponse<TTuple[]>> Update<TTuple, TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public async Task<DataResponse<TTuple[]>> Update<TTuple, TKey>(TKey key, UpdateOperation[] updateOperations)
             where TKey : ITuple
             where TTuple : ITuple
         {
-            var updateRequest = new UpdateRequest<TKey, TUpdate>(
+            var updateRequest = new UpdateRequest<TKey>(
                 SpaceId,
                 Id,
                 key,
-                updateOperation);
+                updateOperations);
 
-            return await LogicalConnection.SendRequest<UpdateRequest<TKey, TUpdate>, TTuple>(updateRequest);
+            return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
         }
 
-        public async Task Upsert<TKey, TUpdate>(TKey key, UpdateOperation<TUpdate> updateOperation)
+        public async Task Upsert<TKey>(TKey key, UpdateOperation[] updateOperations)
             where TKey : ITuple
         {
-            var updateRequest = new UpsertRequest<TKey, TUpdate>(
+            var updateRequest = new UpsertRequest<TKey>(
                 SpaceId,
                 key,
-                updateOperation);
+                updateOperations);
 
             await LogicalConnection.SendRequestWithEmptyResponse(updateRequest);
         }

@@ -1,6 +1,8 @@
-﻿namespace Tarantool.Client.Model.UpdateOperations
+﻿using MsgPack.Light;
+
+namespace Tarantool.Client.Model.UpdateOperations
 {
-    public class UpdateOperation<T>
+    public class UpdateOperation<T> : UpdateOperation
     {
         public string OperationType { get; }
 
@@ -14,10 +16,17 @@
             FieldNumber = fieldNumber;
             Argument = argument;
         }
+
+        public override IMsgPackConverter<UpdateOperation> GetConverter(MsgPackContext context)
+        {
+            return (IMsgPackConverter<UpdateOperation>) context.GetConverter<UpdateOperation<T>>();
+        }
     }
 
-    public class UpdateOperation
+    public abstract class UpdateOperation
     {
+        public abstract IMsgPackConverter<UpdateOperation> GetConverter(MsgPackContext context);
+
         #region Integer Operation Factory
 
         public static UpdateOperation<byte> CreateAddition(byte argument, int fieldNumber)

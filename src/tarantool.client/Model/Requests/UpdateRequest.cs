@@ -3,15 +3,15 @@ using Tarantool.Client.Model.UpdateOperations;
 
 namespace Tarantool.Client.Model.Requests
 {
-    public class UpdateRequest<TKey, TUpdate> : IRequest
+    public class UpdateRequest<TKey> : IRequest
      where TKey : ITuple
     {
-        public UpdateRequest(uint spaceId, uint indexId, TKey key, UpdateOperation<TUpdate> updateOperation)
+        public UpdateRequest(uint spaceId, uint indexId, TKey key, UpdateOperation[] updateOperations)
         {
             SpaceId = spaceId;
             IndexId = indexId;
             Key = key;
-            UpdateOperation = updateOperation;
+            UpdateOperations = updateOperations;
         }
 
         public uint SpaceId { get; }
@@ -20,7 +20,7 @@ namespace Tarantool.Client.Model.Requests
 
         public TKey Key { get; }
 
-        public UpdateOperation<TUpdate> UpdateOperation { get; }
+        public UpdateOperation[] UpdateOperations { get; }
 
         public CommandCode Code => CommandCode.Update;
     }

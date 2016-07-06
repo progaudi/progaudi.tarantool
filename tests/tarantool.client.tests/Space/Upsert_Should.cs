@@ -32,7 +32,7 @@ namespace Tarantool.Client.Tests.Space
 
             var space = await schema.GetSpace(spaceName);
 
-            await space.Upsert(Tuple.Create(5), UpdateOperation.CreateAddition(1, 2)).ShouldThrowAsync<ArgumentException>();
+            await space.Upsert(Tuple.Create(5), new UpdateOperation[] { UpdateOperation.CreateAddition(1, 2) }).ShouldThrowAsync<ArgumentException>();
         }
     }
 }
