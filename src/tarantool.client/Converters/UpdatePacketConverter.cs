@@ -5,27 +5,26 @@ using MsgPack.Light;
 using Tarantool.Client.Model;
 using Tarantool.Client.Model.Enums;
 using Tarantool.Client.Model.Requests;
-using Tarantool.Client.Model.UpdateOperations;
 
 namespace Tarantool.Client.Converters
 {
-    internal class UpdatePacketConverter<T, TUpdate> : IMsgPackConverter<UpdateRequest<T, TUpdate>>
+    internal class UpdatePacketConverter<T> : IMsgPackConverter<UpdateRequest<T>>
         where T : ITuple
     {
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<T> _selectKeyConverter;
-        private IMsgPackConverter<UpdateOperation<TUpdate>> _updateOperationConverter;
+        private MsgPackContext _context;
 
         public void Initialize(MsgPackContext context)
         {
             _uintConverter = context.GetConverter<uint>();
             _keyConverter = context.GetConverter<Key>();
             _selectKeyConverter = context.GetConverter<T>();
-            _updateOperationConverter = context.GetConverter<UpdateOperation<TUpdate>>();
+            _context = context;
         }
 
-        public void Write(UpdateRequest<T, TUpdate> value, IMsgPackWriter writer)
+        public void Write(UpdateRequest<T> value, IMsgPackWriter writer)
         {
             writer.WriteMapHeader(4);
 
@@ -39,11 +38,16 @@ namespace Tarantool.Client.Converters
             _selectKeyConverter.Write(value.Key, writer);
 
             _keyConverter.Write(Key.Tuple, writer);
-            writer.WriteArrayHeader(1);
-            _updateOperationConverter.Write(value.UpdateOperation, writer);
+            writer.WriteArrayHeader((uint) value.UpdateOperations.Length);
+
+            foreach (var updateOperation in value.UpdateOperations)
+            {
+                var operationConverter = updateOperation.GetConverter(_context);
+                operationConverter.Write(updateOperation, writer);
+            }
         }
 
-        public UpdateRequest<T, TUpdate> Read(IMsgPackReader readerr)
+        public UpdateRequest<T> Read(IMsgPackReader readerr)
         {
             throw new NotImplementedException();
         }

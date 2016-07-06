@@ -5,27 +5,26 @@ using MsgPack.Light;
 using Tarantool.Client.Model;
 using Tarantool.Client.Model.Enums;
 using Tarantool.Client.Model.Requests;
-using Tarantool.Client.Model.UpdateOperations;
 
 namespace Tarantool.Client.Converters
 {
-    internal class UpsertPacketConverter<T, TUpdate> : IMsgPackConverter<UpsertRequest<T, TUpdate>>
+    internal class UpsertPacketConverter<T> : IMsgPackConverter<UpsertRequest<T>>
         where T : ITuple
     {
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<T> _tupleConverter;
-        private IMsgPackConverter<UpdateOperation<TUpdate>> _updateOperationConverter;
+        private MsgPackContext _context;
 
         public void Initialize(MsgPackContext context)
         {
             _uintConverter = context.GetConverter<uint>();
             _keyConverter = context.GetConverter<Key>();
             _tupleConverter = context.GetConverter<T>();
-            _updateOperationConverter = context.GetConverter<UpdateOperation<TUpdate>>();
+            _context = context;
         }
 
-        public void Write(UpsertRequest<T, TUpdate> value, IMsgPackWriter writer)
+        public void Write(UpsertRequest<T> value, IMsgPackWriter writer)
         {
             writer.WriteMapHeader(3);
 
@@ -36,11 +35,16 @@ namespace Tarantool.Client.Converters
             _tupleConverter.Write(value.Tuple, writer);
 
             _keyConverter.Write(Key.Ops, writer);
-            writer.WriteArrayHeader(1);
-            _updateOperationConverter.Write(value.UpdateOperation, writer);
+            writer.WriteArrayHeader((uint) value.UpdateOperations.Length);
+
+            foreach (var updateOperation in value.UpdateOperations)
+            {
+                var operationConverter = updateOperation.GetConverter(_context);
+                operationConverter.Write(updateOperation, writer);
+            }
         }
 
-        public UpsertRequest<T, TUpdate> Read(IMsgPackReader reader)
+        public UpsertRequest<T> Read(IMsgPackReader reader)
         {
             throw new NotImplementedException();
         }

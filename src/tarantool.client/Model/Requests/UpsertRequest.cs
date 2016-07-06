@@ -3,17 +3,17 @@ using Tarantool.Client.Model.UpdateOperations;
 
 namespace Tarantool.Client.Model.Requests
 {
-    public class UpsertRequest<TTuple, TUpdate> : IRequest
+    public class UpsertRequest<TTuple> : IRequest
         where TTuple : ITuple
     {
-        public UpsertRequest(uint spaceId, TTuple tuple, UpdateOperation<TUpdate> updateOperation)
+        public UpsertRequest(uint spaceId, TTuple tuple, UpdateOperation[] updateOperations)
         {
             SpaceId = spaceId;
             Tuple = tuple;
-            UpdateOperation = updateOperation;
+            UpdateOperations = updateOperations;
         }
 
-        public UpdateOperation<TUpdate> UpdateOperation { get; }
+        public UpdateOperation[] UpdateOperations { get; }
 
         public uint SpaceId { get; }
 

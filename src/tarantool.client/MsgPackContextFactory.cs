@@ -40,13 +40,13 @@ namespace Tarantool.Client
             result.RegisterConverter(new TupleConverter());
 
             result.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
-            result.RegisterGenericConverter(typeof(UpdatePacketConverter<,>));
+            result.RegisterGenericConverter(typeof(UpdatePacketConverter<>));
             result.RegisterGenericConverter(typeof(CallPacketConverter<>));
             result.RegisterGenericConverter(typeof(DeletePacketConverter<>));
             result.RegisterGenericConverter(typeof(EvalPacketConverter<>));
             result.RegisterGenericConverter(typeof(InsertReplacePacketConverter<>));
             result.RegisterGenericConverter(typeof(SelectPacketConverter<>));
-            result.RegisterGenericConverter(typeof(UpsertPacketConverter<,>));
+            result.RegisterGenericConverter(typeof(UpsertPacketConverter<>));
 
             result.RegisterGenericConverter(typeof(TupleConverter<>));
             result.RegisterGenericConverter(typeof(TupleConverter<,>));
