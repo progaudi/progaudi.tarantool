@@ -120,7 +120,7 @@ namespace Tarantool.Client
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, 1, 0, Iterator.Eq, key);
             var response = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
-            return response.Data.Single();
+            return response.Data.SingleOrDefault();
         }
 
         public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)

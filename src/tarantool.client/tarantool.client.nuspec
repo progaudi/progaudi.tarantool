@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Tarantool.CSharp</id>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
     <authors>roman.kozachenko, aensidhe</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# tarantool client</description>
