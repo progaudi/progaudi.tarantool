@@ -14,7 +14,7 @@ namespace Tarantool.Client.Model
 
         public string Password { get; set; }
 
-        internal MsgPackContext MsgPackContext { get; } = MsgPackContextFactory.Create();
+        public MsgPackContext MsgPackContext { get; set; } = new MsgPackContext();
 
         public int StreamBufferSize { get; set; } = 4096;
 

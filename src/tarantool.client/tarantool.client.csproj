@@ -101,7 +101,7 @@
     <Compile Include="Model\UpdateOperations\UpdateOperationType.cs" />
     <Compile Include="Utils\Sha1Utils.cs" />
     <Compile Include="Model\Tuple.cs" />
-    <Compile Include="MsgPackContextFactory.cs" />
+    <Compile Include="TarantoolConvertersRegistrator.cs" />
     <Compile Include="Box.cs" />
     <Compile Include="NetworkStreamPhysicalConnection.cs" />
     <Compile Include="ResponseReader.cs" />

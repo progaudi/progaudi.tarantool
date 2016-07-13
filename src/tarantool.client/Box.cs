@@ -21,6 +21,8 @@ namespace Tarantool.Client
         public Box(ConnectionOptions options)
         {
             _connectionOptions = options;
+            TarantoolConvertersRegistrator.Register(options.MsgPackContext);
+
             _physicalConnection = new NetworkStreamPhysicalConnection();
             _logicalConnection = new LogicalConnection(options, _physicalConnection);
             _responseReader = new ResponseReader(_logicalConnection, options, _physicalConnection);

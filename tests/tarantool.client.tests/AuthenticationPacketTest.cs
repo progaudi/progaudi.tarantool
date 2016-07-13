@@ -21,7 +21,8 @@ namespace Tarantool.Client.Tests
             var greetings = Encoding.UTF8.GetBytes("Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727   DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
             
             var packet = AuthenticationRequest.Create(new GreetingsResponse(greetings), "test", "test");
-            var msgPackContext = MsgPackContextFactory.Create();
+            var msgPackContext =new MsgPackContext();
+            TarantoolConvertersRegistrator.Register(msgPackContext);
             var serialzied = MsgPackSerializer.Serialize(packet, msgPackContext);
 
             var expected = new byte[]
