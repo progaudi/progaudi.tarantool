@@ -46,6 +46,13 @@ sudo apt-get -y install tarantool dos2unix"
         inline: "dos2unix /opt/tarantool/tarantool.lua",
         run: "always"
 
+    config.vm.provision "fix missing libbfd problem",
+        type: "shell",
+        binary: true,
+        keep_color: true,
+        inline: "sudo ln -s /usr/lib/i386-linux-gnu/libbfd-2.26.1-system.so /usr/lib/i386-linux-gnu/libbfd-2.26-system.so",
+        run: "always"
+
     config.vm.provision "run tarantool",
         type: "shell",
         binary: true,
