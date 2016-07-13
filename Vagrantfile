@@ -14,17 +14,7 @@ Vagrant.configure(2) do |config|
         type: "shell",
         binary: true,
         keep_color: true,
-        inline: "curl http://download.tarantool.org/tarantool/1.6/gpgkey | sudo apt-key add -
-release=`lsb_release -c -s`
-
-sudo rm -f /etc/apt/sources.list.d/*tarantool*.list
-sudo tee /etc/apt/sources.list.d/tarantool_1_6.list <<- EOF
-deb http://download.tarantool.org/tarantool/1.6/debian/ $release main
-deb-src http://download.tarantool.org/tarantool/1.6/debian/ $release main
-EOF
-
-sudo apt-get update
-sudo apt-get -y install tarantool dos2unix"
+        inline: "sudo apt-get update && sudo apt-get -y install tarantool dos2unix"
 
     config.vm.provision "create tarantool config directiory",
         type: "shell",
@@ -44,6 +34,13 @@ sudo apt-get -y install tarantool dos2unix"
         binary: true,
         keep_color: true,
         inline: "dos2unix /opt/tarantool/tarantool.lua",
+        run: "always"
+
+    config.vm.provision "fix missing libbfd problem",		
+        type: "shell",		
+        binary: true,		
+        keep_color: true,		
+        inline: "sudo ln -s /usr/lib/i386-linux-gnu/libbfd-2.26.1-system.so /usr/lib/i386-linux-gnu/libbfd-2.26-system.so",		
         run: "always"
 
     config.vm.provision "run tarantool",
