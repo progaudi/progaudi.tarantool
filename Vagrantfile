@@ -1,5 +1,5 @@
 Vagrant.configure(2) do |config|
-    config.vm.box = "ubuntu/xenial32"
+    config.vm.box = "ubuntu/trusty32"
 
     config.vm.provider "virtualbox" do |vb|
         vb.cpus = 1
@@ -8,7 +8,7 @@ Vagrant.configure(2) do |config|
         vb.customize ["modifyvm", :id, "--nictype1", "Am79C973"]
     end
     config.vm.boot_timeout = 1200
-    config.vm.hostname = "ubuntu-xenial"
+    config.vm.hostname = "ubuntu-trusty"
 
     config.vm.provision "install tarantool",
         type: "shell",
