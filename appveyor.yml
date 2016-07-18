@@ -30,7 +30,9 @@ install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
   - scripts\install\vagrant.cmd
   - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
-#  - vagrant up
+#  - vagrant up # Tests are temporary disabled.
+
+test: off
 
 before_build:
   - nuget restore
@@ -47,5 +49,5 @@ artifacts:
   - path: artifacts\bin\tarantool.client\Release\*.nupkg
 
 # Uncomment to debug via RDP
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
