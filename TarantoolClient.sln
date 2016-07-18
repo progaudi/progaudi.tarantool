@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tarantool.client", "src\tarantool.client\tarantool.client.csproj", "{5209673F-EB12-456A-B0FF-88F0C6989274}"
 EndProject
@@ -10,6 +10,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A06F489E-1F82-425A-BAFC-68E193964C89}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
+		scripts\install\docker.cmd = scripts\install\docker.cmd
+		scripts\install\vagrant.cmd = scripts\install\vagrant.cmd
+		Vagrantfile = Vagrantfile
 	EndProjectSection
 EndProject
 Global

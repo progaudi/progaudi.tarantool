@@ -1,6 +1,8 @@
+using System;
+
 namespace Tarantool.Client
 {
-    public interface IResponseReader
+    public interface IResponseReader : IDisposable
     {
         void BeginReading();
     }

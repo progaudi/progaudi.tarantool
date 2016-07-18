@@ -38,7 +38,6 @@ namespace Tarantool.Client
         public void Write(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
-
             _stream.Write(buffer, offset, count);
         }
 

@@ -74,11 +74,11 @@ namespace Tarantool.Client.Tests.Index
 
             var index = await space.GetIndex("treeIndex");
 
-            var min2 = index.Min<Model.Tuple<int, int, int>, Model.Tuple<int>>(Tuple.Create(3));
-            var min = index.Min<Model.Tuple<int, string, double>>();
+            var min2 = await index.Min<Model.Tuple<int, int, int>, Model.Tuple<int>>(Tuple.Create(3));
+            var min = await index.Min<Model.Tuple<int, string, double>>();
 
-            var max = index.Max<Model.Tuple<int, int, int>>();
-            var max2 = index.Max<Model.Tuple<int, string, double>, Model.Tuple<int>>(Tuple.Create(4));
+            var max = await index.Max<Model.Tuple<int, int, int>>();
+            var max2 = await index.Max<Model.Tuple<int, string, double>, Model.Tuple<int>>(Tuple.Create(4));
         }
     }
 }

@@ -30,7 +30,9 @@ install:
   - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
   - scripts\install\vagrant.cmd
   - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
-  - vagrant up
+#  - vagrant up # Tests are temporary disabled.
+
+test: off
 
 before_build:
   - nuget restore
