@@ -54,6 +54,7 @@ namespace Tarantool.Client
         {
             _connectionOptions.LogWriter?.WriteLine("Box is disposing...");
             _connectionOptions.LogWriter?.Flush();
+            _responseReader.Dispose();
             _physicalConnection.Dispose();
         }
 

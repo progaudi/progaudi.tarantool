@@ -26,6 +26,8 @@ namespace Tarantool.Client
 
         private int _parsingOffset;
 
+        private bool _disposed = false;
+
         public ResponseReader(ILogicalConnection logicalConnection, ConnectionOptions connectionOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
             _physicalConnection = physicalConnection;
@@ -45,16 +47,23 @@ namespace Tarantool.Client
 
         private void EndReading(IAsyncResult ar)
         {
-            var readBytesCount = _physicalConnection.EndRead(ar);
-            _connectionOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
-
-            if (ProcessReadBytes(readBytesCount))
+            if (!_disposed)
             {
-                BeginReading();
+                var readBytesCount = _physicalConnection.EndRead(ar);
+                _connectionOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
+
+                if (ProcessReadBytes(readBytesCount))
+                {
+                    BeginReading();
+                }
+                else
+                {
+                    CancelAllPendingRequests();
+                }
             }
             else
             {
-                CancelAllPendingRequests();
+                _connectionOptions.LogWriter?.WriteLine($"Attempt to end reading in disposed state... Exiting.");
             }
         }
 
@@ -203,6 +212,11 @@ namespace Tarantool.Client
             Array.Resize(ref _buffer, _buffer.Length * 2);
             space = _buffer.Length - _readingOffset;
             return space;
+        }
+
+        public void Dispose()
+        {
+            _disposed = true;
         }
     }
 }
