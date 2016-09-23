@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.IO;
 using System.Linq;
 
@@ -63,7 +64,7 @@ namespace Tarantool.Client
             }
             else
             {
-                _connectionOptions.LogWriter?.WriteLine($"Attempt to end reading in disposed state... Exiting.");
+                throw new ObjectDisposedException(nameof(ResponseReader));
             }
         }
 
@@ -92,7 +93,7 @@ namespace Tarantool.Client
                 CopyRemainingBytesToBufferBegin();
             }
 
-            return true;
+            return !_disposed;
         }
 
         private void CopyRemainingBytesToBufferBegin()
