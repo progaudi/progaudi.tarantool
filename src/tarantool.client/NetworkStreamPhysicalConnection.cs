@@ -14,9 +14,12 @@ namespace Tarantool.Client
 
         private Socket _socket;
 
+        private bool _disposed;
+
         public void Dispose()
         {
-            _stream.Dispose();
+            _disposed = true;
+            _stream?.Dispose();
         }
 
         public void Connect(ConnectionOptions options)
@@ -67,6 +70,11 @@ namespace Tarantool.Client
             if (_stream == null)
             {
                 throw ExceptionHelper.NotConnected();
+            }
+
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(NetworkStreamPhysicalConnection));
             }
         }
     }
