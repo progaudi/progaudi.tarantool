@@ -35,7 +35,8 @@ namespace Tarantool.Client.Converters
                         unique = boolConverter.Read(reader);
                         break;
                     default:
-                        throw ExceptionHelper.UnknownIndexCreationOption(key);
+                        reader.SkipToken();
+                        break;
                 }
             }
 

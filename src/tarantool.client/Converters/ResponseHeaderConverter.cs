@@ -57,7 +57,8 @@ namespace Tarantool.Client.Converters
                         schemaId = _ulongConverter.Read(reader);
                         break;
                     default:
-                        throw ExceptionHelper.UnexpectedKey(key, Key.Code, Key.Sync, Key.SchemaId);
+                        reader.SkipToken();
+                        break;
                 }
             }
 
