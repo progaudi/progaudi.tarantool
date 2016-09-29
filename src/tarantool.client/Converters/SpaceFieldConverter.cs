@@ -43,7 +43,8 @@ namespace Tarantool.Client.Converters
                         type = _typeConverter.Read(reader);
                         break;
                     default:
-                        throw ExceptionHelper.UnexpectedSpaceFieldKey(key);
+                        reader.SkipToken();
+                        break;
                 }
             }
 

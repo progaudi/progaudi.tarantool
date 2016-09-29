@@ -103,16 +103,6 @@ namespace Tarantool.Client.Utils
             return new InvalidOperationException($"Unexpected underlying enum type: {enumUnderlyingType}.");
         }
 
-        public static ArgumentException UnknownIndexCreationOption(string key)
-        {
-            return new ArgumentException($"Unknown index creation option: {key}");
-        }
-
-        public static ArgumentException UnexpectedSpaceFieldKey(string key)
-        {
-            return new ArgumentException($"Invalid SpaceField key: {key}");
-        }
-
         public static NotSupportedException WrongIndexType(string indexType, string operation)
         {
             return new NotSupportedException($"Only {indexType} indicies support {operation} operation.");
