@@ -32,9 +32,10 @@ namespace Tarantool.Client.Converters
         public ResponseHeader Read(IMsgPackReader reader)
         {
             var length = reader.ReadMapLength();
-            if (length != 3u)
+
+            if (!length.HasValue)
             {
-                throw ExceptionHelper.InvalidMapLength(length, 3u);
+                throw ExceptionHelper.InvalidMapLength(length, 2u, 3u);
             }
 
             CommandCode? code = null;
@@ -72,12 +73,7 @@ namespace Tarantool.Client.Converters
                 throw ExceptionHelper.PropertyUnspecified("Sync");
             }
 
-            if (!schemaId.HasValue)
-            {
-                throw ExceptionHelper.PropertyUnspecified("SchemaId");
-            }
-
-            return new ResponseHeader(code.Value, sync.Value, schemaId.Value);
+            return new ResponseHeader(code.Value, sync.Value, schemaId);
         }
     }
 }
