@@ -64,7 +64,7 @@ namespace Tarantool.Client
             }
             else
             {
-                throw new ObjectDisposedException(nameof(ResponseReader));
+                _connectionOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
             }
         }
 
