@@ -9,7 +9,8 @@ namespace Tarantool.Client
         public StringWriterLog()
         {
             StringWriter = new StringWriter();
-            _internalWriter = TextWriter.Synchronized(StringWriter);
+
+            _internalWriter = StringWriter;
         }
 
         public StringWriter StringWriter { get; }

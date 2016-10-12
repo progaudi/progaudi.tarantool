@@ -6,6 +6,7 @@ using Tarantool.Client.Model;
 using Tarantool.Client.Model.Enums;
 using Tarantool.Client.Model.Headers;
 using Tarantool.Client.Model.Responses;
+using System.Reflection;
 
 namespace Tarantool.Client.Utils
 {
@@ -94,6 +95,11 @@ namespace Tarantool.Client.Utils
         }
 
         public static InvalidOperationException EnumExpected(Type type)
+        {
+            return new InvalidOperationException($"Enum expected, but got {type}.");
+        }
+
+        public static InvalidOperationException EnumExpected(TypeInfo type)
         {
             return new InvalidOperationException($"Enum expected, but got {type}.");
         }

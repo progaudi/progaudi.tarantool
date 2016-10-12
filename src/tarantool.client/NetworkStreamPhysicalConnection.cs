@@ -30,14 +30,7 @@ namespace Tarantool.Client
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
-
-        public async Task<int> Read(byte[] buffer, int offset, int count)
-        {
-            CheckConnectionStatus();
-
-            return await _stream.ReadAsync(buffer, offset, count);
-        }
-
+        
         public void Write(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
@@ -51,20 +44,12 @@ namespace Tarantool.Client
             await _stream.FlushAsync();
         }
 
-        public IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        public async Task<int> ReadAsync(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
-
-            return _stream.BeginRead(buffer, offset, count, callback, state);
+            return await _stream.ReadAsync(buffer, offset, count);
         }
-
-        public int EndRead(IAsyncResult asyncResult)
-        {
-            CheckConnectionStatus();
-
-            return _stream.EndRead(asyncResult);
-        }
-
+        
         private void CheckConnectionStatus()
         {
             if (_stream == null)

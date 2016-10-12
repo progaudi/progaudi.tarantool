@@ -10,6 +10,7 @@ using Tarantool.Client.Model.Enums;
 using Tarantool.Client.Model.Headers;
 using Tarantool.Client.Model.Responses;
 using Tarantool.Client.Utils;
+using System.Threading.Tasks;
 
 namespace Tarantool.Client
 {
@@ -43,14 +44,15 @@ namespace Tarantool.Client
 
             _connectionOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
 
-            _physicalConnection.BeginRead(_buffer, _readingOffset, freeBufferSpace, EndReading, this);
+            var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
+            readingTask.ContinueWith(EndReading).Start();
         }
 
-        private void EndReading(IAsyncResult ar)
+        private void EndReading(Task<int> readWork)
         {
             if (!_disposed)
             {
-                var readBytesCount = _physicalConnection.EndRead(ar);
+                var readBytesCount = readWork.Result;
                 _connectionOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
 
                 if (ProcessReadBytes(readBytesCount))
