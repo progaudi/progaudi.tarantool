@@ -1,15 +1,8 @@
 local port = 3301
 local max_memory_gb = 0.1
 local background = false
-local logger = nil
-local pid_file = nil
-local work_dir = '/opt/tarantool/work_dir'
-
-if arg[1] == "daemon" then
-    background = true
-    logger = "tarantool.log"
-    pid_file = "tarantool.pid"
-end
+local logger = "tarantool.log"
+local pid_file = "tarantool.pid"
 
 box.cfg
 {
@@ -18,7 +11,6 @@ box.cfg
   logger = logger,
   pid_file = pid_file,
   background = background,
-  work_dir = work_dir
 }
 
 space1 = box.schema.space.create('primary_only_index')
@@ -31,12 +23,6 @@ performanceSpace:create_index('primary', {type='hash',  parts={1, 'NUM'}})
 space2 = box.schema.space.create('primary_and_secondary_index')
 space2:create_index('hashIndex', {type='hash',  parts={1, 'NUM'}})
 space2:create_index('treeIndex', {type='tree',  parts={1, 'NUM'}})
-
-
-
-box.schema.user.passwd('')
-box.schema.user.grant('guest','read,write,execute','universe')
-
 
 box.schema.user.create('notSetPassword')
 box.schema.user.create('emptyPassword', {password = ''})

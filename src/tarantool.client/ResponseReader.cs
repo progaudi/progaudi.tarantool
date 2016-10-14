@@ -45,7 +45,7 @@ namespace Tarantool.Client
             _connectionOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
 
             var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
-            readingTask.ContinueWith(EndReading).Start();
+            readingTask.ContinueWith(EndReading);
         }
 
         private void EndReading(Task<int> readWork)

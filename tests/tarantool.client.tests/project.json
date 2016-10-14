@@ -1,0 +1,26 @@
+{
+  "description": "tarantool-client Class Library tests",
+  "authors": [ "roman-kozachenko", "aensidhe" ],
+  "packOptions": {
+      "tags": [ "tarantool", "csharp", "tests" ],
+      "projectUrl": "https://github.com/aensidhe/tarantool-csharp",
+      "licenseUrl": "https://raw.githubusercontent.com/aensidhe/tarantool-csharp/master/LICENSE"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+     "netcoreapp1.0": {
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.0"
+                }
+            }
+        }
+  },
+  "dependencies": {
+    "Shouldly": "2.8.2",
+    "tarantool.client": { "target": "project" },
+    "xunit": "2.2.0-beta3-build3402",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029"
+  }
+}

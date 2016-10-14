@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -13,10 +13,9 @@ using System;
 
 namespace Tarantool.Client.Tests.Box
 {
-    [TestFixture]
     public class Eval_Should
     {
-        [Test]
+        [Fact]
         public async Task evaluate_expression()
         {
             var options = new ConnectionOptions()

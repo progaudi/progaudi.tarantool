@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -10,10 +10,9 @@ using Tarantool.Client.Model;
 
 namespace Tarantool.Client.Tests.Schema
 {
-    [TestFixture]
     public class GetSpace_Should
     {
-        [Test]
+        [Fact]
         public async Task throw_expection_for_non_existing_space_by_name()
         {
             var options = new ConnectionOptions()
@@ -30,7 +29,7 @@ namespace Tarantool.Client.Tests.Schema
             await schema.GetSpace("non-existing").ShouldThrowAsync<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public async Task throw_expection_for_non_existing_space_by_id()
         {
             var options = new ConnectionOptions()
@@ -47,7 +46,7 @@ namespace Tarantool.Client.Tests.Schema
             await schema.GetSpace(12341234).ShouldThrowAsync<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public async Task returns_space_by_id()
         {
             const uint VSpaceId = 0x119; // that space always exist and contains other spaces.
@@ -67,7 +66,7 @@ namespace Tarantool.Client.Tests.Schema
             space.Id.ShouldBe(VSpaceId);
         }
 
-        [Test]
+        [Fact]
         public async Task returns_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
@@ -87,7 +86,7 @@ namespace Tarantool.Client.Tests.Schema
             space.Name.ShouldBe(VSpaceName);
         }
 
-        [Test]
+        [Fact]
         public async Task read_multiple_spaces_in_a_row()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.

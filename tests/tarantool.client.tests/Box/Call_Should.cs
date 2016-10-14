@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -13,10 +13,9 @@ using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client.Tests.Box
 {
-    [TestFixture]
     public class Call_Should
     {
-        [Test]
+        [Fact]
         public async Task call_method()
         {
             var options = new ConnectionOptions()
