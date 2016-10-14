@@ -1,5 +1,5 @@
 {
-  "version": "0.1.13",
+  "version": "0.2.0",
   "description": "tarantool-client Class Library",
   "authors": [ "roman-kozachenko", "aensidhe" ],
   "packOptions": {
@@ -9,17 +9,18 @@
   },
 
   "frameworks": {
-     "netcoreapp1.0": {
-            "dependencies": {
-                "Microsoft.NETCore.App": {
-                    "type": "platform",
-                    "version": "1.0.0"
-                }
-            }
+    "net461": { },
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
         }
+      }
+    }
   },
   "dependencies": {
     "Shouldly": "2.8.2",
-    "MsgPack.Light": "0.5.12"
+    "MsgPack.Light": "0.5.13"
   }
 }

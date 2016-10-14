@@ -6,7 +6,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>dd19ce95-bbee-4afb-9cec-8e23bd6f17af</ProjectGuid>
+    <ProjectGuid>9e3331ce-7b8a-4efe-a3ac-f0efaebc5683</ProjectGuid>
   </PropertyGroup>
 
   <PropertyGroup>
