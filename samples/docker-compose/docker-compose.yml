@@ -1,8 +1,31 @@
 version: '2'
 
 services:
+  tarantool1:
+    image: tarantool/tarantool:1.7
+    command: tarantool /usr/local/share/tarantool/sample.init.lua
+    volumes:
+      - $PWD/tarantool:/usr/local/share/tarantool
+    environment:
+      TARANTOOL_REPLICATION_SOURCE: "replicator:234234@tarantool1,replicator:234234@tarantool2"
+      TARANTOOL_REPLICATION_USER: replicator
+      TARANTOOL_USER_PASSWORD: "234234"
+
+  tarantool2:
+    image: tarantool/tarantool:1.7
+    command: tarantool /usr/local/share/tarantool/sample.init.lua
+    volumes:
+      - $PWD/tarantool:/usr/local/share/tarantool
+    environment:
+      TARANTOOL_REPLICATION_SOURCE: "replicator:234234@tarantool1,replicator:234234@tarantool2"
+      TARANTOOL_REPLICATION_USER: replicator
+      TARANTOOL_USER_PASSWORD: "234234"
+
   dotnet:
     build:
       context: $PWD/dotnet
+    depends_on:
+      - tarantool1
+      - tarantool2
     ports:
       - 5000:5000
