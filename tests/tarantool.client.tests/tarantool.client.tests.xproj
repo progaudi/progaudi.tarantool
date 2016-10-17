@@ -8,9 +8,11 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>9e3331ce-7b8a-4efe-a3ac-f0efaebc5683</ProjectGuid>
   </PropertyGroup>
-
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>
