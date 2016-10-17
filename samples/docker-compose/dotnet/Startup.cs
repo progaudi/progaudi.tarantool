@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+using Tarantool.Client;
+using Tarantool.Client.Model;
 
 namespace dotnet
 {
@@ -29,6 +34,9 @@ namespace dotnet
         {
             // Add framework services.
             services.AddMvc();
+
+            var box = CreateConnectedBox().GetAwaiter().GetResult();
+            services.AddSingleton(box);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +55,21 @@ namespace dotnet
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private async Task<Box> CreateConnectedBox()
+        {
+            var addresses = await Dns.GetHostAddressesAsync("tarantool1");
+            var box = new Box(new ConnectionOptions
+            {
+                EndPoint = new IPEndPoint(addresses.First(x => x.AddressFamily == AddressFamily.InterNetwork), 3301),
+                GuestMode = false,
+                UserName = "operator",
+                Password = "123123"
+            });
+            await box.Connect();
+
+            return box;
         }
     }
 }

@@ -1,0 +1,29 @@
+@model dotnet.Models.DogTable
+
+<div>
+    <table class="table table-condensed">
+        <caption>@Model.Caption</caption>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in @Model.Dogs)
+            {
+                <tr>
+                    <td>@p.Id</td>
+                    <td>@p.Name</td>
+                    <td>@p.Age</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3">@Model.Dogs.Count dogs total</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
