@@ -5,8 +5,8 @@
   "authors": [ "roman-kozachenko", "aensidhe" ],
   "packOptions": {
     "tags": [ "tarantool", "csharp" ],
-    "projectUrl": "https://github.com/aensidhe/tarantool-csharp",
-    "licenseUrl": "https://raw.githubusercontent.com/aensidhe/tarantool-csharp/master/LICENSE"
+    "projectUrl": "https://github.com/progaudi/tarantool-csharp",
+    "licenseUrl": "https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE"
   },
 
   "frameworks": {
