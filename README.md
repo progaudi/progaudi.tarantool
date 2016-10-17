@@ -1,6 +1,4 @@
-# tarantool-dnx
-
-[![Join the chat at https://gitter.im/aensidhe/tarantool-dnx](https://badges.gitter.im/aensidhe/tarantool-dnx.svg)](https://gitter.im/aensidhe/tarantool-dnx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# tarantool-csharp
 
 Dotnet client for Tarantool NoSql database.
 
@@ -13,15 +11,19 @@ Dotnet client for Tarantool NoSql database.
 
 Simpliest way to start using Tarantool-csharp in your project is to install it from [Nuget](https://www.nuget.org/packages/Tarantool.CSharp/).
 
+# Demo
+
+[We have a small demo](https://github.com/progaudi/tarantool-csharp/blob/master/samples/docker-compose/). It illustrates usage of library in aspnet core with docker-compose. Docker 1.12 is preferred.
+
 # Usage
 
-You can find basic usage scenarios in [index](https://github.com/aensidhe/tarantool-csharp/blob/master/tests/tarantool.client.tests/Index/Smoke.cs) and [space](https://github.com/aensidhe/tarantool-csharp/blob/master/tests/tarantool.client.tests/Space/Smoke.cs) smoke tests.
+You can find basic usage scenarios in [index](https://github.com/progaudi/tarantool-csharp/blob/master/tests/tarantool.client.tests/Index/Smoke.cs) and [space](https://github.com/progaudi/tarantool-csharp/blob/master/tests/tarantool.client.tests/Space/Smoke.cs) smoke tests.
 
 # Build statuses for master branch
 
 Windows build status:
 
-[![Windows build status](https://ci.appveyor.com/api/projects/status/2iat2pxjuftk0xvn/branch/master?svg=true)](https://ci.appveyor.com/project/aensidhe/tarantool-csharp/branch/master)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/2iat2pxjuftk0xvn/branch/master?svg=true)](https://ci.appveyor.com/project/progaudi/tarantool-csharp/branch/master)
 
 
 Right now Linux and OSX support are dropped until dotnet-core stabilization.
