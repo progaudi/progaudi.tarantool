@@ -50,6 +50,7 @@ end
 local function data()
     box.space.some_space:auto_increment{'Masya', 10}
     box.space.some_space:auto_increment{'Armata', 0}
+    box.space.some_space:auto_increment{'Bonya', 5}
 end
 
 box.once('init', init)

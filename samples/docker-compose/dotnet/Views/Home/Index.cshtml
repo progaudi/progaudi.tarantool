@@ -1,9 +1,11 @@
 @using dotnet.Models
-@model TestData
+@model Dog[][]
 @{
     ViewData["Title"] = "Tarantool demo page";
 }
 
-@Html.Partial("DogTablePartial", new DogTable(Model.AllDogs, "All dogs in Tarantool"))
+@Html.Partial("DogTablePartial", new DogTable(Model[0], "All dogs in Tarantool"))
 
-@Html.Partial("DogTablePartial", new DogTable(Model.DogsOlder5Years, "Senior dogs in Tarantool"))
+@Html.Partial("DogTablePartial", new DogTable(Model[1], "Senior dogs in Tarantool"))
+
+@Html.Partial("DogTablePartial", new DogTable(Model[2], "Junior dogs in Tarantool"))
