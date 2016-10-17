@@ -25,7 +25,7 @@ local function init()
     box.schema.user.create('replicator', {password = '234234', if_not_exists = true})
     box.schema.user.grant('replicator','execute','role','replication', { if_not_exists = true })
 
-    some_space = box.schema.space.create('some_space', { field_count = 5, format = {
+    some_space = box.schema.space.create('some_space', { field_count = 3, format = {
         [1] = {["name"] = "id"},
         [2] = {["name"] = "text"},
         [3] = {["name"] = "int"}
@@ -34,7 +34,7 @@ local function init()
 
     some_space:create_index('primary', {
         if_not_exists = true,
-        type = 'HASH',
+        type = 'TREE',
         unique = true,
         parts = {1, 'INT'}
     })
@@ -47,4 +47,10 @@ local function init()
     })
 end
 
+local function data()
+    box.space.some_space:auto_increment{'Masya', 10}
+    box.space.some_space:auto_increment{'Armata', 0}
+end
+
 box.once('init', init)
+box.once('data', data)
