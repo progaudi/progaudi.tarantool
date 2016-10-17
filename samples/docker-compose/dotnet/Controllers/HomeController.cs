@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using dotnet.Models;
@@ -39,13 +38,15 @@ namespace dotnet.Controllers
 
         public async Task<ViewResult> Index()
         {
-            var primaryData = await this._primaryIndex.Select<Tuple<long>, Tuple<long, string, long>>(Tuple.Create(-1L), new SelectOptions { Iterator = Iterator.All });
-            var secondaryData = await this._secondaryIndex.Select<Tuple<long>, Tuple<long, string, long>>(Tuple.Create(5L), new SelectOptions { Iterator = Iterator.Ge });
+            var allDogs = await this._primaryIndex.Select<Tuple<long>, Tuple<long, string, long>>(Tuple.Create(-1L), new SelectOptions { Iterator = Iterator.All });
+            var seniorDogs = await this._secondaryIndex.Select<Tuple<long>, Tuple<long, string, long>>(Tuple.Create(5L), new SelectOptions { Iterator = Iterator.Ge });
+            var juniorDogs = await this._secondaryIndex.Select<Tuple<long>, Tuple<long, string, long>>(Tuple.Create(5L), new SelectOptions { Iterator = Iterator.Le });
 
-            return View(new TestData
+            return View(new []
             {
-                AllDogs = primaryData.Data.Select(x => new Dog(x)).ToArray(),
-                DogsOlder5Years = secondaryData.Data.Select(x => new Dog(x)).ToArray()
+                allDogs.Data.Select(x => new Dog(x)).ToArray(),
+                seniorDogs.Data.Select(x => new Dog(x)).ToArray(),
+                juniorDogs.Data.Select(x => new Dog(x)).ToArray()
             });
         }
     }
