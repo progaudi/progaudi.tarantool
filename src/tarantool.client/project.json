@@ -1,11 +1,12 @@
 {
   "version": "0.2.0",
+  "name": "Tarantool.CSharp",
   "description": "tarantool-client Class Library",
   "authors": [ "roman-kozachenko", "aensidhe" ],
   "packOptions": {
-      "tags": [ "tarantool", "csharp" ],
-      "projectUrl": "https://github.com/aensidhe/tarantool-csharp",
-      "licenseUrl": "https://raw.githubusercontent.com/aensidhe/tarantool-csharp/master/LICENSE"
+    "tags": [ "tarantool", "csharp" ],
+    "projectUrl": "https://github.com/aensidhe/tarantool-csharp",
+    "licenseUrl": "https://raw.githubusercontent.com/aensidhe/tarantool-csharp/master/LICENSE"
   },
 
   "frameworks": {
