@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+    tarantool:
+        image: tarantool/tarantool:1.7
+        command: tarantool /opt/tarantool.lua
+        volumes:
+            - $PWD/tarantool.lua:/opt/tarantool.lua
+        ports:
+            - "3301:3301"

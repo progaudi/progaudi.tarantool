@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -10,10 +10,9 @@ using Tarantool.Client.Model;
 
 namespace Tarantool.Client.Tests.Space
 {
-    [TestFixture]
     public class GetIndex_Should
     {
-        [Test]
+        [Fact]
         public async Task throw_expection_for_non_existing_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
@@ -32,7 +31,7 @@ namespace Tarantool.Client.Tests.Space
             await space.GetIndex("non-existing").ShouldThrowAsync<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public async Task throw_expection_for_non_existing_space_by_id()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
@@ -51,7 +50,7 @@ namespace Tarantool.Client.Tests.Space
             await space.GetIndex(12341234).ShouldThrowAsync<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public async Task returns_space_by_id()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
@@ -73,7 +72,7 @@ namespace Tarantool.Client.Tests.Space
             index.Id.ShouldBe(indexId);
         }
 
-        [Test]
+        [Fact]
         public async Task returns_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.

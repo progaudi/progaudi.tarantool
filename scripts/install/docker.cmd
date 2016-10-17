@@ -1,1 +1,0 @@
-choco install -y docker docker-machine virtualbox

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -16,10 +16,9 @@ using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client.Tests.Space
 {
-    [TestFixture]
     public class Smoke
     {
-        [Test]
+        [Fact]
         public async Task Test()
         {
             const string spaceName = "primary_only_index";
@@ -57,7 +56,7 @@ namespace Tarantool.Client.Tests.Space
         }
 
 
-        [Test]
+        [Fact]
         public async Task LongTest()
         {
 

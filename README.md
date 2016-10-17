@@ -21,6 +21,7 @@ You can find basic usage scenarios in [index](https://github.com/aensidhe/tarant
 
 Windows build status:
 
-[![Windows build status](https://ci.appveyor.com/api/projects/status/s22xej0ai5n41au2/branch/master?svg=true)](https://ci.appveyor.com/project/aensidhe/tarantool-dnx/branch/master)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/2iat2pxjuftk0xvn/branch/master?svg=true)](https://ci.appveyor.com/project/aensidhe/tarantool-csharp/branch/master)
+
 
 Right now Linux and OSX support are dropped until dotnet-core stabilization.

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Tarantool.Client.Model;
 
@@ -13,11 +13,9 @@ using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client.Tests
 {
-    [TestFixture]
     public class Performance
     {
-        [Test]
-        [Ignore("Added just for profiling")]
+        [Fact(Skip = "Added just for profiling")]
         public void MultithreadTest()
         {
             var logWriter = new StringWriterLog();

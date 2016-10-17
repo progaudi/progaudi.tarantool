@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Tarantool.Client.Model;
 using Tarantool.Client.Model.Responses;
@@ -12,10 +12,9 @@ using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client.Tests.Index
 {
-    [TestFixture]
     public class Smoke
     {
-        [Test]
+        [Fact]
         public async Task HashIndexMethods()
         {
             const string spaceName = "primary_only_index";
@@ -56,7 +55,7 @@ namespace Tarantool.Client.Tests.Index
             var selectResponse2 = index.Select<Model.Tuple<uint>, Model.Tuple<int, int, int>>(Tuple.Create(5u));
         }
 
-        [Test]
+        [Fact]
         public async Task TreeIndexMethods()
         {
             const string spaceName = "primary_and_secondary_index";

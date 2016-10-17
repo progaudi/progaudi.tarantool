@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -13,10 +13,9 @@ using Tuple = Tarantool.Client.Model.Tuple;
 
 namespace Tarantool.Client.Tests.Space
 {
-    [TestFixture]
     public class Upsert_Should
     {
-        [Test]
+        [Fact]
         public async Task throw_expection_on_space_with_secondary_index()
         {
             const string spaceName = "primary_and_secondary_index";

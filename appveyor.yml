@@ -10,44 +10,21 @@ assembly_info:
 configuration:
   - Release
 
-clone_depth: 1
-
-nuget:
-  disable_publish_on_pr: true
-
-# build cache to preserve files/folders between builds
-cache:
-  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
-  - '%LocalAppData%\NuGet\Cache'
-
 matrix:
   fast_finish: false
 
 init:
   - git config --global core.autocrlf true
-
-install:
-  - ps: nuget sources add -Name api.nuget.org -Source https://api.nuget.org/v3/index.json
-  - scripts\install\vagrant.cmd
-  - set PATH=C:\HashiCorp\Vagrant\bin;%PATH%
-#  - vagrant up # Tests are temporary disabled.
-
-test: off
+  - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 
 before_build:
-  - nuget restore
+  - appveyor-retry dotnet restore -v Minimal
 
-build:
-  parallel: true
-  project: TarantoolClient.sln
-  verbosity: minimal
-  publish_nuget: true    
+build_script:
+  - dotnet build "src\tarantool.client" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
 
-deploy: off
+after_build:
+  - dotnet pack "src\tarantool.client" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 
 artifacts:
-  - path: artifacts\bin\tarantool.client\Release\*.nupkg
-
-# Uncomment to debug via RDP
-#on_finish:
-#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - path: artifacts\**\*.*

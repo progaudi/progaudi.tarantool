@@ -2,7 +2,7 @@
 
 using MsgPack.Light;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -12,10 +12,9 @@ using Tarantool.Client.Model.Responses;
 
 namespace Tarantool.Client.Tests
 {
-    [TestFixture]
     public class AuthenticationPacketTest
     {
-        [Test]
+        [Fact]
         public void CreatAuthPacket()
         {
             var greetings = Encoding.UTF8.GetBytes("Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727   DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");

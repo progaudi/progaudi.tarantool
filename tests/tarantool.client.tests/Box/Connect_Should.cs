@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-using NUnit.Framework;
+using Xunit;
 
 using Shouldly;
 
@@ -11,10 +11,9 @@ using Tarantool.Client.Model;
 
 namespace Tarantool.Client.Tests.Box
 {
-    [TestFixture]
     public class Connect_Should
     {
-        [Test]
+        [Fact]
         public async Task throw_exception_if_UserName_is_null_and_not_GuestMode()
         {
             var options = new ConnectionOptions()
@@ -31,7 +30,7 @@ namespace Tarantool.Client.Tests.Box
             await tarantoolClient.Connect().ShouldThrowAsync<InvalidOperationException>();
         }
 
-        [Test]
+        [Fact]
         public async Task connect_if_UserName_is_null_and_GuestMode()
         {
             var options = new ConnectionOptions()
@@ -48,7 +47,7 @@ namespace Tarantool.Client.Tests.Box
             await tarantoolClient.Connect();
         }
 
-        [Test]
+        [Fact]
         public async Task throw_exception_if_password_is_wrong()
         {
             var options = new ConnectionOptions()
@@ -66,7 +65,7 @@ namespace Tarantool.Client.Tests.Box
             await tarantoolClient.Connect().ShouldThrowAsync<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public async Task throw_exception_if_password_is_empty_for_user_with_unset_password()
         {
             var options = new ConnectionOptions()
@@ -84,7 +83,7 @@ namespace Tarantool.Client.Tests.Box
             await tarantoolClient.Connect().ShouldThrowAsync<ArgumentException>();
         }
 
-        [Test]
+        [Fact]
         public async Task connect_if_password_is_empty_for_user_with_empty_password()
         {
             var options = new ConnectionOptions()
@@ -101,7 +100,7 @@ namespace Tarantool.Client.Tests.Box
             await tarantoolClient.Connect();
         }
 
-        [Test]
+        [Fact]
         public async Task connect_with_credentials()
         {
             var options = new ConnectionOptions()
