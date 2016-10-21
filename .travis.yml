@@ -22,5 +22,5 @@ before_script:
   - docker-compose up -d
 
 script:
-  - dotnet build -f netcoreapp1.0 src/tarantool.client.light
+  - dotnet build -f netcoreapp1.0 src/tarantool.client
   - dotnet test tests/tarantool.client.tests
