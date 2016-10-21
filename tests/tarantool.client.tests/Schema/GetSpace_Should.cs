@@ -6,9 +6,9 @@ using Xunit;
 
 using Shouldly;
 
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model;
 
-namespace Tarantool.Client.Tests.Schema
+namespace ProGaudi.Tarantool.Client.Tests.Schema
 {
     public class GetSpace_Should
     {

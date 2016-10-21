@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Requests;
-using Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Requests;
+using ProGaudi.Tarantool.Client.Model.Responses;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     public interface ILogicalConnection
     {

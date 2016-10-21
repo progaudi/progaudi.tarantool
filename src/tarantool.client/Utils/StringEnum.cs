@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Tarantool.Client.Utils
+namespace ProGaudi.Tarantool.Client.Utils
 {
     internal class StringValueAttribute : Attribute
     {

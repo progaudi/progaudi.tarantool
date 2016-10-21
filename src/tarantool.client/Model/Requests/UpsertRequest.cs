@@ -1,7 +1,7 @@
-﻿using Tarantool.Client.Model.Enums;
-using Tarantool.Client.Model.UpdateOperations;
+﻿using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
-namespace Tarantool.Client.Model.Requests
+namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class UpsertRequest<TTuple> : IRequest
         where TTuple : ITuple

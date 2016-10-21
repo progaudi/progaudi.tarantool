@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client.Converters
+namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class RequestIdConverter : IMsgPackConverter<RequestId>
     {
         public void Initialize(MsgPackContext context)
         {
-                
+
         }
 
         public void Write(RequestId value, IMsgPackWriter writer)

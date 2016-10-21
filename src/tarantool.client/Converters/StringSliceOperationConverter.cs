@@ -1,10 +1,10 @@
 ﻿using System;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Model.UpdateOperations;
+using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
-namespace Tarantool.Client.Converters
+namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class StringSliceOperationConverter : IMsgPackConverter<StringSliceOperation>
     {
@@ -19,7 +19,7 @@ namespace Tarantool.Client.Converters
 
         public void Write(StringSliceOperation value, IMsgPackWriter writer)
         {
-        
+
             writer.WriteArrayHeader(5);
 
             _stringConverter.Write(value.OperationType, writer);

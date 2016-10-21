@@ -1,4 +1,4 @@
-﻿namespace Tarantool.Client.Model
+﻿namespace ProGaudi.Tarantool.Client.Model
 {
     internal class PacketSize
     {
@@ -7,6 +7,6 @@
             Value = value;
         }
 
-        public uint Value { get; } 
+        public uint Value { get; }
     }
 }

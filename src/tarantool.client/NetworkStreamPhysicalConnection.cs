@@ -3,10 +3,10 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     internal class NetworkStreamPhysicalConnection : INetworkStreamPhysicalConnection
     {
@@ -30,7 +30,7 @@ namespace Tarantool.Client
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
-        
+
         public void Write(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
@@ -49,7 +49,7 @@ namespace Tarantool.Client
             CheckConnectionStatus();
             return await _stream.ReadAsync(buffer, offset, count);
         }
-        
+
         private void CheckConnectionStatus()
         {
             if (_stream == null)

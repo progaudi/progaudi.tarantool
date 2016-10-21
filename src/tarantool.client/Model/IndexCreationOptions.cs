@@ -1,4 +1,4 @@
-﻿namespace Tarantool.Client.Model
+﻿namespace ProGaudi.Tarantool.Client.Model
 {
     public class IndexCreationOptions
     {
@@ -7,6 +7,6 @@
             Unique = unique;
         }
 
-        public bool Unique { get; } 
+        public bool Unique { get; }
     }
 }

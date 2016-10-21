@@ -1,4 +1,4 @@
-﻿namespace Tarantool.Client.Model.Enums
+﻿namespace ProGaudi.Tarantool.Client.Model.Enums
 {
     public enum IndexType
     {

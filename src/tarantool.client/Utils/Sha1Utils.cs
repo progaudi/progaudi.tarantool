@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Tarantool.Client.Utils
+namespace ProGaudi.Tarantool.Client.Utils
 {
     internal static class Sha1Utils
     {

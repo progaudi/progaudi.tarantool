@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Tarantool.Client.Model.Responses
+namespace ProGaudi.Tarantool.Client.Model.Responses
 {
     public class GreetingsResponse
     {

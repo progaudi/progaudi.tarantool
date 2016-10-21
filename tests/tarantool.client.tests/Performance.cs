@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 using Xunit;
 
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model;
 
-using Tuple = Tarantool.Client.Model.Tuple;
+using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
 
-namespace Tarantool.Client.Tests
+namespace ProGaudi.Tarantool.Client.Tests
 {
     public class Performance
     {
@@ -52,7 +52,7 @@ namespace Tarantool.Client.Tests
             var endTime = DateTime.Now;
 
             logWriter?.WriteLine($"Time taken:{(endTime - startTime).TotalMilliseconds} ms");
-        }           
+        }
     }
 
     public class TestClient

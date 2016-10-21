@@ -3,16 +3,16 @@ using System.CodeDom;
 using System.IO;
 using System.Linq;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Enums;
-using Tarantool.Client.Model.Headers;
-using Tarantool.Client.Model.Responses;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Headers;
+using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Utils;
 using System.Threading.Tasks;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     internal class ResponseReader : IResponseReader
     {
@@ -153,7 +153,7 @@ namespace Tarantool.Client
                 tcs.SetResult(resultStream);
             }
         }
-        
+
         private byte[] TryParseResponse()
         {
             if (AllBytesProcessed())

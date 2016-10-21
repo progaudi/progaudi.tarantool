@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client.Converters
+namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class EnumConverter<T> : IMsgPackConverter<T>
         where T : struct, IConvertible
@@ -86,7 +86,7 @@ namespace Tarantool.Client.Converters
                 throw ExceptionHelper.UnexpectedEnumUnderlyingType(enumUnderlyingType);
             }
         }
-        
+
         public T Read(IMsgPackReader reader)
         {
             var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));

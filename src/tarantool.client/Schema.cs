@@ -2,15 +2,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Enums;
-using Tarantool.Client.Model.Requests;
-using Tarantool.Client.Model.Responses;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Requests;
+using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Utils;
 
-using Tuple = Tarantool.Client.Model.Tuple;
+using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     public class Schema
     {
@@ -48,7 +48,7 @@ namespace Tarantool.Client
 
             return result;
         }
-       
+
         public async Task<Space> GetSpace(uint id)
         {
             var selectIndexRequest = new SelectRequest<Model.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));

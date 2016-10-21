@@ -1,14 +1,21 @@
 {
-  "description": "tarantool-client Class Library tests",
-  "authors": [ "roman-kozachenko", "aensidhe" ],
-  "packOptions": {
-      "tags": [ "tarantool", "csharp", "tests" ],
-      "projectUrl": "https://github.com/progaudi/tarantool-csharp",
-      "licenseUrl": "https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE"
-  },
-  "testRunner": "xunit",
-  "frameworks": {
-     "netcoreapp1.0": {
+    "description": "tarantool-client Class Library tests",
+    "authors": [
+        "roman-kozachenko",
+        "aensidhe"
+    ],
+    "packOptions": {
+        "tags": [
+            "tarantool",
+            "csharp",
+            "tests"
+        ],
+        "projectUrl": "https://github.com/progaudi/tarantool-csharp",
+        "licenseUrl": "https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE"
+    },
+    "testRunner": "xunit",
+    "frameworks": {
+        "netcoreapp1.0": {
             "dependencies": {
                 "Microsoft.NETCore.App": {
                     "type": "platform",
@@ -16,11 +23,16 @@
                 }
             }
         }
-  },
-  "dependencies": {
-    "Shouldly": "2.8.2",
-    "tarantool.client": { "target": "project" },
-    "xunit": "2.2.0-beta3-build3402",
-    "dotnet-test-xunit": "2.2.0-preview2-build1029"
-  }
+    },
+    "dependencies": {
+        "Shouldly": "2.8.2",
+        "tarantool.client": {
+            "target": "project"
+        },
+        "xunit": "2.2.0-beta3-build3402",
+        "dotnet-test-xunit": "2.2.0-preview2-build1029"
+    },
+    "tooling": {
+        "defaultNamespace" : "ProGaudi.Tarantool.Client.Tests"
+    }
 }

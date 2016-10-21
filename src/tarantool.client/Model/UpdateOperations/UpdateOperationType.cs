@@ -1,4 +1,4 @@
-﻿namespace Tarantool.Client.Model.UpdateOperations
+﻿namespace ProGaudi.Tarantool.Client.Model.UpdateOperations
 {
     public static class UpdateOperationType
     {

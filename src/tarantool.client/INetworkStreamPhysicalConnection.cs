@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     public interface INetworkStreamPhysicalConnection : IDisposable
     {

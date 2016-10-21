@@ -7,9 +7,9 @@ using Xunit;
 
 using Shouldly;
 
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model;
 
-namespace Tarantool.Client.Tests.Box
+namespace ProGaudi.Tarantool.Client.Tests.Box
 {
     public class Connect_Should
     {

@@ -1,4 +1,4 @@
-﻿namespace Tarantool.Client.Model
+﻿namespace ProGaudi.Tarantool.Client.Model
 {
     internal class Constants
     {

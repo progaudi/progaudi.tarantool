@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Requests;
-using Tarantool.Client.Model.Responses;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Requests;
+using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     public class Box : IDisposable
     {

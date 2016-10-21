@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 
 using Xunit;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Responses;
-using Tarantool.Client.Model.UpdateOperations;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
-using Tuple = Tarantool.Client.Model.Tuple;
+using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
 
-namespace Tarantool.Client.Tests.Index
+namespace ProGaudi.Tarantool.Client.Tests.Index
 {
     public class Smoke
     {
