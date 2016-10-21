@@ -10,17 +10,14 @@ matrix:
       osx_image: xcode7.2
       dotnet: 1.0.0-preview2-003131
 
-env:
-  DOCKER_COMPOSE_VERSION: 1.4.2
+sudo: required
 
-before_install:
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
+services:
+  - docker
 
 before_script:
   - dotnet restore
+  - docker -v
   - docker-compose down
   - docker-compose up -d
 
