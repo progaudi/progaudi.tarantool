@@ -110,11 +110,11 @@ namespace ProGaudi.Tarantool.Client
                 var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
                 return deserializedResponse;
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 _logWriter?.WriteLine(
                     $"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
-                throw e;
+                throw;
             }
         }
 

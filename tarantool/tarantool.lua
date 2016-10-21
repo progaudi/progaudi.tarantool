@@ -13,8 +13,8 @@ local function init()
     performanceSpace:create_index('primary', {type='hash', parts={1, 'unsigned'}, if_not_exists = true})
 
     space2 = box.schema.space.create('primary_and_secondary_index', { if_not_exists = true })
-    space2:create_index('hashIndex', {type='hash',  parts={1, 'unsigned'}, if_not_exists = true })
-    space2:create_index('treeIndex', {type='tree',  parts={1, 'unsigned'}, if_not_exists = true })
+    space2:create_index('hashIndex', {type='hash', parts={1, 'unsigned'}, if_not_exists = true })
+    space2:create_index('treeIndex', {type='tree', parts={1, 'unsigned'}, if_not_exists = true })
 
     box.schema.user.create('notSetPassword', { if_not_exists = true })
     box.schema.user.create('emptyPassword', { password = '', if_not_exists = true })
