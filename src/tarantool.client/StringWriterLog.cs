@@ -2,27 +2,13 @@
 
 namespace ProGaudi.Tarantool.Client
 {
-    public class StringWriterLog : ILog
+    public class StringWriterLog : TextWriterLog
     {
-        private readonly TextWriter _internalWriter;
-
         public StringWriterLog()
+            : base(new StringWriter())
         {
-            StringWriter = new StringWriter();
-
-            _internalWriter = StringWriter;
         }
 
-        public StringWriter StringWriter { get; }
-
-        public void WriteLine(string message)
-        {
-            _internalWriter.WriteLine(message);
-        }
-
-        public void Flush()
-        {
-            _internalWriter.Flush();
-        }
+        public StringWriter StringWriter => (StringWriter)InternalWriter;
     }
 }
