@@ -20,7 +20,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task Test()
         {
             const string spaceName = "primary_only_index";
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };
@@ -59,7 +59,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
 
             const string spaceName = "primary_only_index";
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriterLog()

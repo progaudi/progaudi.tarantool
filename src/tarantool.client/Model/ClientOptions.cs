@@ -3,13 +3,13 @@ using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    public class ConnectionOptions
+    public class ClientOptions
     {
-        public ConnectionOptions()
+        public ClientOptions()
         {
         }
 
-        public ConnectionOptions(string replicationSource)
+        public ClientOptions(string replicationSource)
         {
         }
 

@@ -20,7 +20,7 @@ namespace ProGaudi.Tarantool.Client.Tests
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = logWriter

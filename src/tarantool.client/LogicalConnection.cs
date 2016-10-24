@@ -29,7 +29,7 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly ILog _logWriter;
 
-        public LogicalConnection(ConnectionOptions options, INetworkStreamPhysicalConnection physicalConnection)
+        public LogicalConnection(ClientOptions options, INetworkStreamPhysicalConnection physicalConnection)
         {
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;

@@ -16,7 +16,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task throw_exception_if_UserName_is_null_and_not_GuestMode()
         {
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriterLog(),
@@ -33,7 +33,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task connect_if_UserName_is_null_and_GuestMode()
         {
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriterLog(),
@@ -50,7 +50,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task throw_exception_if_password_is_wrong()
         {
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriterLog(),
@@ -68,7 +68,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task throw_exception_if_password_is_empty_for_user_with_unset_password()
         {
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriterLog(),
@@ -86,7 +86,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task connect_if_password_is_empty_for_user_with_empty_password()
         {
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriterLog(),
@@ -103,7 +103,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task connect_with_credentials()
         {
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
                 LogWriter = new StringWriterLog(),

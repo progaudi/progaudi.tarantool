@@ -16,7 +16,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task call_method()
         {
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };

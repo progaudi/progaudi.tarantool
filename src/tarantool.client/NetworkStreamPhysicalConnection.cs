@@ -23,7 +23,7 @@ namespace ProGaudi.Tarantool.Client
             _stream?.Dispose();
         }
 
-        public void Connect(ConnectionOptions options)
+        public void Connect(ClientOptions options)
         {
             options.LogWriter?.WriteLine("Starting socket connection...");
             var singleNode = options.NodeOptions.Single();

@@ -16,7 +16,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         public async Task HashIndexMethods()
         {
             const string spaceName = "primary_only_index";
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };
@@ -57,7 +57,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         public async Task TreeIndexMethods()
         {
             const string spaceName = "primary_and_secondary_index";
-            var options = new ConnectionOptions()
+            var options = new ClientOptions()
             {
                 EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
             };
