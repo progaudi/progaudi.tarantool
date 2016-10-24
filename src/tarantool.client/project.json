@@ -1,27 +1,35 @@
 {
-  "version": "0.2.0",
-  "name": "Tarantool.CSharp",
-  "description": "tarantool-client Class Library",
-  "authors": [ "roman-kozachenko", "aensidhe" ],
-  "packOptions": {
-    "tags": [ "tarantool", "csharp" ],
-    "projectUrl": "https://github.com/progaudi/tarantool-csharp",
-    "licenseUrl": "https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE"
-  },
-
-  "frameworks": {
-    "net461": { },
-    "netcoreapp1.0": {
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.0"
+    "version": "0.3.0",
+    "name": "Tarantool.CSharp",
+    "description": "tarantool-client low-level client Library",
+    "authors": [
+        "roman-kozachenko",
+        "aensidhe"
+    ],
+    "packOptions": {
+        "tags": [
+            "tarantool",
+            "csharp"
+        ],
+        "projectUrl": "https://github.com/progaudi/tarantool-csharp",
+        "licenseUrl": "https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE"
+    },
+    "frameworks": {
+        "net461": {},
+        "netcoreapp1.0": {
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.0"
+                }
+            }
         }
-      }
+    },
+    "dependencies": {
+        "Shouldly": "2.8.2",
+        "MsgPack.Light": "1.0.0"
+    },
+    "tooling": {
+        "defaultNamespace": "ProGaudi.Tarantool.Client"
     }
-  },
-  "dependencies": {
-    "Shouldly": "2.8.2",
-    "MsgPack.Light": "0.5.13"
-  }
 }

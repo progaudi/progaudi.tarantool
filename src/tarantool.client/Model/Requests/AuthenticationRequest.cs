@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 
-using Tarantool.Client.Model.Enums;
-using Tarantool.Client.Model.Responses;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client.Model.Requests
+namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class AuthenticationRequest : IRequest
     {

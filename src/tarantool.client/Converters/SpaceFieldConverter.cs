@@ -1,12 +1,12 @@
 ﻿using System;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Enums;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client.Converters
+namespace ProGaudi.Tarantool.Client.Converters
 {
     public class SpaceFieldConverter:IMsgPackConverter<SpaceField>
     {
@@ -27,7 +27,7 @@ namespace Tarantool.Client.Converters
         public SpaceField Read(IMsgPackReader reader)
         {
             var dictLength = reader.ReadMapLength();
-        
+
             string name = null;
             var type = (FieldType) (-1);
 

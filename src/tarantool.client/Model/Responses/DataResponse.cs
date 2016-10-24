@@ -1,8 +1,8 @@
-﻿namespace Tarantool.Client.Model.Responses
+﻿namespace ProGaudi.Tarantool.Client.Model.Responses
 {
     public class DataResponse<T>
-    { 
-        public DataResponse(T data) 
+    {
+        public DataResponse(T data)
         {
             Data = data;
         }

@@ -6,15 +6,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Headers;
-using Tarantool.Client.Model.Requests;
-using Tarantool.Client.Model.Responses;
-using Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Headers;
+using ProGaudi.Tarantool.Client.Model.Requests;
+using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     internal class LogicalConnection : ILogicalConnection
     {
@@ -110,11 +110,11 @@ namespace Tarantool.Client
                 var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
                 return deserializedResponse;
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 _logWriter?.WriteLine(
                     $"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
-                throw e;
+                throw;
             }
         }
 

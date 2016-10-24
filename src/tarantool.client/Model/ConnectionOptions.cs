@@ -1,8 +1,8 @@
 ﻿using System.Net;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-namespace Tarantool.Client.Model
+namespace ProGaudi.Tarantool.Client.Model
 {
     public class ConnectionOptions
     {

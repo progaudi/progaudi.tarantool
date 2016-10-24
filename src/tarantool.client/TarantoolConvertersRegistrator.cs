@@ -1,9 +1,9 @@
-﻿using MsgPack.Light;
+﻿using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Converters;
-using Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Converters;
+using ProGaudi.Tarantool.Client.Model.Enums;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     public class TarantoolConvertersRegistrator
     {

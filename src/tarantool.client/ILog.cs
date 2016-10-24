@@ -1,4 +1,4 @@
-﻿namespace Tarantool.Client
+﻿namespace ProGaudi.Tarantool.Client
 {
     public interface ILog
     {

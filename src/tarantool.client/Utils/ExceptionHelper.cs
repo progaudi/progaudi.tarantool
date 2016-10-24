@@ -1,14 +1,14 @@
 ﻿using System;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Enums;
-using Tarantool.Client.Model.Headers;
-using Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Headers;
+using ProGaudi.Tarantool.Client.Model.Responses;
 using System.Reflection;
 
-namespace Tarantool.Client.Utils
+namespace ProGaudi.Tarantool.Client.Utils
 {
     internal static class ExceptionHelper
     {
@@ -16,7 +16,7 @@ namespace Tarantool.Client.Utils
         {
             return new ArgumentException($"Invalid greetings response length. 128 is expected, but got {readCount}.");
         }
-        
+
         public static Exception InvalidMapLength(uint? actual, params uint [] expected)
         {
             return new ArgumentException($"Invalid map length: {string.Join(", ", expected)} is expected, but got {actual}.");

@@ -6,12 +6,12 @@ using Xunit;
 
 using Shouldly;
 
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model;
 
-using Tuple = Tarantool.Client.Model.Tuple;
+using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
 using System;
 
-namespace Tarantool.Client.Tests.Box
+namespace ProGaudi.Tarantool.Client.Tests.Box
 {
     public class Eval_Should
     {

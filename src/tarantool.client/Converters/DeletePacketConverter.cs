@@ -1,12 +1,12 @@
 ﻿using System;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Enums;
-using Tarantool.Client.Model.Requests;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Requests;
 
-namespace Tarantool.Client.Converters
+namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class DeletePacketConverter<T> : IMsgPackConverter<DeleteRequest<T>>
         where T: ITuple

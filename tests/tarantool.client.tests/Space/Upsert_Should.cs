@@ -6,12 +6,12 @@ using Xunit;
 
 using Shouldly;
 
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.UpdateOperations;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
-using Tuple = Tarantool.Client.Model.Tuple;
+using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
 
-namespace Tarantool.Client.Tests.Space
+namespace ProGaudi.Tarantool.Client.Tests.Space
 {
     public class Upsert_Should
     {

@@ -1,6 +1,6 @@
-﻿using MsgPack.Light;
+﻿using ProGaudi.MsgPack.Light;
 
-namespace Tarantool.Client.Model.UpdateOperations
+namespace ProGaudi.Tarantool.Client.Model.UpdateOperations
 {
     public class UpdateOperation<T> : UpdateOperation
     {

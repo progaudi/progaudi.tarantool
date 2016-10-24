@@ -1,6 +1,6 @@
-﻿using Tarantool.Client.Model.Enums;
+﻿using ProGaudi.Tarantool.Client.Model.Enums;
 
-namespace Tarantool.Client.Model.Headers
+namespace ProGaudi.Tarantool.Client.Model.Headers
 {
     public class ResponseHeader : HeaderBase
     {

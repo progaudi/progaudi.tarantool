@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Tarantool.Client.Utils
+namespace ProGaudi.Tarantool.Client.Utils
 {
     internal class AsyncLazy<T> : Lazy<Task<T>>
     {

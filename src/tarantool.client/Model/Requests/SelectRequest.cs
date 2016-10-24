@@ -1,6 +1,6 @@
-﻿using Tarantool.Client.Model.Enums;
+﻿using ProGaudi.Tarantool.Client.Model.Enums;
 
-namespace Tarantool.Client.Model.Requests
+namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class SelectRequest<T> : IRequest
         where T : ITuple

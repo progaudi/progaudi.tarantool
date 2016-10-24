@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Enums;
 
-namespace Tarantool.Client.Model
+namespace ProGaudi.Tarantool.Client.Model
 {
     public class SpaceCreationOptions
     {

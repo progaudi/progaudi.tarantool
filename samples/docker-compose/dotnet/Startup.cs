@@ -8,8 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-using Tarantool.Client;
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client;
+using ProGaudi.Tarantool.Client.Model;
 
 namespace dotnet
 {

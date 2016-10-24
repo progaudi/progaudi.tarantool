@@ -1,6 +1,6 @@
 using System;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     public interface IResponseReader : IDisposable
     {

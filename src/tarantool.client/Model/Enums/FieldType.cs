@@ -1,6 +1,6 @@
-﻿using Tarantool.Client.Utils;
+﻿using ProGaudi.Tarantool.Client.Utils;
 
-namespace Tarantool.Client.Model.Enums
+namespace ProGaudi.Tarantool.Client.Model.Enums
 {
     public enum FieldType
     {

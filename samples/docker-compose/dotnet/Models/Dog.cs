@@ -1,4 +1,4 @@
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model;
 
 namespace dotnet.Models
 {

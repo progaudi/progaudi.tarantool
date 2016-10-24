@@ -2,9 +2,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using dotnet.Models;
 using Microsoft.AspNetCore.Mvc;
-using Tarantool.Client;
-using Tarantool.Client.Model;
-using Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client;
+using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Enums;
 
 namespace dotnet.Controllers
 {

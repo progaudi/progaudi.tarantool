@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Tarantool.Client.Model
+namespace ProGaudi.Tarantool.Client.Model
 {
     public interface ITuple
     {

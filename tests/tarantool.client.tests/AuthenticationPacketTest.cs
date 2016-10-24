@@ -1,16 +1,16 @@
 ﻿using System.Text;
 
-using MsgPack.Light;
+using ProGaudi.MsgPack.Light;
 
 using Xunit;
 
 using Shouldly;
 
-using Tarantool.Client.Model.Requests;
-using Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Model.Requests;
+using ProGaudi.Tarantool.Client.Model.Responses;
 
 
-namespace Tarantool.Client.Tests
+namespace ProGaudi.Tarantool.Client.Tests
 {
     public class AuthenticationPacketTest
     {
@@ -18,7 +18,7 @@ namespace Tarantool.Client.Tests
         public void CreatAuthPacket()
         {
             var greetings = Encoding.UTF8.GetBytes("Tarantool 1.6.8 (Binary) e8a5ec82-2fd5-4798-aafa-ac41acabc727   DCHe8DF5IQKb8ZphIRjOxQlMiLjooLtazaUh+SPzXi0=");
-            
+
             var packet = AuthenticationRequest.Create(new GreetingsResponse(greetings), "test", "test");
             var msgPackContext =new MsgPackContext();
             TarantoolConvertersRegistrator.Register(msgPackContext);

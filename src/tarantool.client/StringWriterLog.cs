@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Tarantool.Client
+namespace ProGaudi.Tarantool.Client
 {
     public class StringWriterLog : ILog
     {
