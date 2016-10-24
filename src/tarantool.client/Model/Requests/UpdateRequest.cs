@@ -4,7 +4,7 @@ using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class UpdateRequest<TKey> : IRequest
-     where TKey : ITuple
+     where TKey : ITarantoolTuple
     {
         public UpdateRequest(uint spaceId, uint indexId, TKey key, UpdateOperation[] updateOperations)
         {

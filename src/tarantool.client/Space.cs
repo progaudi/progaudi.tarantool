@@ -10,8 +10,6 @@ using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 using ProGaudi.Tarantool.Client.Utils;
 
-using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
-
 namespace ProGaudi.Tarantool.Client
 {
     public class Space
@@ -65,9 +63,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<Index> GetIndex(string indexName)
         {
-            var selectIndexRequest = new SelectRequest<Model.Tuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(Id, indexName));
+            var selectIndexRequest = new SelectRequest<Model.TarantoolTuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexName));
 
-            var response = await LogicalConnection.SendRequest<SelectRequest<Model.Tuple<uint, string>>, Index>(selectIndexRequest);
+            var response = await LogicalConnection.SendRequest<SelectRequest<Model.TarantoolTuple<uint, string>>, Index>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
 
@@ -83,9 +81,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<Index> GetIndex(uint indexId)
         {
-            var selectIndexRequest = new SelectRequest<Model.Tuple<uint, uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(Id, indexId));
+            var selectIndexRequest = new SelectRequest<Model.TarantoolTuple<uint, uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexId));
 
-            var response = await LogicalConnection.SendRequest<SelectRequest<Model.Tuple<uint, uint>>, Index>(selectIndexRequest);
+            var response = await LogicalConnection.SendRequest<SelectRequest<Model.TarantoolTuple<uint, uint>>, Index>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
 
@@ -100,23 +98,23 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
-            where TTuple : ITuple
+            where TTuple : ITarantoolTuple
         {
             var insertRequest = new InsertRequest<TTuple>(Id, tuple);
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
         }
 
         public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey)
-          where TKey : ITuple
-          where TTuple : ITuple
+          where TKey : ITarantoolTuple
+          where TTuple : ITarantoolTuple
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, uint.MaxValue, 0, Iterator.Eq, selectKey);
             return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
         }
 
         public async Task<TTuple> Get<TKey, TTuple>(TKey key)
-            where TKey : ITuple
-          where TTuple : ITuple
+            where TKey : ITarantoolTuple
+          where TTuple : ITarantoolTuple
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, 1, 0, Iterator.Eq, key);
             var response = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
@@ -124,44 +122,44 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
-            where TTuple : ITuple
+            where TTuple : ITarantoolTuple
         {
             var replaceRequest = new ReplaceRequest<TTuple>(Id, tuple);
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
         }
 
         public async Task<T> Put<T>(T tuple)
-            where T : ITuple
+            where T : ITarantoolTuple
         {
             var response = await Replace(tuple);
             return response.Data.First();
         }
 
         public async Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations)
-            where TKey : ITuple
-            where TTuple : ITuple
+            where TKey : ITarantoolTuple
+            where TTuple : ITarantoolTuple
         {
             var updateRequest = new UpdateRequest<TKey>(Id, PrimaryIndexId, key, updateOperations);
             return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
         }
 
         public async Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations)
-         where TTuple : ITuple
+         where TTuple : ITarantoolTuple
         {
             var upsertRequest = new UpsertRequest<TTuple>(Id, tuple, updateOperations);
             await LogicalConnection.SendRequestWithEmptyResponse(upsertRequest);
         }
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
-           where TTuple : ITuple
-           where TKey : ITuple
+           where TTuple : ITarantoolTuple
+           where TKey : ITarantoolTuple
         {
             var deleteRequest = new DeleteRequest<TKey>(Id, PrimaryIndexId, key);
             return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
         }
 
         public uint Count<TKey>(TKey key)
-           where TKey : ITuple
+           where TKey : ITarantoolTuple
         {
             throw new NotImplementedException();
         }
@@ -172,24 +170,24 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key)
-            where TKey : ITuple
-            where TTuple : ITuple
+            where TKey : ITarantoolTuple
+            where TTuple : ITarantoolTuple
         {
             // Currently we can't impelment that method because Upsert returns void.
            throw new NotImplementedException();
         }
 
         public Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
-            where TKey : ITuple
-            where TTuple : ITuple
+            where TKey : ITarantoolTuple
+            where TTuple : ITarantoolTuple
         {
             // Currently we can't impelment that method because Upsert returns void.
             throw new NotImplementedException();
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)
-            where TTuple : ITuple
-            where TRest : ITuple
+            where TTuple : ITarantoolTuple
+            where TRest : ITarantoolTuple
         {
             throw new NotImplementedException();
         }

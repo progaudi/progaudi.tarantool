@@ -8,8 +8,6 @@ using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
-using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
-
 namespace ProGaudi.Tarantool.Client.Tests.Index
 {
     public class Smoke
@@ -32,27 +30,27 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
 
             var index = await space.GetIndex("primary");
 
-            DataResponse<Model.Tuple<int, string>[]> insertDataResponse;
+            DataResponse<TarantoolTuple<int, string>[]> insertDataResponse;
             try
             {
-                insertDataResponse = await index.Insert(Tuple.Create(2, "Music"));
+                insertDataResponse = await index.Insert(TarantoolTuple.Create(2, "Music"));
             }
             catch (ArgumentException)
             {
-                var deleteResponse = await index.Delete<Model.Tuple<int>, Model.Tuple<int, string, double>>(Tuple.Create(2));
-                insertDataResponse = await index.Insert(Tuple.Create(2, "Music"));
+                var deleteResponse = await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string, double>>(TarantoolTuple.Create(2));
+                insertDataResponse = await index.Insert(TarantoolTuple.Create(2, "Music"));
             }
 
-            var selectResponse = await index.Select<Model.Tuple<uint>, Model.Tuple<int, string>>(Tuple.Create(1029u));
-            var replaceResponse = await index.Replace(Tuple.Create(2, "Car", -245.3));
-            var updateResponse = await index.Update<Model.Tuple<int, string, double>, Model.Tuple<int>>(
-                Tuple.Create(2),
+            var selectResponse = await index.Select<TarantoolTuple<uint>, TarantoolTuple<int, string>>(TarantoolTuple.Create(1029u));
+            var replaceResponse = await index.Replace(TarantoolTuple.Create(2, "Car", -245.3));
+            var updateResponse = await index.Update<TarantoolTuple<int, string, double>, TarantoolTuple<int>>(
+                TarantoolTuple.Create(2),
                 new UpdateOperation[] { UpdateOperation.CreateAddition(100, 2) });
 
-            await index.Upsert(Tuple.Create(5u), new UpdateOperation[] { UpdateOperation.CreateAssign(2, 2) });
-            await index.Upsert(Tuple.Create(5u), new UpdateOperation[] { UpdateOperation.CreateAddition(-2, 2) });
+            await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] { UpdateOperation.CreateAssign(2, 2) });
+            await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] { UpdateOperation.CreateAddition(-2, 2) });
 
-            var selectResponse2 = index.Select<Model.Tuple<uint>, Model.Tuple<int, int, int>>(Tuple.Create(5u));
+            var selectResponse2 = index.Select<TarantoolTuple<uint>, TarantoolTuple<int, int, int>>(TarantoolTuple.Create(5u));
         }
 
         [Fact]
@@ -73,11 +71,11 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
 
             var index = await space.GetIndex("treeIndex");
 
-            var min2 = await index.Min<Model.Tuple<int, int, int>, Model.Tuple<int>>(Tuple.Create(3));
-            var min = await index.Min<Model.Tuple<int, string, double>>();
+            var min2 = await index.Min<TarantoolTuple<int, int, int>, TarantoolTuple<int>>(TarantoolTuple.Create(3));
+            var min = await index.Min<TarantoolTuple<int, string, double>>();
 
-            var max = await index.Max<Model.Tuple<int, int, int>>();
-            var max2 = await index.Max<Model.Tuple<int, string, double>, Model.Tuple<int>>(Tuple.Create(4));
+            var max = await index.Max<TarantoolTuple<int, int, int>>();
+            var max2 = await index.Max<TarantoolTuple<int, string, double>, TarantoolTuple<int>>(TarantoolTuple.Create(4));
         }
     }
 }

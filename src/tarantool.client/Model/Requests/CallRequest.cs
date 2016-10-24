@@ -3,7 +3,7 @@
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class CallRequest<T> : IRequest
-        where T : ITuple
+        where T : ITarantoolTuple
     {
         public CallRequest(string functionName, T tuple)
         {

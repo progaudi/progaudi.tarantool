@@ -5,7 +5,7 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class TupleConverter : IMsgPackConverter<Tuple>
+    internal class TupleConverter : IMsgPackConverter<TarantoolTuple>
     {
         private IMsgPackConverter<object> _nullConverter;
 
@@ -14,7 +14,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _nullConverter = context.NullConverter;
         }
 
-        public void Write(Tuple value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -25,7 +25,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             writer.WriteArrayHeader(0);
         }
 
-        public Tuple Read(IMsgPackReader reader)
+        public TarantoolTuple Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
             const uint expected = 0u;
@@ -34,11 +34,11 @@ namespace ProGaudi.Tarantool.Client.Converters
                 throw ExceptionHelper.InvalidArrayLength(expected, actual);
             }
 
-            return Tuple.Create();
+            return TarantoolTuple.Create();
         }
     }
 
-    public class TupleConverter<T1> : IMsgPackConverter<Tuple<T1>>
+    public class TupleConverter<T1> : IMsgPackConverter<TarantoolTuple<T1>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -49,7 +49,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t1Converter = context.GetConverter<T1>();
         }
 
-        public void Write(Tuple<T1> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -61,7 +61,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t1Converter.Write(value.Item1, writer);
         }
 
-        public Tuple<T1> Read(IMsgPackReader reader)
+        public TarantoolTuple<T1> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
             const uint expected = 1u;
@@ -72,11 +72,11 @@ namespace ProGaudi.Tarantool.Client.Converters
 
             var item1 = _t1Converter.Read(reader);
 
-            return Tuple.Create(item1);
+            return TarantoolTuple.Create(item1);
         }
     }
 
-    public class TupleConverter<T1, T2> : IMsgPackConverter<Tuple<T1, T2>>
+    public class TupleConverter<T1, T2> : IMsgPackConverter<TarantoolTuple<T1, T2>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -89,7 +89,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t2Converter = context.GetConverter<T2>();
         }
 
-        public void Write(Tuple<T1, T2> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1, T2> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -102,7 +102,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t2Converter.Write(value.Item2, writer);
         }
 
-        public Tuple<T1, T2> Read(IMsgPackReader reader)
+        public TarantoolTuple<T1, T2> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
             const uint expected = 2u;
@@ -114,11 +114,11 @@ namespace ProGaudi.Tarantool.Client.Converters
             var item1 = _t1Converter.Read(reader);
             var item2 = _t2Converter.Read(reader);
 
-            return Tuple.Create(item1, item2);
+            return TarantoolTuple.Create(item1, item2);
         }
     }
 
-    public class TupleConverter<T1, T2, T3> : IMsgPackConverter<Tuple<T1, T2, T3>>
+    public class TupleConverter<T1, T2, T3> : IMsgPackConverter<TarantoolTuple<T1, T2, T3>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -133,7 +133,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t3Converter = context.GetConverter<T3>();
         }
 
-        public void Write(Tuple<T1, T2, T3> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1, T2, T3> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -147,7 +147,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t3Converter.Write(value.Item3, writer);
         }
 
-        public Tuple<T1, T2, T3> Read(IMsgPackReader reader)
+        public TarantoolTuple<T1, T2, T3> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
             const uint expected = 3u;
@@ -160,11 +160,11 @@ namespace ProGaudi.Tarantool.Client.Converters
             var item2 = _t2Converter.Read(reader);
             var item3 = _t3Converter.Read(reader);
 
-            return Tuple.Create(item1, item2, item3);
+            return TarantoolTuple.Create(item1, item2, item3);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4> : IMsgPackConverter<Tuple<T1, T2, T3, T4>>
+    public class TupleConverter<T1, T2, T3, T4> : IMsgPackConverter<TarantoolTuple<T1, T2, T3, T4>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -181,7 +181,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t4Converter = context.GetConverter<T4>();
         }
 
-        public void Write(Tuple<T1, T2, T3, T4> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1, T2, T3, T4> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -196,7 +196,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t4Converter.Write(value.Item4, writer);
         }
 
-        public Tuple<T1, T2, T3, T4> Read(IMsgPackReader reader)
+        public TarantoolTuple<T1, T2, T3, T4> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
             const uint expected = 4u;
@@ -210,11 +210,11 @@ namespace ProGaudi.Tarantool.Client.Converters
             var item3 = _t3Converter.Read(reader);
             var item4 = _t4Converter.Read(reader);
 
-            return Tuple.Create(item1, item2, item3, item4);
+            return TarantoolTuple.Create(item1, item2, item3, item4);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5>>
+    public class TupleConverter<T1, T2, T3, T4, T5> : IMsgPackConverter<TarantoolTuple<T1, T2, T3, T4, T5>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -233,7 +233,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t5Converter = context.GetConverter<T5>();
         }
 
-        public void Write(Tuple<T1, T2, T3, T4, T5> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1, T2, T3, T4, T5> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -249,7 +249,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t5Converter.Write(value.Item5, writer);
         }
 
-        public Tuple<T1, T2, T3, T4, T5> Read(IMsgPackReader reader)
+        public TarantoolTuple<T1, T2, T3, T4, T5> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
             const uint expected = 5u;
@@ -264,11 +264,11 @@ namespace ProGaudi.Tarantool.Client.Converters
             var item4 = _t4Converter.Read(reader);
             var item5 = _t5Converter.Read(reader);
 
-            return Tuple.Create(item1, item2, item3, item4, item5);
+            return TarantoolTuple.Create(item1, item2, item3, item4, item5);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5, T6> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5, T6>>
+    public class TupleConverter<T1, T2, T3, T4, T5, T6> : IMsgPackConverter<TarantoolTuple<T1, T2, T3, T4, T5, T6>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -289,7 +289,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t6Converter = context.GetConverter<T6>();
         }
 
-        public void Write(Tuple<T1, T2, T3, T4, T5, T6> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1, T2, T3, T4, T5, T6> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -306,7 +306,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t6Converter.Write(value.Item6, writer);
         }
 
-        public Tuple<T1, T2, T3, T4, T5, T6> Read(
+        public TarantoolTuple<T1, T2, T3, T4, T5, T6> Read(
             IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
@@ -323,11 +323,11 @@ namespace ProGaudi.Tarantool.Client.Converters
             var item5 = _t5Converter.Read(reader);
             var item6 = _t6Converter.Read(reader);
 
-            return Tuple.Create(item1, item2, item3, item4, item5, item6);
+            return TarantoolTuple.Create(item1, item2, item3, item4, item5, item6);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5, T6, T7>>
+    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7> : IMsgPackConverter<TarantoolTuple<T1, T2, T3, T4, T5, T6, T7>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -350,7 +350,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t7Converter = context.GetConverter<T7>();
         }
 
-        public void Write(Tuple<T1, T2, T3, T4, T5, T6, T7> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1, T2, T3, T4, T5, T6, T7> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -368,7 +368,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t7Converter.Write(value.Item7, writer);
         }
 
-        public Tuple<T1, T2, T3, T4, T5, T6, T7> Read(
+        public TarantoolTuple<T1, T2, T3, T4, T5, T6, T7> Read(
             IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
@@ -386,11 +386,11 @@ namespace ProGaudi.Tarantool.Client.Converters
             var item6 = _t6Converter.Read(reader);
             var item7 = _t7Converter.Read(reader);
 
-            return Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
+            return TarantoolTuple.Create(item1, item2, item3, item4, item5, item6, item7);
         }
     }
 
-    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7, TRest> : IMsgPackConverter<Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
+    public class TupleConverter<T1, T2, T3, T4, T5, T6, T7, TRest> : IMsgPackConverter<TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
     {
         private IMsgPackConverter<object> _nullConverter;
         private IMsgPackConverter<T1> _t1Converter;
@@ -415,7 +415,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t8Converter = context.GetConverter<TRest>();
         }
 
-        public void Write(Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> value, IMsgPackWriter writer)
+        public void Write(TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value, IMsgPackWriter writer)
         {
             if (value == null)
             {
@@ -434,7 +434,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             _t8Converter.Write(value.Item8, writer);
         }
 
-        public Tuple<T1, T2, T3, T4, T5, T6, T7, TRest> Read(
+        public TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, TRest> Read(
             IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
@@ -453,7 +453,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             var item7 = _t7Converter.Read(reader);
             var item8 = _t8Converter.Read(reader);
 
-            return new Tuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, item8);
+            return new TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, item8);
         }
     }
 }

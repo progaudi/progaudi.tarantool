@@ -8,8 +8,6 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
-using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
-
 namespace ProGaudi.Tarantool.Client
 {
     public class Schema
@@ -34,9 +32,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<Space> GetSpace(string name)
         {
-            var selectIndexRequest = new SelectRequest<Model.Tuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(name));
+            var selectIndexRequest = new SelectRequest<Model.TarantoolTuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(name));
 
-            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<string>>, Space>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.TarantoolTuple<string>>, Space>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)
@@ -51,9 +49,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<Space> GetSpace(uint id)
         {
-            var selectIndexRequest = new SelectRequest<Model.Tuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, Tuple.Create(id));
+            var selectIndexRequest = new SelectRequest<Model.TarantoolTuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(id));
 
-            var response = await _logicalConnection.SendRequest<SelectRequest<Model.Tuple<uint>>, Space>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<Model.TarantoolTuple<uint>>, Space>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)

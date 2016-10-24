@@ -9,7 +9,7 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class SelectPacketConverter<T> : IMsgPackConverter<SelectRequest<T>>
-        where T : ITuple
+        where T : ITarantoolTuple
     {
         private IMsgPackConverter<T> _selectKeyConverter;
         private IMsgPackConverter<Key> _keyConverter;
