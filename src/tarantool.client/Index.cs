@@ -10,8 +10,6 @@ using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 using ProGaudi.Tarantool.Client.Utils;
 
-using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
-
 namespace ProGaudi.Tarantool.Client
 {
     public class Index
@@ -41,14 +39,14 @@ namespace ProGaudi.Tarantool.Client
         public IReadOnlyList<IndexPart> Parts { get; }
 
         public IEnumerable<TResult> Pairs<TValue, TResult>(TValue value, Iterator iterator)
-            where TResult : ITuple
+            where TResult : ITarantoolTuple
         {
             throw new NotImplementedException();
         }
 
         public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null)
-            where TKey : ITuple
-            where TTuple : ITuple
+            where TKey : ITarantoolTuple
+            where TTuple : ITarantoolTuple
         {
             var selectRequest = new SelectRequest<TKey>(
                 SpaceId,
@@ -64,7 +62,7 @@ namespace ProGaudi.Tarantool.Client
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
         public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
-            where TTuple : ITuple
+            where TTuple : ITarantoolTuple
         {
             var insertRequest = new InsertRequest<TTuple>(SpaceId, tuple);
 
@@ -74,7 +72,7 @@ namespace ProGaudi.Tarantool.Client
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
         public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
-            where TTuple : ITuple
+            where TTuple : ITarantoolTuple
         {
             var replaceRequest = new ReplaceRequest<TTuple>(SpaceId, tuple);
 
@@ -82,14 +80,14 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<TTuple> Min<TTuple>()
-           where TTuple : ITuple
+           where TTuple : ITarantoolTuple
         {
-            return await Min<TTuple, Tuple>(Tuple.Create());
+            return await Min<TTuple, TarantoolTuple>(TarantoolTuple.Create());
         }
 
         public async Task<TTuple> Min<TTuple, TKey>(TKey key)
-            where TTuple : ITuple
-            where TKey : class, ITuple
+            where TTuple : ITarantoolTuple
+            where TKey : class, ITarantoolTuple
         {
             if (Type != IndexType.Tree)
             {
@@ -104,14 +102,14 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<TTuple> Max<TTuple>()
-            where TTuple : ITuple
+            where TTuple : ITarantoolTuple
         {
-            return await Max<TTuple, Tuple>(Tuple.Create());
+            return await Max<TTuple, TarantoolTuple>(TarantoolTuple.Create());
         }
 
         public async Task<TTuple> Max<TTuple, TKey>(TKey key = null)
-            where TTuple : ITuple
-            where TKey : class, ITuple
+            where TTuple : ITarantoolTuple
+            where TKey : class, ITarantoolTuple
         {
             if (Type != IndexType.Tree)
             {
@@ -126,20 +124,20 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public TTuple Random<TTuple>(int randomValue)
-            where TTuple : ITuple
+            where TTuple : ITarantoolTuple
         {
             throw new NotImplementedException();
         }
 
         public uint Count<TKey>(TKey key = null, Iterator it = Iterator.Eq)
-            where TKey : class, ITuple
+            where TKey : class, ITarantoolTuple
         {
             throw new NotImplementedException();
         }
 
         public async Task<DataResponse<TTuple[]>> Update<TTuple, TKey>(TKey key, UpdateOperation[] updateOperations)
-            where TKey : ITuple
-            where TTuple : ITuple
+            where TKey : ITarantoolTuple
+            where TTuple : ITarantoolTuple
         {
             var updateRequest = new UpdateRequest<TKey>(
                 SpaceId,
@@ -151,7 +149,7 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task Upsert<TKey>(TKey key, UpdateOperation[] updateOperations)
-            where TKey : ITuple
+            where TKey : ITarantoolTuple
         {
             var updateRequest = new UpsertRequest<TKey>(
                 SpaceId,
@@ -162,8 +160,8 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
-            where TKey : ITuple
-            where TTuple : ITuple
+            where TKey : ITarantoolTuple
+            where TTuple : ITarantoolTuple
         {
             var deleteRequest = new DeleteRequest<TKey>(SpaceId, Id, key);
 

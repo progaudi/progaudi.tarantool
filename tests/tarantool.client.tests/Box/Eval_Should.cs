@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -7,9 +8,6 @@ using Xunit;
 using Shouldly;
 
 using ProGaudi.Tarantool.Client.Model;
-
-using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
-using System;
 
 namespace ProGaudi.Tarantool.Client.Tests.Box
 {
@@ -26,7 +24,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
 
             await tarantoolClient.Connect();
 
-            var result = await tarantoolClient.Eval<Model.Tuple<int, int, int>, int>("return ...", Tuple.Create(1, 2, 3));
+            var result = await tarantoolClient.Eval<TarantoolTuple<int, int, int>, int>("return ...", TarantoolTuple.Create(1, 2, 3));
 
             result.Data.ShouldBe(new[] {1, 2, 3});
         }

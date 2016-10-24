@@ -4,7 +4,7 @@ namespace dotnet.Models
 {
     public class Dog
     {
-        public Dog(Tuple<long, string, long> tuple)
+        public Dog(TarantoolTuple<long, string, long> tuple)
         {
             Id = tuple.Item1;
             Name = tuple.Item2;

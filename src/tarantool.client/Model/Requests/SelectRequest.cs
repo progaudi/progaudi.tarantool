@@ -3,7 +3,7 @@
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class SelectRequest<T> : IRequest
-        where T : ITuple
+        where T : ITarantoolTuple
     {
         public SelectRequest(uint spaceId, uint indexId, uint limit, uint offset, Iterator iterator, T selectKey)
         {

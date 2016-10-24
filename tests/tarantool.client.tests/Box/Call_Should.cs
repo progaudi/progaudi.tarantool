@@ -9,8 +9,6 @@ using Shouldly;
 
 using ProGaudi.Tarantool.Client.Model;
 
-using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
-
 namespace ProGaudi.Tarantool.Client.Tests.Box
 {
     public class Call_Should
@@ -26,7 +24,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
 
             await tarantoolClient.Connect();
 
-            var result = await tarantoolClient.Call<Model.Tuple<double>, Model.Tuple<double>>("math.sqrt", Tuple.Create(1.3));
+            var result = await tarantoolClient.Call<TarantoolTuple<double>, TarantoolTuple<double>>("math.sqrt", TarantoolTuple.Create(1.3));
 
             var diff = Math.Abs(result.Data.Single().Item1 - Math.Sqrt(1.3));
 

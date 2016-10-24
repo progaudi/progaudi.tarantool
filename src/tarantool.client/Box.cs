@@ -65,15 +65,15 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple request)
-            where TTuple : ITuple
-            where TResponse : ITuple
+            where TTuple : ITarantoolTuple
+            where TResponse : ITarantoolTuple
         {
             var callRequest = new CallRequest<TTuple>(functionName, request);
             return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
         }
 
         public async Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple request)
-           where TTuple : ITuple
+           where TTuple : ITarantoolTuple
         {
             var evalRequest = new EvalRequest<TTuple>(expression, request);
             return await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);

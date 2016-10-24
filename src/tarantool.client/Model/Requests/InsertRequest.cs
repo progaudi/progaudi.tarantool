@@ -3,7 +3,7 @@
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class InsertRequest<T> : InsertReplaceRequest<T>
-        where T : ITuple
+        where T : ITarantoolTuple
     {
         public InsertRequest(uint spaceId, T tuple)
             : base(CommandCode.Insert, spaceId, tuple)

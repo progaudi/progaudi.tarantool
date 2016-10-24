@@ -2,20 +2,20 @@ using System.Collections.Generic;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    public interface ITuple
+    public interface ITarantoolTuple
     {
     }
 
-    public class Tuple<T1> : ITuple
+    public class TarantoolTuple<T1> : ITarantoolTuple
     {
-        public Tuple(T1 item1)
+        public TarantoolTuple(T1 item1)
         {
             Item1 = item1;
         }
 
         public T1 Item1 { get; }
 
-        protected bool Equals(Tuple<T1> other)
+        protected bool Equals(TarantoolTuple<T1> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1);
         }
@@ -25,7 +25,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1>) obj);
+            return Equals((TarantoolTuple<T1>) obj);
         }
 
         public override int GetHashCode()
@@ -35,9 +35,9 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple<T1, T2> : ITuple
+    public class TarantoolTuple<T1, T2> : ITarantoolTuple
     {
-        public Tuple(T1 item1, T2 item2)
+        public TarantoolTuple(T1 item1, T2 item2)
         {
             Item1 = item1;
             Item2 = item2;
@@ -47,7 +47,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public T2 Item2 { get; }
 
-        protected bool Equals(Tuple<T1, T2> other)
+        protected bool Equals(TarantoolTuple<T1, T2> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1) && EqualityComparer<T2>.Default.Equals(Item2, other.Item2);
         }
@@ -57,7 +57,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1, T2>) obj);
+            return Equals((TarantoolTuple<T1, T2>) obj);
         }
 
         public override int GetHashCode()
@@ -71,9 +71,9 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple<T1, T2, T3> : ITuple
+    public class TarantoolTuple<T1, T2, T3> : ITarantoolTuple
     {
-        public Tuple(T1 item1, T2 item2, T3 item3)
+        public TarantoolTuple(T1 item1, T2 item2, T3 item3)
         {
             Item1 = item1;
             Item2 = item2;
@@ -86,7 +86,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public T3 Item3 { get; }
 
-        protected bool Equals(Tuple<T1, T2, T3> other)
+        protected bool Equals(TarantoolTuple<T1, T2, T3> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1) && EqualityComparer<T2>.Default.Equals(Item2, other.Item2)
                 && EqualityComparer<T3>.Default.Equals(Item3, other.Item3);
@@ -97,7 +97,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1, T2, T3>) obj);
+            return Equals((TarantoolTuple<T1, T2, T3>) obj);
         }
 
         public override int GetHashCode()
@@ -112,9 +112,9 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple<T1, T2, T3, T4> : ITuple
+    public class TarantoolTuple<T1, T2, T3, T4> : ITarantoolTuple
     {
-        public Tuple(T1 item1, T2 item2, T3 item3, T4 item4)
+        public TarantoolTuple(T1 item1, T2 item2, T3 item3, T4 item4)
         {
             Item1 = item1;
             Item2 = item2;
@@ -130,7 +130,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public T4 Item4 { get; }
 
-        protected bool Equals(Tuple<T1, T2, T3, T4> other)
+        protected bool Equals(TarantoolTuple<T1, T2, T3, T4> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1) && EqualityComparer<T2>.Default.Equals(Item2, other.Item2)
                 && EqualityComparer<T3>.Default.Equals(Item3, other.Item3) && EqualityComparer<T4>.Default.Equals(Item4, other.Item4);
@@ -141,7 +141,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1, T2, T3, T4>) obj);
+            return Equals((TarantoolTuple<T1, T2, T3, T4>) obj);
         }
 
         public override int GetHashCode()
@@ -157,9 +157,9 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple<T1, T2, T3, T4, T5> : ITuple
+    public class TarantoolTuple<T1, T2, T3, T4, T5> : ITarantoolTuple
     {
-        public Tuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5)
+        public TarantoolTuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5)
         {
             Item1 = item1;
             Item2 = item2;
@@ -178,7 +178,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public T5 Item5 { get; }
 
-        protected bool Equals(Tuple<T1, T2, T3, T4, T5> other)
+        protected bool Equals(TarantoolTuple<T1, T2, T3, T4, T5> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1) && EqualityComparer<T2>.Default.Equals(Item2, other.Item2)
                 && EqualityComparer<T3>.Default.Equals(Item3, other.Item3) && EqualityComparer<T4>.Default.Equals(Item4, other.Item4)
@@ -190,7 +190,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1, T2, T3, T4, T5>) obj);
+            return Equals((TarantoolTuple<T1, T2, T3, T4, T5>) obj);
         }
 
         public override int GetHashCode()
@@ -207,9 +207,9 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple<T1, T2, T3, T4, T5, T6> : ITuple
+    public class TarantoolTuple<T1, T2, T3, T4, T5, T6> : ITarantoolTuple
     {
-        public Tuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6)
+        public TarantoolTuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6)
         {
             Item1 = item1;
             Item2 = item2;
@@ -231,7 +231,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public T6 Item6 { get; }
 
-        protected bool Equals(Tuple<T1, T2, T3, T4, T5, T6> other)
+        protected bool Equals(TarantoolTuple<T1, T2, T3, T4, T5, T6> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1) && EqualityComparer<T2>.Default.Equals(Item2, other.Item2)
                 && EqualityComparer<T3>.Default.Equals(Item3, other.Item3) && EqualityComparer<T4>.Default.Equals(Item4, other.Item4)
@@ -243,7 +243,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1, T2, T3, T4, T5, T6>) obj);
+            return Equals((TarantoolTuple<T1, T2, T3, T4, T5, T6>) obj);
         }
 
         public override int GetHashCode()
@@ -261,9 +261,9 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple<T1, T2, T3, T4, T5, T6, T7> : ITuple
+    public class TarantoolTuple<T1, T2, T3, T4, T5, T6, T7> : ITarantoolTuple
     {
-        public Tuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7)
+        public TarantoolTuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7)
         {
             Item1 = item1;
             Item2 = item2;
@@ -288,7 +288,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public T7 Item7 { get; }
 
-        protected bool Equals(Tuple<T1, T2, T3, T4, T5, T6, T7> other)
+        protected bool Equals(TarantoolTuple<T1, T2, T3, T4, T5, T6, T7> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1) && EqualityComparer<T2>.Default.Equals(Item2, other.Item2)
                 && EqualityComparer<T3>.Default.Equals(Item3, other.Item3) && EqualityComparer<T4>.Default.Equals(Item4, other.Item4)
@@ -301,7 +301,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1, T2, T3, T4, T5, T6, T7>) obj);
+            return Equals((TarantoolTuple<T1, T2, T3, T4, T5, T6, T7>) obj);
         }
 
         public override int GetHashCode()
@@ -320,9 +320,9 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple<T1, T2, T3, T4, T5, T6, T7, T8> : ITuple
+    public class TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, T8> : ITarantoolTuple
     {
-        public Tuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7, T8 item8)
+        public TarantoolTuple(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7, T8 item8)
         {
             Item1 = item1;
             Item2 = item2;
@@ -350,7 +350,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public T8 Item8 { get; }
 
-        protected bool Equals(Tuple<T1, T2, T3, T4, T5, T6, T7, T8> other)
+        protected bool Equals(TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, T8> other)
         {
             return EqualityComparer<T1>.Default.Equals(Item1, other.Item1) && EqualityComparer<T2>.Default.Equals(Item2, other.Item2)
                 && EqualityComparer<T3>.Default.Equals(Item3, other.Item3) && EqualityComparer<T4>.Default.Equals(Item4, other.Item4)
@@ -363,7 +363,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple<T1, T2, T3, T4, T5, T6, T7, T8>) obj);
+            return Equals((TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, T8>) obj);
         }
 
         public override int GetHashCode()
@@ -383,10 +383,10 @@ namespace ProGaudi.Tarantool.Client.Model
         }
     }
 
-    public class Tuple : ITuple
+    public class TarantoolTuple : ITarantoolTuple
     {
 
-        protected bool Equals(Tuple other)
+        protected bool Equals(TarantoolTuple other)
         {
             return true;
         }
@@ -396,7 +396,7 @@ namespace ProGaudi.Tarantool.Client.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Tuple)obj);
+            return Equals((TarantoolTuple)obj);
         }
 
         public override int GetHashCode()
@@ -404,64 +404,64 @@ namespace ProGaudi.Tarantool.Client.Model
             return string.Empty.GetHashCode();
         }
 
-        public static Tuple Create()
+        public static TarantoolTuple Create()
         {
-            return new Tuple();
+            return new TarantoolTuple();
         }
 
-        public static Tuple<T1>
+        public static TarantoolTuple<T1>
             Create<T1>(T1 item1)
         {
-            return new Tuple<T1>
+            return new TarantoolTuple<T1>
                 (item1);
         }
 
-        public static Tuple<T1, T2>
+        public static TarantoolTuple<T1, T2>
             Create<T1, T2>(T1 item1, T2 item2)
         {
-            return new Tuple<T1, T2>
+            return new TarantoolTuple<T1, T2>
                 (item1, item2);
         }
 
-        public static Tuple<T1, T2, T3>
+        public static TarantoolTuple<T1, T2, T3>
             Create<T1, T2, T3>(T1 item1, T2 item2, T3 item3)
         {
-            return new Tuple<T1, T2, T3>
+            return new TarantoolTuple<T1, T2, T3>
                 (item1, item2, item3);
         }
 
-        public static Tuple<T1, T2, T3, T4>
+        public static TarantoolTuple<T1, T2, T3, T4>
             Create<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4)
         {
-            return new Tuple<T1, T2, T3, T4>
+            return new TarantoolTuple<T1, T2, T3, T4>
                 (item1, item2, item3, item4);
         }
 
-        public static Tuple<T1, T2, T3, T4, T5>
+        public static TarantoolTuple<T1, T2, T3, T4, T5>
             Create<T1, T2, T3, T4, T5>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5)
         {
-            return new Tuple<T1, T2, T3, T4, T5>
+            return new TarantoolTuple<T1, T2, T3, T4, T5>
                 (item1, item2, item3, item4, item5);
         }
 
-        public static Tuple<T1, T2, T3, T4, T5, T6>
+        public static TarantoolTuple<T1, T2, T3, T4, T5, T6>
             Create<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6)
         {
-            return new Tuple<T1, T2, T3, T4, T5, T6>
+            return new TarantoolTuple<T1, T2, T3, T4, T5, T6>
                 (item1, item2, item3, item4, item5, item6);
         }
 
-        public static Tuple<T1, T2, T3, T4, T5, T6, T7>
+        public static TarantoolTuple<T1, T2, T3, T4, T5, T6, T7>
             Create<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7)
         {
-            return new Tuple<T1, T2, T3, T4, T5, T6, T7>
+            return new TarantoolTuple<T1, T2, T3, T4, T5, T6, T7>
                 (item1, item2, item3, item4, item5, item6, item7);
         }
 
-        public static Tuple<T1, T2, T3, T4, T5, T6, T7, T8>
+        public static TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, T8>
             Create<T1, T2, T3, T4, T5, T6, T7, T8>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7, T8 item8)
         {
-            return new Tuple<T1, T2, T3, T4, T5, T6, T7, T8>
+            return new TarantoolTuple<T1, T2, T3, T4, T5, T6, T7, T8>
                 (item1, item2, item3, item4, item5, item6, item7, item8);
         }
     }

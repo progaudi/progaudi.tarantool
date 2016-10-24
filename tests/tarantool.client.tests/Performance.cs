@@ -9,8 +9,6 @@ using Xunit;
 
 using ProGaudi.Tarantool.Client.Model;
 
-using Tuple = ProGaudi.Tarantool.Client.Model.Tuple;
-
 namespace ProGaudi.Tarantool.Client.Tests
 {
     public class Performance
@@ -80,14 +78,14 @@ namespace ProGaudi.Tarantool.Client.Tests
             {
                 var operationId = _id * OperationsCount + i + 1000;
 
-                var existing = await _index.Select<Tarantool.Client.Model.Tuple<uint>, Tarantool.Client.Model.Tuple<uint, string>>(Tuple.Create(operationId));
+                var existing = await _index.Select<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(operationId));
                 if (existing.Data.Any())
                 {
-                    await _index.Delete<Tarantool.Client.Model.Tuple<uint>, Tarantool.Client.Model.Tuple<uint, string>>(Tuple.Create(operationId));
+                    await _index.Delete<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(operationId));
                 }
-                await _index.Insert(Tuple.Create(operationId, $"Insert operation {operationId}"));
+                await _index.Insert(TarantoolTuple.Create(operationId, $"Insert operation {operationId}"));
 
-                await _index.Select<Tarantool.Client.Model.Tuple<uint>, Tarantool.Client.Model.Tuple<uint, string>>(Tuple.Create(operationId));
+                await _index.Select<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(operationId));
             }
         }
     }

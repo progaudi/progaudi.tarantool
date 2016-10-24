@@ -9,7 +9,7 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class InsertReplacePacketConverter<T> : IMsgPackConverter<InsertReplaceRequest<T>>
-        where T : ITuple
+        where T : ITarantoolTuple
     {
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<uint> _uintConverter;
