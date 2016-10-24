@@ -51,6 +51,23 @@ namespace ProGaudi.Tarantool.Client
             await LoginIfNotGuest(greetings);
         }
 
+        public static async Task<Box> Connect(string replicationSource)
+        {
+            var box = new Box(new ClientOptions(replicationSource));
+            await box.Connect();
+            return box;
+        }
+
+        public static Task<Box> Connect(string host, int port)
+        {
+            return Connect($"{host}:{port}");
+        }
+
+        public static Task<Box> Connect(string host, int port, string user, string password)
+        {
+            return Connect($"{user}:{password}@{host}:{port}");
+        }
+
         public void Dispose()
         {
             _clientOptions.LogWriter?.WriteLine("Box is disposing...");

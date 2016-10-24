@@ -17,10 +17,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task Test()
         {
             const string spaceName = "primary_only_index";
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -50,11 +47,9 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         [Fact]
         public async Task LongTest()
         {
-
             const string spaceName = "primary_only_index";
-            var options = new ClientOptions("127.0.0.1:3301", new StringWriterLog());
 
-            var tarantoolClient = new Client.Box(options);
+            var tarantoolClient = new Client.Box(new ClientOptions("127.0.0.1:3301", new StringWriterLog()));
 
             await tarantoolClient.Connect();
 

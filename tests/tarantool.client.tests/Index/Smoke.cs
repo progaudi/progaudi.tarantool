@@ -15,10 +15,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         public async Task HashIndexMethods()
         {
             const string spaceName = "primary_only_index";
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -53,10 +50,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         public async Task TreeIndexMethods()
         {
             const string spaceName = "primary_and_secondary_index";
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 

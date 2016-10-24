@@ -20,8 +20,7 @@ namespace ProGaudi.Tarantool.Client.Tests
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            var options = new ClientOptions("127.0.0.1:3301", logWriter);
-            var tarantoolClient = new Client.Box(options);
+            var tarantoolClient = new Client.Box(new ClientOptions("127.0.0.1:3301", logWriter));
 
             tarantoolClient.Connect().GetAwaiter().GetResult();
 

@@ -13,10 +13,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task evaluate_expression()
         {
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var result = await tarantoolClient.Eval<TarantoolTuple<int, int, int>, int>("return ...", TarantoolTuple.Create(1, 2, 3));
 

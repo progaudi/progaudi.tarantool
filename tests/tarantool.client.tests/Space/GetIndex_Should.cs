@@ -15,10 +15,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -31,10 +28,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_id()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -48,10 +42,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const uint indexId = 2;
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -67,10 +58,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const string indexName = "owner";
-            var options = new ClientOptions("127.0.0.1:3301");
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
