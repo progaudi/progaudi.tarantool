@@ -22,7 +22,7 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private long _currentRequestId = 0;
+        private long _currentRequestId;
 
         private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
@@ -105,21 +105,10 @@ namespace ProGaudi.Tarantool.Client
 
             try
             {
-                var task = await Task.WhenAny(responseTask, Task.Delay(10000));
-                MemoryStream responseStream;
-                if (task != responseTask)
-                {
-                    await _physicalConnection.Flush();
-                    responseStream = await responseTask;
-                }
-                else
-                {
-                    responseStream = ((Task<MemoryStream>) task).Result;
-                }
+                var responseStream = await responseTask;
                 _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
 
-                var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
-                return deserializedResponse;
+                return MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
             }
             catch (ArgumentException)
             {
