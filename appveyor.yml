@@ -13,6 +13,8 @@ configuration:
 matrix:
   fast_finish: false
 
+skip_branch_with_pr: true
+
 init:
   - git config --global core.autocrlf true
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
