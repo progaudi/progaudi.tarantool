@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -17,10 +16,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_on_space_with_secondary_index()
         {
             const string spaceName = "primary_and_secondary_index";
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
             var tarantoolClient = new Client.Box(options);
 
             await tarantoolClient.Connect();

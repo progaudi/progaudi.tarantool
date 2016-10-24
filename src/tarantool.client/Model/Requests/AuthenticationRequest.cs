@@ -21,10 +21,10 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
 
         public CommandCode Code => CommandCode.Auth;
 
-        public static AuthenticationRequest Create(GreetingsResponse greetings, string username, string password)
+        public static AuthenticationRequest Create(GreetingsResponse greetings, UriBuilder uri)
         {
-            var scrable = GetScrable(greetings, password);
-            var authenticationPacket = new AuthenticationRequest(username, scrable);
+            var scrable = GetScrable(greetings, uri.Password);
+            var authenticationPacket = new AuthenticationRequest(uri.UserName, scrable);
             return authenticationPacket;
         }
 

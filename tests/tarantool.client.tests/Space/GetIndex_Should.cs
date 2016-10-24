@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -16,10 +15,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
             var tarantoolClient = new Client.Box(options);
 
             await tarantoolClient.Connect();
@@ -35,10 +31,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_id()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
             var tarantoolClient = new Client.Box(options);
 
             await tarantoolClient.Connect();
@@ -55,10 +48,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const uint indexId = 2;
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
             var tarantoolClient = new Client.Box(options);
 
             await tarantoolClient.Connect();
@@ -77,10 +67,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const string indexName = "owner";
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
             var tarantoolClient = new Client.Box(options);
 
             await tarantoolClient.Connect();

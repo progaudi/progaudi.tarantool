@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -16,10 +15,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task call_method()
         {
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
             var tarantoolClient = new Client.Box(options);
 
             await tarantoolClient.Connect();

@@ -31,7 +31,7 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Connect()
         {
-            _physicalConnection.Connect(_clientOptions);
+            await _physicalConnection.Connect(_clientOptions);
 
             var greetingsResponseBytes = new byte[128];
             var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
@@ -82,31 +82,18 @@ namespace ProGaudi.Tarantool.Client
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
-            var singleNode = _clientOptions.NodeOptions.Single();
-            if (string.IsNullOrEmpty(singleNode.UserName))
+            var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
+
+            if (string.IsNullOrEmpty(singleNode.Uri.UserName))
             {
-                if (!singleNode.GuestMode)
-                {
-                    throw ExceptionHelper.EmptyUsernameInGuestMode();
-                }
+                _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
+                return;
             }
-            else
-            {
-                if (singleNode.GuestMode)
-                {
-                    _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
 
-                    return;
-                }
+            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
 
-                var authenticateRequest = AuthenticationRequest.Create(
-                    greetings,
-                    singleNode.UserName,
-                    singleNode.Password);
-
-                await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
-                _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
-            }
+            await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
+            _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
     }
 }

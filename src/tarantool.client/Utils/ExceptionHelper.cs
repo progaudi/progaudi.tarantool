@@ -1,5 +1,4 @@
 ﻿using System;
-
 using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -48,17 +47,6 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new ArgumentException($"Tarantool returns an error for request with id: {header.RequestId}, code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}. {detailedMessage}");
         }
 
-        private static string GetDetailedTarantoolMessage(CommandCode code)
-        {
-            switch ((uint)code)
-            {
-                case 0x8012:
-                    return "If index part type is NUM, unsingned int should be used.";
-            }
-
-            return null;
-        }
-
         public static ArgumentOutOfRangeException WrongRequestId(RequestId requestId)
         {
             return new ArgumentOutOfRangeException($"Can't find pending request with id = {requestId}");
@@ -89,11 +77,6 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new ArgumentException($"Property '{propertyName}' is not specified!");
         }
 
-        public static InvalidOperationException EmptyUsernameInGuestMode()
-        {
-            return new InvalidOperationException("Empty username in non-guest mode! Please specify username or enable guest mode.");
-        }
-
         public static InvalidOperationException EnumExpected(Type type)
         {
             return new InvalidOperationException($"Enum expected, but got {type}.");
@@ -119,9 +102,15 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new ArgumentException($"Task with id {requestId} already sent.");
         }
 
-        public static Exception AlreadyMappedResponse(RequestId requestId, string firstAnswer, string secondAnser)
+        private static string GetDetailedTarantoolMessage(CommandCode code)
         {
-            return new InvalidOperationException($"Request with id = {requestId} is already answered! First answer is: '{firstAnswer}', second answer is: '{secondAnser}'");
+            switch ((uint)code)
+            {
+                case 0x8012:
+                    return "If index part type is NUM, unsingned int should be used.";
+            }
+
+            return null;
         }
     }
 }

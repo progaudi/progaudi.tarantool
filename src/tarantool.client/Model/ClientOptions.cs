@@ -1,28 +1,30 @@
-﻿using System.Collections.Generic;
-using ProGaudi.MsgPack.Light;
+﻿using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
     public class ClientOptions
     {
-        public ClientOptions()
+        public ClientOptions(ILog log = null, MsgPackContext context = null)
+            : this(new ConnectionOptions(), log, context)
         {
         }
 
-        public ClientOptions(string replicationSource)
+        public ClientOptions(string replicationSource, ILog log = null, MsgPackContext context = null)
+            : this(new ConnectionOptions(replicationSource, log), log, context)
         {
         }
 
-        public ILog LogWriter { get; set; }
+        private ClientOptions(ConnectionOptions options, ILog log, MsgPackContext context)
+        {
+            ConnectionOptions = options;
+            LogWriter = log;
+            MsgPackContext = context ?? new MsgPackContext();
+        }
 
-        public MsgPackContext MsgPackContext { get; set; } = new MsgPackContext();
+        public ILog LogWriter { get; }
 
-        public int ReadStreamBufferSize { get; set; } = 4096;
+        public MsgPackContext MsgPackContext { get; }
 
-        public int WriteNetworkTimeout { get; set; } = -1;
-
-        public int ReadNetworkTimeout { get; set; } = -1;
-
-        public List<NodeOptions> NodeOptions { get; set; } = new List<NodeOptions>();
+        public ConnectionOptions ConnectionOptions { get; }
     }
 }

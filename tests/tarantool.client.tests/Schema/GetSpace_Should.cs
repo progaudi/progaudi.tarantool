@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -15,10 +14,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
         [Fact]
         public async Task throw_expection_for_non_existing_space_by_name()
         {
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
 
             var tarantoolClient = new Client.Box(options);
 
@@ -32,10 +28,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
         [Fact]
         public async Task throw_expection_for_non_existing_space_by_id()
         {
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
 
             var tarantoolClient = new Client.Box(options);
 
@@ -50,10 +43,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
         public async Task returns_space_by_id()
         {
             const uint VSpaceId = 0x119; // that space always exist and contains other spaces.
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
 
             var tarantoolClient = new Client.Box(options);
 
@@ -70,10 +60,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
         public async Task returns_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
 
             var tarantoolClient = new Client.Box(options);
 
@@ -90,10 +77,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
         public async Task read_multiple_spaces_in_a_row()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
 
             var tarantoolClient = new Client.Box(options);
 

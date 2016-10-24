@@ -20,12 +20,8 @@ namespace ProGaudi.Tarantool.Client.Tests
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = logWriter
-            };
-            var tarantoolClient = new Tarantool.Client.Box(options);
+            var options = new ClientOptions("127.0.0.1:3301", logWriter);
+            var tarantoolClient = new Client.Box(options);
 
             tarantoolClient.Connect().GetAwaiter().GetResult();
 
@@ -36,7 +32,7 @@ namespace ProGaudi.Tarantool.Client.Tests
             var index = space.GetIndex("primary").GetAwaiter().GetResult();
             var startTime = DateTime.Now;
 
-            logWriter?.WriteLine("Before start thread");
+            logWriter.WriteLine("Before start thread");
 
             var tasks = new Task[threadsCount];
             for (uint i = 0; i < threadsCount; i++)
@@ -49,7 +45,7 @@ namespace ProGaudi.Tarantool.Client.Tests
 
             var endTime = DateTime.Now;
 
-            logWriter?.WriteLine($"Time taken:{(endTime - startTime).TotalMilliseconds} ms");
+            logWriter.WriteLine($"Time taken:{(endTime - startTime).TotalMilliseconds} ms");
         }
     }
 

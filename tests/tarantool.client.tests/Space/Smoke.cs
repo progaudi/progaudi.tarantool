@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -9,7 +7,6 @@ using Xunit;
 using Shouldly;
 
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
 namespace ProGaudi.Tarantool.Client.Tests.Space
@@ -20,10 +17,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task Test()
         {
             const string spaceName = "primary_only_index";
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
+            var options = new ClientOptions("127.0.0.1:3301");
             var tarantoolClient = new Client.Box(options);
 
             await tarantoolClient.Connect();
@@ -32,20 +26,19 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
 
             var space = await schema.GetSpace(spaceName);
 
-            DataResponse<TarantoolTuple<int, string>[]> insertDataResponse;
             try
             {
-                insertDataResponse = await space.Insert(TarantoolTuple.Create(2, "Music"));
+                await space.Insert(TarantoolTuple.Create(2, "Music"));
             }
             catch (ArgumentException)
             {
-                var deleteResponse = await space.Delete<TarantoolTuple<uint>, TarantoolTuple<uint, string, double>>(TarantoolTuple.Create(2u));
-                insertDataResponse = await space.Insert(TarantoolTuple.Create(2, "Music"));
+                await space.Delete<TarantoolTuple<uint>, TarantoolTuple<uint, string, double>>(TarantoolTuple.Create(2u));
+                await space.Insert(TarantoolTuple.Create(2, "Music"));
             }
 
-            var selectResponse = await space.Select<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(2u));
-            var replaceResponse = await space.Replace(TarantoolTuple.Create(2, "Car", -24.5));
-            var updateResponse = await space.Update<TarantoolTuple<uint>, TarantoolTuple<uint, string, double>>(
+            await space.Select<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(2u));
+            await space.Replace(TarantoolTuple.Create(2, "Car", -24.5));
+            await space.Update<TarantoolTuple<uint>, TarantoolTuple<uint, string, double>>(
                 TarantoolTuple.Create(2u),
                 new UpdateOperation[] { UpdateOperation.CreateAddition(1, 2) });
             await space.Upsert(
@@ -59,11 +52,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
 
             const string spaceName = "primary_only_index";
-            var options = new ClientOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-                LogWriter = new StringWriterLog()
-            };
+            var options = new ClientOptions("127.0.0.1:3301", new StringWriterLog());
 
             var tarantoolClient = new Client.Box(options);
 
@@ -73,17 +62,15 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
 
             var space = await schema.GetSpace(spaceName);
 
-            var longString =
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.";
-            DataResponse<TarantoolTuple<uint, string>[]> insertDataResponse;
+            var longString = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum pharetra porta. Aliquam ullamcorper ex quis mi aliquet egestas. Suspendisse dui nunc, tincidunt mattis purus ac, fringilla porttitor turpis. Nunc nunc turpis, accumsan eu mi et, scelerisque ultrices orci. Maecenas sed ornare risus. Nam ut luctus ante, id tincidunt diam. Vestibulum maximus non quam molestie rutrum. Phasellus faucibus nunc eu sapien posuere, sed imperdiet quam sollicitudin. Donec nec dui ullamcorper, tincidunt sem eget, egestas lorem. Proin egestas, sem a malesuada sodales, risus sapien aliquet leo, non commodo sem ante et tellus. Donec vel ex et elit pellentesque iaculis faucibus vel lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam fermentum dui at ligula luctus faucibus. Nunc congue placerat dignissim. Quisque odio ipsum, viverra id faucibus sed, pellentesque id velit. Etiam a nibh non lorem vulputate volutpat.";
             try
             {
-                insertDataResponse = await space.Insert(TarantoolTuple.Create(222u, longString));
+                await space.Insert(TarantoolTuple.Create(222u, longString));
             }
             catch (ArgumentException)
             {
-                var deleteResponse = await space.Delete<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(222u));
-                insertDataResponse = await space.Insert(TarantoolTuple.Create(222u, longString));
+                await space.Delete<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(222u));
+                await space.Insert(TarantoolTuple.Create(222u, longString));
             }
 
             var selectResponse = await space.Select<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(222u));
