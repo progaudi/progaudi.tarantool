@@ -5,8 +5,6 @@ using Xunit;
 
 using Shouldly;
 
-using ProGaudi.Tarantool.Client.Model;
-
 namespace ProGaudi.Tarantool.Client.Tests.Space
 {
     public class GetIndex_Should

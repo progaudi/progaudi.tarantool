@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -59,6 +58,7 @@ namespace ProGaudi.Tarantool.Client
         }
 
 #if !PROGAUDI_NETCORE
+        /// Stolen from corefx github
         private static Task ConnectAsync(Socket socket, string host, int port)
         {
             return Task.Factory.FromAsync(
