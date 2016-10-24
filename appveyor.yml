@@ -25,6 +25,7 @@ build_script:
   - dotnet build "tests\tarantool.client.tests" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
 
 after_build:
+  - rm -rf tests\tarantool.client.tests\bin tests\tarantool.client.tests\obj
   - dotnet pack "src\tarantool.client" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 
 artifacts:
