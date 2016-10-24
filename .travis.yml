@@ -21,7 +21,7 @@ before_script:
   - docker-compose down
   - docker-compose up -d
   - cd samples/docker-compose && docker-compose down
-  - cd samples/docker-compose && docker-compose up -d
+  - cd samples/docker-compose && docker-compose up -d --build
 
 script:
   - dotnet build -f netcoreapp1.0 src/tarantool.client
