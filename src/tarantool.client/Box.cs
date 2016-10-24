@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -81,16 +82,17 @@ namespace ProGaudi.Tarantool.Client
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
-            if (string.IsNullOrEmpty(_connectionOptions.UserName))
+            var singleNode = _connectionOptions.NodeOptions.Single();
+            if (string.IsNullOrEmpty(singleNode.UserName))
             {
-                if (!_connectionOptions.GuestMode)
+                if (!singleNode.GuestMode)
                 {
                     throw ExceptionHelper.EmptyUsernameInGuestMode();
                 }
             }
             else
             {
-                if (_connectionOptions.GuestMode)
+                if (singleNode.GuestMode)
                 {
                     _connectionOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
 
@@ -99,8 +101,8 @@ namespace ProGaudi.Tarantool.Client
 
                 var authenticateRequest = AuthenticationRequest.Create(
                     greetings,
-                    _connectionOptions.UserName,
-                    _connectionOptions.Password);
+                    singleNode.UserName,
+                    singleNode.Password);
 
                 await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
                 _connectionOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");

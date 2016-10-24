@@ -35,7 +35,7 @@ namespace ProGaudi.Tarantool.Client
             _physicalConnection = physicalConnection;
             _logicalConnection = logicalConnection;
             _connectionOptions = connectionOptions;
-            _buffer = new byte[connectionOptions.StreamBufferSize];
+            _buffer = new byte[connectionOptions.ReadStreamBufferSize];
         }
 
         public void BeginReading()

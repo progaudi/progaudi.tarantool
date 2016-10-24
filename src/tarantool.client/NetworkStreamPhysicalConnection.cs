@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -25,8 +26,9 @@ namespace ProGaudi.Tarantool.Client
         public void Connect(ConnectionOptions options)
         {
             options.LogWriter?.WriteLine("Starting socket connection...");
-            _socket = new Socket(options.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            _socket.Connect(options.EndPoint);
+            var singleNode = options.NodeOptions.Single();
+            _socket = new Socket(singleNode.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _socket.Connect(singleNode.EndPoint);
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
