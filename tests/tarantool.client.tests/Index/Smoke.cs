@@ -24,27 +24,26 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
 
             var index = await space.GetIndex("primary");
 
-            DataResponse<TarantoolTuple<int, string>[]> insertDataResponse;
             try
             {
-                insertDataResponse = await index.Insert(TarantoolTuple.Create(2, "Music"));
+                await index.Insert(TarantoolTuple.Create(2, "Music"));
             }
             catch (ArgumentException)
             {
-                var deleteResponse = await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string, double>>(TarantoolTuple.Create(2));
-                insertDataResponse = await index.Insert(TarantoolTuple.Create(2, "Music"));
+                await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string, double>>(TarantoolTuple.Create(2));
+                await index.Insert(TarantoolTuple.Create(2, "Music"));
             }
 
-            var selectResponse = await index.Select<TarantoolTuple<uint>, TarantoolTuple<int, string>>(TarantoolTuple.Create(1029u));
-            var replaceResponse = await index.Replace(TarantoolTuple.Create(2, "Car", -245.3));
-            var updateResponse = await index.Update<TarantoolTuple<int, string, double>, TarantoolTuple<int>>(
+            await index.Select<TarantoolTuple<uint>, TarantoolTuple<int, string>>(TarantoolTuple.Create(1029u));
+            await index.Replace(TarantoolTuple.Create(2, "Car", -245.3));
+            await index.Update<TarantoolTuple<int, string, double>, TarantoolTuple<int>>(
                 TarantoolTuple.Create(2),
                 new UpdateOperation[] { UpdateOperation.CreateAddition(100, 2) });
 
             await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] { UpdateOperation.CreateAssign(2, 2) });
             await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] { UpdateOperation.CreateAddition(-2, 2) });
 
-            var selectResponse2 = index.Select<TarantoolTuple<uint>, TarantoolTuple<int, int, int>>(TarantoolTuple.Create(5u));
+            await index.Select<TarantoolTuple<uint>, TarantoolTuple<int, int, int>>(TarantoolTuple.Create(5u));
         }
 
         [Fact]
