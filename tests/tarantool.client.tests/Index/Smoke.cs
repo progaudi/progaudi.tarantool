@@ -6,6 +6,7 @@ using Xunit;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
+using Shouldly;
 
 namespace ProGaudi.Tarantool.Client.Tests.Index
 {
@@ -49,7 +50,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         [Fact]
         public async Task TreeIndexMethods()
         {
-            const string spaceName = "primary_and_secondary_index";
+            const string spaceName = "space_TreeIndexMethods";
             var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
@@ -59,10 +60,14 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
             var index = await space.GetIndex("treeIndex");
 
             var min2 = await index.Min<TarantoolTuple<int, int, int>, TarantoolTuple<int>>(TarantoolTuple.Create(3));
+            min2.ShouldBe(TarantoolTuple.Create(3, 2, 3));
             var min = await index.Min<TarantoolTuple<int, string, double>>();
+            min.ShouldBe(TarantoolTuple.Create(1, "asdf", 10.1));
 
             var max = await index.Max<TarantoolTuple<int, int, int>>();
-            var max2 = await index.Max<TarantoolTuple<int, string, double>, TarantoolTuple<int>>(TarantoolTuple.Create(4));
+            max.ShouldBe(min2);
+            var max2 = await index.Max<TarantoolTuple<int, string, double>, TarantoolTuple<int>>(TarantoolTuple.Create(1));
+            max2.ShouldBe(min);
         }
     }
 }

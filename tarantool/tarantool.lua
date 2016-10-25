@@ -50,4 +50,14 @@ local function init()
     box.session.on_auth(log_auth_ok)
 end
 
+local function space_TreeIndexMethods()
+    space = box.schema.space.create('space_TreeIndexMethods', { if_not_exists = true })
+    space:create_index('treeIndex', {type='tree', parts={1, 'unsigned'}, if_not_exists = true })
+
+    space:auto_increment{'asdf', 10.1}
+    space:auto_increment{'zcxv'}
+    space:auto_increment{2, 3}
+end
+
 box.once('init', init)
+box.once('space_TreeIndexMethods', space_TreeIndexMethods)
