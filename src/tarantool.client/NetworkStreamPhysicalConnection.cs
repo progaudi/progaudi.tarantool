@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -22,11 +23,17 @@ namespace ProGaudi.Tarantool.Client
             _stream?.Dispose();
         }
 
-        public void Connect(ConnectionOptions options)
+        public async Task Connect(ClientOptions options)
         {
             options.LogWriter?.WriteLine("Starting socket connection...");
-            _socket = new Socket(options.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            _socket.Connect(options.EndPoint);
+            var singleNode = options.ConnectionOptions.Nodes.Single();
+
+            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+#if PROGAUDI_NETCORE
+            await _socket.ConnectAsync(singleNode.Uri.Host, singleNode.Uri.Port);
+#else
+            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
+#endif
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
@@ -49,6 +56,19 @@ namespace ProGaudi.Tarantool.Client
             CheckConnectionStatus();
             return await _stream.ReadAsync(buffer, offset, count);
         }
+
+#if !PROGAUDI_NETCORE
+        /// Stolen from corefx github
+        private static Task ConnectAsync(Socket socket, string host, int port)
+        {
+            return Task.Factory.FromAsync(
+                (targetHost, targetPort, callback, state) => ((Socket)state).BeginConnect(targetHost, targetPort, callback, state),
+                asyncResult => ((Socket)asyncResult.AsyncState).EndConnect(asyncResult),
+                host,
+                port,
+                socket);
+        }
+#endif
 
         private void CheckConnectionStatus()
         {

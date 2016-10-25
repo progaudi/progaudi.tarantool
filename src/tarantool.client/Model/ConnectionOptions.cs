@@ -1,23 +1,38 @@
-﻿using System.Net;
-
-using ProGaudi.MsgPack.Light;
+﻿using System.Collections.Generic;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
     public class ConnectionOptions
     {
-        public EndPoint EndPoint { get; set; }
+        public ConnectionOptions()
+        {
+        }
 
-        public ILog LogWriter { get; set; }
+        public ConnectionOptions(string replicationSource, ILog log)
+        {
+            if (!string.IsNullOrEmpty(replicationSource))
+            {
+                Parse(replicationSource, log);
+            }
+        }
 
-        public string UserName { get; set; }
+        private void Parse(string replicationSource, ILog log)
+        {
+            var urls = replicationSource.Split(',');
 
-        public string Password { get; set; }
+            foreach (var url in urls)
+            {
+                var node = TarantoolNode.TryParse(url, log);
+                if (node != null)
+                {
+                    Nodes.Add(node);
+                }
+            }
+        }
 
-        public MsgPackContext MsgPackContext { get; set; } = new MsgPackContext();
-
-        public int StreamBufferSize { get; set; } = 4096;
-
-        public bool GuestMode { get; set; } = true;
+        public int ReadStreamBufferSize { get; set; } = 4096;
+        public int WriteNetworkTimeout { get; set; } = -1;
+        public int ReadNetworkTimeout { get; set; } = -1;
+        public List<TarantoolNode> Nodes { get; set; } = new List<TarantoolNode>();
     }
 }

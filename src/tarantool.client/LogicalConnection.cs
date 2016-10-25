@@ -22,14 +22,14 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private long _currentRequestId = 0;
+        private long _currentRequestId;
 
         private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
         private readonly ILog _logWriter;
 
-        public LogicalConnection(ConnectionOptions options, INetworkStreamPhysicalConnection physicalConnection)
+        public LogicalConnection(ClientOptions options, INetworkStreamPhysicalConnection physicalConnection)
         {
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
@@ -48,7 +48,8 @@ namespace ProGaudi.Tarantool.Client
             return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
         }
 
-        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
+        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId,
+            MemoryStream resultStream)
         {
             TaskCompletionSource<MemoryStream> request;
 
@@ -63,7 +64,7 @@ namespace ProGaudi.Tarantool.Client
         public static byte[] ReadFully(Stream input)
         {
             input.Position = 0;
-            byte[] buffer = new byte[16 * 1024];
+            byte[] buffer = new byte[16*1024];
             using (MemoryStream ms = new MemoryStream())
             {
                 int read;
@@ -83,7 +84,7 @@ namespace ProGaudi.Tarantool.Client
         }
 
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
-         where TRequest : IRequest
+            where TRequest : IRequest
         {
             var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
 
@@ -96,7 +97,7 @@ namespace ProGaudi.Tarantool.Client
             lock (_physicalConnection)
             {
                 _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength);
 
                 _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
                 _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
@@ -107,13 +108,11 @@ namespace ProGaudi.Tarantool.Client
                 var responseStream = await responseTask;
                 _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
 
-                var deserializedResponse = MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
-                return deserializedResponse;
+                return MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
             }
             catch (ArgumentException)
             {
-                _logWriter?.WriteLine(
-                    $"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
                 throw;
             }
         }
@@ -137,7 +136,7 @@ namespace ProGaudi.Tarantool.Client
             MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
 
             headerLength = stream.Position - Constants.PacketSizeBufferSize;
-            var packetLength = new PacketSize((uint)(headerLength + serializedRequest.Length));
+            var packetLength = new PacketSize((uint) (headerLength + serializedRequest.Length));
             stream.Seek(0, SeekOrigin.Begin);
             MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
             return packetSizeBuffer;
@@ -146,7 +145,7 @@ namespace ProGaudi.Tarantool.Client
         private RequestId GetRequestId()
         {
             var requestId = Interlocked.Increment(ref _currentRequestId);
-            return (RequestId)(ulong)requestId;
+            return (RequestId) (ulong) requestId;
         }
 
         private Task<MemoryStream> GetResponseTask(RequestId requestId)

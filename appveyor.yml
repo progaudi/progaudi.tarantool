@@ -13,6 +13,8 @@ configuration:
 matrix:
   fast_finish: false
 
+skip_branch_with_pr: true
+
 init:
   - git config --global core.autocrlf true
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
@@ -22,8 +24,10 @@ before_build:
 
 build_script:
   - dotnet build "src\tarantool.client" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+  - dotnet build "tests\tarantool.client.tests" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
 
 after_build:
+  - rm -rf tests\tarantool.client.tests\bin tests\tarantool.client.tests\obj
   - dotnet pack "src\tarantool.client" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 
 artifacts:

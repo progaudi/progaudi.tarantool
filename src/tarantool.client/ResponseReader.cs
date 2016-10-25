@@ -1,8 +1,5 @@
 ﻿using System;
-using System.CodeDom;
 using System.IO;
-using System.Linq;
-
 using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -20,7 +17,7 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly ILogicalConnection _logicalConnection;
 
-        private readonly ConnectionOptions _connectionOptions;
+        private readonly ClientOptions _clientOptions;
 
         private byte[] _buffer;
 
@@ -30,19 +27,19 @@ namespace ProGaudi.Tarantool.Client
 
         private bool _disposed = false;
 
-        public ResponseReader(ILogicalConnection logicalConnection, ConnectionOptions connectionOptions, INetworkStreamPhysicalConnection physicalConnection)
+        public ResponseReader(ILogicalConnection logicalConnection, ClientOptions clientOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
             _physicalConnection = physicalConnection;
             _logicalConnection = logicalConnection;
-            _connectionOptions = connectionOptions;
-            _buffer = new byte[connectionOptions.StreamBufferSize];
+            _clientOptions = clientOptions;
+            _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
         }
 
         public void BeginReading()
         {
             var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
 
-            _connectionOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
+            _clientOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
 
             var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
             readingTask.ContinueWith(EndReading);
@@ -53,7 +50,7 @@ namespace ProGaudi.Tarantool.Client
             if (!_disposed)
             {
                 var readBytesCount = readWork.Result;
-                _connectionOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
+                _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
 
                 if (ProcessReadBytes(readBytesCount))
                 {
@@ -66,13 +63,13 @@ namespace ProGaudi.Tarantool.Client
             }
             else
             {
-                _connectionOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
+                _clientOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
             }
         }
 
         private void CancelAllPendingRequests()
         {
-            _connectionOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
+            _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
             var responses = _logicalConnection.PopAllResponseCompletionSources();
             foreach (var response in responses)
             {
@@ -84,12 +81,12 @@ namespace ProGaudi.Tarantool.Client
         {
             if (readBytesCount <= 0)
             {
-                _connectionOptions.LogWriter?.WriteLine("EOF");
+                _clientOptions.LogWriter?.WriteLine("EOF");
                 return false;
             }
             _readingOffset += readBytesCount;
             var parsedResponsesCount = TryParseResponses();
-            _connectionOptions.LogWriter?.WriteLine("Processed: " + parsedResponsesCount);
+            _clientOptions.LogWriter?.WriteLine("Processed: " + parsedResponsesCount);
             if (!AllBytesProcessed())
             {
                 CopyRemainingBytesToBufferBegin();
@@ -103,7 +100,7 @@ namespace ProGaudi.Tarantool.Client
             var remainingBytesCount = _readingOffset - _parsingOffset;
             if (remainingBytesCount > 0)
             {
-                _connectionOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
+                _clientOptions.LogWriter?.WriteLine("Copying remaining bytes: " + remainingBytesCount);
                 Buffer.BlockCopy(_buffer, _parsingOffset, _buffer, 0, remainingBytesCount);
                 Array.Clear(_buffer, remainingBytesCount, _buffer.Length - remainingBytesCount);
             }
@@ -139,17 +136,17 @@ namespace ProGaudi.Tarantool.Client
         private void MatchResult(byte[] result)
         {
             var resultStream = new MemoryStream(result);
-            var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _connectionOptions.MsgPackContext);
+            var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
             var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId, resultStream);
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
-                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _connectionOptions.MsgPackContext);
+                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _clientOptions.MsgPackContext);
                 tcs.SetException(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else
             {
-                _connectionOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
+                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
                 tcs.SetResult(resultStream);
             }
         }
@@ -165,7 +162,7 @@ namespace ProGaudi.Tarantool.Client
 
             if (!packetSize.HasValue)
             {
-                _connectionOptions.LogWriter?.WriteLine($"Can't read packet length, has less than {Constants.PacketSizeBufferSize} bytes.");
+                _clientOptions.LogWriter?.WriteLine($"Can't read packet length, has less than {Constants.PacketSizeBufferSize} bytes.");
                 return null;
             }
 
@@ -180,7 +177,7 @@ namespace ProGaudi.Tarantool.Client
                 return responseBuffer;
             }
 
-            _connectionOptions.LogWriter?.WriteLine($"Packet  with length {packetSize} is not completely read.");
+            _clientOptions.LogWriter?.WriteLine($"Packet  with length {packetSize} is not completely read.");
 
             return null;
         }
@@ -194,7 +191,7 @@ namespace ProGaudi.Tarantool.Client
 
             var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
             Array.Copy(_buffer, _parsingOffset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
-            var packetSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer, _connectionOptions.MsgPackContext);
+            var packetSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer, _clientOptions.MsgPackContext);
 
             return packetSize;
         }

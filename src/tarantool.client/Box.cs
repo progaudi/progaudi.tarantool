@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -10,7 +11,7 @@ namespace ProGaudi.Tarantool.Client
 {
     public class Box : IDisposable
     {
-        private readonly ConnectionOptions _connectionOptions;
+        private readonly ClientOptions _clientOptions;
 
         private readonly ILogicalConnection _logicalConnection;
 
@@ -18,9 +19,9 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        public Box(ConnectionOptions options)
+        public Box(ClientOptions options)
         {
-            _connectionOptions = options;
+            _clientOptions = options;
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
             _physicalConnection = new NetworkStreamPhysicalConnection();
@@ -30,7 +31,7 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Connect()
         {
-            _physicalConnection.Connect(_connectionOptions);
+            await _physicalConnection.Connect(_clientOptions);
 
             var greetingsResponseBytes = new byte[128];
             var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
@@ -41,26 +42,43 @@ namespace ProGaudi.Tarantool.Client
 
             var greetings = new GreetingsResponse(greetingsResponseBytes);
 
-            _connectionOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
+            _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
 
             _responseReader.BeginReading();
 
-            _connectionOptions.LogWriter?.WriteLine("Server responses reading started.");
+            _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
 
             await LoginIfNotGuest(greetings);
         }
 
+        public static async Task<Box> Connect(string replicationSource)
+        {
+            var box = new Box(new ClientOptions(replicationSource));
+            await box.Connect();
+            return box;
+        }
+
+        public static Task<Box> Connect(string host, int port)
+        {
+            return Connect($"{host}:{port}");
+        }
+
+        public static Task<Box> Connect(string host, int port, string user, string password)
+        {
+            return Connect($"{user}:{password}@{host}:{port}");
+        }
+
         public void Dispose()
         {
-            _connectionOptions.LogWriter?.WriteLine("Box is disposing...");
-            _connectionOptions.LogWriter?.Flush();
+            _clientOptions.LogWriter?.WriteLine("Box is disposing...");
+            _clientOptions.LogWriter?.Flush();
             _responseReader.Dispose();
             _physicalConnection.Dispose();
         }
 
         public Schema GetSchema()
         {
-            _connectionOptions.LogWriter?.WriteLine("Schema acquiring...");
+            _clientOptions.LogWriter?.WriteLine("Schema acquiring...");
             return new Schema(_logicalConnection);
         }
 
@@ -81,30 +99,18 @@ namespace ProGaudi.Tarantool.Client
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
-            if (string.IsNullOrEmpty(_connectionOptions.UserName))
+            var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
+
+            if (string.IsNullOrEmpty(singleNode.Uri.UserName))
             {
-                if (!_connectionOptions.GuestMode)
-                {
-                    throw ExceptionHelper.EmptyUsernameInGuestMode();
-                }
+                _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
+                return;
             }
-            else
-            {
-                if (_connectionOptions.GuestMode)
-                {
-                    _connectionOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
 
-                    return;
-                }
+            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
 
-                var authenticateRequest = AuthenticationRequest.Create(
-                    greetings,
-                    _connectionOptions.UserName,
-                    _connectionOptions.Password);
-
-                await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
-                _connectionOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
-            }
+            await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
+            _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
     }
 }

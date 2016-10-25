@@ -17,6 +17,11 @@
     "frameworks": {
         "net461": {},
         "netcoreapp1.0": {
+            "buildOptions": {
+                "define": [
+                    "PROGAUDI_NETCORE"
+                ]
+            },
             "dependencies": {
                 "Microsoft.NETCore.App": {
                     "type": "platform",

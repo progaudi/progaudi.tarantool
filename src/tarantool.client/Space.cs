@@ -63,9 +63,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<Index> GetIndex(string indexName)
         {
-            var selectIndexRequest = new SelectRequest<Model.TarantoolTuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexName));
+            var selectIndexRequest = new SelectRequest<TarantoolTuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexName));
 
-            var response = await LogicalConnection.SendRequest<SelectRequest<Model.TarantoolTuple<uint, string>>, Index>(selectIndexRequest);
+            var response = await LogicalConnection.SendRequest<SelectRequest<TarantoolTuple<uint, string>>, Index>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
 
@@ -81,9 +81,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<Index> GetIndex(uint indexId)
         {
-            var selectIndexRequest = new SelectRequest<Model.TarantoolTuple<uint, uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexId));
+            var selectIndexRequest = new SelectRequest<TarantoolTuple<uint, uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexId));
 
-            var response = await LogicalConnection.SendRequest<SelectRequest<Model.TarantoolTuple<uint, uint>>, Index>(selectIndexRequest);
+            var response = await LogicalConnection.SendRequest<SelectRequest<TarantoolTuple<uint, uint>>, Index>(selectIndexRequest);
 
             var result = response.Data.SingleOrDefault();
 

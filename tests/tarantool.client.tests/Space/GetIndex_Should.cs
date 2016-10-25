@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 
 using Xunit;
 
 using Shouldly;
-
-using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Tests.Space
 {
@@ -16,13 +13,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ConnectionOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -35,13 +26,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_id()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            var options = new ConnectionOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -55,13 +40,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const uint indexId = 2;
-            var options = new ConnectionOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
@@ -77,13 +56,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const string indexName = "owner";
-            var options = new ConnectionOptions()
-            {
-                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3301),
-            };
-            var tarantoolClient = new Client.Box(options);
-
-            await tarantoolClient.Connect();
+            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
 
             var schema = tarantoolClient.GetSchema();
 
