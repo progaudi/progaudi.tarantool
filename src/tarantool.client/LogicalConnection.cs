@@ -48,24 +48,20 @@ namespace ProGaudi.Tarantool.Client
             return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
         }
 
-        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId,
-            MemoryStream resultStream)
+        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
         {
             TaskCompletionSource<MemoryStream> request;
 
-            if (!_pendingRequests.TryRemove(requestId, out request))
-            {
-                throw ExceptionHelper.WrongRequestId(requestId);
-            }
-
-            return request;
+            return _pendingRequests.TryRemove(requestId, out request)
+                ? request
+                : null;
         }
 
         public static byte[] ReadFully(Stream input)
         {
             input.Position = 0;
-            byte[] buffer = new byte[16*1024];
-            using (MemoryStream ms = new MemoryStream())
+            var buffer = new byte[16*1024];
+            using (var ms = new MemoryStream())
             {
                 int read;
                 while ((read = input.Read(buffer, 0, buffer.Length)) > 0)

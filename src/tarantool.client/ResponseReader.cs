@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -25,7 +26,7 @@ namespace ProGaudi.Tarantool.Client
 
         private int _parsingOffset;
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         public ResponseReader(ILogicalConnection logicalConnection, ClientOptions clientOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
@@ -138,6 +139,27 @@ namespace ProGaudi.Tarantool.Client
             var resultStream = new MemoryStream(result);
             var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
             var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId, resultStream);
+
+            if (tcs == null)
+            {
+                if (_clientOptions.LogWriter == null)
+                    return;
+
+                var builder = new StringBuilder("Warning: can't match request via requestId from response. Response:");
+                var length = 80/3;
+                for (var i = 0; i < result.Length; i++)
+                {
+                    if (i%length == 0)
+                        builder.AppendLine().Append("   ");
+                    else
+                        builder.Append(" ");
+
+                    builder.AppendFormat("{0:X2}", result[i]);
+                }
+
+                _clientOptions.LogWriter?.WriteLine(builder.ToString());
+                return;
+            }
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
