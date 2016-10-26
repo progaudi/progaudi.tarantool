@@ -1,4 +1,4 @@
-public interface ITuple{}
+public interface ITarantoolTuple{}
 <#
 var maxParametersCount = 8;
 var typeParameters = new Func<int, string>(count => string.Join(", ", Enumerable.Range(1, count).Select(num => $"T{num}")));
@@ -37,6 +37,18 @@ for(int i=0;i < maxParametersCount; i++){
                 var hashCode =<#= getHashCode(i+1) #>
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"<# for(int j=0; j< i+1; j++)
+            {
+                if (j != 0)
+                {
+                    #>, <#
+                }
+                #>{Item<#=j+1#>}<#
+            } #>";
         }
     }
 <#
