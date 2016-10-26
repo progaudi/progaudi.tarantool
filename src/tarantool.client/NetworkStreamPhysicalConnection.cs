@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Utils;
+using System.Net;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -30,7 +31,7 @@ namespace ProGaudi.Tarantool.Client
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
 #if PROGAUDI_NETCORE
-            await _socket.ConnectAsync(singleNode.Uri.Host, singleNode.Uri.Port);
+            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
 #else
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
 #endif
@@ -57,7 +58,33 @@ namespace ProGaudi.Tarantool.Client
             return await _stream.ReadAsync(buffer, offset, count);
         }
 
-#if !PROGAUDI_NETCORE
+#if PROGAUDI_NETCORE
+        /// https://github.com/mongodb/mongo-csharp-driver/commit/9c2097f349d5096a04ea81b0c9ceb60c7e1acee4
+        private static async Task ConnectAsync(Socket socket, string host, int port)
+        {
+            var resolved = await Dns.GetHostAddressesAsync(host);
+            for (int i = 0; i < resolved.Length; i++)
+            {
+                try
+                {
+                    await socket.ConnectAsync(resolved[i], port);
+                    return;
+                }
+                catch
+                {
+                    // if we have tried all of them and still failed,
+                    // then blow up.
+                    if (i == resolved.Length - 1)
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            // we should never get here...
+            throw new InvalidOperationException("Unabled to resolve endpoint.");
+        }
+#else
         /// Stolen from corefx github
         private static Task ConnectAsync(Socket socket, string host, int port)
         {
