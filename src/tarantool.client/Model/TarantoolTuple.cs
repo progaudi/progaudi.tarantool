@@ -423,8 +423,13 @@ namespace ProGaudi.Tarantool.Client.Model
     }
 
 
-    public class TarantoolTuple
+    public class TarantoolTuple : ITarantoolTuple
     {
+        private TarantoolTuple()
+        {
+        }
+
+        public static TarantoolTuple Empty { get; } = new TarantoolTuple();
 
         public static TarantoolTuple<T1>
             Create<T1>(T1 item1)

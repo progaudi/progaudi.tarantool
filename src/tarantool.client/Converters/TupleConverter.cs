@@ -28,13 +28,18 @@ namespace ProGaudi.Tarantool.Client.Converters
         public TarantoolTuple Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
             const uint expected = 0u;
             if (actual != expected)
             {
                 throw ExceptionHelper.InvalidArrayLength(expected, actual);
             }
 
-            return TarantoolTuple.Create();
+            return TarantoolTuple.Empty;
         }
     }
 
@@ -64,6 +69,12 @@ namespace ProGaudi.Tarantool.Client.Converters
         public TarantoolTuple<T1> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
+
             const uint expected = 1u;
             if (actual != expected)
             {
@@ -105,6 +116,11 @@ namespace ProGaudi.Tarantool.Client.Converters
         public TarantoolTuple<T1, T2> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
             const uint expected = 2u;
             if (actual != expected)
             {
@@ -150,6 +166,12 @@ namespace ProGaudi.Tarantool.Client.Converters
         public TarantoolTuple<T1, T2, T3> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
+
             const uint expected = 3u;
             if (actual != expected)
             {
@@ -199,6 +221,12 @@ namespace ProGaudi.Tarantool.Client.Converters
         public TarantoolTuple<T1, T2, T3, T4> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
+
             const uint expected = 4u;
             if (actual != expected)
             {
@@ -252,6 +280,12 @@ namespace ProGaudi.Tarantool.Client.Converters
         public TarantoolTuple<T1, T2, T3, T4, T5> Read(IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
+
             const uint expected = 5u;
             if (actual != expected)
             {
@@ -310,6 +344,12 @@ namespace ProGaudi.Tarantool.Client.Converters
             IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
+
             const uint expected = 6u;
             if (actual != expected)
             {
@@ -372,6 +412,12 @@ namespace ProGaudi.Tarantool.Client.Converters
             IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
+
             const uint expected = 7u;
             if (actual != expected)
             {
@@ -438,6 +484,12 @@ namespace ProGaudi.Tarantool.Client.Converters
             IMsgPackReader reader)
         {
             var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return null;
+            }
+
+
             const uint expected = 8u;
             if (actual != expected)
             {

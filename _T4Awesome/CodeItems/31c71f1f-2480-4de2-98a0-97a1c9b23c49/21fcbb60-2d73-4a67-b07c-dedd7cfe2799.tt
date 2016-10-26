@@ -55,7 +55,12 @@ for(int i=0;i < maxParametersCount; i++){
 }
 #>
 
-public class TarantoolTuple{
+public class TarantoolTuple : ITarantoolTuple {
+    private TarantoolTuple()
+    {
+    }
+
+    public static TarantoolTuple Empty { get; } = new TarantoolTuple();
 <#
 for(int i=0;i < maxParametersCount; i++){
 #>

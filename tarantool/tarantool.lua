@@ -32,18 +32,6 @@ local function space_TreeIndexMethods()
     space:auto_increment{2, 3}
 end
 
-function return_null()
-    return require('msgpack').NULL
-end
-
-function return_tuple()
-    return { 1, 2 }
-end
-
-function return_scalar()
-    return 1
-end
-
 box.once('init', init)
 box.once('space_TreeIndexMethods', space_TreeIndexMethods)
 
@@ -73,3 +61,19 @@ box.session.on_connect(log_connect)
 box.session.on_disconnect(log_disconnect)
 box.session.on_auth(log_auth)
 box.session.on_auth(log_auth_ok)
+
+function return_null()
+    return require('msgpack').NULL
+end
+
+function return_tuple_with_null()
+    return { require('msgpack').NULL }
+end
+
+function return_tuple()
+    return { 1, 2 }
+end
+
+function return_scalar()
+    return 1
+end
