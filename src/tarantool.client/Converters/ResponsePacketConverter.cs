@@ -27,8 +27,6 @@ namespace ProGaudi.Tarantool.Client.Converters
 
         public DataResponse<T> Read(IMsgPackReader reader)
         {
-            var data = default(T);
-
             var length = reader.ReadMapLength();
             if (length != 1u)
             {
@@ -41,7 +39,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                 throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data);
             }
 
-            data = _dataConverter.Read(reader);
+            var data = _dataConverter.Read(reader);
 
             return new DataResponse<T>(data);
         }
