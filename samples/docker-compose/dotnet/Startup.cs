@@ -1,15 +1,10 @@
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-using Tarantool.Client;
-using Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client;
 
 namespace dotnet
 {
@@ -19,8 +14,8 @@ namespace dotnet
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -33,7 +28,7 @@ namespace dotnet
             // Add framework services.
             services.AddMvc();
 
-            var box = CreateConnectedBox().GetAwaiter().GetResult();
+            var box = Box.Connect("operator:123123@tarantool1:3301").GetAwaiter().GetResult();
             services.AddSingleton(box);
         }
 
@@ -50,24 +45,9 @@ namespace dotnet
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    "default",
+                    "{controller=Home}/{action=Index}/{id?}");
             });
-        }
-
-        private async Task<Box> CreateConnectedBox()
-        {
-            var addresses = await Dns.GetHostAddressesAsync("tarantool1");
-            var box = new Box(new ConnectionOptions
-            {
-                EndPoint = new IPEndPoint(addresses.First(x => x.AddressFamily == AddressFamily.InterNetwork), 3301),
-                GuestMode = false,
-                UserName = "operator",
-                Password = "123123"
-            });
-            await box.Connect();
-
-            return box;
         }
     }
 }

@@ -23,7 +23,7 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
 
-    "Tarantool.CSharp": "0.2.0"
+    "Tarantool.CSharp": "0.3.0"
   },
 
   "tools": {
