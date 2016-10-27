@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Utils;
+
+#if PROGAUDI_NETCORE
 using System.Net;
+#endif
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -30,11 +33,7 @@ namespace ProGaudi.Tarantool.Client
             var singleNode = options.ConnectionOptions.Nodes.Single();
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-#if PROGAUDI_NETCORE
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
-#else
-            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
-#endif
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
