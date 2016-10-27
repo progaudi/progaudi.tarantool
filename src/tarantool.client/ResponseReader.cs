@@ -9,6 +9,7 @@ using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -142,22 +143,8 @@ namespace ProGaudi.Tarantool.Client
 
             if (tcs == null)
             {
-                if (_clientOptions.LogWriter == null)
-                    return;
-
-                var builder = new StringBuilder("Warning: can't match request via requestId from response. Response:");
-                var length = 80/3;
-                for (var i = 0; i < result.Length; i++)
-                {
-                    if (i%length == 0)
-                        builder.AppendLine().Append("   ");
-                    else
-                        builder.Append(" ");
-
-                    builder.AppendFormat("{0:X2}", result[i]);
-                }
-
-                _clientOptions.LogWriter?.WriteLine(builder.ToString());
+                if (_clientOptions.LogWriter != null)
+                    LogUnMatchedResponse(result, _clientOptions.LogWriter);
                 return;
             }
 
@@ -171,6 +158,23 @@ namespace ProGaudi.Tarantool.Client
                 _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
                 tcs.SetResult(resultStream);
             }
+        }
+
+        private static void LogUnMatchedResponse(byte[] result, [NotNull]ILog logWriter)
+        {
+            var builder = new StringBuilder("Warning: can't match request via requestId from response. Response:");
+            var length = 80/3;
+            for (var i = 0; i < result.Length; i++)
+            {
+                if (i%length == 0)
+                    builder.AppendLine().Append("   ");
+                else
+                    builder.Append(" ");
+
+                builder.AppendFormat("{0:X2}", result[i]);
+            }
+
+            logWriter.WriteLine(builder.ToString());
         }
 
         private byte[] TryParseResponse()
