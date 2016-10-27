@@ -105,6 +105,16 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         }
 
         [Fact]
+        public async Task return_array_should_not_throw()
+        {
+            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            {
+                var result = await tarantoolClient.Call<TarantoolTuple<string[]>>("return_array");
+                result.Data[0].Item1.ShouldBe(new[] {"abc", "def"});
+            }
+        }
+
+        [Fact]
         public async Task return_int_should_not_throw()
         {
             using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
