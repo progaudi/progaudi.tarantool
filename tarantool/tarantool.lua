@@ -75,6 +75,12 @@ function return_tuple()
     return { 1, 2 }
 end
 
+
+function return_array()
+    log.info('return_array called')
+    return {{ "abc", "def" }}
+end
+
 function return_scalar()
     log.info('return_scalar called')
     return 1
