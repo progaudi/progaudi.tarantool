@@ -16,6 +16,7 @@ services:
   - docker
 
 before_script:
+  - .travis/$TRAVIS_OS_NAME/init.sh
   - dotnet restore
   - docker -v
   - docker-compose down
@@ -28,4 +29,4 @@ before_script:
 script:
   - dotnet build -f netcoreapp1.0 src/tarantool.client
   - dotnet test tests/tarantool.client.tests
-  - curl --fail http://localhost:5000
+  - curl -o /dev/null --fail http://localhost:5000
