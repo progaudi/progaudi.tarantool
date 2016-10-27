@@ -66,6 +66,15 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         }
 
         [Fact]
+        public async Task return_nothing_v1_6_should_not_throw()
+        {
+            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            {
+                Should.NotThrow(async () => await tarantoolClient.Call_1_6("return_nothing"));
+            }
+        }
+
+        [Fact]
         public async Task return_null_should_not_throw()
         {
             using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
@@ -102,6 +111,15 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
             {
                 var result = await tarantoolClient.Call<int>("return_scalar");
                 result.Data.ShouldBe(new[] { 1 });
+            }
+        }
+
+        [Fact]
+        public async Task return_nothing_should_not_throw()
+        {
+            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            {
+                Should.NotThrow(async () => await tarantoolClient.Call("return_nothing"));
             }
         }
     }

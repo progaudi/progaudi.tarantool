@@ -82,6 +82,11 @@ namespace ProGaudi.Tarantool.Client
             return new Schema(_logicalConnection);
         }
 
+        public async Task Call_1_6(string functionName)
+        {
+            await Call_1_6<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty);
+        }
+
         public Task<DataResponse<TResponse[]>> Call_1_6<TResponse>(string functionName)
             where TResponse : ITarantoolTuple
         {
@@ -94,6 +99,11 @@ namespace ProGaudi.Tarantool.Client
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters, false);
             return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
+        }
+
+        public async Task Call(string functionName)
+        {
+            await Call<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty);
         }
 
         public Task<DataResponse<TResponse[]>> Call<TResponse>(string functionName)
