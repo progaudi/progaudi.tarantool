@@ -82,7 +82,7 @@ namespace ProGaudi.Tarantool.Client
         public async Task<TTuple> Min<TTuple>()
            where TTuple : ITarantoolTuple
         {
-            return await Min<TTuple, TarantoolTuple>(TarantoolTuple.Create());
+            return await Min<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
         }
 
         public async Task<TTuple> Min<TTuple, TKey>(TKey key)
@@ -104,7 +104,7 @@ namespace ProGaudi.Tarantool.Client
         public async Task<TTuple> Max<TTuple>()
             where TTuple : ITarantoolTuple
         {
-            return await Max<TTuple, TarantoolTuple>(TarantoolTuple.Create());
+            return await Max<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
         }
 
         public async Task<TTuple> Max<TTuple, TKey>(TKey key = null)

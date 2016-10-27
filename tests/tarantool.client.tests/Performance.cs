@@ -17,31 +17,32 @@ namespace ProGaudi.Tarantool.Client.Tests
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            var tarantoolClient = new Client.Box(new ClientOptions("127.0.0.1:3301", logWriter));
-
-            tarantoolClient.Connect().GetAwaiter().GetResult();
-
-            var schema = tarantoolClient.GetSchema();
-
-            var space = schema.GetSpace(spaceName).GetAwaiter().GetResult();
-
-            var index = space.GetIndex("primary").GetAwaiter().GetResult();
-            var startTime = DateTime.Now;
-
-            logWriter.WriteLine("Before start thread");
-
-            var tasks = new Task[threadsCount];
-            for (uint i = 0; i < threadsCount; i++)
+            using (var tarantoolClient = new Client.Box(new ClientOptions("127.0.0.1:3301", logWriter)))
             {
-                var client = new TestClient(index, i);
-                tasks[i] = Task.Factory.StartNew(client.Start);
+                tarantoolClient.Connect().GetAwaiter().GetResult();
+
+                var schema = tarantoolClient.GetSchema();
+
+                var space = schema.GetSpace(spaceName).GetAwaiter().GetResult();
+
+                var index = space.GetIndex("primary").GetAwaiter().GetResult();
+                var startTime = DateTime.Now;
+
+                logWriter.WriteLine("Before start thread");
+
+                var tasks = new Task[threadsCount];
+                for (uint i = 0; i < threadsCount; i++)
+                {
+                    var client = new TestClient(index, i);
+                    tasks[i] = Task.Factory.StartNew(client.Start);
+                }
+
+                Task.WaitAll(tasks);
+
+                var endTime = DateTime.Now;
+
+                logWriter.WriteLine($"Time taken:{(endTime - startTime).TotalMilliseconds} ms");
             }
-
-            Task.WaitAll(tasks);
-
-            var endTime = DateTime.Now;
-
-            logWriter.WriteLine($"Time taken:{(endTime - startTime).TotalMilliseconds} ms");
         }
     }
 

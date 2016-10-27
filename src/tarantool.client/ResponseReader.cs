@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -8,6 +9,7 @@ using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -25,7 +27,7 @@ namespace ProGaudi.Tarantool.Client
 
         private int _parsingOffset;
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         public ResponseReader(ILogicalConnection logicalConnection, ClientOptions clientOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
@@ -139,6 +141,13 @@ namespace ProGaudi.Tarantool.Client
             var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
             var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId, resultStream);
 
+            if (tcs == null)
+            {
+                if (_clientOptions.LogWriter != null)
+                    LogUnMatchedResponse(result, _clientOptions.LogWriter);
+                return;
+            }
+
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
                 var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _clientOptions.MsgPackContext);
@@ -149,6 +158,23 @@ namespace ProGaudi.Tarantool.Client
                 _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
                 tcs.SetResult(resultStream);
             }
+        }
+
+        private static void LogUnMatchedResponse(byte[] result, [NotNull]ILog logWriter)
+        {
+            var builder = new StringBuilder("Warning: can't match request via requestId from response. Response:");
+            var length = 80/3;
+            for (var i = 0; i < result.Length; i++)
+            {
+                if (i%length == 0)
+                    builder.AppendLine().Append("   ");
+                else
+                    builder.Append(" ");
+
+                builder.AppendFormat("{0:X2}", result[i]);
+            }
+
+            logWriter.WriteLine(builder.ToString());
         }
 
         private byte[] TryParseResponse()

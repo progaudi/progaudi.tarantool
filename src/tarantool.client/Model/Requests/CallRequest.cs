@@ -5,8 +5,11 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
     public class CallRequest<T> : IRequest
         where T : ITarantoolTuple
     {
-        public CallRequest(string functionName, T tuple)
+        private readonly bool _use17;
+
+        public CallRequest(string functionName, T tuple, bool use17 = true)
         {
+            _use17 = use17;
             FunctionName = functionName;
             Tuple = tuple;
         }
@@ -15,6 +18,6 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
 
         public T Tuple { get; }
 
-        public CommandCode Code => CommandCode.Call;
+        public CommandCode Code => _use17 ? CommandCode.Call : CommandCode.OldCall;
     }
 }

@@ -12,17 +12,18 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
 {
     public class Upsert_Should
     {
-        [Fact]
+        [Fact(Skip = "Bug in tarantool: https://github.com/tarantool/tarantool/issues/1867")]
         public async Task throw_expection_on_space_with_secondary_index()
         {
             const string spaceName = "primary_and_secondary_index";
-            var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301");
+            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            {
+                var schema = tarantoolClient.GetSchema();
 
-            var schema = tarantoolClient.GetSchema();
+                var space = await schema.GetSpace(spaceName);
 
-            var space = await schema.GetSpace(spaceName);
-
-            await space.Upsert(TarantoolTuple.Create(5), new UpdateOperation[] { UpdateOperation.CreateAddition(1, 2) }).ShouldThrowAsync<ArgumentException>();
+                await space.Upsert(TarantoolTuple.Create(5), new UpdateOperation[] {UpdateOperation.CreateAddition(1, 2)}).ShouldThrowAsync<ArgumentException>();
+            }
         }
     }
 }

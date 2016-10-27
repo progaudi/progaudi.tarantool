@@ -8,10 +8,11 @@
         Replace = 0x03,
         Update = 0x04,
         Delete = 0x05,
-        Call = 0x06,
+        OldCall = 0x06,
         Auth = 0x07,
         Eval = 0x08,
         Upsert = 0x09,
+        Call = 0x0A,
 
         //Admin command codes
         Ping = 0x40,
