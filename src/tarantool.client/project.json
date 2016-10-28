@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0",
+    "version": "0.3.1",
     "name": "Tarantool.CSharp",
     "description": "tarantool-client low-level client Library",
     "authors": [
@@ -15,7 +15,8 @@
         "licenseUrl": "https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE"
     },
     "frameworks": {
-        "net461": {},
+        "net460": {},
+        "net461": {}, 
         "netcoreapp1.0": {
             "buildOptions": {
                 "define": [
@@ -32,7 +33,7 @@
     },
     "dependencies": {
         "Shouldly": "2.8.2",
-        "MsgPack.Light": "1.0.0"
+        "MsgPack.Light": "1.0.1"
     },
     "tooling": {
         "defaultNamespace": "ProGaudi.Tarantool.Client"
