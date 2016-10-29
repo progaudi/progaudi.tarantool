@@ -3,5 +3,5 @@
 echo 'Mac init script'
 brew tap caskroom/cask
 brew cask install docker
-docker -v || echo 'docker failed'
-find /usr/local/Caskroom/docker/
+find /usr/local/Caskroom/docker
+ls /usr/local/Caskroom/docker/1.12.0.9996/Applications
