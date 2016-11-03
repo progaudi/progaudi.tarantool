@@ -18,6 +18,6 @@ namespace ProGaudi.Tarantool.Client
 
         TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream);
 
-        IReadOnlyList<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources();
+        IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources();
     }
 }

@@ -34,7 +34,7 @@ namespace ProGaudi.Tarantool.Client
             _physicalConnection = physicalConnection;
             _logicalConnection = logicalConnection;
             _clientOptions = clientOptions;
-            _buffer = new byte[clientOptions.ConnectionOptions.ReceiveBufferSize];
+            _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
         }
 
         public void BeginReading()
@@ -43,7 +43,7 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
 
-            var readingTask = _physicalConnection.Read(_buffer, _readingOffset, freeBufferSpace);
+            var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
             readingTask.ContinueWith(EndReading);
         }
 

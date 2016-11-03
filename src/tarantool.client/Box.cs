@@ -34,7 +34,7 @@ namespace ProGaudi.Tarantool.Client
             await _physicalConnection.Connect(_clientOptions);
 
             var greetingsResponseBytes = new byte[128];
-            var readCount = await _physicalConnection.Read(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
             if (readCount != greetingsResponseBytes.Length)
             {
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
@@ -82,15 +82,15 @@ namespace ProGaudi.Tarantool.Client
             return new Schema(_logicalConnection);
         }
 
-        public Task Call_1_6(string functionName)
+        public async Task Call_1_6(string functionName)
         {
-            return Call_1_6<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty);
+            await Call_1_6<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty);
         }
 
-        public Task Call_1_6<TTuple>(string functionName, TTuple parameters)
+        public async Task Call_1_6<TTuple>(string functionName, TTuple parameters)
             where TTuple : ITarantoolTuple
         {
-            return _logicalConnection.SendRequestWithEmptyResponse(new CallRequest<TTuple>(functionName, parameters, false));
+            await Call_1_6<TTuple, TarantoolTuple>(functionName, parameters);
         }
 
         public Task<DataResponse<TResponse[]>> Call_1_6<TResponse>(string functionName)
@@ -99,23 +99,23 @@ namespace ProGaudi.Tarantool.Client
             return Call_1_6<TarantoolTuple, TResponse>(functionName, TarantoolTuple.Empty);
         }
 
-        public Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters)
+        public async Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters)
             where TTuple : ITarantoolTuple
             where TResponse : ITarantoolTuple
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters, false);
-            return _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
+            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
         }
 
-        public Task Call(string functionName)
+        public async Task Call(string functionName)
         {
-            return Call(functionName, TarantoolTuple.Empty);
+            await Call<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty);
         }
 
-        public Task Call<TTuple>(string functionName, TTuple parameters)
+        public async Task Call<TTuple>(string functionName, TTuple parameters)
             where TTuple : ITarantoolTuple
         {
-            return _logicalConnection.SendRequestWithEmptyResponse(new CallRequest<TTuple>(functionName, parameters));
+            await Call<TTuple, TarantoolTuple>(functionName, parameters);
         }
 
         public Task<DataResponse<TResponse[]>> Call<TResponse>(string functionName)
@@ -123,18 +123,18 @@ namespace ProGaudi.Tarantool.Client
             return Call<TarantoolTuple, TResponse>(functionName, TarantoolTuple.Empty);
         }
 
-        public Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
+        public async Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
             where TTuple : ITarantoolTuple
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters);
-            return _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
+            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
         }
 
-        public Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
+        public async Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
            where TTuple : ITarantoolTuple
         {
             var evalRequest = new EvalRequest<TTuple>(expression, parameters);
-            return _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);
+            return await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);
         }
 
         public Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression)

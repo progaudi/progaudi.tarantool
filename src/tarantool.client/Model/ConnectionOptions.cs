@@ -30,10 +30,9 @@ namespace ProGaudi.Tarantool.Client.Model
             }
         }
 
-        public int ReceiveBufferSize { get; set; } = 8192;
-        public int SendBufferSize { get; set; } = 8192;
-        public int SendTimeout { get; set; } = -1;
-        public int ReceiveTimeout { get; set; } = -1;
+        public int ReadStreamBufferSize { get; set; } = 4096;
+        public int WriteNetworkTimeout { get; set; } = -1;
+        public int ReadNetworkTimeout { get; set; } = -1;
         public List<TarantoolNode> Nodes { get; set; } = new List<TarantoolNode>();
     }
 }
