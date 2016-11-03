@@ -17,21 +17,21 @@ namespace ProGaudi.Tarantool.Client
 
         StorageEngine Engine { get; }
 
-        IReadOnlyCollection<Index> Indices { get; }
+        IReadOnlyCollection<IIndex> Indices { get; }
 
         IReadOnlyCollection<SpaceField> Fields { get; }
 
         ILogicalConnection LogicalConnection { get; }
 
-        Task CreateIndex();
+        Task<IIndex> CreateIndex();
 
         Task Drop();
 
         Task Rename(string newName);
 
-        Task<Index> GetIndex(string indexName);
+        Task<IIndex> GetIndex(string indexName);
 
-        Task<Index> GetIndex(uint indexId);
+        Task<IIndex> GetIndex(uint indexId);
 
         Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
             where TTuple : ITarantoolTuple;

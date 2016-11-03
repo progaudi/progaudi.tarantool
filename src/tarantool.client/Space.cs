@@ -24,7 +24,7 @@ namespace ProGaudi.Tarantool.Client
 
         public ILogicalConnection LogicalConnection { get; set; }
 
-        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<Index> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
+        public Space(uint id, uint fieldCount, string name, IReadOnlyCollection<IIndex> indices, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
         {
             Id = id;
             FieldCount = fieldCount;
@@ -42,11 +42,11 @@ namespace ProGaudi.Tarantool.Client
 
         public StorageEngine Engine { get; }
 
-        public IReadOnlyCollection<Index> Indices { get; }
+        public IReadOnlyCollection<IIndex> Indices { get; }
 
         public IReadOnlyCollection<SpaceField> Fields { get; }
 
-        public Task CreateIndex()
+        public Task<IIndex> CreateIndex()
         {
             throw new NotImplementedException();
         }
@@ -61,7 +61,7 @@ namespace ProGaudi.Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<Index> GetIndex(string indexName)
+        public async Task<IIndex> GetIndex(string indexName)
         {
             var selectIndexRequest = new SelectRequest<TarantoolTuple<uint, string>>(VIndex, IndexByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexName));
 
@@ -79,7 +79,7 @@ namespace ProGaudi.Tarantool.Client
             return result;
         }
 
-        public async Task<Index> GetIndex(uint indexId)
+        public async Task<IIndex> GetIndex(uint indexId)
         {
             var selectIndexRequest = new SelectRequest<TarantoolTuple<uint, uint>>(VIndex, IndexById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(Id, indexId));
 
