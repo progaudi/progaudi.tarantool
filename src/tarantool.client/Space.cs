@@ -12,7 +12,7 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
-    public class Space
+    public class Space : ISpace
     {
         private const int VIndex = 0x121;
 
@@ -46,17 +46,17 @@ namespace ProGaudi.Tarantool.Client
 
         public IReadOnlyCollection<SpaceField> Fields { get; }
 
-        public void CreateIndex()
+        public Task CreateIndex()
         {
             throw new NotImplementedException();
         }
 
-        public void Drop()
+        public Task Drop()
         {
             throw new NotImplementedException();
         }
 
-        public void Rename(string newName)
+        public Task Rename(string newName)
         {
             throw new NotImplementedException();
         }
@@ -158,13 +158,13 @@ namespace ProGaudi.Tarantool.Client
             return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
         }
 
-        public uint Count<TKey>(TKey key)
+        public Task<uint> Count<TKey>(TKey key)
            where TKey : ITarantoolTuple
         {
             throw new NotImplementedException();
         }
 
-        public uint Length()
+        public Task<uint> Length()
         {
             throw new NotImplementedException();
         }
@@ -192,7 +192,7 @@ namespace ProGaudi.Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public IEnumerable<KeyValuePair<TKey, TValue>> Pairs<TKey, TValue>()
+        public Task<IEnumerable<KeyValuePair<TKey, TValue>>> Pairs<TKey, TValue>()
         {
             throw new NotImplementedException();
         }

@@ -12,7 +12,7 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
-    public class Index
+    public class Index : IIndex
     {
         public ILogicalConnection LogicalConnection { get; set; }
 
@@ -38,7 +38,7 @@ namespace ProGaudi.Tarantool.Client
 
         public IReadOnlyList<IndexPart> Parts { get; }
 
-        public IEnumerable<TResult> Pairs<TValue, TResult>(TValue value, Iterator iterator)
+        public Task<IEnumerable<TResult>> Pairs<TValue, TResult>(TValue value, Iterator iterator)
             where TResult : ITarantoolTuple
         {
             throw new NotImplementedException();
@@ -168,22 +168,22 @@ namespace ProGaudi.Tarantool.Client
             return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
         }
 
-        public void Alter(IndexCreationOptions options)
+        public Task Alter(IndexCreationOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Drop()
+        public Task Drop()
         {
             throw new NotImplementedException();
         }
 
-        public void Rename(string indexName)
+        public Task Rename(string indexName)
         {
             throw new NotImplementedException();
         }
 
-        public uint BSize()
+        public Task<uint> BSize()
         {
             throw new NotImplementedException();
         }

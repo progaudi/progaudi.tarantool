@@ -9,7 +9,7 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
-    public class Schema
+    public class Schema : ISchema
     {
         private const int VSpace = 0x119;
 
@@ -24,12 +24,12 @@ namespace ProGaudi.Tarantool.Client
             _logicalConnection = logicalConnection;
         }
 
-        public Task<Space> CreateSpaceAsync(string spaceName, SpaceCreationOptions options = null)
+        public Task<ISpace> CreateSpaceAsync(string spaceName, SpaceCreationOptions options = null)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Space> GetSpace(string name)
+        public async Task<ISpace> GetSpace(string name)
         {
             var selectIndexRequest = new SelectRequest<TarantoolTuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(name));
 
@@ -46,7 +46,7 @@ namespace ProGaudi.Tarantool.Client
             return result;
         }
 
-        public async Task<Space> GetSpace(uint id)
+        public async Task<ISpace> GetSpace(uint id)
         {
             var selectIndexRequest = new SelectRequest<TarantoolTuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(id));
 
