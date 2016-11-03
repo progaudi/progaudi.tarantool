@@ -9,7 +9,7 @@ namespace ProGaudi.Tarantool.Client
 {
     public interface IIndex
     {
-        ILogicalConnection LogicalConnection { get; set; }
+        ILogicalConnection LogicalConnection { get; }
 
         uint Id { get; }
 
