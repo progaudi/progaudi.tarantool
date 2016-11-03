@@ -21,7 +21,7 @@ namespace ProGaudi.Tarantool.Client
 
         IReadOnlyCollection<SpaceField> Fields { get; }
 
-        ILogicalConnection LogicalConnection { get; set; }
+        ILogicalConnection LogicalConnection { get; }
 
         Task CreateIndex();
 
