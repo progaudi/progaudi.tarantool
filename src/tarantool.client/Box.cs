@@ -9,7 +9,7 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
-    public class Box : IDisposable, IBox
+    public class Box : IBox
     {
         private readonly ClientOptions _clientOptions;
 
