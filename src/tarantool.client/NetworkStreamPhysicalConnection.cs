@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -32,16 +33,18 @@ namespace ProGaudi.Tarantool.Client
             options.LogWriter?.WriteLine("Starting socket connection...");
             var singleNode = options.ConnectionOptions.Nodes.Single();
 
-            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            _socket = CreateSocket(options);
+
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
 
-        public void Write(byte[] buffer, int offset, int count)
+        public async Task Write(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
-            _stream.Write(buffer, offset, count);
+
+            await _stream.WriteAsync(buffer, offset, count);
         }
 
         public async Task Flush()
@@ -51,10 +54,18 @@ namespace ProGaudi.Tarantool.Client
             await _stream.FlushAsync();
         }
 
-        public async Task<int> ReadAsync(byte[] buffer, int offset, int count)
+        public async Task<int> Read(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
-            return await _stream.ReadAsync(buffer, offset, count);
+
+            var result = await _stream.ReadAsync(buffer, offset, count);
+
+            if (result == 0)
+            {
+                Interlocked.Exchange(ref _stream, null)?.Dispose();
+            }
+
+            return result;
         }
 
 #if PROGAUDI_NETCORE
@@ -98,15 +109,38 @@ namespace ProGaudi.Tarantool.Client
 
         private void CheckConnectionStatus()
         {
-            if (_stream == null)
-            {
-                throw ExceptionHelper.NotConnected();
-            }
-
             if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(NetworkStreamPhysicalConnection));
             }
+
+            if (_stream == null)
+            {
+                throw ExceptionHelper.NotConnected();
+            }
+        }
+
+        private static Socket CreateSocket(ClientOptions options)
+        {
+            var socket = new Socket(SocketType.Stream, ProtocolType.Tcp)
+            {
+                ReceiveTimeout = options.ConnectionOptions.ReceiveTimeout,
+                SendTimeout = options.ConnectionOptions.SendTimeout,
+                ReceiveBufferSize = options.ConnectionOptions.ReceiveBufferSize,
+                SendBufferSize = options.ConnectionOptions.SendBufferSize
+            };
+
+            var size = sizeof(uint);
+            uint on = 1;
+            uint keepAliveInterval = 5000; //Send a packet once every 10 seconds.
+            uint retryInterval = 500; //If no response, resend every second.
+            var inArray = new byte[size * 3];
+            Array.Copy(BitConverter.GetBytes(on), 0, inArray, 0, size);
+            Array.Copy(BitConverter.GetBytes(keepAliveInterval), 0, inArray, size, size);
+            Array.Copy(BitConverter.GetBytes(retryInterval), 0, inArray, size * 2, size);
+            socket.IOControl(IOControlCode.KeepAliveValues, inArray, null);
+
+            return socket;
         }
     }
 }

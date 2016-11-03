@@ -36,16 +36,16 @@ namespace ProGaudi.Tarantool.Client
             _physicalConnection = physicalConnection;
         }
 
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
+        public Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
             where TRequest : IRequest
         {
-            await SendRequestImpl<TRequest, EmptyResponse>(request);
+            return SendRequestImpl<TRequest, EmptyResponse>(request);
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
+        public Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest
         {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
+            return SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
         }
 
         public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
@@ -57,22 +57,7 @@ namespace ProGaudi.Tarantool.Client
                 : null;
         }
 
-        public static byte[] ReadFully(Stream input)
-        {
-            input.Position = 0;
-            var buffer = new byte[16*1024];
-            using (var ms = new MemoryStream())
-            {
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                }
-                return ms.ToArray();
-            }
-        }
-
-        public IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources()
+        public IReadOnlyList<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources()
         {
             var result = _pendingRequests.Values.ToArray();
             _pendingRequests.Clear();
@@ -93,10 +78,10 @@ namespace ProGaudi.Tarantool.Client
             lock (_physicalConnection)
             {
                 _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength);
+                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength).GetAwaiter().GetResult();
 
                 _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
-                _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+                _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length).GetAwaiter().GetResult();
             }
 
             try
