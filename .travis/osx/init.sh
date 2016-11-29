@@ -2,4 +2,5 @@
 
 echo 'Mac init script'
 brew tap caskroom/cask
-brew cask install docker
+sudo brew cask install docker
+which docker
