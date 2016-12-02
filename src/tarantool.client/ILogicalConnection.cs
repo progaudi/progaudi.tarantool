@@ -12,7 +12,7 @@ namespace ProGaudi.Tarantool.Client
 
     public interface ILogicalConnection : IDisposable
     {
-        Func<GreetingsResponse, Task> GreetingFunc { get; set; }
+        Func<GreetingsResponse, Task> _greetingFunc { get; set; }
 
         Task Connect();
         
@@ -21,11 +21,5 @@ namespace ProGaudi.Tarantool.Client
 
         Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest;
-
-        TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream);
-
-        IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources();
-
-        void CancelAllPendingRequests();
     }
 }

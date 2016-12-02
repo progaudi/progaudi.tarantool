@@ -51,7 +51,7 @@ namespace ProGaudi.Tarantool.Client
             BitConverter.GetBytes(keepAliveTime).CopyTo(inOptionValues, size);
             BitConverter.GetBytes(keepAliveInterval).CopyTo(inOptionValues, size * 2);
 
-            this._socket.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
+            _socket.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
         }
 
         public void Write(byte[] buffer, int offset, int count)
@@ -111,18 +111,20 @@ namespace ProGaudi.Tarantool.Client
         }
 #endif
 
+        // TODO: make this working together inside and outside
+
         public bool IsConnected()
         {
             try
             {
-                return !(this._socket.Poll(1, SelectMode.SelectRead) && this._socket.Available == 0);
+                return !(_socket.Poll(1, SelectMode.SelectRead) && _socket.Available == 0);
             }
             catch (SocketException) { return false; }
         }
 
         private void CheckConnectionStatus()
         {
-            var fc2 = this.IsConnected();
+            var fc2 = IsConnected();
 
             if (_stream == null)
             {
