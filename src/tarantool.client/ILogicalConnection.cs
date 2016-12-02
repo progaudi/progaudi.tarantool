@@ -8,8 +8,14 @@ using ProGaudi.Tarantool.Client.Model.Responses;
 
 namespace ProGaudi.Tarantool.Client
 {
-    public interface ILogicalConnection
+    using System;
+
+    public interface ILogicalConnection : IDisposable
     {
+        Func<GreetingsResponse, Task> GreetingFunc { get; set; }
+
+        Task Connect();
+        
         Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
             where TRequest : IRequest;
 

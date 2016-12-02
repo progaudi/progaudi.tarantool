@@ -20,7 +20,11 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly MsgPackContext _msgPackContext;
 
-        private readonly INetworkStreamPhysicalConnection _physicalConnection;
+        private readonly ClientOptions _clientOptions;
+
+        private INetworkStreamPhysicalConnection _physicalConnection;
+
+        private IResponseReader _responseReader;
 
         private long _currentRequestId;
 
@@ -31,11 +35,43 @@ namespace ProGaudi.Tarantool.Client
 
         private bool isFaulted = false;
 
-        public LogicalConnection(ClientOptions options, INetworkStreamPhysicalConnection physicalConnection)
+        public Func<GreetingsResponse, Task> GreetingFunc { get; set; }
+
+        public LogicalConnection(ClientOptions options)
         {
+            _clientOptions = options;
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
-            _physicalConnection = physicalConnection;
+        }
+
+        public void Dispose()
+        {
+            _responseReader?.Dispose();
+            _physicalConnection?.Dispose();
+        }
+
+        public async Task Connect()
+        {
+            _physicalConnection = new NetworkStreamPhysicalConnection();
+            await _physicalConnection.Connect(_clientOptions);
+
+            var greetingsResponseBytes = new byte[128];
+            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            if (readCount != greetingsResponseBytes.Length)
+            {
+                throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
+            }
+
+            var greetings = new GreetingsResponse(greetingsResponseBytes);
+
+            _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
+
+            _responseReader = new ResponseReader(this, _clientOptions, _physicalConnection);
+            _responseReader.BeginReading();
+
+            _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
+
+            await GreetingFunc(greetings);
         }
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
