@@ -28,14 +28,9 @@ namespace ProGaudi.Tarantool.Client
 
         private long _currentRequestId;
 
-        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
-            new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
-
         private readonly ILog _logWriter;
 
-        private bool isFaulted = false;
-
-        public Func<GreetingsResponse, Task> GreetingFunc { get; set; }
+        public Func<GreetingsResponse, Task> _greetingFunc { get; set; }
 
         public LogicalConnection(ClientOptions options)
         {
@@ -66,13 +61,15 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
 
-            _responseReader = new ResponseReader(this, _clientOptions, _physicalConnection);
+            _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
             _responseReader.BeginReading();
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
 
-            await GreetingFunc(greetings);
+            await this._greetingFunc(greetings);
         }
+
+        // TODO: reconnection func here with dropping/disposing old _physicalConnection and _responseReader
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
             where TRequest : IRequest
@@ -84,15 +81,6 @@ namespace ProGaudi.Tarantool.Client
             where TRequest : IRequest
         {
             return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
-        }
-
-        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
-        {
-            TaskCompletionSource<MemoryStream> request;
-
-            return _pendingRequests.TryRemove(requestId, out request)
-                ? request
-                : null;
         }
 
         public static byte[] ReadFully(Stream input)
@@ -110,32 +98,15 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources()
-        {
-            var result = _pendingRequests.Values.ToArray();
-            _pendingRequests.Clear();
-            return result;
-        }
-
-        public void CancelAllPendingRequests()
-        {
-            this.isFaulted = true;
-
-            _logWriter?.WriteLine("Cancelling all pending requests...");
-            var responses = PopAllResponseCompletionSources();
-            foreach (var response in responses)
-            {
-                response.SetException(new InvalidOperationException("Can't read from physical connection."));
-            }
-        }
-
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest
         {
+            // TODO: detect disconnects and reconnect here
+
             var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
 
             var requestId = GetRequestId();
-            var responseTask = GetResponseTask(requestId);
+            var responseTask = _responseReader.GetResponseTask(requestId);
 
             long headerLength;
             var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out headerLength);
@@ -153,7 +124,7 @@ namespace ProGaudi.Tarantool.Client
             }
             catch (Exception ex)
             {
-                CancelAllPendingRequests();
+                _responseReader.FaultedState();
                 _logWriter?.WriteLine($"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
                 throw;
             }
@@ -201,22 +172,6 @@ namespace ProGaudi.Tarantool.Client
         {
             var requestId = Interlocked.Increment(ref _currentRequestId);
             return (RequestId) (ulong) requestId;
-        }
-
-        private Task<MemoryStream> GetResponseTask(RequestId requestId)
-        {
-            if (!this.isFaulted)
-            {
-                throw new InvalidOperationException("Connection is in faulted state");
-            }
-
-            var tcs = new TaskCompletionSource<MemoryStream>();
-            if (!_pendingRequests.TryAdd(requestId, tcs))
-            {
-                throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
-            }
-
-            return tcs.Task;
         }
     }
 }

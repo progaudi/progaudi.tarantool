@@ -20,7 +20,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions = options;
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
-            _logicalConnection = new LogicalConnection(options) { GreetingFunc = this.LoginIfNotGuest };
+            _logicalConnection = new LogicalConnection(options) { _greetingFunc = this.LoginIfNotGuest };
         }
 
         public async Task Connect()
