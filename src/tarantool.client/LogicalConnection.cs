@@ -29,6 +29,8 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly ILog _logWriter;
 
+        private bool isFaulted = false;
+
         public LogicalConnection(ClientOptions options, INetworkStreamPhysicalConnection physicalConnection)
         {
             _msgPackContext = options.MsgPackContext;
@@ -79,6 +81,18 @@ namespace ProGaudi.Tarantool.Client
             return result;
         }
 
+        public void CancelAllPendingRequests()
+        {
+            this.isFaulted = true;
+
+            _logWriter?.WriteLine("Cancelling all pending requests...");
+            var responses = PopAllResponseCompletionSources();
+            foreach (var response in responses)
+            {
+                response.SetException(new InvalidOperationException("Can't read from physical connection."));
+            }
+        }
+
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest
         {
@@ -90,13 +104,22 @@ namespace ProGaudi.Tarantool.Client
             long headerLength;
             var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out headerLength);
 
-            lock (_physicalConnection)
+            try
             {
-                _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength);
+                lock (_physicalConnection)
+                {
+                    _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
+                    _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
 
-                _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
-                _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+                    _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
+                    _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                CancelAllPendingRequests();
+                _logWriter?.WriteLine($"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                throw;
             }
 
             try
@@ -146,6 +169,11 @@ namespace ProGaudi.Tarantool.Client
 
         private Task<MemoryStream> GetResponseTask(RequestId requestId)
         {
+            if (!this.isFaulted)
+            {
+                throw new InvalidOperationException("Connection is in faulted state");
+            }
+
             var tcs = new TaskCompletionSource<MemoryStream>();
             if (!_pendingRequests.TryAdd(requestId, tcs))
             {

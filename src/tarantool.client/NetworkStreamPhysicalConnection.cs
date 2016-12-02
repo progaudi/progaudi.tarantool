@@ -13,6 +13,8 @@ using System.Net;
 
 namespace ProGaudi.Tarantool.Client
 {
+    using System.Runtime.InteropServices;
+
     internal class NetworkStreamPhysicalConnection : INetworkStreamPhysicalConnection
     {
         private Stream _stream;
@@ -34,8 +36,22 @@ namespace ProGaudi.Tarantool.Client
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
+            SetKeepAlive(true, 1000, 100);
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
+        }
+
+        private void SetKeepAlive(bool on, uint keepAliveTime, uint keepAliveInterval)
+        {
+            int size = Marshal.SizeOf(new uint());
+
+            var inOptionValues = new byte[size * 3];
+
+            BitConverter.GetBytes((uint)(on ? 1 : 0)).CopyTo(inOptionValues, 0);
+            BitConverter.GetBytes(keepAliveTime).CopyTo(inOptionValues, size);
+            BitConverter.GetBytes(keepAliveInterval).CopyTo(inOptionValues, size * 2);
+
+            this._socket.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
         }
 
         public void Write(byte[] buffer, int offset, int count)
@@ -47,7 +63,6 @@ namespace ProGaudi.Tarantool.Client
         public async Task Flush()
         {
             CheckConnectionStatus();
-
             await _stream.FlushAsync();
         }
 
@@ -96,8 +111,19 @@ namespace ProGaudi.Tarantool.Client
         }
 #endif
 
+        public bool IsConnected()
+        {
+            try
+            {
+                return !(this._socket.Poll(1, SelectMode.SelectRead) && this._socket.Available == 0);
+            }
+            catch (SocketException) { return false; }
+        }
+
         private void CheckConnectionStatus()
         {
+            var fc2 = this.IsConnected();
+
             if (_stream == null)
             {
                 throw ExceptionHelper.NotConnected();

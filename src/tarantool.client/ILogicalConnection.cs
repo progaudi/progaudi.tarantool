@@ -19,5 +19,7 @@ namespace ProGaudi.Tarantool.Client
         TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream);
 
         IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources();
+
+        void CancelAllPendingRequests();
     }
 }
