@@ -51,31 +51,29 @@ namespace ProGaudi.Tarantool.Client
         {
             if (!_disposed)
             {
-                var readBytesCount = readWork.Result;
-                _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
-
-                if (ProcessReadBytes(readBytesCount))
+                if (readWork.IsCompleted)
                 {
-                    BeginReading();
+                    var readBytesCount = readWork.Result;
+                    _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
+
+                    if (ProcessReadBytes(readBytesCount))
+                    {
+                        BeginReading();
+                    }
+                    else
+                    {
+                        _logicalConnection.CancelAllPendingRequests();
+                    }
                 }
                 else
                 {
-                    CancelAllPendingRequests();
+                    _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
+                    _logicalConnection.CancelAllPendingRequests();
                 }
             }
             else
             {
                 _clientOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
-            }
-        }
-
-        private void CancelAllPendingRequests()
-        {
-            _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
-            var responses = _logicalConnection.PopAllResponseCompletionSources();
-            foreach (var response in responses)
-            {
-                response.SetException(new InvalidOperationException("Can't read from physical connection."));
             }
         }
 
