@@ -8,6 +8,7 @@ namespace ProGaudi.Tarantool.Client
     {
         Task Connect(ClientOptions options);
         Task Flush();
+        bool IsConnected();
         Task<int> ReadAsync(byte[] buffer, int offset, int count);
         void Write(byte[] buffer, int offset, int count);
     }

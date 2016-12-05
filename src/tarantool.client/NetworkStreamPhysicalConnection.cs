@@ -14,6 +14,7 @@ using System.Net;
 namespace ProGaudi.Tarantool.Client
 {
     using System.Runtime.InteropServices;
+    using System.Threading;
 
     internal class NetworkStreamPhysicalConnection : INetworkStreamPhysicalConnection
     {
@@ -26,7 +27,8 @@ namespace ProGaudi.Tarantool.Client
         public void Dispose()
         {
             _disposed = true;
-            _stream?.Dispose();
+            Interlocked.Exchange(ref _stream, null)?.Dispose();
+            Interlocked.Exchange(ref _socket, null)?.Dispose();
         }
 
         public async Task Connect(ClientOptions options)
@@ -111,8 +113,6 @@ namespace ProGaudi.Tarantool.Client
         }
 #endif
 
-        // TODO: make this working together inside and outside
-
         public bool IsConnected()
         {
             try
@@ -124,16 +124,14 @@ namespace ProGaudi.Tarantool.Client
 
         private void CheckConnectionStatus()
         {
-            var fc2 = IsConnected();
-
-            if (_stream == null)
-            {
-                throw ExceptionHelper.NotConnected();
-            }
-
             if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(NetworkStreamPhysicalConnection));
+            }
+
+            if (!IsConnected() || _stream == null)
+            {
+                throw ExceptionHelper.NotConnected();
             }
         }
     }
