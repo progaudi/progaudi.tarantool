@@ -78,7 +78,7 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public void FaultedState()
+        public void SetFaultedState()
         {
             lock (this)
             {
@@ -98,6 +98,8 @@ namespace ProGaudi.Tarantool.Client
                 _pendingRequestsLocal.Clear();
             }
         }
+
+        public bool IsFaultedState => _pendingRequests == null;
 
         public void BeginReading()
         {
@@ -124,13 +126,13 @@ namespace ProGaudi.Tarantool.Client
                     }
                     else
                     {
-                        FaultedState();
+                        this.SetFaultedState();
                     }
                 }
                 else
                 {
                     _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
-                    FaultedState();
+                    this.SetFaultedState();
                 }
             }
             else
@@ -303,7 +305,7 @@ namespace ProGaudi.Tarantool.Client
         public void Dispose()
         {
             _disposed = true;
-            FaultedState();
+            this.SetFaultedState();
         }
     }
 }

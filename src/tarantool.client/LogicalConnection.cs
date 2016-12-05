@@ -70,7 +70,7 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            return _physicalConnection?.IsConnected() != null;
+            return !(this._responseReader?.IsFaultedState == null) && _physicalConnection?.IsConnected() != null;
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
@@ -140,7 +140,7 @@ namespace ProGaudi.Tarantool.Client
             }
             catch (Exception ex)
             {
-                _responseReader.FaultedState();
+                _responseReader.SetFaultedState();
                 _logWriter?.WriteLine($"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
                 throw;
             }
