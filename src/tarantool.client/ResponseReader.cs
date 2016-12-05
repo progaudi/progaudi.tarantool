@@ -128,13 +128,13 @@ namespace ProGaudi.Tarantool.Client
                     }
                     else
                     {
-                        this.SetFaultedState();
+                        SetFaultedState();
                     }
                 }
                 else
                 {
                     _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
-                    this.SetFaultedState();
+                    SetFaultedState();
                 }
             }
             else
