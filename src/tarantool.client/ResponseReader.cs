@@ -48,6 +48,7 @@ namespace ProGaudi.Tarantool.Client
             {
                 if (_pendingRequests == null)
                 {
+                    _clientOptions.LogWriter?.WriteLine($"{nameof(GetResponseTask)}: Already in faulted state...");
                     throw ExceptionHelper.FaultedState();
                 }
 
@@ -67,6 +68,7 @@ namespace ProGaudi.Tarantool.Client
             {
                 if (_pendingRequests == null)
                 {
+                    _clientOptions.LogWriter?.WriteLine($"{nameof(PopResponseCompletionSource)}: Already in faulted state...");
                     throw ExceptionHelper.FaultedState();
                 }
 
@@ -88,7 +90,7 @@ namespace ProGaudi.Tarantool.Client
                     return;
                 }
 
-                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
+                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
 
                 foreach (var response in _pendingRequestsLocal.Values)
                 {
