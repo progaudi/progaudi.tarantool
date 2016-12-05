@@ -49,12 +49,12 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            return _droppableLogicalConnection?.IsConnected() != null;
+            return _droppableLogicalConnection?.IsConnected() ?? false;
         }
 
         private async Task EnsureConnection()
         {
-            if (_connected.WaitOne() && IsConnected())
+            if (_connected.WaitOne(connectionTimeout) && IsConnected())
             {
                 return;
             }

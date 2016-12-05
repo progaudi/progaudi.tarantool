@@ -70,7 +70,7 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            return !(this._responseReader?.IsFaultedState == null) && _physicalConnection?.IsConnected() != null;
+            return !(_responseReader?.IsFaultedState ?? true) && (_physicalConnection?.IsConnected() ?? false);
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
