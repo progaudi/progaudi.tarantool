@@ -1,11 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Model.Responses;
-using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -20,7 +17,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions = options;
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
-            _logicalConnection = new LogicalConnection(options) { _greetingFunc = this.LoginIfNotGuest };
+            _logicalConnection = new LogicalConnectionWrapper(options);
         }
 
         public async Task Connect()
@@ -116,22 +113,6 @@ namespace ProGaudi.Tarantool.Client
         public Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression)
         {
             return Eval<TarantoolTuple, TResponse>(expression, TarantoolTuple.Empty);
-        }
-
-        private async Task LoginIfNotGuest(GreetingsResponse greetings)
-        {
-            var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
-
-            if (string.IsNullOrEmpty(singleNode.Uri.UserName))
-            {
-                _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
-                return;
-            }
-
-            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
-
-            await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
-            _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
     }
 }

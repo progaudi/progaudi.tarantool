@@ -16,15 +16,14 @@ namespace ProGaudi.Tarantool.Client
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
 
     internal class ResponseReader : IResponseReader
     {
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
+        private ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
-
-        private bool _faulted;
 
         private readonly ClientOptions _clientOptions;
 
@@ -45,46 +44,58 @@ namespace ProGaudi.Tarantool.Client
 
         public Task<MemoryStream> GetResponseTask(RequestId requestId)
         {
-            if (!this._faulted)
+            lock (this)
             {
-                throw new InvalidOperationException("Connection is in faulted state");
-            }
+                if (_pendingRequests == null)
+                {
+                    throw ExceptionHelper.FaultedState();
+                }
 
-            var tcs = new TaskCompletionSource<MemoryStream>();
-            if (!_pendingRequests.TryAdd(requestId, tcs))
-            {
-                throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
-            }
+                var tcs = new TaskCompletionSource<MemoryStream>();
+                if (!_pendingRequests.TryAdd(requestId, tcs))
+                {
+                    throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
+                }
 
-            return tcs.Task;
+                return tcs.Task;
+            }
         }
 
         private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
         {
-            TaskCompletionSource<MemoryStream> request;
+            lock (this)
+            {
+                if (_pendingRequests == null)
+                {
+                    throw ExceptionHelper.FaultedState();
+                }
 
-            return _pendingRequests.TryRemove(requestId, out request)
-                ? request
-                : null;
-        }
+                TaskCompletionSource<MemoryStream> request;
 
-        private IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources()
-        {
-            var result = _pendingRequests.Values.ToArray();
-            _pendingRequests.Clear();
-            return result;
+                return _pendingRequests.TryRemove(requestId, out request)
+                    ? request
+                    : null;
+            }
         }
 
         public void FaultedState()
         {
-            this._faulted = true;
-
-            _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
-
-            var responses = PopAllResponseCompletionSources();
-            foreach (var response in responses)
+            lock (this)
             {
-                response.SetException(new InvalidOperationException("Can't read from physical connection."));
+                var _pendingRequestsLocal = Interlocked.Exchange(ref _pendingRequests, null);
+                if (_pendingRequestsLocal == null)
+                {
+                    return;
+                }
+
+                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
+
+                foreach (var response in _pendingRequestsLocal.Values)
+                {
+                    response.SetException(new InvalidOperationException("Can't read from physical connection."));
+                }
+
+                _pendingRequestsLocal.Clear();
             }
         }
 
@@ -292,6 +303,7 @@ namespace ProGaudi.Tarantool.Client
         public void Dispose()
         {
             _disposed = true;
+            FaultedState();
         }
     }
 }

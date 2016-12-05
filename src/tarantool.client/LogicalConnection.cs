@@ -22,27 +22,26 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly ClientOptions _clientOptions;
 
+        private readonly RequestIdCounter _requestIdCounter;
+
         private INetworkStreamPhysicalConnection _physicalConnection;
 
         private IResponseReader _responseReader;
 
-        private long _currentRequestId;
-
         private readonly ILog _logWriter;
 
-        public Func<GreetingsResponse, Task> _greetingFunc { get; set; }
-
-        public LogicalConnection(ClientOptions options)
+        public LogicalConnection(ClientOptions options, RequestIdCounter requestIdCounter)
         {
             _clientOptions = options;
+            _requestIdCounter = requestIdCounter;
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
         }
 
         public void Dispose()
         {
-            _responseReader?.Dispose();
-            _physicalConnection?.Dispose();
+            Interlocked.Exchange(ref _responseReader, null)?.Dispose();
+            Interlocked.Exchange(ref _physicalConnection, null)?.Dispose();
         }
 
         public async Task Connect()
@@ -66,10 +65,29 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
 
-            await this._greetingFunc(greetings);
+            await LoginIfNotGuest(greetings);
         }
 
-        // TODO: reconnection func here with dropping/disposing old _physicalConnection and _responseReader
+        public bool IsConnected()
+        {
+            return _physicalConnection?.IsConnected() != null;
+        }
+
+        private async Task LoginIfNotGuest(GreetingsResponse greetings)
+        {
+            var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
+
+            if (string.IsNullOrEmpty(singleNode.Uri.UserName))
+            {
+                _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
+                return;
+            }
+
+            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
+
+            await SendRequestWithEmptyResponse(authenticateRequest);
+            _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
+        }
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
             where TRequest : IRequest
@@ -101,11 +119,9 @@ namespace ProGaudi.Tarantool.Client
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest
         {
-            // TODO: detect disconnects and reconnect here
-
             var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
 
-            var requestId = GetRequestId();
+            var requestId = _requestIdCounter.GetRequestId();
             var responseTask = _responseReader.GetResponseTask(requestId);
 
             long headerLength;
@@ -166,12 +182,6 @@ namespace ProGaudi.Tarantool.Client
             stream.Seek(0, SeekOrigin.Begin);
             MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
             return packetSizeBuffer;
-        }
-
-        private RequestId GetRequestId()
-        {
-            var requestId = Interlocked.Increment(ref _currentRequestId);
-            return (RequestId) (ulong) requestId;
         }
     }
 }

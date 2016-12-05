@@ -12,10 +12,10 @@ namespace ProGaudi.Tarantool.Client
 
     public interface ILogicalConnection : IDisposable
     {
-        Func<GreetingsResponse, Task> _greetingFunc { get; set; }
-
         Task Connect();
-        
+
+        bool IsConnected();
+
         Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
             where TRequest : IRequest;
 
