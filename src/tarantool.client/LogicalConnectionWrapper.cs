@@ -20,6 +20,8 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly ManualResetEvent _connected = new ManualResetEvent(false);
 
+        private readonly AutoResetEvent _reconnectAvailable = new AutoResetEvent(true);
+
         private const int connectionTimeout = 1000;
 
         public LogicalConnectionWrapper(ClientOptions options)
@@ -61,7 +63,7 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionWrapper)}: Connection lost, wait for reconnect...");
 
-            if (!Monitor.TryEnter(this, connectionTimeout))
+            if (!_reconnectAvailable.WaitOne(connectionTimeout))
             {
                 _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionWrapper)}: Failed to get lock for reconnect");
                 throw ExceptionHelper.NotConnected();
@@ -78,7 +80,7 @@ namespace ProGaudi.Tarantool.Client
             }
             finally
             {
-                Monitor.Exit(this);
+                _reconnectAvailable.Set();
             }
         }
 
