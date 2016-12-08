@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 using ProGaudi.MsgPack.Light;
@@ -24,11 +21,13 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly RequestIdCounter _requestIdCounter;
 
-        private INetworkStreamPhysicalConnection _physicalConnection;
+        private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private IResponseReader _responseReader;
+        private readonly IResponseReader _responseReader;
 
         private readonly ILog _logWriter;
+
+        private bool _disposed;
 
         public LogicalConnection(ClientOptions options, RequestIdCounter requestIdCounter)
         {
@@ -36,17 +35,29 @@ namespace ProGaudi.Tarantool.Client
             _requestIdCounter = requestIdCounter;
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
+
+            _physicalConnection = new NetworkStreamPhysicalConnection();
+            _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
         }
 
         public void Dispose()
         {
-            Interlocked.Exchange(ref _responseReader, null)?.Dispose();
-            Interlocked.Exchange(ref _physicalConnection, null)?.Dispose();
+            lock (this)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+
+                _responseReader.Dispose();
+                _physicalConnection.Dispose();
+            }
         }
 
         public async Task Connect()
         {
-            _physicalConnection = new NetworkStreamPhysicalConnection();
             await _physicalConnection.Connect(_clientOptions);
 
             var greetingsResponseBytes = new byte[128];
@@ -60,7 +71,6 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
 
-            _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
             _responseReader.BeginReading();
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
@@ -70,7 +80,18 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            return !(_responseReader?.IsFaultedState ?? true) && (_physicalConnection?.IsConnected() ?? false);
+            if (_disposed)
+            {
+                return false;
+            }
+
+            if (!_responseReader.IsConnected() || !_physicalConnection.IsConnected())
+            {
+                Dispose();
+                return false;
+            }
+
+            return true;
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
@@ -119,6 +140,11 @@ namespace ProGaudi.Tarantool.Client
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(LogicalConnection));
+            }
+
             var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
 
             var requestId = _requestIdCounter.GetRequestId();
@@ -129,19 +155,16 @@ namespace ProGaudi.Tarantool.Client
 
             try
             {
-                lock (_physicalConnection)
-                {
-                    _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                    _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+                _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
+                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
 
-                    _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
-                    _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
-                }
+                _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
+                _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
             }
             catch (Exception ex)
             {
-                _responseReader.SetFaultedState();
                 _logWriter?.WriteLine($"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                Dispose();
                 throw;
             }
 

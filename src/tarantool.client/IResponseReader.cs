@@ -13,8 +13,6 @@ namespace ProGaudi.Tarantool.Client
 
         Task<MemoryStream> GetResponseTask(RequestId requestId);
 
-        void SetFaultedState();
-
-        bool IsFaultedState { get; }
+        bool IsConnected();
     }
 }

@@ -41,11 +41,6 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new InvalidOperationException("Can't perform operation. Looks like we are not connected to tarantool. Call 'Connect' method before calling any other operations.");
         }
 
-        public static Exception FaultedState()
-        {
-            return new InvalidOperationException("Connection is in faulted state");
-        }
-
         public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponse errorResponse)
         {
             var detailedMessage = GetDetailedTarantoolMessage(header.Code);
