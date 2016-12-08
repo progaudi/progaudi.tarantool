@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -13,9 +14,6 @@ using System.Net;
 
 namespace ProGaudi.Tarantool.Client
 {
-    using System.Runtime.InteropServices;
-    using System.Threading;
-
     internal class NetworkStreamPhysicalConnection : INetworkStreamPhysicalConnection
     {
         private Stream _stream;
@@ -26,9 +24,18 @@ namespace ProGaudi.Tarantool.Client
 
         public void Dispose()
         {
-            _disposed = true;
-            Interlocked.Exchange(ref _stream, null)?.Dispose();
-            Interlocked.Exchange(ref _socket, null)?.Dispose();
+            lock (this)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+
+                _stream?.Dispose();
+                _socket?.Dispose();
+            }
         }
 
         public async Task Connect(ClientOptions options)

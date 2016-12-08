@@ -1,28 +1,25 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
-using ProGaudi.MsgPack.Light;
+using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace ProGaudi.Tarantool.Client
 {
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-
     internal class ResponseReader : IResponseReader
     {
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
+        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
 
         private readonly ClientOptions _clientOptions;
@@ -46,10 +43,9 @@ namespace ProGaudi.Tarantool.Client
         {
             lock (this)
             {
-                if (_pendingRequests == null)
+                if (_disposed)
                 {
-                    _clientOptions.LogWriter?.WriteLine($"{nameof(GetResponseTask)}: Already in faulted state...");
-                    throw ExceptionHelper.FaultedState();
+                    throw new ObjectDisposedException(nameof(ResponseReader));
                 }
 
                 var tcs = new TaskCompletionSource<MemoryStream>();
@@ -66,10 +62,9 @@ namespace ProGaudi.Tarantool.Client
         {
             lock (this)
             {
-                if (_pendingRequests == null)
+                if (_disposed)
                 {
-                    _clientOptions.LogWriter?.WriteLine($"{nameof(PopResponseCompletionSource)}: Already in faulted state...");
-                    throw ExceptionHelper.FaultedState();
+                    throw new ObjectDisposedException(nameof(ResponseReader));
                 }
 
                 TaskCompletionSource<MemoryStream> request;
@@ -79,29 +74,6 @@ namespace ProGaudi.Tarantool.Client
                     : null;
             }
         }
-
-        public void SetFaultedState()
-        {
-            lock (this)
-            {
-                var _pendingRequestsLocal = Interlocked.Exchange(ref _pendingRequests, null);
-                if (_pendingRequestsLocal == null)
-                {
-                    return;
-                }
-
-                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
-
-                foreach (var response in _pendingRequestsLocal.Values)
-                {
-                    response.SetException(new InvalidOperationException("Can't read from physical connection."));
-                }
-
-                _pendingRequestsLocal.Clear();
-            }
-        }
-
-        public bool IsFaultedState => _pendingRequests == null;
 
         public void BeginReading()
         {
@@ -125,17 +97,12 @@ namespace ProGaudi.Tarantool.Client
                     if (ProcessReadBytes(readBytesCount))
                     {
                         BeginReading();
-                    }
-                    else
-                    {
-                        SetFaultedState();
+                        return;
                     }
                 }
-                else
-                {
-                    _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
-                    SetFaultedState();
-                }
+
+                _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
+                Dispose();
             }
             else
             {
@@ -304,10 +271,31 @@ namespace ProGaudi.Tarantool.Client
             return space;
         }
 
+        public bool IsConnected()
+        {
+            return !_disposed;
+        }
+
         public void Dispose()
         {
-            _disposed = true;
-            this.SetFaultedState();
+            lock (this)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+
+                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
+
+                foreach (var response in _pendingRequests.Values)
+                {
+                    response.SetException(new InvalidOperationException("Can't read from physical connection."));
+                }
+
+                _pendingRequests.Clear();
+            }
         }
     }
 }
