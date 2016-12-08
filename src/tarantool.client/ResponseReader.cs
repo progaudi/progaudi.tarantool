@@ -89,7 +89,7 @@ namespace ProGaudi.Tarantool.Client
         {
             if (!_disposed)
             {
-                if (readWork.IsCompleted)
+                if (readWork.Status == TaskStatus.RanToCompletion)
                 {
                     var readBytesCount = readWork.Result;
                     _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
