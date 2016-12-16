@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions = options;
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
-            _logicalConnection = new LogicalConnectionWrapper(options);
+            _logicalConnection = new LogicalConnectionManager(options);
         }
 
         public async Task Connect()

@@ -24,18 +24,15 @@ namespace ProGaudi.Tarantool.Client
 
         public void Dispose()
         {
-            lock (this)
+            if (_disposed)
             {
-                if (_disposed)
-                {
-                    return;
-                }
-
-                _disposed = true;
-
-                _stream?.Dispose();
-                _socket?.Dispose();
+                return;
             }
+
+            _disposed = true;
+
+            _stream?.Dispose();
+            _socket?.Dispose();
         }
 
         public async Task Connect(ClientOptions options)
@@ -122,6 +119,11 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
+            if (_disposed)
+            {
+                return false;
+            }
+
             try
             {
                 return !(_socket.Poll(1, SelectMode.SelectRead) && _socket.Available == 0);

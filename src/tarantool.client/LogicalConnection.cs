@@ -42,18 +42,15 @@ namespace ProGaudi.Tarantool.Client
 
         public void Dispose()
         {
-            lock (this)
+            if (_disposed)
             {
-                if (_disposed)
-                {
-                    return;
-                }
-
-                _disposed = true;
-
-                _responseReader.Dispose();
-                _physicalConnection.Dispose();
+                return;
             }
+
+            _disposed = true;
+
+            _responseReader.Dispose();
+            _physicalConnection.Dispose();
         }
 
         public async Task Connect()
@@ -87,7 +84,6 @@ namespace ProGaudi.Tarantool.Client
 
             if (!_responseReader.IsConnected() || !_physicalConnection.IsConnected())
             {
-                Dispose();
                 return false;
             }
 
@@ -155,11 +151,14 @@ namespace ProGaudi.Tarantool.Client
 
             try
             {
-                _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+                lock (_physicalConnection)
+                {
+                    _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
+                    _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
 
-                _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
-                _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+                    _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
+                    _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+                }
             }
             catch (Exception ex)
             {

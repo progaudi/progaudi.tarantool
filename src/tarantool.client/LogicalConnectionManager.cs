@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Model.Responses;
 
@@ -10,7 +9,7 @@ namespace ProGaudi.Tarantool.Client
     using ProGaudi.Tarantool.Client.Model;
     using ProGaudi.Tarantool.Client.Utils;
 
-    public class LogicalConnectionWrapper : ILogicalConnection
+    public class LogicalConnectionManager : ILogicalConnection
     {
         private readonly ClientOptions _clientOptions;
 
@@ -24,7 +23,7 @@ namespace ProGaudi.Tarantool.Client
 
         private const int connectionTimeout = 1000;
 
-        public LogicalConnectionWrapper(ClientOptions options)
+        public LogicalConnectionManager(ClientOptions options)
         {
             _clientOptions = options;
         }
@@ -36,7 +35,7 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Connect()
         {
-            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionWrapper)}: Connecting...");
+            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
 
             _connected.Reset();
 
@@ -46,7 +45,7 @@ namespace ProGaudi.Tarantool.Client
 
             _connected.Set();
 
-            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionWrapper)}: Connected...");
+            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
         }
 
         public bool IsConnected()
@@ -61,11 +60,11 @@ namespace ProGaudi.Tarantool.Client
                 return;
             }
 
-            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionWrapper)}: Connection lost, wait for reconnect...");
+            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connection lost, wait for reconnect...");
 
             if (!_reconnectAvailable.WaitOne(connectionTimeout))
             {
-                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionWrapper)}: Failed to get lock for reconnect");
+                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Failed to get lock for reconnect");
                 throw ExceptionHelper.NotConnected();
             }
 
@@ -76,7 +75,7 @@ namespace ProGaudi.Tarantool.Client
                     await Connect();
                 }
 
-                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionWrapper)}: Connection reacquired");
+                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connection reacquired");
             }
             finally
             {
