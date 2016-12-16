@@ -16,7 +16,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_on_space_with_secondary_index()
         {
             const string spaceName = "primary_and_secondary_index";
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 

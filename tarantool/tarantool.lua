@@ -2,7 +2,8 @@ box.cfg
 {
     pid_file = nil,
     background = false,
-    log_level = 5
+    log_level = 5,
+    listen = 3301
 }
 
 local function init()
@@ -21,6 +22,7 @@ local function init()
 
     box.schema.user.create('operator', {password = 'operator', if_not_exists = true })
     box.schema.user.grant('operator','read,write,execute','universe', { if_not_exists = true })
+    box.schema.user.grant('guest','read,write,execute','universe', { if_not_exists = true })
 end
 
 local function space_TreeIndexMethods()

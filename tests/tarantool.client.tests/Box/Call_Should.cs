@@ -16,7 +16,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task call_method()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call_1_6<TarantoolTuple<double>, TarantoolTuple<double>>("math.sqrt", TarantoolTuple.Create(1.3));
 
@@ -29,7 +29,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_null_v1_6_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 await Should.ThrowAsync<ArgumentException>(async () => await tarantoolClient.Call_1_6<TarantoolTuple<string, int>>("return_null"));
             }
@@ -38,7 +38,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_tuple_v1_6_with_null_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call_1_6<TarantoolTuple<string>>("return_tuple_with_null");
                 result.Data.ShouldBe(new[] { TarantoolTuple.Create(default(string)) });
@@ -48,7 +48,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_tuple_v1_6_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call_1_6<TarantoolTuple<int, int>>("return_tuple");
                 result.Data.ShouldBe(new[] {TarantoolTuple.Create(1, 2)});
@@ -58,7 +58,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_int_v1_6_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call_1_6<TarantoolTuple<int>>("return_scalar");
                 result.Data.ShouldBe(new[] { TarantoolTuple.Create(1) });
@@ -68,7 +68,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_nothing_v1_6_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 Should.NotThrow(async () => await tarantoolClient.Call_1_6("return_nothing"));
             }
@@ -77,7 +77,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_null_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call<TarantoolTuple<string, int>>("return_null");
                 result.Data.ShouldBe(new[] { default(TarantoolTuple<string, int>) });
@@ -87,7 +87,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_tuple_with_null_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call<TarantoolTuple<string>>("return_tuple_with_null");
                 result.Data.ShouldBe(new[] { TarantoolTuple.Create(default(string)) });
@@ -97,7 +97,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_tuple_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call<TarantoolTuple<int, int>>("return_tuple");
                 result.Data.ShouldBe(new[] { TarantoolTuple.Create(1, 2) });
@@ -107,7 +107,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_array_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call<TarantoolTuple<string[]>>("return_array");
                 result.Data[0].Item1.ShouldBe(new[] {"abc", "def"});
@@ -117,7 +117,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_int_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var result = await tarantoolClient.Call<int>("return_scalar");
                 result.Data.ShouldBe(new[] { 1 });
@@ -127,7 +127,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task return_nothing_should_not_throw()
         {
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 Should.NotThrow(async () => await tarantoolClient.Call("return_nothing"));
             }
