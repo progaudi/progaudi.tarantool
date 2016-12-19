@@ -42,7 +42,8 @@ namespace ProGaudi.Tarantool.Client
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
-            SetKeepAlive(true, 1000, 100);
+            // unfortunately does not worl under linux
+            // SetKeepAlive(true, 1000, 100);
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
