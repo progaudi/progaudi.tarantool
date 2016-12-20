@@ -27,7 +27,7 @@ namespace ProGaudi.Tarantool.Client
 
         private const int connectionTimeout = 1000;
 
-        private const int connectionPingInterval = 1000;
+        private const int pingInterval = 100;
 
         public LogicalConnectionManager(ClientOptions options)
         {
@@ -42,17 +42,7 @@ namespace ProGaudi.Tarantool.Client
             }
 
             Interlocked.Exchange(ref _droppableLogicalConnection, null)?.Dispose();
-
-            var savedTimer = Interlocked.Exchange(ref _timer, null);
-            if (savedTimer != null)
-            {
-                using (var timerDisposedEvent = new ManualResetEvent(false))
-                {
-                    savedTimer.Dispose(timerDisposedEvent);
-                    // this will guarantee that all callbacks finished
-                    timerDisposedEvent.WaitOne();
-                }
-            }
+            Interlocked.Exchange(ref _timer, null)?.Dispose();
         }
 
         public async Task Connect()
@@ -69,37 +59,36 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
 
-            _timer = new Timer(x => CheckPing(), null, connectionPingInterval, Timeout.Infinite);
+            _timer = new Timer(x => CheckPing(), null, pingInterval, Timeout.Infinite);
         }
 
-        private static readonly PingRequest pingRequest = new PingRequest();
+        private static readonly PingRequest _pingRequest = new PingRequest();
 
         private void CheckPing()
         {
             LogicalConnection savedConnection = _droppableLogicalConnection;
 
-            if (savedConnection == null)
-            {
-                return;
-            }
-
             try
             {
-                Task task = savedConnection.SendRequestWithEmptyResponse(pingRequest);
-                if (!task.Wait(connectionTimeout) || task.Status != TaskStatus.RanToCompletion)
+                if (savedConnection == null || !savedConnection.IsConnected())
                 {
-                    savedConnection.Dispose();
+                    return;
                 }
-            }
-            catch (AggregateException ae)
-            {
-                savedConnection.Dispose();
+
+                using (Task task = savedConnection.SendRequestWithEmptyResponse(_pingRequest))
+                {
+                    if (Task.WaitAny(new[] { task }, connectionTimeout) != 0 || task.Status != TaskStatus.RanToCompletion)
+                    {
+                        _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Ping failed, dropping logical conection...");
+                        savedConnection.Dispose();
+                    }
+                }
             }
             finally
             {
                 if (_disposing == 0)
                 {
-                    _timer?.Change(connectionPingInterval, Timeout.Infinite);
+                    _timer?.Change(pingInterval, Timeout.Infinite);
                 }
             }
         }
