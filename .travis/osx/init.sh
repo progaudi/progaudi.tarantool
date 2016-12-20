@@ -12,3 +12,8 @@ sudo installer -pkg /tmp/dotnet.pkg -target /
 ln -s /usr/local/share/dotnet/dotnet /usr/local/bin/
 
 brew install tarantool --HEAD
+
+dotnet --info
+dotnet restore
+
+tarantool tarantool/tarantool.lua &

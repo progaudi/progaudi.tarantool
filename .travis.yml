@@ -6,31 +6,23 @@ matrix:
       dist: trusty
       sudo: required
       dotnet: 1.0.0-preview4-004233
-      env: BUILD_DOCKER=false   
+      env: BUILD_NAME=linux
     - os: linux # Ubuntu 14.04
       dist: trusty
       sudo: required
-      env: BUILD_DOCKER=true
+      env: BUILD_NAME=docker
     - os: osx # OSX 10.12
       osx_image: xcode7.3.1
-      env: BUILD_DOCKER=false
+      env: BUILD_NAME=osx
 
 services:
   - docker
 
 before_script:
-  - .travis/$TRAVIS_OS_NAME/init.sh
-  - if [[ "$BUILD_DOCKER" == false ]]; then dotnet --info ; fi
-  - if [[ "$BUILD_DOCKER" == false ]]; then dotnet restore ; fi
-  - .travis/$TRAVIS_OS_NAME/run_tnt.sh
+  - .travis/$BUILD_NAME/init.sh
 
 script:
-  - if [[ "$BUILD_DOCKER" == false ]]; then dotnet build -c Release -f netstandard1.4 src/tarantool.client/tarantool.client.csproj ; fi
-  - if [[ "$BUILD_DOCKER" == false ]]; then dotnet build -c Release -f netcoreapp1.0 tests/tarantool.client.tests/tarantool.client.tests.csproj ; fi
-  - if [[ "$BUILD_DOCKER" == false ]]; then dotnet test -c Release tests/tarantool.client.tests/tarantool.client.tests.csproj ; fi
-  - if [[ "$BUILD_DOCKER" == true ]]; then docker-compose -f docker-compose.yml -f docker-compose.tests.yml up -d tarantool ; fi
-  - if [[ "$BUILD_DOCKER" == true ]]; then docker-compose -f docker-compose.yml -f docker-compose.tests.yml up --build tarantool-client ; fi
-  - .travis/$TRAVIS_OS_NAME/test.sh
+  - .travis/$BUILD_NAME/test.sh
 
 after_script:
-  - if [[ "$BUILD_DOCKER" == true ]]; then docker-compose -f docker-compose.yml -f docker-compose.tests.yml down ; fi
+  - .travis/$BUILD_NAME/teardown.sh
