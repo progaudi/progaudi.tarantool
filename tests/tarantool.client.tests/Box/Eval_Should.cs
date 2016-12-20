@@ -8,7 +8,7 @@ using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Tests.Box
 {
-    public class Eval_Should
+    public class Eval_Should : TestBase
     {
         [Fact]
         public async Task evaluate_expression()

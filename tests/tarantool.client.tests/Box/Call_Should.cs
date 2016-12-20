@@ -11,7 +11,7 @@ using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Tests.Box
 {
-    public class Call_Should
+    public class Call_Should : TestBase
     {
         [Fact]
         public async Task call_method()

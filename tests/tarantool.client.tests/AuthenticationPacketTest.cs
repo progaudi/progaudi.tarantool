@@ -13,7 +13,7 @@ using ProGaudi.Tarantool.Client.Model.Responses;
 
 namespace ProGaudi.Tarantool.Client.Tests
 {
-    public class AuthenticationPacketTest
+    public class AuthenticationPacketTest : TestBase
     {
         [Fact]
         public void CreatAuthPacket()

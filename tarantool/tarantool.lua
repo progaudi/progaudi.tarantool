@@ -5,8 +5,7 @@ box.cfg
     log_level = 5,
     listen = 3301
 }
-
-local function init()
+local function create_spaces_and_indecies()
     space1 = box.schema.space.create('primary_only_index', { if_not_exists = true })
     space1:create_index('primary', {type='hash', parts={1, 'unsigned'}, if_not_exists = true})
 
@@ -16,6 +15,10 @@ local function init()
     space2 = box.schema.space.create('primary_and_secondary_index', { if_not_exists = true })
     space2:create_index('hashIndex', {type='hash', parts={1, 'unsigned'}, if_not_exists = true })
     space2:create_index('treeIndex', {type='tree', parts={1, 'unsigned'}, if_not_exists = true })
+end
+
+local function init()
+    create_spaces_and_indecies()
 
     box.schema.user.create('notSetPassword', { if_not_exists = true })
     box.schema.user.create('emptyPassword', { password = '', if_not_exists = true })
@@ -93,11 +96,22 @@ function return_nothing()
     log.info('return_nothing called')
 end
 
+local truncate_space = function(name)
+	local space = box.space[name]
+	if space then
+		log.info("Truncating space %s...", name)
+		space:truncate()
+		log.info("Space %s trancated.", name)
+	else
+		log.warning("There is no space %s", name)
+	end
+end
+
 function clear_data()
     log.info('clearing data...')
 
-    box.space.primary_only_index:truncate()
-    box.space.performance:truncate()
-    box.space.primary_and_secondary_index:truncate()
-    box.space.space_TreeIndexMethods:truncate()
+    truncate_space('primary_only_index')
+    truncate_space('performance')
+    truncate_space('primary_and_secondary_index')
+    truncate_space('space_TreeIndexMethods')
 end

@@ -8,7 +8,7 @@ using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Tests
 {
-    public class Performance
+    public class Performance : TestBase
     {
         [Fact(Skip = "Added just for profiling")]
         public void MultithreadTest()

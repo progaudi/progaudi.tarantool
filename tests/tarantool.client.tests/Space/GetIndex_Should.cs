@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace ProGaudi.Tarantool.Client.Tests.Space
 {
-    public class GetIndex_Should
+    public class GetIndex_Should : TestBase
     {
         [Fact]
         public async Task throw_expection_for_non_existing_space_by_name()

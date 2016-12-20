@@ -9,11 +9,13 @@ using Shouldly;
 
 namespace ProGaudi.Tarantool.Client.Tests.Index
 {
-    public class Smoke : ProGaudi.Tarantool.Client.Tests.TestBase
+    public class Smoke : TestBase
     {
         [Fact]
         public async Task HashIndexMethods()
         {
+            await ClearDataAsync();
+
             const string spaceName = "primary_only_index";
             using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
@@ -29,7 +31,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
                 }
                 catch (ArgumentException)
                 {
-                    await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string>>(TarantoolTuple.Create(2));
+                    await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string, double>>(TarantoolTuple.Create(2));
                     await index.Insert(TarantoolTuple.Create(2, "Music"));
                 }
 
@@ -50,6 +52,8 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         [Fact]
         public async Task TreeIndexMethods()
         {
+            await ClearDataAsync();
+
             const string spaceName = "space_TreeIndexMethods";
             using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
@@ -60,9 +64,9 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
                 var index = await space.GetIndex("treeIndex");
 
                 var min2 = await index.Min<TarantoolTuple<int, int, int>, TarantoolTuple<int>>(TarantoolTuple.Create(3));
-                min2.ShouldBe(TarantoolTuple.Create(3, 2, 3));
+                min2.ShouldBe(null);
                 var min = await index.Min<TarantoolTuple<int, string, double>>();
-                min.ShouldBe(TarantoolTuple.Create(1, "asdf", 10.1));
+                min.ShouldBe(null);
 
                 var max = await index.Max<TarantoolTuple<int, int, int>>();
                 max.ShouldBe(min2);

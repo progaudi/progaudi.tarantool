@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace ProGaudi.Tarantool.Client.Tests.Box
 {
-    public class Connect_Should
+    public class Connect_Should : TestBase
     {
         [Fact]
         public async Task connect_if_UserName_is_null_and_GuestMode()
