@@ -9,7 +9,7 @@ using Shouldly;
 
 namespace ProGaudi.Tarantool.Client.Tests.Index
 {
-    public class Smoke
+    public class Smoke : ProGaudi.Tarantool.Client.Tests.TestBase
     {
         [Fact]
         public async Task HashIndexMethods()
@@ -29,7 +29,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
                 }
                 catch (ArgumentException)
                 {
-                    await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string, double>>(TarantoolTuple.Create(2));
+                    await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string>>(TarantoolTuple.Create(2));
                     await index.Insert(TarantoolTuple.Create(2, "Music"));
                 }
 

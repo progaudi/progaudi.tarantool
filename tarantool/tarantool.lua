@@ -23,6 +23,7 @@ local function init()
     box.schema.user.create('operator', {password = 'operator', if_not_exists = true })
     box.schema.user.grant('operator','read,write,execute','universe', { if_not_exists = true })
     box.schema.user.grant('guest','read,write,execute','universe', { if_not_exists = true })
+    box.schema.user.passwd('admin', 'adminPassword')
 end
 
 local function space_TreeIndexMethods()
@@ -90,4 +91,13 @@ end
 
 function return_nothing()
     log.info('return_nothing called')
+end
+
+function clear_data()
+    log.info('clearing data...')
+
+    box.space.primary_only_index:truncate()
+    box.space.performance:truncate()
+    box.space.primary_and_secondary_index:truncate()
+    box.space.space_TreeIndexMethods:truncate()
 end
