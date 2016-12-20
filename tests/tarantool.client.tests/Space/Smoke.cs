@@ -13,7 +13,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
 {
     public class Smoke
     {
-        [Fact(Skip = "Disabled to debug travis build")]
+        [Fact]
         public async Task Test()
         {
             const string spaceName = "primary_only_index";

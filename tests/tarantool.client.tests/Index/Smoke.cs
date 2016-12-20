@@ -11,7 +11,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
 {
     public class Smoke
     {
-        [Fact(Skip = "Disabled to debug travis build")]
+        [Fact]
         public async Task HashIndexMethods()
         {
             const string spaceName = "primary_only_index";
@@ -39,10 +39,11 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
                     TarantoolTuple.Create(2),
                     new UpdateOperation[] {UpdateOperation.CreateAddition(100, 2)});
 
-                await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] {UpdateOperation.CreateAssign(2, 2)});
-                await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] {UpdateOperation.CreateAddition(-2, 2)});
+                await index.Upsert(TarantoolTuple.Create(6u), new UpdateOperation[] {UpdateOperation.CreateAssign(2, 2)});
+                await index.Upsert(TarantoolTuple.Create(6u), new UpdateOperation[] {UpdateOperation.CreateAddition(-2, 2)});
 
-                await index.Select<TarantoolTuple<uint>, TarantoolTuple<int, int, int>>(TarantoolTuple.Create(5u));
+                var result = await index.Select<TarantoolTuple<uint>, TarantoolTuple<uint>>(TarantoolTuple.Create(6u));
+                result.Data[0].Item1.ShouldBe(6u);
             }
         }
 
