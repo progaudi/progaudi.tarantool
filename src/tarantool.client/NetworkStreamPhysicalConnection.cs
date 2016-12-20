@@ -42,23 +42,9 @@ namespace ProGaudi.Tarantool.Client
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
-            // unfortunately does not worl under linux
-            // SetKeepAlive(true, 1000, 100);
+
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
-        }
-
-        private void SetKeepAlive(bool on, uint keepAliveTime, uint keepAliveInterval)
-        {
-            int size = Marshal.SizeOf(new uint());
-
-            var inOptionValues = new byte[size * 3];
-
-            BitConverter.GetBytes((uint)(on ? 1 : 0)).CopyTo(inOptionValues, 0);
-            BitConverter.GetBytes(keepAliveTime).CopyTo(inOptionValues, size);
-            BitConverter.GetBytes(keepAliveInterval).CopyTo(inOptionValues, size * 2);
-
-            _socket.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
         }
 
         public void Write(byte[] buffer, int offset, int count)
@@ -125,11 +111,7 @@ namespace ProGaudi.Tarantool.Client
                 return false;
             }
 
-            try
-            {
-                return !(_socket.Poll(1, SelectMode.SelectRead) && _socket.Available == 0);
-            }
-            catch (SocketException) { return false; }
+            return true;
         }
 
         private void CheckConnectionStatus()
