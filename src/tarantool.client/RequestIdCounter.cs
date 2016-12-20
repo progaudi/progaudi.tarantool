@@ -1,9 +1,9 @@
-﻿namespace ProGaudi.Tarantool.Client
+﻿using System.Threading;
+
+using ProGaudi.Tarantool.Client.Model;
+
+namespace ProGaudi.Tarantool.Client
 {
-    using System.Threading;
-
-    using ProGaudi.Tarantool.Client.Model;
-
     public class RequestIdCounter
     {
         private long _currentRequestId;
