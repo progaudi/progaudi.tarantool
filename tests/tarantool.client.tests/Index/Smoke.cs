@@ -9,13 +9,15 @@ using Shouldly;
 
 namespace ProGaudi.Tarantool.Client.Tests.Index
 {
-    public class Smoke
+    public class Smoke : TestBase
     {
         [Fact]
         public async Task HashIndexMethods()
         {
+            await ClearDataAsync();
+
             const string spaceName = "primary_only_index";
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 
@@ -39,18 +41,21 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
                     TarantoolTuple.Create(2),
                     new UpdateOperation[] {UpdateOperation.CreateAddition(100, 2)});
 
-                await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] {UpdateOperation.CreateAssign(2, 2)});
-                await index.Upsert(TarantoolTuple.Create(5u), new UpdateOperation[] {UpdateOperation.CreateAddition(-2, 2)});
+                await index.Upsert(TarantoolTuple.Create(6u), new UpdateOperation[] {UpdateOperation.CreateAssign(2, 2)});
+                await index.Upsert(TarantoolTuple.Create(6u), new UpdateOperation[] {UpdateOperation.CreateAddition(-2, 2)});
 
-                await index.Select<TarantoolTuple<uint>, TarantoolTuple<int, int, int>>(TarantoolTuple.Create(5u));
+                var result = await index.Select<TarantoolTuple<uint>, TarantoolTuple<uint>>(TarantoolTuple.Create(6u));
+                result.Data[0].Item1.ShouldBe(6u);
             }
         }
 
         [Fact]
         public async Task TreeIndexMethods()
         {
+            await ClearDataAsync();
+
             const string spaceName = "space_TreeIndexMethods";
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 
@@ -59,9 +64,9 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
                 var index = await space.GetIndex("treeIndex");
 
                 var min2 = await index.Min<TarantoolTuple<int, int, int>, TarantoolTuple<int>>(TarantoolTuple.Create(3));
-                min2.ShouldBe(TarantoolTuple.Create(3, 2, 3));
+                min2.ShouldBe(null);
                 var min = await index.Min<TarantoolTuple<int, string, double>>();
-                min.ShouldBe(TarantoolTuple.Create(1, "asdf", 10.1));
+                min.ShouldBe(null);
 
                 var max = await index.Max<TarantoolTuple<int, int, int>>();
                 max.ShouldBe(min2);

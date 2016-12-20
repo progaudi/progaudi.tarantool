@@ -5,20 +5,24 @@ matrix:
     - os: linux # Ubuntu 14.04
       dist: trusty
       sudo: required
-      dotnet: 1.0.0-preview2-003131
-    - os: osx # OSX 10.11
-      osx_image: xcode7.2
-      dotnet: 1.0.0-preview2-003131
-
-sudo: required
+      dotnet: 1.0.0-preview4-004233
+      env: BUILD_NAME=linux
+    - os: linux # Ubuntu 14.04
+      dist: trusty
+      sudo: required
+      env: BUILD_NAME=docker
+    - os: osx # OSX 10.12
+      osx_image: xcode7.3.1
+      env: BUILD_NAME=osx
 
 services:
   - docker
 
 before_script:
-  - .travis/$TRAVIS_OS_NAME/init.sh
-  - dotnet restore
+  - .travis/$BUILD_NAME/init.sh
 
 script:
-  - dotnet build -f netcoreapp1.0 src/tarantool.client
-  - .travis/$TRAVIS_OS_NAME/test.sh
+  - .travis/$BUILD_NAME/test.sh
+
+after_script:
+  - .travis/$BUILD_NAME/teardown.sh

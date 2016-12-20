@@ -8,7 +8,7 @@ using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Tests
 {
-    public class Performance
+    public class Performance : TestBase
     {
         [Fact(Skip = "Added just for profiling")]
         public void MultithreadTest()
@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Tests
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            using (var tarantoolClient = new Client.Box(new ClientOptions("127.0.0.1:3301", logWriter)))
+            using (var tarantoolClient = new Client.Box(new ClientOptions(ReplicationSourceFactory.GetReplicationSource(), logWriter)))
             {
                 tarantoolClient.Connect().GetAwaiter().GetResult();
 

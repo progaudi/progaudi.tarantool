@@ -8,3 +8,7 @@ services:
       - $PWD/tarantool:/usr/local/share/tarantool
     ports:
       - "3301:3301"
+    environment:
+        TARANTOOL_USER_NAME: admin
+        TARANTOOL_USER_PASSWORD: adminPassword
+        TARANTOOL_SLAB_ALLOC_ARENA: 0.1

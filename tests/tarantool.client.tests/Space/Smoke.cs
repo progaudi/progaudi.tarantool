@@ -11,13 +11,13 @@ using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
 namespace ProGaudi.Tarantool.Client.Tests.Space
 {
-    public class Smoke
+    public class Smoke : TestBase
     {
         [Fact]
         public async Task Test()
         {
             const string spaceName = "primary_only_index";
-            using (var tarantoolClient = await Client.Box.Connect("127.0.0.1:3301"))
+            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 
@@ -25,16 +25,16 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
 
                 try
                 {
-                    await space.Insert(TarantoolTuple.Create(2, "Music"));
+                    await space.Insert(TarantoolTuple.Create(2u, "Music"));
                 }
                 catch (ArgumentException)
                 {
                     await space.Delete<TarantoolTuple<uint>, TarantoolTuple<uint, string, double>>(TarantoolTuple.Create(2u));
-                    await space.Insert(TarantoolTuple.Create(2, "Music"));
+                    await space.Insert(TarantoolTuple.Create(2u, "Music"));
                 }
 
                 await space.Select<TarantoolTuple<uint>, TarantoolTuple<uint, string>>(TarantoolTuple.Create(2u));
-                await space.Replace(TarantoolTuple.Create(2, "Car", -24.5));
+                await space.Replace(TarantoolTuple.Create(2u, "Car", -24.5));
                 await space.Update<TarantoolTuple<uint>, TarantoolTuple<uint, string, double>>(
                     TarantoolTuple.Create(2u),
                     new UpdateOperation[] {UpdateOperation.CreateAddition(1, 2)});
@@ -50,7 +50,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string spaceName = "primary_only_index";
 
-            using (var tarantoolClient = new Client.Box(new ClientOptions("127.0.0.1:3301", new StringWriterLog())))
+            using (var tarantoolClient = new Client.Box(new ClientOptions(ReplicationSourceFactory.GetReplicationSource(), new StringWriterLog())))
             {
                 await tarantoolClient.Connect();
 
