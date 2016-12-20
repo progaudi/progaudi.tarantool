@@ -30,7 +30,7 @@ namespace ProGaudi.Tarantool.Client.Utils
             {
 
                 //Look for our string value associated with fields in this enum
-                foreach (var fi in type.GetFields())
+                foreach (var fi in type.GetRuntimeFields())
                 {
                     //Check for our custom attribute
                     var attrs = fi.GetCustomAttributes(typeof(StringValueAttribute), false) as StringValueAttribute[];

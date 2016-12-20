@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
+  <PropertyGroup>
+    <Version>0.5.0</Version>
+    <Description>arantool-client low-level client Library</Description>
+    <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
+    <WarningsAsErrors>true</WarningsAsErrors>
+
+    <AssemblyName>tarantool.csharp.tests</AssemblyName>
+    <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
+    <Product>Tarantool.CSharp</Product>
+    <Copyright>Copyright © 2016</Copyright>
+
+    <PackageTags>tarantool;csharp</PackageTags>
+    <PackageProjectUrl>https://github.com/progaudi/tarantool-csharp</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE</PackageLicenseUrl>
+
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NETStandard.Library" Version="1.6" />
+	<PackageReference Include="MsgPack.Light" Version="1.1.0" />
+	<PackageReference Include="System.Net.NameResolution" Version="4.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">
+    <DefineConstants>$(DefineConstants);PROGAUDI_NETCORE</DefineConstants>
+  </PropertyGroup>
+</Project>
