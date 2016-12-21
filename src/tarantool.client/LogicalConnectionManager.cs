@@ -75,13 +75,11 @@ namespace ProGaudi.Tarantool.Client
                     return;
                 }
 
-                using (Task task = savedConnection.SendRequestWithEmptyResponse(_pingRequest))
+                Task task = savedConnection.SendRequestWithEmptyResponse(_pingRequest);
+                if (Task.WaitAny(new[] { task }, connectionTimeout) != 0 || task.Status != TaskStatus.RanToCompletion)
                 {
-                    if (Task.WaitAny(new[] { task }, connectionTimeout) != 0 || task.Status != TaskStatus.RanToCompletion)
-                    {
-                        _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Ping failed, dropping logical conection...");
-                        savedConnection.Dispose();
-                    }
+                    _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Ping failed, dropping logical conection...");
+                    savedConnection.Dispose();
                 }
             }
             finally

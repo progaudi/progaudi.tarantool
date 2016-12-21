@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ProGaudi.MsgPack.Light;
@@ -22,6 +23,8 @@ namespace ProGaudi.Tarantool.Client
         private readonly RequestIdCounter _requestIdCounter;
 
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
+
+        private readonly ReaderWriterLockSlim _physicalConnectionLock = new ReaderWriterLockSlim();
 
         private readonly IResponseReader _responseReader;
 
@@ -151,13 +154,19 @@ namespace ProGaudi.Tarantool.Client
 
             try
             {
-                lock (_physicalConnection)
+                try
                 {
+                    _physicalConnectionLock.EnterWriteLock();
+
                     _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
                     _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
 
                     _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
                     _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+                }
+                finally
+                {
+                    _physicalConnectionLock.ExitWriteLock();
                 }
             }
             catch (Exception ex)

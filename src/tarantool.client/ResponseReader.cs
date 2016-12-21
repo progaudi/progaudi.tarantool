@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using JetBrains.Annotations;
@@ -19,8 +20,10 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
-            new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+        private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
+            new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+
+        private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
         private readonly ClientOptions _clientOptions;
 
@@ -41,37 +44,53 @@ namespace ProGaudi.Tarantool.Client
 
         public Task<MemoryStream> GetResponseTask(RequestId requestId)
         {
-            lock (this)
+            try
             {
+                _pendingRequestsLock.EnterWriteLock();
+
                 if (_disposed)
                 {
                     throw new ObjectDisposedException(nameof(ResponseReader));
                 }
 
-                var tcs = new TaskCompletionSource<MemoryStream>();
-                if (!_pendingRequests.TryAdd(requestId, tcs))
+                if (_pendingRequests.ContainsKey(requestId))
                 {
                     throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
                 }
 
+                var tcs = new TaskCompletionSource<MemoryStream>();
+                _pendingRequests.Add(requestId, tcs);
+
                 return tcs.Task;
+            }
+            finally
+            {
+                _pendingRequestsLock.ExitWriteLock();
             }
         }
 
         private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
         {
-            lock (this)
+            try
             {
+                _pendingRequestsLock.EnterWriteLock();
+
                 if (_disposed)
                 {
                     throw new ObjectDisposedException(nameof(ResponseReader));
                 }
 
                 TaskCompletionSource<MemoryStream> request;
+                if (_pendingRequests.TryGetValue(requestId, out request))
+                {
+                    _pendingRequests.Remove(requestId);
+                }
 
-                return _pendingRequests.TryRemove(requestId, out request)
-                    ? request
-                    : null;
+                return request;
+            }
+            finally
+            {
+                _pendingRequestsLock.ExitWriteLock();
             }
         }
 
@@ -278,14 +297,16 @@ namespace ProGaudi.Tarantool.Client
 
         public void Dispose()
         {
-            lock (this)
+            if (_disposed)
             {
-                if (_disposed)
-                {
-                    return;
-                }
+                return;
+            }
 
-                _disposed = true;
+            _disposed = true;
+
+            try
+            {
+                _pendingRequestsLock.EnterWriteLock();
 
                 _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
 
@@ -295,6 +316,10 @@ namespace ProGaudi.Tarantool.Client
                 }
 
                 _pendingRequests.Clear();
+            }
+            finally
+            {
+                _pendingRequestsLock.ExitWriteLock();
             }
         }
     }
