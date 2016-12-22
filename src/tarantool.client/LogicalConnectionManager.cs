@@ -29,7 +29,7 @@ namespace ProGaudi.Tarantool.Client
 
         private const int _pingTimerInterval = 100;
 
-        private const int _pingCheckInterval = 1000;
+        private int _pingCheckInterval = 1000;
 
         private DateTimeOffset _nextPingTime = DateTimeOffset.MinValue;
 
@@ -62,6 +62,11 @@ namespace ProGaudi.Tarantool.Client
             _connected.Set();
 
             _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
+
+            if (_clientOptions.ConnectionOptions.PingCheckInterval > 0)
+            {
+                _pingCheckInterval = _clientOptions.ConnectionOptions.PingCheckInterval;
+            }
 
             _timer = new Timer(x => CheckPing(), null, _pingTimerInterval, Timeout.Infinite);
         }
