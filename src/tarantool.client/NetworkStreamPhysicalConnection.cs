@@ -106,7 +106,7 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            if (_disposed)
+            if (_disposed || _stream == null)
             {
                 return false;
             }
@@ -121,7 +121,7 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(NetworkStreamPhysicalConnection));
             }
 
-            if (!IsConnected() || _stream == null)
+            if (!IsConnected())
             {
                 throw ExceptionHelper.NotConnected();
             }
