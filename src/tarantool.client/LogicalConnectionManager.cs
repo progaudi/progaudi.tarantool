@@ -17,9 +17,7 @@ namespace ProGaudi.Tarantool.Client
 
         private LogicalConnection _droppableLogicalConnection;
 
-        private readonly ManualResetEvent _connected = new ManualResetEvent(false);
-
-        private readonly AutoResetEvent _reconnectAvailable = new AutoResetEvent(true);
+        private readonly ReaderWriterLockSlim _connectionLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         private Timer _timer;
 
@@ -29,13 +27,18 @@ namespace ProGaudi.Tarantool.Client
 
         private const int _pingTimerInterval = 100;
 
-        private int _pingCheckInterval = 1000;
+        private readonly int _pingCheckInterval = 1000;
 
         private DateTimeOffset _nextPingTime = DateTimeOffset.MinValue;
 
         public LogicalConnectionManager(ClientOptions options)
         {
             _clientOptions = options;
+
+            if (_clientOptions.ConnectionOptions.PingCheckInterval >= 0)
+            {
+                _pingCheckInterval = _clientOptions.ConnectionOptions.PingCheckInterval;
+            }
         }
 
         public void Dispose()
@@ -51,26 +54,43 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Connect()
         {
-            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
-
-            _connected.Reset();
-
-            var _newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
-            await _newConnection.Connect();
-            Interlocked.Exchange(ref _droppableLogicalConnection, _newConnection)?.Dispose();
-
-            _connected.Set();
-
-            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
-
-            if (_clientOptions.ConnectionOptions.PingCheckInterval >= 0)
+            if (!_connectionLock.TryEnterUpgradeableReadLock(_connectionTimeout))
             {
-                _pingCheckInterval = _clientOptions.ConnectionOptions.PingCheckInterval;
+                throw ExceptionHelper.NotConnected();
             }
 
-            if (_pingCheckInterval > 0)
+            try
             {
-                _timer = new Timer(x => CheckPing(), null, _pingTimerInterval, Timeout.Infinite);
+                if (this.IsConnected())
+                {
+                    return;
+                }
+
+                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
+
+                _connectionLock.EnterWriteLock();
+
+                try
+                {
+                    var _newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
+                    await _newConnection.Connect();
+                    Interlocked.Exchange(ref _droppableLogicalConnection, _newConnection)?.Dispose();
+
+                    _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
+
+                    if (_pingCheckInterval > 0 && _timer == null)
+                    {
+                        //_timer = new Timer(x => CheckPing(), null, _pingTimerInterval, Timeout.Infinite);
+                    }
+                }
+                finally
+                {
+                    _connectionLock.ExitWriteLock();
+                }
+            }
+            finally
+            {
+                _connectionLock.ExitUpgradeableReadLock();
             }
         }
 
@@ -80,19 +100,12 @@ namespace ProGaudi.Tarantool.Client
         {
             try
             {
-                LogicalConnection savedConnection = _droppableLogicalConnection;
-
-                if (_nextPingTime > DateTimeOffset.UtcNow || savedConnection == null || !savedConnection.IsConnected())
+                if (_nextPingTime > DateTimeOffset.UtcNow)
                 {
                     return;
                 }
 
-                Task task = savedConnection.SendRequestWithEmptyResponse(_pingRequest);
-                if (Task.WaitAny(task) != 0 || task.Status != TaskStatus.RanToCompletion)
-                {
-                    _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Ping failed, dropping logical conection...");
-                    savedConnection.Dispose();
-                }
+                Task.WaitAny(SendRequestWithEmptyResponse(_pingRequest));
             }
             finally
             {
@@ -105,36 +118,18 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            return _droppableLogicalConnection?.IsConnected() ?? false;
-        }
-
-        private async Task EnsureConnection()
-        {
-            if (_connected.WaitOne(_connectionTimeout) && IsConnected())
+            if (!_connectionLock.TryEnterReadLock(_connectionTimeout))
             {
-                return;
-            }
-
-            _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connection lost, wait for reconnect...");
-
-            if (!_reconnectAvailable.WaitOne(_connectionTimeout))
-            {
-                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Failed to get lock for reconnect");
-                throw ExceptionHelper.NotConnected();
+                return false;
             }
 
             try
             {
-                if (!IsConnected())
-                {
-                    await Connect();
-                }
-
-                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connection reacquired");
+                return _droppableLogicalConnection?.IsConnected() ?? false;
             }
             finally
             {
-                _reconnectAvailable.Set();
+                _connectionLock.ExitReadLock();
             }
         }
 
@@ -148,7 +143,7 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequest
         {
-            await EnsureConnection();
+            await Connect();
 
             var result = await _droppableLogicalConnection.SendRequest<TRequest, TResponse>(request);
 
@@ -159,7 +154,7 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request) where TRequest : IRequest
         {
-            await EnsureConnection();
+            await Connect();
 
             await _droppableLogicalConnection.SendRequestWithEmptyResponse(request);
 
