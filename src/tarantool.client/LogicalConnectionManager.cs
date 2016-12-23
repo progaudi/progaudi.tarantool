@@ -63,12 +63,15 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
 
-            if (_clientOptions.ConnectionOptions.PingCheckInterval > 0)
+            if (_clientOptions.ConnectionOptions.PingCheckInterval >= 0)
             {
                 _pingCheckInterval = _clientOptions.ConnectionOptions.PingCheckInterval;
             }
 
-            _timer = new Timer(x => CheckPing(), null, _pingTimerInterval, Timeout.Infinite);
+            if (_pingCheckInterval > 0)
+            {
+                _timer = new Timer(x => CheckPing(), null, _pingTimerInterval, Timeout.Infinite);
+            }
         }
 
         private static readonly PingRequest _pingRequest = new PingRequest();
@@ -135,19 +138,32 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
+        private void ScheduleNextPing()
+        {
+            if (_pingCheckInterval > 0)
+            {
+                _nextPingTime = DateTimeOffset.UtcNow.AddMilliseconds(_pingCheckInterval);
+            }
+        }
+
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequest
         {
             await EnsureConnection();
+
             var result = await _droppableLogicalConnection.SendRequest<TRequest, TResponse>(request);
-            _nextPingTime = DateTimeOffset.UtcNow.AddMilliseconds(_pingCheckInterval);
+
+            ScheduleNextPing();
+
             return result;
         }
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request) where TRequest : IRequest
         {
             await EnsureConnection();
+
             await _droppableLogicalConnection.SendRequestWithEmptyResponse(request);
-            _nextPingTime = DateTimeOffset.UtcNow.AddMilliseconds(_pingCheckInterval);
+
+            ScheduleNextPing();
         }
     }
 }

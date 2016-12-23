@@ -154,26 +154,24 @@ namespace ProGaudi.Tarantool.Client
 
             try
             {
-                try
-                {
-                    _physicalConnectionLock.EnterWriteLock();
+                _physicalConnectionLock.EnterWriteLock();
 
-                    _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                    _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
+                _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
+                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
 
-                    _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
-                    _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
-                }
-                finally
-                {
-                    _physicalConnectionLock.ExitWriteLock();
-                }
+                _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
+                _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
             }
             catch (Exception ex)
             {
-                _logWriter?.WriteLine($"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                _logWriter?.WriteLine(
+                    $"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
                 Dispose();
                 throw;
+            }
+            finally
+            {
+                _physicalConnectionLock.ExitWriteLock();
             }
 
             try

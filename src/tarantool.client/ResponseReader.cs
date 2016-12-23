@@ -106,27 +106,26 @@ namespace ProGaudi.Tarantool.Client
 
         private void EndReading(Task<int> readWork)
         {
-            if (!_disposed)
-            {
-                if (readWork.Status == TaskStatus.RanToCompletion)
-                {
-                    var readBytesCount = readWork.Result;
-                    _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
-
-                    if (ProcessReadBytes(readBytesCount))
-                    {
-                        BeginReading();
-                        return;
-                    }
-                }
-
-                _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
-                Dispose();
-            }
-            else
+            if (_disposed)
             {
                 _clientOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
+                return;
             }
+
+            if (readWork.Status == TaskStatus.RanToCompletion)
+            {
+                var readBytesCount = readWork.Result;
+                _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
+
+                if (ProcessReadBytes(readBytesCount))
+                {
+                    BeginReading();
+                    return;
+                }
+            }
+
+            _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
+            Dispose();
         }
 
         private bool ProcessReadBytes(int readBytesCount)
