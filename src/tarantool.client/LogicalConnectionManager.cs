@@ -17,7 +17,11 @@ namespace ProGaudi.Tarantool.Client
 
         private LogicalConnection _droppableLogicalConnection;
 
-        private readonly ReaderWriterLockSlim _connectionLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private readonly ManualResetEvent _connected = new ManualResetEvent(false);
+
+        private readonly AutoResetEvent _reconnectAvailable = new AutoResetEvent(true);
+
+        private bool _onceConnected;
 
         private Timer _timer;
 
@@ -54,43 +58,45 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Connect()
         {
-            if (!_connectionLock.TryEnterUpgradeableReadLock(_connectionTimeout))
+            if (IsConnectedInternal())
+            {
+                return;
+            }
+
+            if (!_reconnectAvailable.WaitOne(_connectionTimeout))
             {
                 throw ExceptionHelper.NotConnected();
             }
 
             try
             {
-                if (this.IsConnected())
+                if (IsConnectedInternal())
                 {
                     return;
                 }
 
+                _connected.Reset();
+
+                _onceConnected = true;
+
                 _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
 
-                _connectionLock.EnterWriteLock();
+                var _newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
+                await _newConnection.Connect();
+                Interlocked.Exchange(ref _droppableLogicalConnection, _newConnection)?.Dispose();
 
-                try
+                _connected.Set();
+
+                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
+
+                if (_pingCheckInterval > 0 && _timer == null)
                 {
-                    var _newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
-                    await _newConnection.Connect();
-                    Interlocked.Exchange(ref _droppableLogicalConnection, _newConnection)?.Dispose();
-
-                    _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connected...");
-
-                    if (_pingCheckInterval > 0 && _timer == null)
-                    {
-                        //_timer = new Timer(x => CheckPing(), null, _pingTimerInterval, Timeout.Infinite);
-                    }
-                }
-                finally
-                {
-                    _connectionLock.ExitWriteLock();
+                    _timer = new Timer(x => CheckPing(), null, _pingTimerInterval, Timeout.Infinite);
                 }
             }
             finally
             {
-                _connectionLock.ExitUpgradeableReadLock();
+                _reconnectAvailable.Set();
             }
         }
 
@@ -118,19 +124,17 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            if (!_connectionLock.TryEnterReadLock(_connectionTimeout))
+            if (!_onceConnected || !_connected.WaitOne(_connectionTimeout))
             {
                 return false;
             }
 
-            try
-            {
-                return _droppableLogicalConnection?.IsConnected() ?? false;
-            }
-            finally
-            {
-                _connectionLock.ExitReadLock();
-            }
+            return IsConnectedInternal();
+        }
+
+        private bool IsConnectedInternal()
+        {
+            return _droppableLogicalConnection?.IsConnected() ?? false;
         }
 
         private void ScheduleNextPing()
