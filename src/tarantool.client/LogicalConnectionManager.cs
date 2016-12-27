@@ -17,11 +17,9 @@ namespace ProGaudi.Tarantool.Client
 
         private LogicalConnection _droppableLogicalConnection;
 
-        private readonly ManualResetEvent _connected = new ManualResetEvent(false);
+        private readonly ManualResetEvent _connected = new ManualResetEvent(true);
 
         private readonly AutoResetEvent _reconnectAvailable = new AutoResetEvent(true);
-
-        private bool _onceConnected;
 
         private Timer _timer;
 
@@ -77,8 +75,6 @@ namespace ProGaudi.Tarantool.Client
 
                 _connected.Reset();
 
-                _onceConnected = true;
-
                 _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
 
                 var _newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
@@ -111,7 +107,10 @@ namespace ProGaudi.Tarantool.Client
                     return;
                 }
 
-                Task.WaitAny(SendRequestWithEmptyResponse(_pingRequest));
+                // suppress for fire and forget behaviour
+#pragma warning disable 4014
+                SendRequestWithEmptyResponse(_pingRequest);
+#pragma warning restore 4014
             }
             finally
             {
@@ -124,7 +123,7 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            if (!_onceConnected || !_connected.WaitOne(_connectionTimeout))
+            if (!_connected.WaitOne(_connectionTimeout))
             {
                 return false;
             }
