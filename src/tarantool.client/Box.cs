@@ -1,11 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Model.Responses;
-using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -15,40 +12,17 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly ILogicalConnection _logicalConnection;
 
-        private readonly IResponseReader _responseReader;
-
-        private readonly INetworkStreamPhysicalConnection _physicalConnection;
-
         public Box(ClientOptions options)
         {
             _clientOptions = options;
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
-            _physicalConnection = new NetworkStreamPhysicalConnection();
-            _logicalConnection = new LogicalConnection(options, _physicalConnection);
-            _responseReader = new ResponseReader(_logicalConnection, options, _physicalConnection);
+            _logicalConnection = new LogicalConnectionManager(options);
         }
 
         public async Task Connect()
         {
-            await _physicalConnection.Connect(_clientOptions);
-
-            var greetingsResponseBytes = new byte[128];
-            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
-            if (readCount != greetingsResponseBytes.Length)
-            {
-                throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
-            }
-
-            var greetings = new GreetingsResponse(greetingsResponseBytes);
-
-            _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
-
-            _responseReader.BeginReading();
-
-            _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
-
-            await LoginIfNotGuest(greetings);
+            await _logicalConnection.Connect();
         }
 
         public static async Task<Box> Connect(string replicationSource)
@@ -72,8 +46,7 @@ namespace ProGaudi.Tarantool.Client
         {
             _clientOptions.LogWriter?.WriteLine("Box is disposing...");
             _clientOptions.LogWriter?.Flush();
-            _responseReader.Dispose();
-            _physicalConnection.Dispose();
+            _logicalConnection.Dispose();
         }
 
         public ISchema GetSchema()
@@ -140,22 +113,6 @@ namespace ProGaudi.Tarantool.Client
         public Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression)
         {
             return Eval<TarantoolTuple, TResponse>(expression, TarantoolTuple.Empty);
-        }
-
-        private async Task LoginIfNotGuest(GreetingsResponse greetings)
-        {
-            var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
-
-            if (string.IsNullOrEmpty(singleNode.Uri.UserName))
-            {
-                _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
-                return;
-            }
-
-            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
-
-            await _logicalConnection.SendRequestWithEmptyResponse(authenticateRequest);
-            _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -23,8 +24,15 @@ namespace ProGaudi.Tarantool.Client
 
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             _disposed = true;
+
             _stream?.Dispose();
+            _socket?.Dispose();
         }
 
         public async Task Connect(ClientOptions options)
@@ -34,6 +42,7 @@ namespace ProGaudi.Tarantool.Client
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
+
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
@@ -47,7 +56,6 @@ namespace ProGaudi.Tarantool.Client
         public async Task Flush()
         {
             CheckConnectionStatus();
-
             await _stream.FlushAsync();
         }
 
@@ -96,16 +104,26 @@ namespace ProGaudi.Tarantool.Client
         }
 #endif
 
-        private void CheckConnectionStatus()
+        public bool IsConnected()
         {
-            if (_stream == null)
+            if (_disposed || _stream == null)
             {
-                throw ExceptionHelper.NotConnected();
+                return false;
             }
 
+            return true;
+        }
+
+        private void CheckConnectionStatus()
+        {
             if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(NetworkStreamPhysicalConnection));
+            }
+
+            if (!IsConnected())
+            {
+                throw ExceptionHelper.NotConnected();
             }
         }
     }

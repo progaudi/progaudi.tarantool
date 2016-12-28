@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ProGaudi.MsgPack.Light;
+using System.Threading;
+using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -17,7 +20,10 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private readonly ILogicalConnection _logicalConnection;
+        private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
+            new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+
+        private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
         private readonly ClientOptions _clientOptions;
 
@@ -29,12 +35,63 @@ namespace ProGaudi.Tarantool.Client
 
         private bool _disposed;
 
-        public ResponseReader(ILogicalConnection logicalConnection, ClientOptions clientOptions, INetworkStreamPhysicalConnection physicalConnection)
+        public ResponseReader(ClientOptions clientOptions, INetworkStreamPhysicalConnection physicalConnection)
         {
             _physicalConnection = physicalConnection;
-            _logicalConnection = logicalConnection;
             _clientOptions = clientOptions;
             _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
+        }
+
+        public Task<MemoryStream> GetResponseTask(RequestId requestId)
+        {
+            try
+            {
+                _pendingRequestsLock.EnterWriteLock();
+
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(nameof(ResponseReader));
+                }
+
+                if (_pendingRequests.ContainsKey(requestId))
+                {
+                    throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
+                }
+
+                var tcs = new TaskCompletionSource<MemoryStream>();
+                _pendingRequests.Add(requestId, tcs);
+
+                return tcs.Task;
+            }
+            finally
+            {
+                _pendingRequestsLock.ExitWriteLock();
+            }
+        }
+
+        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
+        {
+            try
+            {
+                _pendingRequestsLock.EnterWriteLock();
+
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(nameof(ResponseReader));
+                }
+
+                TaskCompletionSource<MemoryStream> request;
+                if (_pendingRequests.TryGetValue(requestId, out request))
+                {
+                    _pendingRequests.Remove(requestId);
+                }
+
+                return request;
+            }
+            finally
+            {
+                _pendingRequestsLock.ExitWriteLock();
+            }
         }
 
         public void BeginReading()
@@ -49,7 +106,13 @@ namespace ProGaudi.Tarantool.Client
 
         private void EndReading(Task<int> readWork)
         {
-            if (!_disposed)
+            if (_disposed)
+            {
+                _clientOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
+                return;
+            }
+
+            if (readWork.Status == TaskStatus.RanToCompletion)
             {
                 var readBytesCount = readWork.Result;
                 _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
@@ -57,26 +120,12 @@ namespace ProGaudi.Tarantool.Client
                 if (ProcessReadBytes(readBytesCount))
                 {
                     BeginReading();
-                }
-                else
-                {
-                    CancelAllPendingRequests();
+                    return;
                 }
             }
-            else
-            {
-                _clientOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
-            }
-        }
 
-        private void CancelAllPendingRequests()
-        {
-            _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests...");
-            var responses = _logicalConnection.PopAllResponseCompletionSources();
-            foreach (var response in responses)
-            {
-                response.SetException(new InvalidOperationException("Can't read from physical connection."));
-            }
+            _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
+            Dispose();
         }
 
         private bool ProcessReadBytes(int readBytesCount)
@@ -139,7 +188,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var resultStream = new MemoryStream(result);
             var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
-            var tcs = _logicalConnection.PopResponseCompletionSource(header.RequestId, resultStream);
+            var tcs = PopResponseCompletionSource(header.RequestId, resultStream);
 
             if (tcs == null)
             {
@@ -240,9 +289,37 @@ namespace ProGaudi.Tarantool.Client
             return space;
         }
 
+        public bool IsConnected()
+        {
+            return !_disposed;
+        }
+
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             _disposed = true;
+
+            try
+            {
+                _pendingRequestsLock.EnterWriteLock();
+
+                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
+
+                foreach (var response in _pendingRequests.Values)
+                {
+                    response.SetException(new InvalidOperationException("Can't read from physical connection."));
+                }
+
+                _pendingRequests.Clear();
+            }
+            finally
+            {
+                _pendingRequestsLock.ExitWriteLock();
+            }
         }
     }
 }

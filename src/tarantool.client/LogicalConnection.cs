@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,20 +18,95 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly MsgPackContext _msgPackContext;
 
+        private readonly ClientOptions _clientOptions;
+
+        private readonly RequestIdCounter _requestIdCounter;
+
         private readonly INetworkStreamPhysicalConnection _physicalConnection;
 
-        private long _currentRequestId;
+        private readonly ReaderWriterLockSlim _physicalConnectionLock = new ReaderWriterLockSlim();
 
-        private readonly ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
-            new ConcurrentDictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+        private readonly IResponseReader _responseReader;
 
         private readonly ILog _logWriter;
 
-        public LogicalConnection(ClientOptions options, INetworkStreamPhysicalConnection physicalConnection)
+        private bool _disposed;
+
+        public LogicalConnection(ClientOptions options, RequestIdCounter requestIdCounter)
         {
+            _clientOptions = options;
+            _requestIdCounter = requestIdCounter;
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
-            _physicalConnection = physicalConnection;
+
+            _physicalConnection = new NetworkStreamPhysicalConnection();
+            _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            _responseReader.Dispose();
+            _physicalConnection.Dispose();
+        }
+
+        public async Task Connect()
+        {
+            await _physicalConnection.Connect(_clientOptions);
+
+            var greetingsResponseBytes = new byte[128];
+            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            if (readCount != greetingsResponseBytes.Length)
+            {
+                throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
+            }
+
+            var greetings = new GreetingsResponse(greetingsResponseBytes);
+
+            _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
+
+            _responseReader.BeginReading();
+
+            _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
+
+            await LoginIfNotGuest(greetings);
+        }
+
+        public bool IsConnected()
+        {
+            if (_disposed)
+            {
+                return false;
+            }
+
+            if (!_responseReader.IsConnected() || !_physicalConnection.IsConnected())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task LoginIfNotGuest(GreetingsResponse greetings)
+        {
+            var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
+
+            if (string.IsNullOrEmpty(singleNode.Uri.UserName))
+            {
+                _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
+                return;
+            }
+
+            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
+
+            await SendRequestWithEmptyResponse(authenticateRequest);
+            _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
@@ -46,15 +119,6 @@ namespace ProGaudi.Tarantool.Client
             where TRequest : IRequest
         {
             return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
-        }
-
-        public TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
-        {
-            TaskCompletionSource<MemoryStream> request;
-
-            return _pendingRequests.TryRemove(requestId, out request)
-                ? request
-                : null;
         }
 
         public static byte[] ReadFully(Stream input)
@@ -72,31 +136,42 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public IEnumerable<TaskCompletionSource<MemoryStream>> PopAllResponseCompletionSources()
-        {
-            var result = _pendingRequests.Values.ToArray();
-            _pendingRequests.Clear();
-            return result;
-        }
-
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
             where TRequest : IRequest
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(LogicalConnection));
+            }
+
             var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
 
-            var requestId = GetRequestId();
-            var responseTask = GetResponseTask(requestId);
+            var requestId = _requestIdCounter.GetRequestId();
+            var responseTask = _responseReader.GetResponseTask(requestId);
 
             long headerLength;
             var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out headerLength);
 
-            lock (_physicalConnection)
+            try
             {
+                _physicalConnectionLock.EnterWriteLock();
+
                 _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength);
+                _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
 
                 _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
                 _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
+            }
+            catch (Exception ex)
+            {
+                _logWriter?.WriteLine(
+                    $"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                Dispose();
+                throw;
+            }
+            finally
+            {
+                _physicalConnectionLock.ExitWriteLock();
             }
 
             try
@@ -136,23 +211,6 @@ namespace ProGaudi.Tarantool.Client
             stream.Seek(0, SeekOrigin.Begin);
             MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
             return packetSizeBuffer;
-        }
-
-        private RequestId GetRequestId()
-        {
-            var requestId = Interlocked.Increment(ref _currentRequestId);
-            return (RequestId) (ulong) requestId;
-        }
-
-        private Task<MemoryStream> GetResponseTask(RequestId requestId)
-        {
-            var tcs = new TaskCompletionSource<MemoryStream>();
-            if (!_pendingRequests.TryAdd(requestId, tcs))
-            {
-                throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
-            }
-
-            return tcs.Task;
         }
     }
 }
