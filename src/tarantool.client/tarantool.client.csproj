@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 
   <PropertyGroup>
-    <Version>0.5.0</Version>
+    <Version>0.6.0</Version>
     <Description>arantool-client low-level client Library</Description>
     <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
 
-    <AssemblyName>tarantool.csharp.tests</AssemblyName>
+    <AssemblyName>Tarantool.CSharp</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
     <Product>Tarantool.CSharp</Product>
     <Copyright>Copyright © 2016</Copyright>
