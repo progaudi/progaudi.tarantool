@@ -5,7 +5,7 @@
     <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
 
-    <AssemblyName>tarantool.csharp</AssemblyName>
+    <AssemblyName>tarantool.csharp.tests</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client.Tests</RootNamespace>
     <Product>Tarantool.CSharp</Product>
     <Copyright>Copyright © 2016</Copyright>
