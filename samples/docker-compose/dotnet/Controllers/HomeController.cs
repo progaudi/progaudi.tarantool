@@ -12,9 +12,9 @@ namespace dotnet.Controllers
     public class HomeController : Controller
     {
         private readonly Box _box;
-        private readonly Space _space;
-        private readonly Index _primaryIndex;
-        private readonly Index _secondaryIndex;
+        private readonly ISpace _space;
+        private readonly IIndex _primaryIndex;
+        private readonly IIndex _secondaryIndex;
 
         public HomeController(Box box)
         {
@@ -26,7 +26,7 @@ namespace dotnet.Controllers
             _secondaryIndex = result.Item3;
         }
 
-        private async Task<Tuple<Space, Index, Index>> Initialize()
+        private async Task<Tuple<ISpace, IIndex, IIndex>> Initialize()
         {
             var schema = _box.GetSchema();
 
