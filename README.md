@@ -23,7 +23,7 @@ You can find basic usage scenarios in [index](https://github.com/progaudi/tarant
 
 Windows build status:
 
-![Windows build status](https://server-ci.evote.work/app/rest/builds/buildType:(id:Progaudi_Tarantool)/statusIcon)
+[![Windows build status](https://server-ci.evote.work/app/rest/builds/buildType:(id:Progaudi_Tarantool)/statusIcon)](https://server-ci.evote.work/viewType.html?buildTypeId=Progaudi_Tarantool)
 
 Linux and OSX build status:
 
