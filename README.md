@@ -23,7 +23,8 @@ You can find basic usage scenarios in [index](https://github.com/progaudi/tarant
 
 Windows build status:
 
-[![Windows build status](https://ci.appveyor.com/api/projects/status/2iat2pxjuftk0xvn/branch/master?svg=true)](https://ci.appveyor.com/project/progaudi/tarantool-csharp/branch/master)
+![Windows build status](https://server-ci.evote.work/app/rest/builds/buildType:(id:Progaudi_Tarantool)/statusIcon)
 
+Linux and OSX build status:
 
-Right now Linux and OSX support are dropped until dotnet-core stabilization.
+[![Linux/OSX build Status](https://travis-ci.org/progaudi/tarantool-csharp.svg?branch=master)](https://travis-ci.org/progaudi/tarantool-csharp)
