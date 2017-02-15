@@ -51,3 +51,5 @@ We were trying to make API similar with tarantool API. But that connector is jus
  7. Decrement
  8. AutoIncrement
  9. Pairs
+ 
+Also, type SCALAR are not supported - if you create index with field_type = 'scalar', add for example tuples with integer and string on that field, then you will not be able to make Select from that index.
