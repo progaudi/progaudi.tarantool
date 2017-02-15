@@ -28,3 +28,26 @@ Windows build status:
 Linux and OSX build status:
 
 [![Linux/OSX build Status](https://travis-ci.org/progaudi/tarantool-csharp.svg?branch=master)](https://travis-ci.org/progaudi/tarantool-csharp)
+
+# Limitations
+We were trying to make API similar with tarantool API. But that connector is just implementing of [IProto protocol](https://tarantool.org/doc/dev_guide/internals_index.html). Methods, which can be implemented as 1 IProto request is implemented. But some other methods (for example Upsert methods) should make several requests. Another methods (for example DLL methods) can't be implemented in any other way except using CALL or EVAL requests. That is why some methods exists in API, but not implemented:
+* Index methods:
+ 1. Pairs
+ 2. Count
+ 3. Alter
+ 4. Drop
+ 5. Rename
+ 6. BSize
+ 7. Alter
+* Schema methods
+ 1. CreateSpace
+* Space methods
+ 1. CreateIndex
+ 2. Drop
+ 3. Rename
+ 4. Count
+ 5. Lengh
+ 6. Increment
+ 7. Decrement
+ 8. AutoIncrement
+ 9. Pairs
