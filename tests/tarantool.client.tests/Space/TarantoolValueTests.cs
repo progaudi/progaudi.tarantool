@@ -32,8 +32,8 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
                 await space.Insert(TarantoolTuple.Create("false", (string)null));
 
                 var index = await space.GetIndex(0);
-                var result = await index.Select<TarantoolTuple<uint>,TarantoolTuple<TarantoolValue, TarantoolValue>>(
-                     TarantoolTuple.Create(2u),
+                var result = await index.Select<TarantoolTuple<bool>,TarantoolTuple<TarantoolValue, TarantoolValue>>(
+                     TarantoolTuple.Create(false),
                       new SelectOptions()
                       {
                           Iterator = Model.Enums.Iterator.All
