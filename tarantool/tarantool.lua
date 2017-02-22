@@ -15,6 +15,9 @@ local function create_spaces_and_indecies()
     space2 = box.schema.space.create('primary_and_secondary_index', { if_not_exists = true })
     space2:create_index('hashIndex', {type='hash', parts={1, 'unsigned'}, if_not_exists = true })
     space2:create_index('treeIndex', {type='tree', parts={1, 'unsigned'}, if_not_exists = true })
+
+    space3 = box.schema.space.create('with_scalar_index', { if_not_exists = true })
+    space3:create_index('primary', {type='tree', parts={1, 'scalar'}, if_not_exists = true})
 end
 
 local function init()
@@ -114,4 +117,5 @@ function clear_data()
     truncate_space('performance')
     truncate_space('primary_and_secondary_index')
     truncate_space('space_TreeIndexMethods')
+    truncate_space('with_scalar_index')
 end

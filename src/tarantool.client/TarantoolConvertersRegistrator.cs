@@ -36,6 +36,7 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterConverter(new IndexCreationOptionsConverter());
             context.RegisterConverter(new IndexConverter());
             context.RegisterConverter(new TupleConverter());
+            context.RegisterConverter(new TarantoolValueConverter());
 
             context.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
             context.RegisterGenericConverter(typeof(UpdatePacketConverter<>));
