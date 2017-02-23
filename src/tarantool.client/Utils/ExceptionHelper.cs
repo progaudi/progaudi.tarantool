@@ -54,7 +54,7 @@ namespace ProGaudi.Tarantool.Client.Utils
 
         public static ArgumentException InvalidSpaceName(string name)
         {
-            return new ArgumentException($"Space with name '{name}' was found!");
+            return new ArgumentException($"Space with name '{name}' was not found!");
         }
 
         public static ArgumentException InvalidSpaceId(uint id)
@@ -69,7 +69,7 @@ namespace ProGaudi.Tarantool.Client.Utils
 
         public static ArgumentException InvalidIndexId(uint indexId, string space)
         {
-            return new ArgumentException($"Index with id '{indexId}' was found in space {space}!");
+            return new ArgumentException($"Index with id '{indexId}' was not found in space {space}!");
         }
 
         public static Exception PropertyUnspecified(string propertyName)
