@@ -107,10 +107,7 @@ namespace ProGaudi.Tarantool.Client
                     return;
                 }
 
-                // suppress for fire and forget behaviour
-#pragma warning disable 4014
-                SendRequestWithEmptyResponse(_pingRequest);
-#pragma warning restore 4014
+                SendRequestWithEmptyResponse(_pingRequest).GetAwaiter().GetResult();
             }
             finally
             {
