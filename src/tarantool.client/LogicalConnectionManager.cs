@@ -109,8 +109,9 @@ namespace ProGaudi.Tarantool.Client
 
                 SendRequestWithEmptyResponse(_pingRequest).GetAwaiter().GetResult();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Ping failed with exception: {e.Message}. Dropping current connection.");
                 _droppableLogicalConnection?.Dispose();
             }
             finally
