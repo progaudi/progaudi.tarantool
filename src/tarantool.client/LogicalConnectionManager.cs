@@ -109,6 +109,10 @@ namespace ProGaudi.Tarantool.Client
 
                 SendRequestWithEmptyResponse(_pingRequest).GetAwaiter().GetResult();
             }
+            catch (Exception)
+            {
+                _droppableLogicalConnection?.Dispose();
+            }
             finally
             {
                 if (_disposing == 0)
