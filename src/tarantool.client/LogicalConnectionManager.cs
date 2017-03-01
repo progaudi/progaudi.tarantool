@@ -31,6 +31,8 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly int _pingCheckInterval = 1000;
 
+        private readonly TimeSpan? _pingTimeout = null;
+
         private DateTimeOffset _nextPingTime = DateTimeOffset.MinValue;
 
         public LogicalConnectionManager(ClientOptions options)
@@ -40,6 +42,11 @@ namespace ProGaudi.Tarantool.Client
             if (_clientOptions.ConnectionOptions.PingCheckInterval >= 0)
             {
                 _pingCheckInterval = _clientOptions.ConnectionOptions.PingCheckInterval;
+            }
+
+            if (this._clientOptions.ConnectionOptions.PingCheckTimeoutMilliseconds >= 0)
+            {
+                this._pingTimeout = TimeSpan.FromMilliseconds(this._clientOptions.ConnectionOptions.PingCheckTimeoutMilliseconds);
             }
         }
 
@@ -107,7 +114,7 @@ namespace ProGaudi.Tarantool.Client
                     return;
                 }
 
-                SendRequestWithEmptyResponse(_pingRequest).GetAwaiter().GetResult();
+                SendRequestWithEmptyResponse(_pingRequest, _pingTimeout).GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
@@ -146,22 +153,22 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request) where TRequest : IRequest
+        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null) where TRequest : IRequest
         {
             await Connect();
 
-            var result = await _droppableLogicalConnection.SendRequest<TRequest, TResponse>(request);
+            var result = await _droppableLogicalConnection.SendRequest<TRequest, TResponse>(request, timeout);
 
             ScheduleNextPing();
 
             return result;
         }
 
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request) where TRequest : IRequest
+        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null) where TRequest : IRequest
         {
             await Connect();
 
-            await _droppableLogicalConnection.SendRequestWithEmptyResponse(request);
+            await _droppableLogicalConnection.SendRequestWithEmptyResponse(request, timeout);
 
             ScheduleNextPing();
         }

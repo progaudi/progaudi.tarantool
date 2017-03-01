@@ -12,10 +12,10 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected();
 
-        Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
+        Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest;
 
-        Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
+        Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest;
     }
 }

@@ -109,16 +109,16 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request)
+        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            await SendRequestImpl<TRequest, EmptyResponse>(request);
+            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout);
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request)
+        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request);
+            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout);
         }
 
         public static byte[] ReadFully(Stream input)
@@ -136,7 +136,7 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request)
+        private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, TimeSpan? timeout)
             where TRequest : IRequest
         {
             if (_disposed)
@@ -176,6 +176,12 @@ namespace ProGaudi.Tarantool.Client
 
             try
             {
+                if (timeout.HasValue)
+                {
+                    var cts = new CancellationTokenSource(timeout.Value);
+                    responseTask = responseTask.WithCancellation(cts.Token);
+                }
+
                 var responseStream = await responseTask;
                 _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
 
