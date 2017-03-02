@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 
   <PropertyGroup>
     <Version>0.6.0</Version>
     <Description>arantool-client low-level client Library</Description>
     <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
     <AssemblyName>Tarantool.CSharp</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
@@ -21,13 +22,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6" />
     <PackageReference Include="MsgPack.Light" Version="1.1.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.0.0" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">

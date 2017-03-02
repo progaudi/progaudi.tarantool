@@ -8,7 +8,7 @@
     "tasks": [
         {
             "taskName": "build",
-            "args": [ "src/tarantool.client", "tests/tarantool.client.tests", "samples/docker-compose/dotnet"],
+            "args": [ ],
             "isBuildCommand": true,
             "showOutput": "silent",
             "problemMatcher": "$msCompile"
