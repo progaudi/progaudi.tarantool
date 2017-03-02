@@ -44,10 +44,7 @@ namespace ProGaudi.Tarantool.Client
                 _pingCheckInterval = _clientOptions.ConnectionOptions.PingCheckInterval;
             }
 
-            if (this._clientOptions.ConnectionOptions.PingCheckTimeoutMilliseconds >= 0)
-            {
-                this._pingTimeout = TimeSpan.FromMilliseconds(this._clientOptions.ConnectionOptions.PingCheckTimeoutMilliseconds);
-            }
+            this._pingTimeout = this._clientOptions.ConnectionOptions.PingCheckTimeout;
         }
 
         public void Dispose()
