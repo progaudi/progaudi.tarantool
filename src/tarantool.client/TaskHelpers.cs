@@ -19,7 +19,7 @@ namespace ProGaudi.Tarantool.Client
             {
                 if (task != await Task.WhenAny(task, cancellationCompletionSource.Task))
                 {
-                    throw new OperationCanceledException("Task was cancelled by timeout", cancellationToken);
+                    throw new TimeoutException("Task was cancelled by timeout");
                 }
             }
 
