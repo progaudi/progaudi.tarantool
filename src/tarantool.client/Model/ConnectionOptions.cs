@@ -2,6 +2,8 @@
 
 namespace ProGaudi.Tarantool.Client.Model
 {
+    using System;
+
     public class ConnectionOptions
     {
         public ConnectionOptions()
@@ -34,6 +36,7 @@ namespace ProGaudi.Tarantool.Client.Model
         public int WriteNetworkTimeout { get; set; } = -1;
         public int ReadNetworkTimeout { get; set; } = -1;
         public int PingCheckInterval { get; set; } = -1;
+        public TimeSpan? PingCheckTimeout { get; set; }
         public List<TarantoolNode> Nodes { get; set; } = new List<TarantoolNode>();
     }
 }
