@@ -83,9 +83,9 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         {
             using (var box = new Client.Box(new ClientOptions(ReplicationSourceFactory.GetReplicationSource("operator:operator"))))
             {
-                box.IsConnected().ShouldBeFalse();
+                box.IsConnected.ShouldBeFalse();
                 await box.Connect();
-                box.IsConnected().ShouldBeTrue();
+                box.IsConnected.ShouldBeTrue();
             }
         }
     }

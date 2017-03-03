@@ -9,7 +9,7 @@ namespace ProGaudi.Tarantool.Client
     {
         Task Connect();
 
-        bool IsConnected();
+        bool IsConnected { get; }
 
         uint PingsFailedByTimeoutCount { get; }
 
