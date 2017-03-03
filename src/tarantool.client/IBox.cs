@@ -11,6 +11,8 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected();
 
+        uint PingsFailedByTimeoutCount { get; }
+
         ISchema GetSchema();
 
         Task Call_1_6(string functionName);

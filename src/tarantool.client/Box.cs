@@ -32,6 +32,14 @@ namespace ProGaudi.Tarantool.Client
             return box;
         }
 
+        public uint PingsFailedByTimeoutCount
+        {
+            get
+            {
+                return _logicalConnection?.PingsFailedByTimeoutCount ?? 0;
+            }
+        }
+
         public bool IsConnected()
         {
             return _logicalConnection.IsConnected();
