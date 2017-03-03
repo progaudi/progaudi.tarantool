@@ -9,6 +9,8 @@ namespace ProGaudi.Tarantool.Client
     {
         Task Connect();
 
+        bool IsConnected();
+
         ISchema GetSchema();
 
         Task Call_1_6(string functionName);
