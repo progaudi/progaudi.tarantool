@@ -18,6 +18,7 @@ namespace ProGaudi.Tarantool.Client
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
             _logicalConnection = new LogicalConnectionManager(options);
+            Metrics = new Metrics(_logicalConnection);
         }
 
         public async Task Connect()
@@ -32,12 +33,9 @@ namespace ProGaudi.Tarantool.Client
             return box;
         }
 
-        public uint PingsFailedByTimeoutCount
+        public Metrics Metrics
         {
-            get
-            {
-                return _logicalConnection?.PingsFailedByTimeoutCount ?? 0;
-            }
+            get;
         }
 
         public bool IsConnected

@@ -11,7 +11,7 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected { get; }
 
-        uint PingsFailedByTimeoutCount { get; }
+        Model.Metrics Metrics { get; }
 
         ISchema GetSchema();
 
