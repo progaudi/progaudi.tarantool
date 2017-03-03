@@ -77,5 +77,16 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
                 diff.ShouldBeLessThan(double.Epsilon);
             }
         }
+
+        [Fact]
+        public async Task change_IsConnected_state()
+        {
+            using (var box = new Client.Box(new ClientOptions(ReplicationSourceFactory.GetReplicationSource("operator:operator"))))
+            {
+                box.IsConnected().ShouldBeFalse();
+                await box.Connect();
+                box.IsConnected().ShouldBeTrue();
+            }
+        }
     }
 }
