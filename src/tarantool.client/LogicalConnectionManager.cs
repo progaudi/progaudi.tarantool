@@ -47,6 +47,14 @@ namespace ProGaudi.Tarantool.Client
             this._pingTimeout = this._clientOptions.ConnectionOptions.PingCheckTimeout;
         }
 
+        public uint PingsFailedByTimeoutCount
+        {
+            get
+            {
+                return _droppableLogicalConnection?.PingsFailedByTimeoutCount ?? 0;
+            }
+        }
+
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposing, 1) > 0)

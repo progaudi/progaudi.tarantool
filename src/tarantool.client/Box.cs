@@ -18,6 +18,7 @@ namespace ProGaudi.Tarantool.Client
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
             _logicalConnection = new LogicalConnectionManager(options);
+            Metrics = new Metrics(_logicalConnection);
         }
 
         public async Task Connect()
@@ -30,6 +31,19 @@ namespace ProGaudi.Tarantool.Client
             var box = new Box(new ClientOptions(replicationSource));
             await box.Connect();
             return box;
+        }
+
+        public Metrics Metrics
+        {
+            get;
+        }
+
+        public bool IsConnected
+        {
+            get
+            {
+                return _logicalConnection.IsConnected();
+            }
         }
 
         public static Task<Box> Connect(string host, int port)

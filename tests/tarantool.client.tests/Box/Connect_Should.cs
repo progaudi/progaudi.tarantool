@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Xunit;
 
 using Shouldly;
+using ProGaudi.Tarantool.Client.Model;
+using System.Linq;
 
 namespace ProGaudi.Tarantool.Client.Tests.Box
 {
@@ -40,6 +42,51 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         {
             using (await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource("operator:operator")))
             { }
+        }
+
+        [Fact]
+        public async Task do_nothing_if_already_connected()
+        {
+            using (var box = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource("operator:operator")))
+            {
+                var result = await box.Call_1_6<TarantoolTuple<double>, TarantoolTuple<double>>("math.sqrt", TarantoolTuple.Create(1.3));
+
+                var diff = Math.Abs(result.Data.Single().Item1 - Math.Sqrt(1.3));
+
+                diff.ShouldBeLessThan(double.Epsilon);
+
+                await box.Connect();
+
+                var result2 = await box.Call_1_6<TarantoolTuple<double>, TarantoolTuple<double>>("math.sqrt", TarantoolTuple.Create(1.3));
+
+                var diff2 = Math.Abs(result2.Data.Single().Item1 - Math.Sqrt(1.3));
+
+                diff2.ShouldBeLessThan(double.Epsilon);
+            }
+        }
+
+        [Fact]
+        public async Task not_throw_expection_if_used_inside_another_class()
+        {
+            using (var box = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource("operator:operator")))
+            using (var boxUser = new BoxUser(box))
+            {
+                var result = await boxUser.TestMethod();
+                var diff = Math.Abs(result - Math.Sqrt(1.3));
+
+                diff.ShouldBeLessThan(double.Epsilon);
+            }
+        }
+
+        [Fact]
+        public async Task change_IsConnected_state()
+        {
+            using (var box = new Client.Box(new ClientOptions(ReplicationSourceFactory.GetReplicationSource("operator:operator"))))
+            {
+                box.IsConnected.ShouldBeFalse();
+                await box.Connect();
+                box.IsConnected.ShouldBeTrue();
+            }
         }
     }
 }

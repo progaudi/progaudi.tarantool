@@ -43,6 +43,12 @@ namespace ProGaudi.Tarantool.Client
             _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
         }
 
+        public uint PingsFailedByTimeoutCount
+        {
+            get;
+            private set;
+        }
+
         public void Dispose()
         {
             if (_disposed)
@@ -70,6 +76,8 @@ namespace ProGaudi.Tarantool.Client
             var greetings = new GreetingsResponse(greetingsResponseBytes);
 
             _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
+
+            PingsFailedByTimeoutCount = 0;
 
             _responseReader.BeginReading();
 
@@ -190,6 +198,11 @@ namespace ProGaudi.Tarantool.Client
             catch (ArgumentException)
             {
                 _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                throw;
+            }
+            catch (TimeoutException)
+            {
+                PingsFailedByTimeoutCount++;
                 throw;
             }
         }
