@@ -3,7 +3,7 @@ version: '2'
 services:
   tarantool-client:
     build: .
-    command: dotnet test -c Release tests/tarantool.client.tests/tarantool.client.tests.csproj
+    command: dotnet test -c Release tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj
     environment:
         TARANTOOL_REPLICATION_SOURCE: "tarantool:3301"
     links:

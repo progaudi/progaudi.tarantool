@@ -1,4 +1,4 @@
-# Welcome to ASP.NET Core demo of Tarantool.CSharp
+# Welcome to ASP.NET Core demo of progaudi.tarantool
 
 We've made this demo to demonstrate that out client work in asp.net core docker, hence in linux.
 

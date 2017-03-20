@@ -6,5 +6,5 @@ WORKDIR /app
 COPY . .
 RUN dotnet --version
 RUN dotnet restore
-RUN dotnet build -c Release -f netstandard1.4 src/tarantool.client/tarantool.client.csproj
-RUN dotnet build -c Release -f netcoreapp1.0 tests/tarantool.client.tests/tarantool.client.tests.csproj
+RUN dotnet build -c Release -f netstandard1.4 src/progaudi.tarantool/progaudi.tarantool.csproj
+RUN dotnet build -c Release -f netcoreapp1.0 tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj
