@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 
   <PropertyGroup>
-    <Version>0.6.0</Version>
-    <Description>progaudi.tarantool low-level client Library</Description>
+    <Version>0.7.0</Version>
+    <Description>Tarantool low-level client Library</Description>
     <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
 
