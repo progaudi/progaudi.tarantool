@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-    <Description>tarantool-client Class Library tests</Description>
+    <Description>progaudi.tarantool Class Library tests</Description>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
 
-    <AssemblyName>tarantool.csharp.tests</AssemblyName>
+    <AssemblyName>progaudi.tarantool.tests</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client.Tests</RootNamespace>
-    <Product>Tarantool.CSharp</Product>
+    <Product>progaudi.tarantool</Product>
     <Copyright>Copyright © 2016</Copyright>
 
     <PackageTags>tarantool;csharp;tests</PackageTags>
-    <PackageProjectUrl>https://github.com/progaudi/tarantool-csharp</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/progaudi.tarantool/master/LICENSE</PackageLicenseUrl>
 
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
@@ -26,7 +26,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta4-build1194" />
     <PackageReference Include="JetBrains.Annotations" Version="10.2.1" />
     <PackageReference Include="Shouldly" Version="2.8.2" />
-    <ProjectReference Include="..\..\src\tarantool.client\tarantool.client.csproj" />
+    <ProjectReference Include="..\..\src\progaudi.tarantool\progaudi.tarantool.csproj" />
   </ItemGroup>
 
 </Project>

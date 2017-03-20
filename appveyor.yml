@@ -23,12 +23,12 @@ before_build:
   - appveyor-retry dotnet restore -v Minimal
 
 build_script:
-  - dotnet build "src\tarantool.client" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
-  - dotnet build "tests\tarantool.client.tests" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+  - dotnet build "src\progaudi.tarantool" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+  - dotnet build "tests\progaudi.tarantool.tests" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
 
 after_build:
-  - rm -rf tests\tarantool.client.tests\bin tests\tarantool.client.tests\obj
-  - dotnet pack "src\tarantool.client" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
+  - rm -rf tests\progaudi.tarantool.tests\bin tests\progaudi.tarantool.tests\obj
+  - dotnet pack "src\progaudi.tarantool" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 
 artifacts:
   - path: artifacts\**\*.*

@@ -2,18 +2,18 @@
 
   <PropertyGroup>
     <Version>0.6.0</Version>
-    <Description>arantool-client low-level client Library</Description>
+    <Description>progaudi.tarantool low-level client Library</Description>
     <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
 
-    <AssemblyName>Tarantool.CSharp</AssemblyName>
+    <AssemblyName>progaudi.tarantool</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
-    <Product>Tarantool.CSharp</Product>
+    <Product>progaudi.tarantool</Product>
     <Copyright>Copyright © 2016</Copyright>
 
     <PackageTags>tarantool;csharp</PackageTags>
-    <PackageProjectUrl>https://github.com/progaudi/tarantool-csharp</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/tarantool-csharp/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/progaudi.tarantool/master/LICENSE</PackageLicenseUrl>
 
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6" />
-    <PackageReference Include="MsgPack.Light" Version="1.1.0" />
+    <PackageReference Include="MsgPack.Light" Version="1.2.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.0.0" />
   </ItemGroup>
 

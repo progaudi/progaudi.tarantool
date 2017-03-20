@@ -1,4 +1,4 @@
-# tarantool-csharp
+# progaudi.tarantool
 
 Dotnet client for Tarantool NoSql database.
 
@@ -9,15 +9,15 @@ Dotnet client for Tarantool NoSql database.
 
 # Installation
 
-Simpliest way to start using Tarantool-csharp in your project is to install it from [Nuget](https://www.nuget.org/packages/Tarantool.CSharp/).
+Simpliest way to start using ```progaudi.tarantool``` in your project is to install it from [Nuget](https://www.nuget.org/packages/progaudi.tarantool/).
 
 # Demo
 
-[We have a small demo](https://github.com/progaudi/tarantool-csharp/blob/master/samples/docker-compose/). It illustrates usage of library in aspnet core with docker-compose. Docker 1.12 is preferred.
+[We have a small demo](https://github.com/progaudi/progaudi.tarantool/blob/master/samples/docker-compose/). It illustrates usage of library in aspnet core with docker-compose. Docker 1.12 is preferred.
 
 # Usage
 
-You can find basic usage scenarios in [index](https://github.com/progaudi/tarantool-csharp/blob/master/tests/tarantool.client.tests/Index/Smoke.cs) and [space](https://github.com/progaudi/tarantool-csharp/blob/master/tests/tarantool.client.tests/Space/Smoke.cs) smoke tests.
+You can find basic usage scenarios in [index](https://github.com/progaudi/progaudi.tarantool/blob/master/tests/progaudi.tarantool.tests/Index/Smoke.cs) and [space](https://github.com/progaudi/progaudi.tarantool/blob/master/tests/progaudi.tarantool.tests/Space/Smoke.cs) smoke tests.
 
 # Build statuses for master branch
 
@@ -27,7 +27,7 @@ Windows build status:
 
 Linux and OSX build status:
 
-[![Linux/OSX build Status](https://travis-ci.org/progaudi/tarantool-csharp.svg?branch=master)](https://travis-ci.org/progaudi/tarantool-csharp)
+[![Linux/OSX build Status](https://travis-ci.org/progaudi/progaudi.tarantool.svg?branch=master)](https://travis-ci.org/progaudi/progaudi.tarantool)
 
 # Limitations
 We were trying to make API similar with tarantool API. But that connector is just implementing of [IProto protocol](https://tarantool.org/doc/dev_guide/internals_index.html). Methods, which can be implemented as 1 IProto request is implemented. But some other methods (for example Upsert methods) should make several requests. Another methods (for example DLL methods) can't be implemented in any other way except using CALL or EVAL requests. That is why some methods exists in API, but not implemented:
