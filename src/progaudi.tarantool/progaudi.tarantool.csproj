@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6" />
-    <PackageReference Include="MsgPack.Light" Version="1.1.0" />
+    <PackageReference Include="MsgPack.Light" Version="1.2.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.0.0" />
   </ItemGroup>
 
