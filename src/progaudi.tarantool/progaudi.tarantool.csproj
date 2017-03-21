@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-
   <PropertyGroup>
-    <Version>0.7.0</Version>
-    <Version Condition=" '$(BuildNumber)' != '' ">0.7.$(BuildNumber).1-prerelease</Version>
+    <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
+    <PatchLevelVersion Condition=" '$(BuildNumber)' != '' ">$(BuildNumber).1-prerelease</PatchLevelVersion>
+    <Version>0.7.$(PatchLevelVersion)</Version>
+
     <Description>Tarantool low-level client Library</Description>
     <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
