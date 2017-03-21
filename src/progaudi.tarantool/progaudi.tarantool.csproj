@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-
   <PropertyGroup>
-    <Version>0.7.0</Version>
+    <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
+    <PatchLevelVersion Condition=" '$(BuildNumber)' != '' ">$(BuildNumber).1-prerelease</PatchLevelVersion>
+    <Version>0.7.$(PatchLevelVersion)</Version>
+
     <Description>Tarantool low-level client Library</Description>
     <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
@@ -21,9 +23,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NETStandard.Library" Version="1.6" />
     <PackageReference Include="MsgPack.Light" Version="1.2.0" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.0.0" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">
