@@ -14,7 +14,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         [Fact]
         public async Task HashIndexMethods()
         {
-            await ClearDataAsync(new[] { "primary_only_index" });
+            await ClearDataAsync("primary_only_index");
 
             const string spaceName = "primary_only_index";
             using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
@@ -52,7 +52,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         [Fact]
         public async Task TreeIndexMethods()
         {
-            await ClearDataAsync(new[] { "space_TreeIndexMethods" });
+            await ClearDataAsync("space_TreeIndexMethods");
 
             const string spaceName = "space_TreeIndexMethods";
             using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))

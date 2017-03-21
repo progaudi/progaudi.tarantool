@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         [Fact]
         public async Task Smoke()
         {
-            await ClearDataAsync(new[] { "with_scalar_index" });
+            await ClearDataAsync("with_scalar_index");
 
             const string spaceName = "with_scalar_index";
             var clientOptions = new ClientOptions(ReplicationSourceFactory.GetReplicationSource());
