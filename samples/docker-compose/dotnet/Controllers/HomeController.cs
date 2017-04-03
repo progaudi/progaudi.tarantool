@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using dotnet.Models;
 using Microsoft.AspNetCore.Mvc;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
@@ -39,9 +40,9 @@ namespace dotnet.Controllers
 
         public async Task<ViewResult> Index()
         {
-            var allDogs = await _primaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long>>(TarantoolTuple.Create(-1L), new SelectOptions { Iterator = Iterator.All });
-            var seniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long>>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Ge });
-            var juniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long>>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Le });
+            var allDogs = await _primaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long, MsgPackToken>>(TarantoolTuple.Create(-1L), new SelectOptions { Iterator = Iterator.All });
+            var seniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long, MsgPackToken>>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Ge });
+            var juniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long, MsgPackToken>>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Le });
 
             return View(new []
             {

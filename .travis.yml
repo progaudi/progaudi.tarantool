@@ -1,28 +1,25 @@
-language: csharp
-
 matrix:
   include:
     - os: linux # Ubuntu 14.04
       dist: trusty
       sudo: required
-      dotnet: 1.0.0-preview4-004233
-      env: BUILD_NAME=linux
     - os: linux # Ubuntu 14.04
       dist: trusty
-      sudo: required
-      env: BUILD_NAME=docker
+      env: BUILD_DOCKER=true
     - os: osx # OSX 10.12
-      osx_image: xcode7.3.1
-      env: BUILD_NAME=osx
+      osx_image: xcode8.2
 
-services:
-  - docker
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$BUILD_DOCKER" != true ]]; then sudo ./scripts/ubuntu-prereqs.sh ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./scripts/mac-prereqs.sh ; fi
 
-before_script:
-  - .travis/$BUILD_NAME/init.sh
+install:
+  - if [[ "$BUILD_DOCKER" != true ]]; then ./scripts/dotnet-install.sh ; fi
+  - if [[ "$BUILD_DOCKER" != true ]]; then PATH=$PATH:$HOME/.dotnet && export PATH ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then docker-compose -f docker-compose.yml -f docker-compose.tests.yml up -d tarantool ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then tarantool tarantool/tarantool.lua ; fi
 
 script:
-  - .travis/$BUILD_NAME/test.sh
-
-after_script:
-  - .travis/$BUILD_NAME/teardown.sh
+  - if [[ "$BUILD_DOCKER" != true ]]; then ./scripts/build-netcore.sh ; fi
+  - if [[ "$BUILD_DOCKER" != true ]]; then ./scripts/test-netcore.sh ; fi
+  - if [[ "$BUILD_DOCKER" == true  ]]; then docker-compose -f docker-compose.yml -f docker-compose.tests.yml up --build tarantool-client ; fi
