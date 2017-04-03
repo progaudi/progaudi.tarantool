@@ -53,16 +53,16 @@ namespace ProGaudi.Tarantool.Client
             _stream.Write(buffer, offset, count);
         }
 
-        public async Task Flush()
+        public Task Flush()
         {
             CheckConnectionStatus();
-            await _stream.FlushAsync();
+            return _stream.FlushAsync();
         }
 
-        public async Task<int> ReadAsync(byte[] buffer, int offset, int count)
+        public Task<int> ReadAsync(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
-            return await _stream.ReadAsync(buffer, offset, count);
+            return _stream.ReadAsync(buffer, offset, count);
         }
 
 #if PROGAUDI_NETCORE

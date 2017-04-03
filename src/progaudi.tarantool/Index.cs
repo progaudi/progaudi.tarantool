@@ -44,7 +44,7 @@ namespace ProGaudi.Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null)
+        public Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null)
             where TKey : ITarantoolTuple
             where TTuple : ITarantoolTuple
         {
@@ -56,33 +56,33 @@ namespace ProGaudi.Tarantool.Client
                 options?.Iterator ?? Iterator.Eq,
                 key);
 
-            return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
+            return LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
+        public Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
             where TTuple : ITarantoolTuple
         {
             var insertRequest = new InsertRequest<TTuple>(SpaceId, tuple);
 
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
+            return LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
+        public Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
             where TTuple : ITarantoolTuple
         {
             var replaceRequest = new ReplaceRequest<TTuple>(SpaceId, tuple);
 
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
+            return LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
         }
 
-        public async Task<TTuple> Min<TTuple>()
+        public Task<TTuple> Min<TTuple>()
            where TTuple : ITarantoolTuple
         {
-            return await Min<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
+            return Min<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
         }
 
         public async Task<TTuple> Min<TTuple, TKey>(TKey key)
@@ -101,10 +101,10 @@ namespace ProGaudi.Tarantool.Client
             return minResponse.Data.SingleOrDefault();
         }
 
-        public async Task<TTuple> Max<TTuple>()
+        public Task<TTuple> Max<TTuple>()
             where TTuple : ITarantoolTuple
         {
-            return await Max<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
+            return Max<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
         }
 
         public async Task<TTuple> Max<TTuple, TKey>(TKey key = null)
@@ -135,7 +135,7 @@ namespace ProGaudi.Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public async Task<DataResponse<TTuple[]>> Update<TTuple, TKey>(TKey key, UpdateOperation[] updateOperations)
+        public Task<DataResponse<TTuple[]>> Update<TTuple, TKey>(TKey key, UpdateOperation[] updateOperations)
             where TKey : ITarantoolTuple
             where TTuple : ITarantoolTuple
         {
@@ -145,10 +145,10 @@ namespace ProGaudi.Tarantool.Client
                 key,
                 updateOperations);
 
-            return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
+            return LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
         }
 
-        public async Task Upsert<TKey>(TKey key, UpdateOperation[] updateOperations)
+        public Task Upsert<TKey>(TKey key, UpdateOperation[] updateOperations)
             where TKey : ITarantoolTuple
         {
             var updateRequest = new UpsertRequest<TKey>(
@@ -156,16 +156,16 @@ namespace ProGaudi.Tarantool.Client
                 key,
                 updateOperations);
 
-            await LogicalConnection.SendRequestWithEmptyResponse(updateRequest);
+            return LogicalConnection.SendRequestWithEmptyResponse(updateRequest);
         }
 
-        public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
+        public Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
             where TKey : ITarantoolTuple
             where TTuple : ITarantoolTuple
         {
             var deleteRequest = new DeleteRequest<TKey>(SpaceId, Id, key);
 
-            return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
+            return LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
         }
 
         public Task Alter(IndexCreationOptions options)
