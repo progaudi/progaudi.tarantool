@@ -8,7 +8,7 @@
     <AssemblyName>progaudi.tarantool.tests</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client.Tests</RootNamespace>
     <Product>progaudi.tarantool</Product>
-    <Copyright>Copyright © 2017</Copyright>
+    <Copyright>Copyright © 2016-2017</Copyright>
 
     <PackageTags>tarantool;csharp;tests</PackageTags>
     <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>
