@@ -11,7 +11,7 @@
     <AssemblyName>progaudi.tarantool</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
     <Product>progaudi.tarantool</Product>
-    <Copyright>Copyright © 2016</Copyright>
+    <Copyright>Copyright © 2016-2017</Copyright>
 
     <PackageTags>tarantool;csharp</PackageTags>
     <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>

@@ -2,13 +2,13 @@
   <PropertyGroup>
     <Description>progaudi.tarantool Class Library tests</Description>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0;netcoreapp1.1</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
 
     <AssemblyName>progaudi.tarantool.tests</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client.Tests</RootNamespace>
     <Product>progaudi.tarantool</Product>
-    <Copyright>Copyright © 2016</Copyright>
+    <Copyright>Copyright © 2017</Copyright>
 
     <PackageTags>tarantool;csharp;tests</PackageTags>
     <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>
@@ -18,7 +18,7 @@
     <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
