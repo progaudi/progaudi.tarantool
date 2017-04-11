@@ -1,5 +1,8 @@
-﻿namespace ProGaudi.Tarantool.Client.Model.Enums
+﻿using System;
+
+namespace ProGaudi.Tarantool.Client.Model.Enums
 {
+    [Flags]
     public enum CommandCode : uint
     {
         //User command codes
