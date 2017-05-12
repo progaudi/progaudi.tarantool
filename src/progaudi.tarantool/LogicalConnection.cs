@@ -170,7 +170,7 @@ namespace ProGaudi.Tarantool.Client
                 _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
                 _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
             }
-            catch (Exception ex)
+            catch
             {
                 _logWriter?.WriteLine(
                     $"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
