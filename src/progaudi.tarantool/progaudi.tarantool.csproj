@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="msgpack.light" Version="1.2.117-prerelease" />
+    <PackageReference Include="msgpack.light" Version="1.2.118-prerelease" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
 
