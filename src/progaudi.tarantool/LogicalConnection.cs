@@ -123,10 +123,10 @@ namespace ProGaudi.Tarantool.Client
             await SendRequestImpl<TRequest, EmptyResponse>(request, timeout);
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+        public Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout);
+            return SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout);
         }
 
         public static byte[] ReadFully(Stream input)
