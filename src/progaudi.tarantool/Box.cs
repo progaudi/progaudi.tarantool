@@ -23,13 +23,13 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Connect()
         {
-            await _logicalConnection.Connect();
+            await _logicalConnection.Connect().ConfigureAwait(false);
         }
 
         public static async Task<Box> Connect(string replicationSource)
         {
             var box = new Box(new ClientOptions(replicationSource));
-            await box.Connect();
+            await box.Connect().ConfigureAwait(false);
             return box;
         }
 
@@ -65,13 +65,13 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Call_1_6(string functionName)
         {
-            await Call_1_6<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty);
+            await Call_1_6<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty).ConfigureAwait(false);
         }
 
         public async Task Call_1_6<TTuple>(string functionName, TTuple parameters)
             where TTuple : ITarantoolTuple
         {
-            await Call_1_6<TTuple, TarantoolTuple>(functionName, parameters);
+            await Call_1_6<TTuple, TarantoolTuple>(functionName, parameters).ConfigureAwait(false);
         }
 
         public Task<DataResponse<TResponse[]>> Call_1_6<TResponse>(string functionName)
@@ -85,18 +85,18 @@ namespace ProGaudi.Tarantool.Client
             where TResponse : ITarantoolTuple
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters, false);
-            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
+            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
         }
 
         public async Task Call(string functionName)
         {
-            await Call<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty);
+            await Call<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty).ConfigureAwait(false);
         }
 
         public async Task Call<TTuple>(string functionName, TTuple parameters)
             where TTuple : ITarantoolTuple
         {
-            await Call<TTuple, TarantoolTuple>(functionName, parameters);
+            await Call<TTuple, TarantoolTuple>(functionName, parameters).ConfigureAwait(false);
         }
 
         public Task<DataResponse<TResponse[]>> Call<TResponse>(string functionName)
@@ -108,14 +108,14 @@ namespace ProGaudi.Tarantool.Client
             where TTuple : ITarantoolTuple
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters);
-            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
+            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
            where TTuple : ITarantoolTuple
         {
             var evalRequest = new EvalRequest<TTuple>(expression, parameters);
-            return await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);
+            return await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest).ConfigureAwait(false);
         }
 
         public Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression)

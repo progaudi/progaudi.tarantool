@@ -43,7 +43,7 @@ namespace ProGaudi.Tarantool.Client
             {
                 NoDelay = true
             };
-            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
+            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port).ConfigureAwait(false);;
 
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
@@ -58,25 +58,25 @@ namespace ProGaudi.Tarantool.Client
         public async Task Flush()
         {
             CheckConnectionStatus();
-            await _stream.FlushAsync();
+            await _stream.FlushAsync().ConfigureAwait(false);
         }
 
         public async Task<int> ReadAsync(byte[] buffer, int offset, int count)
         {
             CheckConnectionStatus();
-            return await _stream.ReadAsync(buffer, offset, count);
+            return await _stream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
         }
 
 #if PROGAUDI_NETCORE
         /// https://github.com/mongodb/mongo-csharp-driver/commit/9c2097f349d5096a04ea81b0c9ceb60c7e1acee4
         private static async Task ConnectAsync(Socket socket, string host, int port)
         {
-            var resolved = await Dns.GetHostAddressesAsync(host);
+            var resolved = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);;
             for (var i = 0; i < resolved.Length; i++)
             {
                 try
                 {
-                    await socket.ConnectAsync(resolved[i], port);
+                    await socket.ConnectAsync(resolved[i], port).ConfigureAwait(false);
                     return;
                 }
                 catch

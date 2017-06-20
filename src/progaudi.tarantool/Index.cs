@@ -56,7 +56,7 @@ namespace ProGaudi.Tarantool.Client
                 options?.Iterator ?? Iterator.Eq,
                 key);
 
-            return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
+            return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest).ConfigureAwait(false);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
@@ -66,7 +66,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var insertRequest = new InsertRequest<TTuple>(SpaceId, tuple);
 
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
+            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest).ConfigureAwait(false);
         }
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
@@ -76,13 +76,13 @@ namespace ProGaudi.Tarantool.Client
         {
             var replaceRequest = new ReplaceRequest<TTuple>(SpaceId, tuple);
 
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
+            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest).ConfigureAwait(false);
         }
 
         public async Task<TTuple> Min<TTuple>()
            where TTuple : ITarantoolTuple
         {
-            return await Min<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
+            return await Min<TTuple, TarantoolTuple>(TarantoolTuple.Empty).ConfigureAwait(false);
         }
 
         public async Task<TTuple> Min<TTuple, TKey>(TKey key)
@@ -97,14 +97,14 @@ namespace ProGaudi.Tarantool.Client
 
             var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var minResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket);
+            var minResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket).ConfigureAwait(false);
             return minResponse.Data.SingleOrDefault();
         }
 
         public async Task<TTuple> Max<TTuple>()
             where TTuple : ITarantoolTuple
         {
-            return await Max<TTuple, TarantoolTuple>(TarantoolTuple.Empty);
+            return await Max<TTuple, TarantoolTuple>(TarantoolTuple.Empty).ConfigureAwait(false);
         }
 
         public async Task<TTuple> Max<TTuple, TKey>(TKey key = null)
@@ -119,7 +119,7 @@ namespace ProGaudi.Tarantool.Client
 
             var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key);
 
-            var maxResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket);
+            var maxResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket).ConfigureAwait(false);
             return maxResponse.Data.SingleOrDefault();
         }
 
@@ -145,7 +145,7 @@ namespace ProGaudi.Tarantool.Client
                 key,
                 updateOperations);
 
-            return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
+            return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest).ConfigureAwait(false);
         }
 
         public async Task Upsert<TKey>(TKey key, UpdateOperation[] updateOperations)
@@ -156,7 +156,7 @@ namespace ProGaudi.Tarantool.Client
                 key,
                 updateOperations);
 
-            await LogicalConnection.SendRequestWithEmptyResponse(updateRequest);
+            await LogicalConnection.SendRequestWithEmptyResponse(updateRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
@@ -165,7 +165,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var deleteRequest = new DeleteRequest<TKey>(SpaceId, Id, key);
 
-            return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
+            return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest).ConfigureAwait(false);
         }
 
         public Task Alter(IndexCreationOptions options)
