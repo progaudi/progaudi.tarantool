@@ -7,7 +7,7 @@ matrix:
       dist: trusty
       env: BUILD_DOCKER=true
     - os: osx # OSX 10.12
-      osx_image: xcode8.2
+      osx_image: xcode8.3
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$BUILD_DOCKER" != true ]]; then sudo ./scripts/ubuntu-prereqs.sh ; fi
@@ -16,8 +16,9 @@ before_install:
 install:
   - if [[ "$BUILD_DOCKER" != true ]]; then ./scripts/dotnet-install.sh ; fi
   - if [[ "$BUILD_DOCKER" != true ]]; then PATH=$PATH:$HOME/.dotnet && export PATH ; fi
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then docker-compose -f docker-compose.yml -f docker-compose.tests.yml up -d tarantool ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then docker-compose -f docker-compose.yml up -d ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then tarantool tarantool/tarantool.lua ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then redis-server --daemonize yes ; fi
 
 script:
   - if [[ "$BUILD_DOCKER" != true ]]; then ./scripts/build-netcore.sh ; fi
