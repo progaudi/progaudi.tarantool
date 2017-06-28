@@ -13,7 +13,7 @@ using System.Net;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal class NetworkStreamPhysicalConnection : IPhysicalConnection
+    internal class SocketPhysicalConnection : IPhysicalConnection
     {
         private Stream _stream;
 
@@ -69,7 +69,7 @@ namespace ProGaudi.Tarantool.Client
         private static async Task ConnectAsync(Socket socket, string host, int port)
         {
             var resolved = await Dns.GetHostAddressesAsync(host);
-            for (var i = 0; i < resolved.Length; i++)
+            for (int i = 0; i < resolved.Length; i++)
             {
                 try
                 {
@@ -103,7 +103,18 @@ namespace ProGaudi.Tarantool.Client
         }
 #endif
 
-        public bool IsConnected => !_disposed && _stream != null;
+        public bool IsConnected
+        {
+            get
+            {
+                if (_disposed || _stream == null)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        }
 
         private void CheckConnectionStatus()
         {

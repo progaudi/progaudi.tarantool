@@ -25,6 +25,7 @@
   <ItemGroup>
     <PackageReference Include="MsgPack.Light" Version="1.2.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">

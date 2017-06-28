@@ -38,13 +38,7 @@ namespace ProGaudi.Tarantool.Client
             get;
         }
 
-        public bool IsConnected
-        {
-            get
-            {
-                return _logicalConnection.IsConnected();
-            }
-        }
+        public bool IsConnected => _logicalConnection.IsConnected();
 
         public static Task<Box> Connect(string host, int port)
         {
