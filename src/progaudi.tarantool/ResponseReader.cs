@@ -109,7 +109,7 @@ namespace ProGaudi.Tarantool.Client
             readingTask.ContinueWith(EndReading);
         }
 
-        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
+        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
         {
             try
             {
@@ -120,8 +120,7 @@ namespace ProGaudi.Tarantool.Client
                     throw new ObjectDisposedException(nameof(ResponseReader));
                 }
 
-                TaskCompletionSource<MemoryStream> request;
-                if (_pendingRequests.TryGetValue(requestId, out request))
+                if (_pendingRequests.TryGetValue(requestId, out var request))
                 {
                     _pendingRequests.Remove(requestId);
                 }
@@ -218,7 +217,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var resultStream = new MemoryStream(result);
             var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
-            var tcs = PopResponseCompletionSource(header.RequestId, resultStream);
+            var tcs = PopResponseCompletionSource(header.RequestId);
 
             if (tcs == null)
             {

@@ -10,12 +10,12 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly ClientOptions _clientOptions;
         private readonly IPhysicalConnection _physicalConnection;
-        private bool _disposed;
         private readonly Queue<Tuple<ArraySegment<byte>, ArraySegment<byte>>> _buffer;
         private readonly object _lock = new object();
         private readonly Thread _thread;
         private readonly ManualResetEventSlim _exitEvent;
         private readonly ManualResetEventSlim _newRequestsAvailable;
+        private bool _disposed;
 
         public ResponseWriter(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
         {
@@ -25,7 +25,7 @@ namespace ProGaudi.Tarantool.Client
             _thread = new Thread(WriteFunction)
             {
                 IsBackground = true,
-                Name = "Tarantool writer"
+                Name = $"{clientOptions.Name} :: Write"
             };
             _exitEvent = new ManualResetEventSlim();
             _newRequestsAvailable = new ManualResetEventSlim();
@@ -38,7 +38,7 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(ResponseReader));
             }
 
-            _clientOptions?.LogWriter?.WriteLine("Starting ResponseWriter.");
+            _clientOptions?.LogWriter?.WriteLine($"Starting {_thread.Name}.");
             _thread.Start();
         }
 
@@ -51,7 +51,7 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(ResponseReader));
             }
 
-            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: headers {header.Count} bytes, body {body.Count} bytes.");
+            _clientOptions?.LogWriter?.WriteLine($"{_thread.Name} is enqueuing request: headers {header.Count} bytes, body {body.Count} bytes.");
             bool shouldSignal;
             lock (_lock)
             {
@@ -109,12 +109,12 @@ namespace ProGaudi.Tarantool.Client
             var count = 0;
             while ((request = GetRequest()) != null)
             {
-                _clientOptions?.LogWriter?.WriteLine($"Writing request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
+                _clientOptions?.LogWriter?.WriteLine($"{_thread.Name} is writing request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
 
                 WriteBuffer(request.Item1);
                 WriteBuffer(request.Item2);
 
-                _clientOptions?.LogWriter?.WriteLine($"Wrote request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
+                _clientOptions?.LogWriter?.WriteLine($"{_thread.Name} wrote request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
 
                 count++;
                 if (limit > 0 && count > limit)
@@ -142,14 +142,5 @@ namespace ProGaudi.Tarantool.Client
 
             return null;
         }
-    }
-
-    internal interface IResponseWriter : IDisposable
-    {
-        void BeginWriting();
-
-        bool IsConnected { get; }
-
-        Task Write(ArraySegment<byte> header, ArraySegment<byte> body);
     }
 }
