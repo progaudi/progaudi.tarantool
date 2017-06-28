@@ -16,21 +16,21 @@ using ProGaudi.Tarantool.Client.Model;
 using System.Linq;
 
 public class NetworkPerformance : IAsyncLifetime
+{
+    Box tarantoolClient;
+    [Fact]
+    public async Task Test()
     {
-        Box tarantoolClient;
-        [Fact]
-        public async Task Test()
+        for (int i = 0; i < 1000; i++)
         {
-            for(int i=0;i<100;i++)
-            {
-                var result = await tarantoolClient.Call_1_6<TarantoolTuple<double>, TarantoolTuple<double>>(
-                    "math.sqrt", 
-                    TarantoolTuple.Create(1.3));
-                    var diff = Math.Abs(result.Data.Single().Item1 - Math.Sqrt(1.3));
+            var result = await tarantoolClient.Call_1_6<TarantoolTuple<double>, TarantoolTuple<double>>(
+                "math.sqrt",
+                TarantoolTuple.Create(1.3));
+            var diff = Math.Abs(result.Data.Single().Item1 - Math.Sqrt(1.3));
 
-                    diff.ShouldBeLessThan(double.Epsilon);
-            }
+            diff.ShouldBeLessThan(double.Epsilon);
         }
+    }
 
     Task IAsyncLifetime.DisposeAsync()
     {
@@ -43,4 +43,3 @@ public class NetworkPerformance : IAsyncLifetime
         tarantoolClient = await ProGaudi.Tarantool.Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource());
     }
 }
-    
