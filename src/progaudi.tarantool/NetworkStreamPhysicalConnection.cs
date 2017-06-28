@@ -39,7 +39,10 @@ namespace ProGaudi.Tarantool.Client
             options.LogWriter?.WriteLine("Starting socket connection...");
             var singleNode = options.ConnectionOptions.Nodes.Single();
 
-            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp)
+            {
+                NoDelay = true
+            };
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
 
             _stream = new NetworkStream(_socket, true);

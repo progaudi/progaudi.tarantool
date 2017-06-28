@@ -1,6 +1,7 @@
 version: '2'
 
 services:
+
   tarantool-client:
     build: .
     command: /app/scripts/test-netcore.sh
@@ -8,3 +9,10 @@ services:
         TARANTOOL_REPLICATION_SOURCE: "tarantool:3301"
     links:
         - tarantool
+        - redis
+
+  redis:
+    image: redis:3.0-alpine
+    command: redis-server
+    ports:
+      - 6379:6379

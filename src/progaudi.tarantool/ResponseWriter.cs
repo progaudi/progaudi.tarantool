@@ -22,7 +22,11 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions = clientOptions;
             _physicalConnection = physicalConnection;
             _buffer = new Queue<Tuple<ArraySegment<byte>, ArraySegment<byte>>>();
-            _thread = new Thread(WriteFunction);
+            _thread = new Thread(WriteFunction)
+            {
+                IsBackground = true,
+                Name = "Tarantool writer"
+            };
             _exitEvent = new ManualResetEventSlim();
             _newRequestsAvailable = new ManualResetEventSlim();
         }
@@ -48,10 +52,15 @@ namespace ProGaudi.Tarantool.Client
             }
 
             _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: headers {header.Count} bytes, body {body.Count} bytes.");
+            bool shouldSignal;
             lock (_lock)
+            {
                 _buffer.Enqueue(Tuple.Create(header, body));
+                shouldSignal = _buffer.Count == 1;
+            }
 
-            _newRequestsAvailable.Set();
+            if (shouldSignal)
+                _newRequestsAvailable.Set();
 
             return Task.CompletedTask;
         }
