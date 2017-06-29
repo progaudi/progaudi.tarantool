@@ -66,10 +66,10 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Connect()
         {
-            await _physicalConnection.Connect(_clientOptions);
+            await _physicalConnection.Connect(_clientOptions).ConfigureAwait(false);
 
             var greetingsResponseBytes = new byte[128];
-            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length);
+            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length).ConfigureAwait(false);
             if (readCount != greetingsResponseBytes.Length)
             {
                 throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
@@ -86,7 +86,7 @@ namespace ProGaudi.Tarantool.Client
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
 
-            await LoginIfNotGuest(greetings);
+            await LoginIfNotGuest(greetings).ConfigureAwait(false);
         }
 
         public bool IsConnected()
@@ -111,20 +111,20 @@ namespace ProGaudi.Tarantool.Client
 
             var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
 
-            await SendRequestWithEmptyResponse(authenticateRequest);
+            await SendRequestWithEmptyResponse(authenticateRequest).ConfigureAwait(false);
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout);
+            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout);
+            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout).ConfigureAwait(false);
         }
 
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, TimeSpan? timeout)
@@ -153,7 +153,7 @@ namespace ProGaudi.Tarantool.Client
                     responseTask = responseTask.WithCancellation(cts.Token);
                 }
 
-                var responseStream = await responseTask;
+                var responseStream = await responseTask.ConfigureAwait(false);
                 _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
 
                 return MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);

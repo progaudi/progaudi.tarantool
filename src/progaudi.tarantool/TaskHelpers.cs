@@ -17,13 +17,13 @@ namespace ProGaudi.Tarantool.Client
 
             using (cancellationToken.Register(() => cancellationCompletionSource.TrySetResult(true)))
             {
-                if (task != await Task.WhenAny(task, cancellationCompletionSource.Task))
+                if (task != await Task.WhenAny(task, cancellationCompletionSource.Task).ConfigureAwait(false))
                 {
                     throw new TimeoutException("Task was cancelled by timeout");
                 }
             }
 
-            return await task;
+            return await task.ConfigureAwait(false);
         }
     }
 }
