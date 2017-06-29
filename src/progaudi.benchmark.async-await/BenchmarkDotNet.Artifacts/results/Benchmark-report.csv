@@ -1,0 +1,2 @@
+Method;Job;AnalyzeLaunchVariance;EvaluateOverhead;MaxAbsoluteError;MaxRelativeError;MinInvokeCount;MinIterationTime;RemoveOutliers;Affinity;Jit;Platform;Runtime;AllowVeryLargeObjects;Concurrent;CpuGroups;Force;RetainVm;Server;Clock;EngineFactory;Toolchain;InvocationCount;IterationTime;LaunchCount;RunStrategy;TargetCount;UnrollFactor;WarmupCount;Mean;Error;StdDev
+Call;Core;False;Default;Default;Default;Default;Default;Default;15;RyuJit;X64;Core;False;True;False;True;False;False;Default;Default;Default;1;Default;Default;Default;Default;16;Default;448.1 us;16.68 us;47.86 us

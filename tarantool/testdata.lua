@@ -111,3 +111,9 @@ function clear_data(spaceNames)
 		truncate_space(spaceName)
 	end
 end
+
+local test_int = 0
+function test_for_benchmarking()
+	test_int = test_int + 1
+	return test_int
+end
