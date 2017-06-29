@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -14,7 +13,7 @@ using System.Net;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal class NetworkStreamPhysicalConnection : INetworkStreamPhysicalConnection
+    internal class NetworkStreamPhysicalConnection : IPhysicalConnection
     {
         private Stream _stream;
 
@@ -40,7 +39,10 @@ namespace ProGaudi.Tarantool.Client
             options.LogWriter?.WriteLine("Starting socket connection...");
             var singleNode = options.ConnectionOptions.Nodes.Single();
 
-            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp)
+            {
+                NoDelay = true
+            };
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port);
 
             _stream = new NetworkStream(_socket, true);
@@ -70,7 +72,7 @@ namespace ProGaudi.Tarantool.Client
         private static async Task ConnectAsync(Socket socket, string host, int port)
         {
             var resolved = await Dns.GetHostAddressesAsync(host);
-            for (int i = 0; i < resolved.Length; i++)
+            for (var i = 0; i < resolved.Length; i++)
             {
                 try
                 {
@@ -104,15 +106,7 @@ namespace ProGaudi.Tarantool.Client
         }
 #endif
 
-        public bool IsConnected()
-        {
-            if (_disposed || _stream == null)
-            {
-                return false;
-            }
-
-            return true;
-        }
+        public bool IsConnected => !_disposed && _stream != null;
 
         private void CheckConnectionStatus()
         {
@@ -121,7 +115,7 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(NetworkStreamPhysicalConnection));
             }
 
-            if (!IsConnected())
+            if (!IsConnected)
             {
                 throw ExceptionHelper.NotConnected();
             }

@@ -26,5 +26,7 @@ namespace ProGaudi.Tarantool.Client.Model
         public MsgPackContext MsgPackContext { get; }
 
         public ConnectionOptions ConnectionOptions { get; }
+
+        public string Name { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_name()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 
@@ -27,7 +27,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         public async Task throw_expection_for_non_existing_space_by_id()
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
-            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 
@@ -42,7 +42,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const uint indexId = 2;
-            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 
@@ -59,7 +59,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         {
             const string VSpaceName = "_vspace"; // that space always exist and contains other spaces.
             const string indexName = "owner";
-            using (var tarantoolClient = await Client.Box.Connect(ReplicationSourceFactory.GetReplicationSource()))
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
             {
                 var schema = tarantoolClient.GetSchema();
 

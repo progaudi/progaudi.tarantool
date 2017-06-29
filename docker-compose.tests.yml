@@ -1,6 +1,7 @@
 version: '2'
 
 services:
+
   tarantool-client:
     build: .
     command: /app/scripts/test-netcore.sh
@@ -8,3 +9,4 @@ services:
         TARANTOOL_REPLICATION_SOURCE: "tarantool:3301"
     links:
         - tarantool
+        - redis

@@ -18,7 +18,7 @@ namespace ProGaudi.Tarantool.Client
 {
     internal class ResponseReader : IResponseReader
     {
-        private readonly INetworkStreamPhysicalConnection _physicalConnection;
+        private readonly IPhysicalConnection _physicalConnection;
 
         private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
             new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
@@ -35,11 +35,41 @@ namespace ProGaudi.Tarantool.Client
 
         private bool _disposed;
 
-        public ResponseReader(ClientOptions clientOptions, INetworkStreamPhysicalConnection physicalConnection)
+        public ResponseReader(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
         {
             _physicalConnection = physicalConnection;
             _clientOptions = clientOptions;
             _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
+        }
+
+        public bool IsConnected => !_disposed;
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            try
+            {
+                _pendingRequestsLock.EnterWriteLock();
+
+                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
+
+                foreach (var response in _pendingRequests.Values)
+                {
+                    response.SetException(new ObjectDisposedException(nameof(ResponseReader)));
+                }
+
+                _pendingRequests.Clear();
+            }
+            finally
+            {
+                _pendingRequestsLock.ExitWriteLock();
+            }
         }
 
         public Task<MemoryStream> GetResponseTask(RequestId requestId)
@@ -69,7 +99,17 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId, MemoryStream resultStream)
+        public void BeginReading()
+        {
+            var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
+
+            _clientOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
+
+            var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
+            readingTask.ContinueWith(EndReading);
+        }
+
+        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
         {
             try
             {
@@ -80,8 +120,7 @@ namespace ProGaudi.Tarantool.Client
                     throw new ObjectDisposedException(nameof(ResponseReader));
                 }
 
-                TaskCompletionSource<MemoryStream> request;
-                if (_pendingRequests.TryGetValue(requestId, out request))
+                if (_pendingRequests.TryGetValue(requestId, out var request))
                 {
                     _pendingRequests.Remove(requestId);
                 }
@@ -92,16 +131,6 @@ namespace ProGaudi.Tarantool.Client
             {
                 _pendingRequestsLock.ExitWriteLock();
             }
-        }
-
-        public void BeginReading()
-        {
-            var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
-
-            _clientOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
-
-            var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
-            readingTask.ContinueWith(EndReading);
         }
 
         private void EndReading(Task<int> readWork)
@@ -188,7 +217,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var resultStream = new MemoryStream(result);
             var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
-            var tcs = PopResponseCompletionSource(header.RequestId, resultStream);
+            var tcs = PopResponseCompletionSource(header.RequestId);
 
             if (tcs == null)
             {
@@ -287,39 +316,6 @@ namespace ProGaudi.Tarantool.Client
             Array.Resize(ref _buffer, _buffer.Length * 2);
             space = _buffer.Length - _readingOffset;
             return space;
-        }
-
-        public bool IsConnected()
-        {
-            return !_disposed;
-        }
-
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-
-            try
-            {
-                _pendingRequestsLock.EnterWriteLock();
-
-                _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
-
-                foreach (var response in _pendingRequests.Values)
-                {
-                    response.SetException(new InvalidOperationException("Can't read from physical connection."));
-                }
-
-                _pendingRequests.Clear();
-            }
-            finally
-            {
-                _pendingRequestsLock.ExitWriteLock();
-            }
         }
     }
 }

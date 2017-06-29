@@ -20,7 +20,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
             await ClearDataAsync("with_scalar_index");
 
             const string spaceName = "with_scalar_index";
-            var clientOptions = new ClientOptions(ReplicationSourceFactory.GetReplicationSource());
+            var clientOptions = new ClientOptions(ConnectionStringFactory.GetReplicationSource());
             using (var tarantoolClient = new Tarantool.Client.Box(clientOptions))
             {
                 await tarantoolClient.Connect();

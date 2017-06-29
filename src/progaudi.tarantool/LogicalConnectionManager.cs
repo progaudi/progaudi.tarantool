@@ -89,9 +89,9 @@ namespace ProGaudi.Tarantool.Client
 
                 _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
 
-                var _newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
-                await _newConnection.Connect();
-                Interlocked.Exchange(ref _droppableLogicalConnection, _newConnection)?.Dispose();
+                var newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
+                await newConnection.Connect();
+                Interlocked.Exchange(ref _droppableLogicalConnection, newConnection)?.Dispose();
 
                 _connected.Set();
 
