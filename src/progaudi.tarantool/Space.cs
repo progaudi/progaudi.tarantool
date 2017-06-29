@@ -97,19 +97,19 @@ namespace ProGaudi.Tarantool.Client
             return result;
         }
 
-        public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
+        public Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
             where TTuple : ITarantoolTuple
         {
             var insertRequest = new InsertRequest<TTuple>(Id, tuple);
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
+            return LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest);
         }
 
-        public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey)
+        public Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey)
           where TKey : ITarantoolTuple
           where TTuple : ITarantoolTuple
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, uint.MaxValue, 0, Iterator.Eq, selectKey);
-            return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
+            return LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest);
         }
 
         public async Task<TTuple> Get<TKey, TTuple>(TKey key)
@@ -121,11 +121,11 @@ namespace ProGaudi.Tarantool.Client
             return response.Data.SingleOrDefault();
         }
 
-        public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
+        public Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
             where TTuple : ITarantoolTuple
         {
             var replaceRequest = new ReplaceRequest<TTuple>(Id, tuple);
-            return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
+            return LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest);
         }
 
         public async Task<T> Put<T>(T tuple)
@@ -135,27 +135,27 @@ namespace ProGaudi.Tarantool.Client
             return response.Data.First();
         }
 
-        public async Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations)
+        public Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations)
             where TKey : ITarantoolTuple
             where TTuple : ITarantoolTuple
         {
             var updateRequest = new UpdateRequest<TKey>(Id, PrimaryIndexId, key, updateOperations);
-            return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
+            return LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest);
         }
 
-        public async Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations)
+        public Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations)
          where TTuple : ITarantoolTuple
         {
             var upsertRequest = new UpsertRequest<TTuple>(Id, tuple, updateOperations);
-            await LogicalConnection.SendRequestWithEmptyResponse(upsertRequest);
+            return LogicalConnection.SendRequestWithEmptyResponse(upsertRequest);
         }
 
-        public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
+        public Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
            where TTuple : ITarantoolTuple
            where TKey : ITarantoolTuple
         {
             var deleteRequest = new DeleteRequest<TKey>(Id, PrimaryIndexId, key);
-            return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
+            return LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest);
         }
 
         public Task<uint> Count<TKey>(TKey key)

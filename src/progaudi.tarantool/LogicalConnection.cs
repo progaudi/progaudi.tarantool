@@ -115,16 +115,16 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout);
+            return SendRequestImpl<TRequest, EmptyResponse>(request, timeout);
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+        public Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout);
+            return SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout);
         }
 
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, TimeSpan? timeout)
