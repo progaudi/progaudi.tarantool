@@ -33,7 +33,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var selectIndexRequest = new SelectRequest<TarantoolTuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(name));
 
-            var response = await _logicalConnection.SendRequest<SelectRequest<TarantoolTuple<string>>, Space>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<TarantoolTuple<string>>, Space>(selectIndexRequest).ConfigureAwait(false);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)
@@ -50,7 +50,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var selectIndexRequest = new SelectRequest<TarantoolTuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(id));
 
-            var response = await _logicalConnection.SendRequest<SelectRequest<TarantoolTuple<uint>>, Space>(selectIndexRequest);
+            var response = await _logicalConnection.SendRequest<SelectRequest<TarantoolTuple<uint>>, Space>(selectIndexRequest).ConfigureAwait(false);
 
             var result = response.Data.SingleOrDefault();
             if (result == null)

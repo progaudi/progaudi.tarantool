@@ -90,7 +90,7 @@ namespace ProGaudi.Tarantool.Client
                 _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
 
                 var newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
-                await newConnection.Connect();
+                await newConnection.Connect().ConfigureAwait(false);;
                 Interlocked.Exchange(ref _droppableLogicalConnection, newConnection)?.Dispose();
 
                 _connected.Set();
@@ -160,9 +160,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null) where TRequest : IRequest
         {
-            await Connect();
+            await Connect().ConfigureAwait(false);
 
-            var result = await _droppableLogicalConnection.SendRequest<TRequest, TResponse>(request, timeout);
+            var result = await _droppableLogicalConnection.SendRequest<TRequest, TResponse>(request, timeout).ConfigureAwait(false);
 
             ScheduleNextPing();
 
@@ -171,9 +171,9 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null) where TRequest : IRequest
         {
-            await Connect();
+            await Connect().ConfigureAwait(false);
 
-            await _droppableLogicalConnection.SendRequestWithEmptyResponse(request, timeout);
+            await _droppableLogicalConnection.SendRequestWithEmptyResponse(request, timeout).ConfigureAwait(false);
 
             ScheduleNextPing();
         }
