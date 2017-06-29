@@ -24,8 +24,6 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly ReaderWriterLockSlim _physicalConnectionLock = new ReaderWriterLockSlim();
-
         private readonly IResponseReader _responseReader;
 
         private readonly IResponseWriter _responseWriter;
@@ -146,27 +144,6 @@ namespace ProGaudi.Tarantool.Client
             await _responseWriter.Write(
                 new ArraySegment<byte>(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength),
                 new ArraySegment<byte>(bodyBuffer, 0, bodyBuffer.Length));
-
-            //try
-            //{
-            //    _physicalConnectionLock.EnterWriteLock();
-
-            //    _logWriter?.WriteLine($"Begin sending request header buffer, requestId: {requestId}, code: {request.Code}, length: {headerBuffer.Length}");
-            //    _physicalConnection.Write(headerBuffer, 0, Constants.PacketSizeBufferSize + (int)headerLength);
-
-            //    _logWriter?.WriteLine($"Begin sending request body buffer, length: {bodyBuffer.Length}");
-            //    _physicalConnection.Write(bodyBuffer, 0, bodyBuffer.Length);
-            //}
-            //catch
-            //{
-            //    _logWriter?.WriteLine($"Request with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
-            //    Dispose();
-            //    throw;
-            //}
-            //finally
-            //{
-            //    _physicalConnectionLock.ExitWriteLock();
-            //}
 
             try
             {

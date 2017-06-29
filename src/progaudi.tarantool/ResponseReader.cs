@@ -61,7 +61,7 @@ namespace ProGaudi.Tarantool.Client
 
                 foreach (var response in _pendingRequests.Values)
                 {
-                    response.SetException(new InvalidOperationException("Can't read from physical connection."));
+                    response.SetException(new ObjectDisposedException(nameof(ResponseReader)));
                 }
 
                 _pendingRequests.Clear();

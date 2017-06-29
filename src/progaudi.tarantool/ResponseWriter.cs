@@ -105,6 +105,17 @@ namespace ProGaudi.Tarantool.Client
                 _physicalConnection.Write(buffer.Array, buffer.Offset, buffer.Count);
             }
 
+            Tuple<ArraySegment<byte>, ArraySegment<byte>> GetRequest()
+            {
+                lock (_lock)
+                {
+                    if (_buffer.Count > 0)
+                        return _buffer.Dequeue();
+                }
+
+                return null;
+            }
+
             Tuple<ArraySegment<byte>, ArraySegment<byte>> request;
             var count = 0;
             while ((request = GetRequest()) != null)
@@ -130,17 +141,6 @@ namespace ProGaudi.Tarantool.Client
             }
 
             _physicalConnection.Flush();
-        }
-
-        private Tuple<ArraySegment<byte>, ArraySegment<byte>> GetRequest()
-        {
-            lock (_lock)
-            {
-                if (_buffer.Count > 0)
-                    return _buffer.Dequeue();
-            }
-
-            return null;
         }
     }
 }

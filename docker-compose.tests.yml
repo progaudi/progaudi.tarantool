@@ -7,7 +7,6 @@ services:
     command: /app/scripts/test-netcore.sh
     environment:
         TARANTOOL_REPLICATION_SOURCE: "tarantool:3301"
-        TEAMCITY_PROJECT_NAME: 123
     links:
         - tarantool
         - redis
