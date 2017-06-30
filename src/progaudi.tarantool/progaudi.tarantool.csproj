@@ -2,7 +2,7 @@
   <PropertyGroup>
     <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
     <PatchLevelVersion Condition=" '$(BuildNumber)' != '' ">$(BuildNumber).1-prerelease</PatchLevelVersion>
-    <Version>0.7.$(PatchLevelVersion)</Version>
+    <Version>0.8.$(PatchLevelVersion)</Version>
 
     <Description>Tarantool low-level client Library</Description>
     <TargetFrameworks>net46;netstandard1.4</TargetFrameworks>
