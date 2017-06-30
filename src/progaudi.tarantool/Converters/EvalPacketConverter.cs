@@ -9,7 +9,6 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class EvalPacketConverter<T> : IMsgPackConverter<EvalRequest<T>>
-        where T:ITarantoolTuple
     {
         private IMsgPackConverter<Key> _keyConverter;
         private IMsgPackConverter<string> _stringConverter;

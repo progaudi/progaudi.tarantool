@@ -4,7 +4,6 @@ using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class UpsertRequest<TTuple> : IRequest
-        where TTuple : ITarantoolTuple
     {
         public UpsertRequest(uint spaceId, TTuple tuple, UpdateOperation[] updateOperations)
         {

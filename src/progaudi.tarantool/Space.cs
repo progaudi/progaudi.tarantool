@@ -98,23 +98,18 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
-            where TTuple : ITarantoolTuple
         {
             var insertRequest = new InsertRequest<TTuple>(Id, tuple);
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey)
-          where TKey : ITarantoolTuple
-          where TTuple : ITarantoolTuple
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, uint.MaxValue, 0, Iterator.Eq, selectKey);
             return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest).ConfigureAwait(false);
         }
 
         public async Task<TTuple> Get<TKey, TTuple>(TKey key)
-            where TKey : ITarantoolTuple
-          where TTuple : ITarantoolTuple
         {
             var selectRequest = new SelectRequest<TKey>(Id, PrimaryIndexId, 1, 0, Iterator.Eq, key);
             var response = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest).ConfigureAwait(false);
@@ -122,44 +117,36 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
-            where TTuple : ITarantoolTuple
         {
             var replaceRequest = new ReplaceRequest<TTuple>(Id, tuple);
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest).ConfigureAwait(false);
         }
 
         public async Task<T> Put<T>(T tuple)
-            where T : ITarantoolTuple
         {
             var response = await Replace(tuple).ConfigureAwait(false);
             return response.Data.First();
         }
 
         public async Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple
         {
             var updateRequest = new UpdateRequest<TKey>(Id, PrimaryIndexId, key, updateOperations);
             return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest).ConfigureAwait(false);
         }
 
         public async Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations)
-         where TTuple : ITarantoolTuple
         {
             var upsertRequest = new UpsertRequest<TTuple>(Id, tuple, updateOperations);
             await LogicalConnection.SendRequestWithEmptyResponse(upsertRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
-           where TTuple : ITarantoolTuple
-           where TKey : ITarantoolTuple
         {
             var deleteRequest = new DeleteRequest<TKey>(Id, PrimaryIndexId, key);
             return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest).ConfigureAwait(false);
         }
 
         public Task<uint> Count<TKey>(TKey key)
-           where TKey : ITarantoolTuple
         {
             throw new NotImplementedException();
         }
@@ -170,24 +157,18 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple
         {
             // Currently we can't impelment that method because Upsert returns void.
            throw new NotImplementedException();
         }
 
         public Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple
         {
             // Currently we can't impelment that method because Upsert returns void.
             throw new NotImplementedException();
         }
 
         public TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)
-            where TTuple : ITarantoolTuple
-            where TRest : ITarantoolTuple
         {
             throw new NotImplementedException();
         }

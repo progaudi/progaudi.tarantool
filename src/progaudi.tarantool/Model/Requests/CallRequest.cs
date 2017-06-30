@@ -3,7 +3,6 @@
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class CallRequest<T> : IRequest
-        where T : ITarantoolTuple
     {
         private readonly bool _use17;
 

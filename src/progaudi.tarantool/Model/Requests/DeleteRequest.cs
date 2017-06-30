@@ -3,7 +3,6 @@
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class DeleteRequest<T> : IRequest
-        where T : ITarantoolTuple
     {
         public DeleteRequest(uint spaceId, uint indexId, T key)
         {

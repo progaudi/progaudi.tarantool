@@ -17,28 +17,21 @@ namespace ProGaudi.Tarantool.Client
 
         Task Call_1_6(string functionName);
 
-        Task Call_1_6<TTuple>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple;
+        Task Call_1_6<TTuple>(string functionName, TTuple parameters);
 
-        Task<DataResponse<TResponse[]>> Call_1_6<TResponse>(string functionName)
-            where TResponse : ITarantoolTuple;
+        Task<DataResponse<TResponse[]>> Call_1_6<TResponse>(string functionName);
 
-        Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple
-            where TResponse : ITarantoolTuple;
+        Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters);
 
         Task Call(string functionName);
 
-        Task Call<TTuple>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple;
+        Task Call<TTuple>(string functionName, TTuple parameters);
 
         Task<DataResponse<TResponse[]>> Call<TResponse>(string functionName);
 
-        Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters);
 
-        Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters);
 
         Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression);
     }
