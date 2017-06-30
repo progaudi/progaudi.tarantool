@@ -40,15 +40,15 @@ namespace dotnet.Controllers
 
         public async Task<ViewResult> Index()
         {
-            var allDogs = await _primaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long, MsgPackToken>>(TarantoolTuple.Create(-1L), new SelectOptions { Iterator = Iterator.All });
-            var seniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long, MsgPackToken>>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Ge });
-            var juniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, TarantoolTuple<long, string, long, MsgPackToken>>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Le });
+            var allDogs = await _primaryIndex.Select<TarantoolTuple<long>, Dog>(TarantoolTuple.Create(-1L), new SelectOptions { Iterator = Iterator.All });
+            var seniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, Dog>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Ge });
+            var juniorDogs = await _secondaryIndex.Select<TarantoolTuple<long>, Dog>(TarantoolTuple.Create(5L), new SelectOptions { Iterator = Iterator.Le });
 
             return View(new []
             {
-                allDogs.Data.Select(x => new Dog(x)).ToArray(),
-                seniorDogs.Data.Select(x => new Dog(x)).ToArray(),
-                juniorDogs.Data.Select(x => new Dog(x)).ToArray()
+                allDogs.Data,
+                seniorDogs.Data,
+                juniorDogs.Data
             });
         }
     }
