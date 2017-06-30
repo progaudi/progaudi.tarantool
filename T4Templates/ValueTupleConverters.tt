@@ -1,0 +1,52 @@
+<#@ assembly name="System.Core" #>  
+<#@ import namespace="System.Linq" #>
+using System;
+using ProGaudi.MsgPack.Light;
+using ProGaudi.Tarantool.Client.Utils;
+
+namespace ProGaudi.Tarantool.Client.Converters{
+<#
+ var maxParametersCount = 8;
+ var typeParameters = new Func<int, string>(count => string.Join(", ", System.Linq.Enumerable.Range(1, count).Select(num => $"T{num}")));
+for(int i=1;i < maxParametersCount; i++){
+#>
+	public class ValueTupleConverter<<#= typeParameters(i)#>> :IMsgPackConverter<ValueTuple<<#= typeParameters(i)#>>>
+    {<# for (int j= 1; j <= i; j++){#>
+		private IMsgPackConverter<T<#= j #>> _t<#= j #>Converter;
+		<#}#>
+        public void Initialize(MsgPackContext context)
+        {<# for (int j= 1; j <= i; j++){#>
+			_t<#= j #>Converter = context.GetConverter<T<#= j #>>();<#}#>
+        }
+
+        public void Write(ValueTuple<<#= typeParameters(i)#>> value, IMsgPackWriter writer)
+        {
+            writer.WriteArrayHeader(<#= i #>);
+			<# for (int j= 1; j <= i; j++){#>
+			_t<#= j #>Converter.Write(value.Item<#= j #>, writer);<#}#>
+        }
+
+        public ValueTuple<<#= typeParameters(i)#>> Read(IMsgPackReader reader)
+        {
+            var actual = reader.ReadArrayLength();
+            if (actual == null)
+            {
+                return default(ValueTuple<<#= typeParameters(i)#>>);
+            }
+
+            const uint expected = <#= i #>;
+            if (actual != expected)
+            {
+                throw ExceptionHelper.InvalidArrayLength(expected, actual);
+            }
+			<# for (int j= 1; j <= i; j++){#>
+			var item<#= j #> = _t<#= j #>Converter.Read(reader);<#}#>
+
+            return ValueTuple.Create(<# for (int j= 1; j <= i; j++){#>
+			item<#= j #><#= j==i?"":"," #><#}#>
+			);
+        }
+    }
+	<#
+}#>
+}

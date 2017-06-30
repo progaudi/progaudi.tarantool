@@ -28,6 +28,53 @@
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="T4Templates\TarantoolTuples.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TarantoolTuples.cs</LastGenOutput>
+    </None>
+    <None Update="T4Templates\SystemTupleConverters.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SystemTupleConverters.cs</LastGenOutput>
+    </None>
+    <None Update="T4Templates\ValueTupleConverters.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ValueTupleConverters.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Converters\SystemTupleConverters.cs">
+      <DependentUpon>SystemTupleConverters.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Converters\ValueTupleConverters.cs">
+      <DependentUpon>ValueTupleConverters.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="T4Templates\TarantoolTuples.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TarantoolTuples.tt</DependentUpon>
+    </Compile>
+    <Compile Update="T4Templates\SystemTupleConverters.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SystemTupleConverters.tt</DependentUpon>
+    </Compile>
+    <Compile Update="T4Templates\ValueTupleConverters.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ValueTupleConverters.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">
     <DefineConstants>$(DefineConstants);PROGAUDI_NETCORE</DefineConstants>
   </PropertyGroup>

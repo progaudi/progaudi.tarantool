@@ -55,6 +55,22 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterGenericConverter(typeof(TupleConverter<,,,,,>));
             context.RegisterGenericConverter(typeof(TupleConverter<,,,,,,>));
             context.RegisterGenericConverter(typeof(TupleConverter<,,,,,,,>));
+
+            context.RegisterGenericConverter(typeof(SystemTupleConverter<>));
+            context.RegisterGenericConverter(typeof(SystemTupleConverter<,>));
+            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,>));
+            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,>));
+            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,,>));
+            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,,,>));
+            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,,,,>));
+
+            context.RegisterGenericConverter(typeof(ValueTupleConverter<>));
+            context.RegisterGenericConverter(typeof(ValueTupleConverter<,>));
+            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,>));
+            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,>));
+            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,,>));
+            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,,,>));
+            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,,,,>));
         }
     }
 }
