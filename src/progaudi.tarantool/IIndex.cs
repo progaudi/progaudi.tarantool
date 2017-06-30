@@ -23,53 +23,35 @@ namespace ProGaudi.Tarantool.Client
 
         IReadOnlyList<IndexPart> Parts { get; }
 
-        Task<IEnumerable<TResult>> Pairs<TValue, TResult>(TValue value, Iterator iterator)
-            where TResult : ITarantoolTuple;
+        Task<IEnumerable<TResult>> Pairs<TValue, TResult>(TValue value, Iterator iterator);
 
-        Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null);
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple);
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
-        Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple);
 
-        Task<TTuple> Min<TTuple>()
-            where TTuple : ITarantoolTuple;
+        Task<TTuple> Min<TTuple>();
 
-        Task<TTuple> Min<TTuple, TKey>(TKey key)
-            where TTuple : ITarantoolTuple
-            where TKey : class, ITarantoolTuple;
+        Task<TTuple> Min<TTuple, TKey>(TKey key);
 
-        Task<TTuple> Max<TTuple>()
-            where TTuple : ITarantoolTuple;
+        Task<TTuple> Max<TTuple>();
 
-        Task<TTuple> Max<TTuple, TKey>(TKey key = null)
-            where TTuple : ITarantoolTuple
-            where TKey : class, ITarantoolTuple;
+        Task<TTuple> Max<TTuple, TKey>(TKey key);
 
-        TTuple Random<TTuple>(int randomValue)
-            where TTuple : ITarantoolTuple;
+        TTuple Random<TTuple>(int randomValue);
 
-        uint Count<TKey>(TKey key = null, Iterator it = Iterator.Eq)
-            where TKey : class, ITarantoolTuple;
+        uint Count<TKey>(TKey key, Iterator it = Iterator.Eq);
 
-        Task<DataResponse<TTuple[]>> Update<TTuple, TKey>(TKey key, UpdateOperation[] updateOperations)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Update<TTuple, TKey>(TKey key, UpdateOperation[] updateOperations);
 
-        Task Upsert<TKey>(TKey key, UpdateOperation[] updateOperations)
-            where TKey : ITarantoolTuple;
+        Task Upsert<TKey>(TKey key, UpdateOperation[] updateOperations);
 
-        Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key);
 
         Task Alter(IndexCreationOptions options);
 

@@ -33,50 +33,31 @@ namespace ProGaudi.Tarantool.Client
 
         Task<IIndex> GetIndex(uint indexId);
 
-        Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple);
 
-        Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey);
 
-        Task<TTuple> Get<TKey, TTuple>(TKey key)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<TTuple> Get<TKey, TTuple>(TKey key);
 
-        Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple);
 
-        Task<T> Put<T>(T tuple)
-            where T : ITarantoolTuple;
+        Task<T> Put<T>(T tuple);
 
-        Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations);
 
-        Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations)
-            where TTuple : ITarantoolTuple;
+        Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations);
 
-        Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
-            where TTuple : ITarantoolTuple
-            where TKey : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key);
 
-        Task<uint> Count<TKey>(TKey key)
-            where TKey : ITarantoolTuple;
+        Task<uint> Count<TKey>(TKey key);
 
         Task<uint> Length();
 
-        Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key);
 
-        Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key)
-            where TKey : ITarantoolTuple
-            where TTuple : ITarantoolTuple;
+        Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key);
 
-        TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest)
-            where TTuple : ITarantoolTuple
-            where TRest : ITarantoolTuple;
+        TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest);
 
         Task<IEnumerable<KeyValuePair<TKey, TValue>>> Pairs<TKey, TValue>();
     }

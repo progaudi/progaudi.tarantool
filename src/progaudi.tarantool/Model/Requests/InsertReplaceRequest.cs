@@ -3,7 +3,6 @@
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public abstract class InsertReplaceRequest<T> : IRequest
-        where T : ITarantoolTuple
     {
         protected InsertReplaceRequest(CommandCode code, uint spaceId, T tuple)
         {

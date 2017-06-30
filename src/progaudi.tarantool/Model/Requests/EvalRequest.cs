@@ -3,7 +3,6 @@
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
     public class EvalRequest<T> : IRequest
-        where T : ITarantoolTuple
     {
         public EvalRequest(string expression, T tuple)
         {

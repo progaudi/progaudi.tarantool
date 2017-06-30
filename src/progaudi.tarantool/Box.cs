@@ -69,20 +69,16 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task Call_1_6<TTuple>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple
         {
             await Call_1_6<TTuple, TarantoolTuple>(functionName, parameters).ConfigureAwait(false);
         }
 
         public Task<DataResponse<TResponse[]>> Call_1_6<TResponse>(string functionName)
-            where TResponse : ITarantoolTuple
         {
             return Call_1_6<TarantoolTuple, TResponse>(functionName, TarantoolTuple.Empty);
         }
 
         public async Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple
-            where TResponse : ITarantoolTuple
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters, false);
             return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
@@ -94,7 +90,6 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task Call<TTuple>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple
         {
             await Call<TTuple, TarantoolTuple>(functionName, parameters).ConfigureAwait(false);
         }
@@ -105,14 +100,12 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
-            where TTuple : ITarantoolTuple
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters);
             return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
-           where TTuple : ITarantoolTuple
         {
             var evalRequest = new EvalRequest<TTuple>(expression, parameters);
             return await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest).ConfigureAwait(false);
