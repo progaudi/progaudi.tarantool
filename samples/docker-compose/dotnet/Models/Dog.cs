@@ -3,21 +3,30 @@ using ProGaudi.Tarantool.Client.Model;
 
 namespace dotnet.Models
 {
+    [MsgPackArray]
     public class Dog
     {
-        public Dog(TarantoolTuple<long, string, long, MsgPackToken> tuple)
+        private MsgPackToken _addditionalDataRaw;
+
+        [MsgPackArrayElement(0)]
+        public long Id { get; set; }
+
+        [MsgPackArrayElement(1)]
+        public string Name { get; set; }
+
+        [MsgPackArrayElement(2)]
+        public long Age { get; set; }
+
+        [MsgPackArrayElement(3)]
+        public MsgPackToken AddditionalDataRaw
         {
-            Id = tuple.Item1;
-            Name = tuple.Item2;
-            Age = tuple.Item3;
-            var _ = TryParseString(tuple.Item4) || TryParseInt(tuple.Item4);
+            get => _addditionalDataRaw;
+            set
+            {
+                _addditionalDataRaw = value;
+                var _ = TryParseString(value) || TryParseInt(value);
+            }
         }
-
-        public long Id { get; }
-
-        public string Name { get; }
-
-        public long Age { get; }
 
         public string AdditionalData { get; private set; }
 

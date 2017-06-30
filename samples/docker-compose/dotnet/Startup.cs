@@ -1,10 +1,12 @@
+using dotnet.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client;
+using ProGaudi.Tarantool.Client.Model;
 
 namespace dotnet
 {
@@ -28,7 +30,14 @@ namespace dotnet
             // Add framework services.
             services.AddMvc();
 
-            var box = Box.Connect("operator:123123@tarantool1:3301").GetAwaiter().GetResult();
+            var msgPackContext = new MsgPackContext();
+            msgPackContext.GenerateAndRegisterArrayConverter<Dog>();
+
+            var clientOptions = new ClientOptions("operator:123123@tarantool1:3301", context: msgPackContext);
+
+            var box = new Box(clientOptions);
+            box.Connect().ConfigureAwait(false).GetAwaiter().GetResult();
+            
             services.AddSingleton(box);
         }
 
