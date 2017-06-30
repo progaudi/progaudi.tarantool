@@ -17,8 +17,11 @@ namespace ProGaudi.Tarantool.Client.Model
         private ClientOptions(ConnectionOptions options, ILog log, MsgPackContext context)
         {
             ConnectionOptions = options;
-            LogWriter = log;
             MsgPackContext = context ?? new MsgPackContext();
+            if (log != null)
+            {
+                LogWriter = new LogWriterWrapper(this, log);
+            }
         }
 
         public ILog LogWriter { get; }
@@ -28,5 +31,27 @@ namespace ProGaudi.Tarantool.Client.Model
         public ConnectionOptions ConnectionOptions { get; }
 
         public string Name { get; set; }
+
+        private class LogWriterWrapper : ILog
+        {
+            private readonly ClientOptions _options;
+            private readonly ILog _log;
+
+            public LogWriterWrapper(ClientOptions options, ILog log)
+            {
+                _options = options;
+                _log = log;
+            }
+
+            public void WriteLine(string message)
+            {
+                _log.WriteLine($"[{_options.Name}] {message}");
+            }
+
+            public void Flush()
+            {
+                _log.Flush();
+            }
+        }
     }
 }

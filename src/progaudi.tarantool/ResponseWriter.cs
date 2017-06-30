@@ -38,7 +38,7 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(ResponseReader));
             }
 
-            _clientOptions?.LogWriter?.WriteLine($"Starting {_thread.Name}.");
+            _clientOptions?.LogWriter?.WriteLine("Starting thread");
             _thread.Start();
         }
 
@@ -51,7 +51,7 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(ResponseReader));
             }
 
-            _clientOptions?.LogWriter?.WriteLine($"{_thread.Name} is enqueuing request: headers {header.Count} bytes, body {body.Count} bytes.");
+            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: headers {header.Count} bytes, body {body.Count} bytes.");
             bool shouldSignal;
             lock (_lock)
             {
@@ -120,12 +120,12 @@ namespace ProGaudi.Tarantool.Client
             var count = 0;
             while ((request = GetRequest()) != null)
             {
-                _clientOptions?.LogWriter?.WriteLine($"{_thread.Name} is writing request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
+                _clientOptions?.LogWriter?.WriteLine($"Writing request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
 
                 WriteBuffer(request.Item1);
                 WriteBuffer(request.Item2);
 
-                _clientOptions?.LogWriter?.WriteLine($"{_thread.Name} wrote request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
+                _clientOptions?.LogWriter?.WriteLine($"Wrote request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
 
                 count++;
                 if (limit > 0 && count > limit)
