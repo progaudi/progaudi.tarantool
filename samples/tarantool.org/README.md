@@ -33,7 +33,7 @@ cat <<EOT > Program.cs
 using System;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client;
-using ProGaudi.Tarantool.Client.Model;
+
 public class HelloWorld
 {
   static public void Main ()
@@ -45,7 +45,7 @@ public class HelloWorld
     var box = await Box.Connect("127.0.0.1:3301");
     var schema = box.GetSchema();
     var space = await schema.GetSpace("examples");
-    await space.Insert(TarantoolTuple.Create(99999, "BB"));
+    await space.Insert((99999, "BB"));
   }
 }
 EOT
