@@ -4,7 +4,7 @@ The most commonly used C# driver is [progaudi.tarantool](https://github.com/prog
 
 ## Install .net core from Microsoft
 
-Use .net core installation instructions at https://www.microsoft.com/net/core#ubuntu
+Use .net core installation instructions at https://www.microsoft.com/net/core#linuxubuntu
 NOTE:
 1. Mono will not work, nor will .Net from xbuild. Only .net core supported on linux and mac.
 2. Read the Microsoft End User License Agreement first, because it is not an ordinary open-source agreement and there will be a message during installation saying “This software may collect information about you and your use of the software, and send that to Microsoft.”
