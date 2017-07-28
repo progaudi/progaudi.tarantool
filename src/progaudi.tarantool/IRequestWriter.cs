@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal interface IResponseWriter : IDisposable
+    internal interface IRequestWriter : IDisposable
     {
         void BeginWriting();
 

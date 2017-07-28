@@ -26,7 +26,7 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly IResponseReader _responseReader;
 
-        private readonly IResponseWriter _responseWriter;
+        private readonly IRequestWriter _requestWriter;
 
         private readonly ILog _logWriter;
 
@@ -41,7 +41,7 @@ namespace ProGaudi.Tarantool.Client
 
             _physicalConnection = new NetworkStreamPhysicalConnection();
             _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
-            _responseWriter = new ResponseWriter(_clientOptions, _physicalConnection);
+            _requestWriter = new RequestWriter(_clientOptions, _physicalConnection);
         }
 
         public uint PingsFailedByTimeoutCount
@@ -60,7 +60,7 @@ namespace ProGaudi.Tarantool.Client
             _disposed = true;
 
             _responseReader.Dispose();
-            _responseWriter.Dispose();
+            _requestWriter.Dispose();
             _physicalConnection.Dispose();
         }
 
@@ -82,7 +82,7 @@ namespace ProGaudi.Tarantool.Client
             PingsFailedByTimeoutCount = 0;
 
             _responseReader.BeginReading();
-            _responseWriter.BeginWriting();
+            _requestWriter.BeginWriting();
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
 
@@ -96,7 +96,7 @@ namespace ProGaudi.Tarantool.Client
                 return false;
             }
 
-            return _responseReader.IsConnected && _responseWriter.IsConnected && _physicalConnection.IsConnected;
+            return _responseReader.IsConnected && _requestWriter.IsConnected && _physicalConnection.IsConnected;
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
@@ -141,7 +141,7 @@ namespace ProGaudi.Tarantool.Client
             var responseTask = _responseReader.GetResponseTask(requestId);
 
             var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out var headerLength);
-            await _responseWriter.Write(
+            await _requestWriter.Write(
                 new ArraySegment<byte>(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength),
                 new ArraySegment<byte>(bodyBuffer, 0, bodyBuffer.Length));
 

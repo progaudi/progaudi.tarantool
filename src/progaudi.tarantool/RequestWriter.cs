@@ -6,7 +6,7 @@ using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal class ResponseWriter : IResponseWriter
+    internal class RequestWriter : IRequestWriter
     {
         private readonly ClientOptions _clientOptions;
         private readonly IPhysicalConnection _physicalConnection;
@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client
         private readonly ManualResetEventSlim _newRequestsAvailable;
         private bool _disposed;
 
-        public ResponseWriter(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
+        public RequestWriter(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
         {
             _clientOptions = clientOptions;
             _physicalConnection = physicalConnection;
