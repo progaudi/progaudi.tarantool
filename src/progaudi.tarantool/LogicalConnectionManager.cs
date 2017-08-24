@@ -31,7 +31,7 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly int _pingCheckInterval = 1000;
 
-        private readonly TimeSpan? _pingTimeout = null;
+        private readonly TimeSpan? _pingTimeout;
 
         private DateTimeOffset _nextPingTime = DateTimeOffset.MinValue;
 
@@ -44,16 +44,10 @@ namespace ProGaudi.Tarantool.Client
                 _pingCheckInterval = _clientOptions.ConnectionOptions.PingCheckInterval;
             }
 
-            this._pingTimeout = this._clientOptions.ConnectionOptions.PingCheckTimeout;
+            _pingTimeout = _clientOptions.ConnectionOptions.PingCheckTimeout;
         }
 
-        public uint PingsFailedByTimeoutCount
-        {
-            get
-            {
-                return _droppableLogicalConnection?.PingsFailedByTimeoutCount ?? 0;
-            }
-        }
+        public uint PingsFailedByTimeoutCount => _droppableLogicalConnection?.PingsFailedByTimeoutCount ?? 0;
 
         public void Dispose()
         {
@@ -135,15 +129,7 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public bool IsConnected()
-        {
-            if (!_connected.WaitOne(_connectionTimeout))
-            {
-                return false;
-            }
-
-            return IsConnectedInternal();
-        }
+        public bool IsConnected() => _connected.WaitOne(_connectionTimeout) && IsConnectedInternal();
 
         private bool IsConnectedInternal()
         {
