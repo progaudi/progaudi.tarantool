@@ -140,9 +140,9 @@ namespace ProGaudi.Tarantool.Client
             var requestId = _requestIdCounter.GetRequestId();
             var responseTask = _responseReader.GetResponseTask(requestId);
 
-            var headerBuffer = CreateAndSerializeBuffer(request, requestId, bodyBuffer, out var headerLength);
-            await _requestWriter.Write(
-                new ArraySegment<byte>(headerBuffer, 0, Constants.PacketSizeBufferSize + (int) headerLength),
+            var headerBuffer = CreateAndSerializeHeader(request, requestId, bodyBuffer);
+            _requestWriter.Write(
+                headerBuffer,
                 new ArraySegment<byte>(bodyBuffer, 0, bodyBuffer.Length));
 
             try
@@ -175,11 +175,15 @@ namespace ProGaudi.Tarantool.Client
             return string.Join(" ", bytes.Select(b => b.ToString("X2")));
         }
 
-        private byte[] CreateAndSerializeBuffer<TRequest>(
+        private static string ToReadableString(ArraySegment<byte> bytes)
+        {
+            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
+        }
+
+        private ArraySegment<byte> CreateAndSerializeHeader<TRequest>(
             TRequest request,
             RequestId requestId,
-            byte[] serializedRequest,
-            out long headerLength) where TRequest : IRequest
+            byte[] serializedRequest) where TRequest : IRequest
         {
             var packetSizeBuffer = new byte[Constants.PacketSizeBufferSize + Constants.MaxHeaderLength];
             var stream = new MemoryStream(packetSizeBuffer);
@@ -188,11 +192,12 @@ namespace ProGaudi.Tarantool.Client
             stream.Seek(Constants.PacketSizeBufferSize, SeekOrigin.Begin);
             MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
 
-            headerLength = stream.Position - Constants.PacketSizeBufferSize;
+            var lengthAndHeaderLengthByteCount = (int)stream.Position;
+            var headerLength = lengthAndHeaderLengthByteCount - Constants.PacketSizeBufferSize;
             var packetLength = new PacketSize((uint) (headerLength + serializedRequest.Length));
             stream.Seek(0, SeekOrigin.Begin);
             MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
-            return packetSizeBuffer;
+            return new ArraySegment<byte>(packetSizeBuffer, 0, lengthAndHeaderLengthByteCount);
         }
     }
 }

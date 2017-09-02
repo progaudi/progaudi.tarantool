@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <WarningsAsErrors>true</WarningsAsErrors>
+
+    <AssemblyName>progaudi.tarantool.benchmark</AssemblyName>
+    <RootNamespace>ProGaudi.Tarantool.Benchmark</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.9" />
+    <PackageReference Include="StackExchange.Redis" Version="1.2.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\progaudi.tarantool\progaudi.tarantool.csproj" />
+  </ItemGroup>
+</Project>

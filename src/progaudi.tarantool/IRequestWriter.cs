@@ -9,6 +9,6 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected { get; }
 
-        Task Write(ArraySegment<byte> header, ArraySegment<byte> body);
+        void Write(ArraySegment<byte> header, ArraySegment<byte> body);
     }
 }

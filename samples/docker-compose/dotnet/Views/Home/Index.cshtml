@@ -4,6 +4,8 @@
     ViewData["Title"] = "Tarantool demo page";
 }
 
+<h1>Render time is @DateTimeOffset.Now.ToString("F")</h1>
+
 @Html.Partial("DogTablePartial", new DogTable(Model[0], "All dogs in Tarantool"))
 
 @Html.Partial("DogTablePartial", new DogTable(Model[1], "Senior dogs in Tarantool"))

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
@@ -44,7 +43,7 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected => !_disposed;
 
-        public Task Write(ArraySegment<byte> header, ArraySegment<byte> body)
+        public void Write(ArraySegment<byte> header, ArraySegment<byte> body)
         {
             if (_disposed)
             {
@@ -61,8 +60,6 @@ namespace ProGaudi.Tarantool.Client
 
             if (shouldSignal)
                 _newRequestsAvailable.Set();
-
-            return Task.CompletedTask;
         }
 
         public void Dispose()
