@@ -9,4 +9,4 @@ RUN dotnet build -c Release -f netcoreapp2.0 /app/dotnet.csproj
 
 EXPOSE 5000/tcp
 
-CMD ["dotnet", "run", "--server.urls", "http://*:5000"]
+CMD ["dotnet", "run"]
