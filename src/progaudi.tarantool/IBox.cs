@@ -11,9 +11,14 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected { get; }
 
-        Model.Metrics Metrics { get; }
+        Metrics Metrics { get; }
 
+        [Obsolete]
         ISchema GetSchema();
+
+        Task ReloadSchema();
+
+        ISchema Schema { get; }
 
         Task Call_1_6(string functionName);
 

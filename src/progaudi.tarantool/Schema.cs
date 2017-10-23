@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-
-using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Utils;
@@ -13,54 +12,55 @@ namespace ProGaudi.Tarantool.Client
     {
         private const int VSpace = 0x119;
 
-        private const int SpaceById = 0;
+        private const int VIndex = 0x121;
 
-        private const int SpaceByName = 2;
+        internal const uint PrimaryIndexId = 0;
 
         private readonly ILogicalConnection _logicalConnection;
+
+        private Dictionary<string, ISpace> _indexByName = new Dictionary<string, ISpace>();
+
+        private Dictionary<uint, ISpace> _indexById = new Dictionary<uint, ISpace>();
 
         public Schema(ILogicalConnection logicalConnection)
         {
             _logicalConnection = logicalConnection;
         }
 
-        public Task<ISpace> CreateSpaceAsync(string spaceName, SpaceCreationOptions options = null)
+        public Task<ISpace> GetSpace(string name) => Task.FromResult(this[name]);
+
+        public Task<ISpace> GetSpace(uint id) => Task.FromResult(this[id]);
+
+        public ISpace this[string name] => _indexByName.TryGetValue(name, out var space) ? space : throw ExceptionHelper.InvalidSpaceName(name);
+
+        public ISpace this[uint id] => _indexById.TryGetValue(id, out var space) ? space : throw ExceptionHelper.InvalidSpaceId(id);
+
+        public async Task Reload()
         {
-            throw new NotImplementedException();
-        }
+            var byName = new Dictionary<string, ISpace>();
+            var byId = new Dictionary<uint, ISpace>();
 
-        public async Task<ISpace> GetSpace(string name)
-        {
-            var selectIndexRequest = new SelectRequest<TarantoolTuple<string>>(VSpace, SpaceByName, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(name));
-
-            var response = await _logicalConnection.SendRequest<SelectRequest<TarantoolTuple<string>>, Space>(selectIndexRequest).ConfigureAwait(false);
-
-            var result = response.Data.SingleOrDefault();
-            if (result == null)
+            var spaces = await Select<Space>(VSpace).ConfigureAwait(false);
+            foreach (var space in spaces)
             {
-                throw ExceptionHelper.InvalidSpaceName(name);
+                byName[space.Name] = space;
+                byId[space.Id] = space;
+                space.LogicalConnection = _logicalConnection;
+                space.SetIndices(await Select<Index>(VIndex, Iterator.Eq, space.Id).ConfigureAwait(false));
             }
 
-            result.LogicalConnection = _logicalConnection;
-
-            return result;
+            Interlocked.Exchange(ref _indexByName, byName);
+            Interlocked.Exchange(ref _indexById, byId);
         }
 
-        public async Task<ISpace> GetSpace(uint id)
+        private async Task<T[]> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)
         {
-            var selectIndexRequest = new SelectRequest<TarantoolTuple<uint>>(VSpace, SpaceById, uint.MaxValue, 0, Iterator.Eq, TarantoolTuple.Create(id));
+            var request = new SelectRequest<ValueTuple<uint>>(spaceId, PrimaryIndexId, uint.MaxValue, 0, iterator, ValueTuple.Create(id));
 
-            var response = await _logicalConnection.SendRequest<SelectRequest<TarantoolTuple<uint>>, Space>(selectIndexRequest).ConfigureAwait(false);
-
-            var result = response.Data.SingleOrDefault();
-            if (result == null)
-            {
-                throw ExceptionHelper.InvalidSpaceId(id);
-            }
-
-            result.LogicalConnection = _logicalConnection;
-
-            return result;
+            var response = await _logicalConnection
+                .SendRequest<SelectRequest<ValueTuple<uint>>, T>(request)
+                .ConfigureAwait(false);
+            return response.Data;
         }
     }
 }

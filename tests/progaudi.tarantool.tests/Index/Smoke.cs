@@ -19,11 +19,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
             const string spaceName = "primary_only_index";
             using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
             {
-                var schema = tarantoolClient.GetSchema();
-
-                var space = await schema.GetSpace(spaceName);
-
-                var index = await space.GetIndex("primary");
+                var index = tarantoolClient.GetSchema()[spaceName]["primary"];
 
                 try
                 {
@@ -59,9 +55,9 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
             {
                 var schema = tarantoolClient.GetSchema();
 
-                var space = await schema.GetSpace(spaceName);
+                var space = schema[spaceName];
 
-                var index = await space.GetIndex("treeIndex");
+                var index = space["treeIndex"];
 
                 var min2 = await index.Min<TarantoolTuple<int, int, int>, TarantoolTuple<int>>(TarantoolTuple.Create(3));
                 min2.ShouldBe(null);

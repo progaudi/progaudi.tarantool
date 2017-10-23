@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
@@ -23,15 +24,15 @@ namespace ProGaudi.Tarantool.Client
 
         ILogicalConnection LogicalConnection { get; }
 
-        Task<IIndex> CreateIndex();
-
-        Task Drop();
-
-        Task Rename(string newName);
-
+        [Obsolete("Use indexer")]
         Task<IIndex> GetIndex(string indexName);
 
+        [Obsolete("Use indexer")]
         Task<IIndex> GetIndex(uint indexId);
+
+        IIndex this[string name] { get; }
+
+        IIndex this[uint id] { get; }
 
         Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple);
 
@@ -56,9 +57,5 @@ namespace ProGaudi.Tarantool.Client
         Task<DataResponse<TTuple[]>> Increment<TTuple, TKey>(TKey key);
 
         Task<DataResponse<TTuple[]>> Decrement<TTuple, TKey>(TKey key);
-
-        TTuple AutoIncrement<TTuple, TRest>(TRest tupleRest);
-
-        Task<IEnumerable<KeyValuePair<TKey, TValue>>> Pairs<TKey, TValue>();
     }
 }

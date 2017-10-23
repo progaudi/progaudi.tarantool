@@ -1,12 +1,18 @@
-﻿using System.Threading.Tasks;
-using ProGaudi.Tarantool.Client.Model;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace ProGaudi.Tarantool.Client
 {
     public interface ISchema
     {
-        Task<ISpace> CreateSpaceAsync(string spaceName, SpaceCreationOptions options = null);
+        [Obsolete("Use indexer")]
         Task<ISpace> GetSpace(string name);
+        [Obsolete("Use indexer")]
         Task<ISpace> GetSpace(uint id);
+
+        ISpace this[string name] { get; }
+        ISpace this[uint id] { get; }
+
+        Task Reload();
     }
 }

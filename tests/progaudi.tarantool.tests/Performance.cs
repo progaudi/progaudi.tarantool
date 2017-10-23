@@ -23,9 +23,7 @@ namespace ProGaudi.Tarantool.Client.Tests
 
                 var schema = tarantoolClient.GetSchema();
 
-                var space = schema.GetSpace(spaceName).GetAwaiter().GetResult();
-
-                var index = space.GetIndex("primary").GetAwaiter().GetResult();
+                var index = schema[spaceName]["primary"];
                 var startTime = DateTime.Now;
 
                 logWriter.WriteLine("Before start thread");
