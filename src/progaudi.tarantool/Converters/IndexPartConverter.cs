@@ -68,7 +68,6 @@ namespace ProGaudi.Tarantool.Client.Converters
             return new IndexPart(fieldNo, indexPartType);
         }
 
-        // throw new System.NotImplementedException();
         private IndexPart ReadFromMap(IMsgPackReader reader, uint length)
         {
             uint? fieldNo = null;
