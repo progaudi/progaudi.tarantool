@@ -52,7 +52,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 
             var fields = _fieldConverter.Read(reader);
 
-            return new Space(id, fieldCount, name, null, engine, fields.AsReadOnly());
+            return new Space(id, fieldCount, name, engine, fields.AsReadOnly());
         }
     }
 }

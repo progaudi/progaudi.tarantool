@@ -19,11 +19,13 @@ namespace ProGaudi.Tarantool.Client
 
             _logicalConnection = new LogicalConnectionManager(options);
             Metrics = new Metrics(_logicalConnection);
+            Schema = new Schema(_logicalConnection);
         }
 
         public async Task Connect()
         {
             await _logicalConnection.Connect().ConfigureAwait(false);
+            await ReloadSchema().ConfigureAwait(false);
         }
 
         public static async Task<Box> Connect(string replicationSource)
@@ -57,10 +59,14 @@ namespace ProGaudi.Tarantool.Client
             _logicalConnection.Dispose();
         }
 
-        public ISchema GetSchema()
+        public ISchema GetSchema() => Schema;
+
+        public ISchema Schema { get; }
+
+        public Task ReloadSchema()
         {
-            _clientOptions.LogWriter?.WriteLine("Schema acquiring...");
-            return new Schema(_logicalConnection);
+            _clientOptions.LogWriter?.WriteLine("Schema reloading...");
+            return Schema.Reload();
         }
 
         public async Task Call_1_6(string functionName)

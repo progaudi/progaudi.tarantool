@@ -26,14 +26,14 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
                 await tarantoolClient.Connect();
                 var schema = tarantoolClient.GetSchema();
 
-                var space = await schema.GetSpace(spaceName);
+                var space = schema[spaceName];
 
                 await space.Insert(TarantoolTuple.Create(2f, new[] { 1, 2, 3 }));
                 await space.Insert(TarantoolTuple.Create(true, "Music"));
                 await space.Insert(TarantoolTuple.Create(1u, 2f));
                 await space.Insert(TarantoolTuple.Create("false", (string)null));
 
-                var index = await space.GetIndex(0);
+                var index = space[0];
                 var result = await index.Select<TarantoolTuple<bool>, TarantoolTuple<MsgPackToken, MsgPackToken>>(
                     TarantoolTuple.Create(false),
                     new SelectOptions

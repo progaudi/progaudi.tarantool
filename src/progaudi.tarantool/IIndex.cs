@@ -28,11 +28,11 @@ namespace ProGaudi.Tarantool.Client
         Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey key, SelectOptions options = null);
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
-        ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
+        ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method should be
         Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple);
 
         ///Note: there is no such method in specification http://tarantool.org/doc/book/box/box_index.html.
-        ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
+        ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method should be
         Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple);
 
         Task<TTuple> Min<TTuple>();

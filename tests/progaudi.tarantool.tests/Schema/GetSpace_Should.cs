@@ -16,7 +16,10 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
             {
                 var schema = tarantoolClient.GetSchema();
 
-                await schema.GetSpace("non-existing").ShouldThrowAsync<ArgumentException>();
+                Should.Throw<ArgumentException>(() =>
+                {
+                    var _ = schema["non-existing"];
+                });
             }
         }
 
@@ -27,7 +30,10 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
             {
                 var schema = tarantoolClient.GetSchema();
 
-                await schema.GetSpace(12341234).ShouldThrowAsync<ArgumentException>();
+                Should.Throw<ArgumentException>(() =>
+                {
+                    var _ = schema[12341234];
+                });
             }
         }
 
@@ -39,7 +45,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
             {
                 var schema = tarantoolClient.GetSchema();
 
-                var space = await schema.GetSpace(VSpaceId);
+                var space = schema[VSpaceId];
 
                 space.Id.ShouldBe(VSpaceId);
             }
@@ -53,7 +59,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
             {
                 var schema = tarantoolClient.GetSchema();
 
-                var space = await schema.GetSpace(VSpaceName);
+                var space = schema[VSpaceName];
 
                 space.Name.ShouldBe(VSpaceName);
             }
@@ -69,7 +75,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Schema
 
                 for (int i = 0; i < 10; i++)
                 {
-                    var space = await schema.GetSpace(VSpaceName);
+                    var space = schema[VSpaceName];
 
                     space.Name.ShouldBe(VSpaceName);
                 }
