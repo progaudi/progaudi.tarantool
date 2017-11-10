@@ -12,6 +12,10 @@ local function create_spaces_and_indecies()
 
 	space3 = box.schema.space.create('with_scalar_index', { if_not_exists = true })
 	space3:create_index('primary', {type='tree', parts={1, 'scalar'}, if_not_exists = true})
+
+	box.schema.space.create('benchmark', { if_not_exists = true })
+	box.space.benchmark:create_index('primary', {type='hash', parts={1, 'unsigned'}, if_not_exists = true})
+	box.space.benchmark:insert{1, 2, "sdsdfgasd", "qweqweqweqweqwwe", "asdfasdfasdfasdfasdfasdfsadf"}
 end
 
 local function init()
