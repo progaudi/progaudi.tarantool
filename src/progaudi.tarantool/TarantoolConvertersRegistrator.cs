@@ -1,6 +1,7 @@
 ﻿using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Converters;
+using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 
 namespace ProGaudi.Tarantool.Client
@@ -36,6 +37,7 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterConverter(new IndexCreationOptionsConverter());
             context.RegisterConverter(new IndexConverter());
             context.RegisterConverter(new TupleConverter());
+            context.RegisterConverter(new BoxInfo.Converter());
 
             context.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
             context.RegisterGenericConverter(typeof(UpdatePacketConverter<>));

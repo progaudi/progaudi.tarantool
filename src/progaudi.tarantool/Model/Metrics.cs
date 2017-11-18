@@ -9,12 +9,6 @@
             _logicalConnection = logicalConnection;
         }
 
-        public uint PingsFailedByTimeoutCount
-        {
-            get
-            {
-                return _logicalConnection.PingsFailedByTimeoutCount;
-            }
-        }
+        public uint PingsFailedByTimeoutCount => _logicalConnection.PingsFailedByTimeoutCount;
     }
 }

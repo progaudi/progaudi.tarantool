@@ -48,11 +48,11 @@ namespace ProGaudi.Tarantool.Client.Tests
     {
         private const uint OperationsCount = 1000;
 
-        private readonly Client.IIndex _index;
+        private readonly IIndex _index;
 
         private readonly uint _id;
 
-        public TestClient(Client.IIndex index, uint threadId)
+        public TestClient(IIndex index, uint threadId)
         {
             _index = index;
             _id = threadId;

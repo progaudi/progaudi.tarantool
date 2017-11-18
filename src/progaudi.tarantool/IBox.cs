@@ -13,12 +13,16 @@ namespace ProGaudi.Tarantool.Client
 
         Metrics Metrics { get; }
 
+        ISchema Schema { get; }
+
+        BoxInfo Info { get; }
+
         [Obsolete]
         ISchema GetSchema();
 
         Task ReloadSchema();
 
-        ISchema Schema { get; }
+        Task ReloadBoxInfo();
 
         Task Call_1_6(string functionName);
 

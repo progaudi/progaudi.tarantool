@@ -35,6 +35,8 @@ namespace ProGaudi.Tarantool.Client
 
         public ISpace this[uint id] => _indexById.TryGetValue(id, out var space) ? space : throw ExceptionHelper.InvalidSpaceId(id);
 
+        public DateTimeOffset LastReloadTime { get; private set; }
+
         public async Task Reload()
         {
             var byName = new Dictionary<string, ISpace>();
@@ -51,6 +53,7 @@ namespace ProGaudi.Tarantool.Client
 
             Interlocked.Exchange(ref _indexByName, byName);
             Interlocked.Exchange(ref _indexById, byId);
+            LastReloadTime = DateTimeOffset.UtcNow;
         }
 
         private async Task<T[]> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)

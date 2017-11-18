@@ -21,7 +21,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
 
             const string spaceName = "with_scalar_index";
             var clientOptions = new ClientOptions(ConnectionStringFactory.GetReplicationSource());
-            using (var tarantoolClient = new Tarantool.Client.Box(clientOptions))
+            using (var tarantoolClient = new Client.Box(clientOptions))
             {
                 await tarantoolClient.Connect();
                 var schema = tarantoolClient.GetSchema();
