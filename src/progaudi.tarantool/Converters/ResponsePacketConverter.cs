@@ -13,35 +13,89 @@ namespace ProGaudi.Tarantool.Client.Converters
         private IMsgPackConverter<Key> _keyConverter;
 
         private IMsgPackConverter<T> _dataConverter;
+        private IMsgPackConverter<string> _stringConverter;
 
         public void Initialize(MsgPackContext context)
         {
             _keyConverter = context.GetConverter<Key>();
             _dataConverter = context.GetConverter<T>();
+            _stringConverter = context.GetConverter<string>();
         }
 
         public void Write(DataResponse<T> value, IMsgPackWriter writer)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public DataResponse<T> Read(IMsgPackReader reader)
         {
             var length = reader.ReadMapLength();
-            if (length != 1u)
+            if (length != 1u && length != 2u)
             {
-                throw ExceptionHelper.InvalidMapLength(length, 3u);
+                throw ExceptionHelper.InvalidMapLength(length, 1u, 2u);
             }
 
-            var dataKey = _keyConverter.Read(reader);
-            if (dataKey != Key.Data)
+            var data = default(T);
+            var dataWasSet = false;
+            var metadata = default(FieldMetadata[]);
+            for (var i = 0; i < length; i++)
             {
-                throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data);
+                var dataKey = _keyConverter.Read(reader);
+                switch (dataKey)
+                {
+                    case Key.Data:
+                        data = _dataConverter.Read(reader);
+                        dataWasSet = true;
+                        break;
+                    case Key.Metadata:
+                        metadata = ReadMetadata(reader);
+                        break;
+                    default:
+                        throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data, Key.Metadata);
+                }
             }
 
-            var data = _dataConverter.Read(reader);
+            if (!dataWasSet)
+            {
+                throw ExceptionHelper.NoDataInDataResponse();
+            }
 
-            return new DataResponse<T>(data);
+            return new DataResponse<T>(data, metadata);
+        }
+
+        private FieldMetadata[] ReadMetadata(IMsgPackReader reader)
+        {
+            var length = reader.ReadArrayLength();
+            if (length == null)
+            {
+                return null;
+            }
+
+            var result = new FieldMetadata[length.Value];
+            for (var i = 0; i < length; i++)
+            {
+                var metadataLength = reader.ReadMapLength();
+                if (metadataLength == null)
+                {
+                    result[i] = null;
+                    continue;
+                }
+
+                for (var j = 0; j < metadataLength; j++)
+                {
+                    switch (_keyConverter.Read(reader))
+                    {
+                        case Key.FieldName:
+                            result[i] = new FieldMetadata(_stringConverter.Read(reader));
+                            continue;
+                        default:
+                            reader.SkipToken();
+                            break;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

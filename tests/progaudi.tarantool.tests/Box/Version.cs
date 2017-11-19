@@ -10,7 +10,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task Smoke()
         {
-            var options = new ClientOptions(ConnectionStringFactory.GetReplicationSource());
+            var options = new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7());
             options.ConnectionOptions.ReadBoxInfoOnConnect = false;
             using (var box = new Client.Box(options))
             {

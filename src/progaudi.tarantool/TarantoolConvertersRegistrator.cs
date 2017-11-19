@@ -48,6 +48,7 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterGenericConverter(typeof(SelectPacketConverter<>));
             context.RegisterGenericConverter(typeof(UpsertPacketConverter<>));
             context.RegisterConverter(new PingPacketConverter());
+            context.RegisterConverter(new ExecuteSqlRequestConverter());
 
             context.RegisterGenericConverter(typeof(TupleConverter<>));
             context.RegisterGenericConverter(typeof(TupleConverter<,>));

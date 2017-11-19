@@ -67,7 +67,12 @@ namespace ProGaudi.Tarantool.Client.Model
             if (minorComparison != 0) return minorComparison;
             var buildComparison = Build.CompareTo(other.Build);
             if (buildComparison != 0) return buildComparison;
-            return string.Compare(CommitHash, other.CommitHash, StringComparison.Ordinal);
+
+            if (CommitHash == null || other.CommitHash == null) return 0;
+
+            var hashComparison = string.Compare(CommitHash, other.CommitHash, StringComparison.Ordinal);
+            if (hashComparison != 0) throw ExceptionHelper.CantCompareBuilds(this, other);
+            return 0;
         }
 
         public int CompareTo(object obj)
@@ -90,5 +95,10 @@ namespace ProGaudi.Tarantool.Client.Model
         public static bool operator ==(TarantoolVersion left, TarantoolVersion right) => Equals(left, right);
 
         public static bool operator !=(TarantoolVersion left, TarantoolVersion right) => !Equals(left, right);
+
+        public static implicit operator TarantoolVersion((int, int) major)
+        {
+            return new TarantoolVersion(major, 0, 0, null);
+        }
     }
 }

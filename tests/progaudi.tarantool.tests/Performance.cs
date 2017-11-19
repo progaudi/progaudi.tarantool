@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Tests
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            using (var tarantoolClient = new Client.Box(new ClientOptions(ConnectionStringFactory.GetReplicationSource(), logWriter)))
+            using (var tarantoolClient = new Client.Box(new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7(), logWriter)))
             {
                 tarantoolClient.Connect().GetAwaiter().GetResult();
 

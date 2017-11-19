@@ -123,5 +123,20 @@ namespace ProGaudi.Tarantool.Client.Utils
         {
             return new SerializationException("Box info response is malformed");
         }
+
+        public static Exception CantCompareBuilds(TarantoolVersion left, TarantoolVersion right)
+        {
+            return new InvalidOperationException($"Versions '{left}' and '{right}' differs only by commit hash, can't compare them.");
+        }
+
+        public static Exception SqlIsNotAvailable(TarantoolVersion version)
+        {
+            return new InvalidOperationException($"Can't use sql on '{version}' of tarantool. Upgrade to 1.8 (prefer latest one).");
+        }
+
+        public static Exception NoDataInDataResponse()
+        {
+            return new InvalidOperationException("No data in data response");
+        }
     }
 }

@@ -102,19 +102,20 @@ namespace ProGaudi.Tarantool.Client
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout).ConfigureAwait(false);
+            await SendRequestImpl(request, timeout).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout).ConfigureAwait(false);
+            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(stream, _msgPackContext);
         }
 
-        public async Task<TResponse> SendRawRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+        public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return await SendRequestImpl<TRequest, TResponse>(request, timeout).ConfigureAwait(false);
+            return (await SendRequestImpl(request, timeout).ConfigureAwait(false)).ToArray();
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
@@ -133,7 +134,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, TimeSpan? timeout)
+        private async Task<MemoryStream> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
             where TRequest : IRequest
         {
             if (_disposed)
@@ -162,7 +163,7 @@ namespace ProGaudi.Tarantool.Client
                 var responseStream = await responseTask.ConfigureAwait(false);
                 _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
 
-                return MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
+                return responseStream;
             }
             catch (ArgumentException)
             {

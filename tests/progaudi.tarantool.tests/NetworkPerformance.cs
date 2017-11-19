@@ -85,7 +85,7 @@ namespace ProGaudi.Tarantool.Client.Tests
 
         async Task IAsyncLifetime.InitializeAsync()
         {
-            var options = new ClientOptions(ConnectionStringFactory.GetReplicationSource(), _stringWriterLog);
+            var options = new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7(), _stringWriterLog);
             _tarantoolClient = new Client.Box(options);
             await _tarantoolClient.Connect();
             _multiplexer = await ConnectionMultiplexer.ConnectAsync(await ConnectionStringFactory.GetRedisConnectionString());

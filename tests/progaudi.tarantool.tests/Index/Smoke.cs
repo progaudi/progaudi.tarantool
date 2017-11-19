@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
             await ClearDataAsync("primary_only_index");
 
             const string spaceName = "primary_only_index";
-            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7()))
             {
                 var index = tarantoolClient.GetSchema()[spaceName]["primary"];
 
@@ -51,7 +51,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
             await ClearDataAsync("space_TreeIndexMethods");
 
             const string spaceName = "space_TreeIndexMethods";
-            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7()))
             {
                 var schema = tarantoolClient.GetSchema();
 

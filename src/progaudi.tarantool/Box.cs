@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Requests;
@@ -13,6 +14,10 @@ namespace ProGaudi.Tarantool.Client
         private readonly ClientOptions _clientOptions;
 
         private readonly ILogicalConnection _logicalConnection;
+
+        private BoxInfo _info;
+
+        private bool? _sqlReady;
 
         public Box(ClientOptions options)
         {
@@ -30,7 +35,15 @@ namespace ProGaudi.Tarantool.Client
 
         public ISchema Schema { get; }
 
-        public BoxInfo Info { get; private set; }
+        public BoxInfo Info
+        {
+            get => _info;
+            private set
+            {
+                _info = value;
+                _sqlReady = null;
+            }
+        }
 
         public async Task Connect()
         {
@@ -137,6 +150,36 @@ namespace ProGaudi.Tarantool.Client
         public Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression)
         {
             return Eval<TarantoolTuple, TResponse>(expression, TarantoolTuple.Empty);
+        }
+
+        public Task<byte[]> ExecuteSql(string query, params SqlParameter[] parameters)
+        {
+            if (!IsFeatureReady()) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+
+            return _logicalConnection.SendRawRequest(new ExecuteSqlRequest(query, parameters));
+
+            bool IsFeatureReady()
+            {
+                if (_sqlReady.HasValue) return _sqlReady.Value;
+                var sqlAvailable = Info.IsSqlAvailable();
+                _sqlReady = sqlAvailable;
+                return sqlAvailable;
+            }
+        }
+
+        public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
+        {
+            if (!IsFeatureReady()) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+
+            return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
+
+            bool IsFeatureReady()
+            {
+                if (_sqlReady.HasValue) return _sqlReady.Value;
+                var sqlAvailable = Info.IsSqlAvailable();
+                _sqlReady = sqlAvailable;
+                return sqlAvailable;
+            }
         }
     }
 }

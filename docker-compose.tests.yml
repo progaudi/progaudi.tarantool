@@ -8,5 +8,6 @@ services:
     environment:
         TARANTOOL_REPLICATION_SOURCE: "tarantool:3301"
     links:
-        - tarantool
+        - tarantool_1_7
+        - tarantool_1_8
         - redis
