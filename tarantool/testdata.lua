@@ -1,17 +1,76 @@
+local log = require("log")
+
+local function create_space(space)
+	log.info{message2="Creating space.", name=space.name}
+	local format = {}
+	for name, field in pairs(space.fields) do
+		format[field.index] = { name=name, type=field.type, is_nullable=false }
+		if field.is_nullable then
+			format[field.index].is_nullable = true
+		end
+	end
+
+	local created_space = box.schema.space.create(space.name, { format = format, if_not_exists=true, field_count=#format })
+	log.info{message2="Created space.", name=space.name}
+	return created_space
+end
+
+local function create_index(space, name, unique, type, sequence, ...)
+	local parts = {}
+	for i, v in ipairs({...}) do
+		table.insert(parts, v.name)
+	end
+
+	local options = {
+		unique = unique,
+		type = type,
+		parts = parts,
+		if_not_exists = true,
+		sequence = sequence
+	}
+
+	log.info{message2="Creating index", space=space.name, name=name, options=options}
+
+	local index = space:create_index(name, options)
+
+	log.info{message2="Created index", space=space.name, name=name}
+	return index
+end
+
+local spaces = {
+	primary_only_index = {
+		name = "primary_only_index",
+		fields = {
+			id =      { index = 1, name="id", type = "unsigned" },
+			name =    { index = 2, name="name", type = "string" },
+			price =   { index = 3, name="price", type = "scalar", is_nullable=true }
+		}
+	},
+	performance = {
+		name = "performance",
+		fields = {
+			id =      { index = 1, name="id", type = "unsigned" },
+			name =    { index = 2, name="name", type = "string" }
+		}
+	},
+	treeIndexMethods = {
+		name = "space_TreeIndexMethods",
+		fields = {
+			id =      { index = 1, name="id", type = "unsigned" },
+			name =    { index = 2, name="name", type = "string" }
+		}
+	}
+}
 
 local function create_spaces_and_indecies()
-	space1 = box.schema.space.create('primary_only_index', { if_not_exists = true })
-	space1:create_index('primary', {type='hash', parts={1, 'unsigned'}, if_not_exists = true})
+	local space = create_space(spaces.primary_only_index)
+	create_index(space, "primary", true, "HASH", nil, spaces.primary_only_index.fields.id)
 
-	performanceSpace = box.schema.space.create('performance', { if_not_exists = true })
-	performanceSpace:create_index('primary', {type='hash', parts={1, 'unsigned'}, if_not_exists = true})
+	space = create_space(spaces.performance)
+	create_index(space, "primary", true, "HASH", nil, spaces.performance.fields.id)
 
-	space2 = box.schema.space.create('primary_and_secondary_index', { if_not_exists = true })
-	space2:create_index('hashIndex', {type='hash', parts={1, 'unsigned'}, if_not_exists = true })
-	space2:create_index('treeIndex', {type='tree', parts={1, 'unsigned'}, if_not_exists = true })
-
-	space3 = box.schema.space.create('with_scalar_index', { if_not_exists = true })
-	space3:create_index('primary', {type='tree', parts={1, 'scalar'}, if_not_exists = true})
+	space = box.schema.space.create('with_scalar_index', { if_not_exists = true })
+	space:create_index('primary', {type='tree', parts={1, 'scalar'}, if_not_exists = true})
 end
 
 local function init()
@@ -23,16 +82,18 @@ local function init()
 	box.schema.user.create('operator', {password = 'operator', if_not_exists = true })
 	box.schema.user.grant('operator','read,write,execute','universe', { if_not_exists = true })
 	box.schema.user.grant('guest','read,write,execute','universe', { if_not_exists = true })
+	box.schema.user.grant('emptyPassword','read,write,execute','universe', { if_not_exists = true })
 	box.schema.user.passwd('admin', 'adminPassword')
 end
 
 local function space_TreeIndexMethods()
-	space = box.schema.space.create('space_TreeIndexMethods', { if_not_exists = true })
-	space:create_index('treeIndex', {type='tree', parts={1, 'unsigned'}, if_not_exists = true })
+	local sequence = box.schema.sequence.create('space_TreeIndexMethods_id')
+	local space = create_space(spaces.treeIndexMethods)
+	create_index(space, "treeIndex", true, "TREE", sequence.name, spaces.treeIndexMethods.fields.id)
 
-	space:auto_increment{'asdf', 10.1}
-	space:auto_increment{'zcxv'}
-	space:auto_increment{2, 3}
+	space:insert{nil, 'asdf'}
+	space:insert{nil, 'zcxv'}
+	space:insert{nil, 'qwer'}
 end
 
 box.once('init', init)

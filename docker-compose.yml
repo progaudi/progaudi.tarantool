@@ -2,7 +2,7 @@ version: '2'
 
 services:
   tarantool_1_7:
-    image: progaudi/tarantool:1.7.5-0-g24b70de10
+    image: progaudi/tarantool:1.7.6-0-g7b2945d6c
     command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
     volumes:
       - $PWD/tarantool:/usr/local/share/tarantool
