@@ -169,7 +169,7 @@ end
 
 function create_sql_test()
 	box.sql.execute('create table sql_test(id int primary key, name text)')
-	box.sql.execute("insert into sql_test values (1, 'asdf'), (2, 'zxcv')")
+	box.sql.execute("insert into sql_test values (1, 'asdf'), (2, 'zxcv'), (3, 'qwer')")
 end
 
 function drop_sql_test()
