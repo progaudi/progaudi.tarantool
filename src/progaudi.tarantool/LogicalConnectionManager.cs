@@ -144,11 +144,24 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null) where TRequest : IRequest
+        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
         {
             await Connect().ConfigureAwait(false);
 
             var result = await _droppableLogicalConnection.SendRequest<TRequest, TResponse>(request, timeout).ConfigureAwait(false);
+
+            ScheduleNextPing();
+
+            return result;
+        }
+
+        public async Task<TResponse> SendRawRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            await Connect().ConfigureAwait(false);
+
+            var result = await _droppableLogicalConnection.SendRawRequest<TRequest, TResponse>(request, timeout).ConfigureAwait(false);
 
             ScheduleNextPing();
 

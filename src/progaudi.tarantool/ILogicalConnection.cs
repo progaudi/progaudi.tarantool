@@ -18,6 +18,9 @@ namespace ProGaudi.Tarantool.Client
         Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest;
 
+        Task<TResponse> SendRawRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest;
+
         uint PingsFailedByTimeoutCount { get; }
     }
 }

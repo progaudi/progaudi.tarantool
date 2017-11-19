@@ -99,6 +99,24 @@ namespace ProGaudi.Tarantool.Client
             return _responseReader.IsConnected && _requestWriter.IsConnected && _physicalConnection.IsConnected;
         }
 
+        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout).ConfigureAwait(false);
+        }
+
+        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout).ConfigureAwait(false);
+        }
+
+        public async Task<TResponse> SendRawRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            return await SendRequestImpl<TRequest, TResponse>(request, timeout).ConfigureAwait(false);
+        }
+
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
             var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
@@ -113,18 +131,6 @@ namespace ProGaudi.Tarantool.Client
 
             await SendRequestWithEmptyResponse(authenticateRequest).ConfigureAwait(false);
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
-        }
-
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
-        {
-            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout).ConfigureAwait(false);
-        }
-
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
-        {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout).ConfigureAwait(false);
         }
 
         private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, TimeSpan? timeout)
