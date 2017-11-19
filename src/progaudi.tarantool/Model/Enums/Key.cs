@@ -28,6 +28,8 @@
         SqlQueryText = 0x40,
         SqlParameters = 0x41,
         SqlOptions = 0x42,
+        SqlInfo = 0x43,
+        SqlRowCount = 0x44,
 
         // Replication keys
         ServerId = 0x02,

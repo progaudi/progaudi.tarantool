@@ -3,6 +3,7 @@
 using ProGaudi.Tarantool.Client.Converters;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Responses;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -40,6 +41,7 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterConverter(new BoxInfo.Converter());
 
             context.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
+            context.RegisterConverter(new ResponsePacketConverter());
             context.RegisterGenericConverter(typeof(UpdatePacketConverter<>));
             context.RegisterGenericConverter(typeof(CallPacketConverter<>));
             context.RegisterGenericConverter(typeof(DeletePacketConverter<>));

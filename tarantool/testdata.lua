@@ -1,4 +1,5 @@
 local log = require("log")
+local remote = require('net.box')
 
 local function create_space(space)
 	log.info{message2="Creating space.", name=space.name}
@@ -164,6 +165,15 @@ local truncate_space = function(name)
 	else
 		log.warning("There is no space %s", name)
 	end
+end
+
+function create_sql_test()
+	box.sql.execute('create table sql_test(id int primary key, name text)')
+	box.sql.execute("insert into sql_test values (1, 'asdf'), (2, 'zxcv')")
+end
+
+function drop_sql_test()
+	box.sql.execute('drop table sql_test')
 end
 
 function clear_data(spaceNames)

@@ -44,7 +44,6 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
             }
         }
 
-
         [Fact]
         public async Task LongTest()
         {

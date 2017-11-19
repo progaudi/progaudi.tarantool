@@ -49,9 +49,10 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         [Fact]
         public async Task TreeIndexMethods()
         {
-            await ClearDataAsync("space_TreeIndexMethods");
-
             const string spaceName = "space_TreeIndexMethods";
+
+            await ClearDataAsync(spaceName);
+
             using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7()))
             {
                 var schema = tarantoolClient.GetSchema();

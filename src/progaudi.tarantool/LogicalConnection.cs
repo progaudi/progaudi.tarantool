@@ -112,6 +112,13 @@ namespace ProGaudi.Tarantool.Client
             return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(stream, _msgPackContext);
         }
 
+        public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            return MsgPackSerializer.Deserialize<DataResponse>(stream, _msgPackContext);
+        }
+
         public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
@@ -167,7 +174,7 @@ namespace ProGaudi.Tarantool.Client
             }
             catch (ArgumentException)
             {
-                _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{headerBuffer.ToReadableString()} \n body: \n{bodyBuffer.ToReadableString()}");
                 throw;
             }
             catch (TimeoutException)
@@ -175,16 +182,6 @@ namespace ProGaudi.Tarantool.Client
                 PingsFailedByTimeoutCount++;
                 throw;
             }
-        }
-
-        private static string ToReadableString(byte[] bytes)
-        {
-            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
-        }
-
-        private static string ToReadableString(ArraySegment<byte> bytes)
-        {
-            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
         }
 
         private ArraySegment<byte> CreateAndSerializeHeader<TRequest>(

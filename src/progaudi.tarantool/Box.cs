@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Requests;
@@ -152,11 +150,11 @@ namespace ProGaudi.Tarantool.Client
             return Eval<TarantoolTuple, TResponse>(expression, TarantoolTuple.Empty);
         }
 
-        public Task<byte[]> ExecuteSql(string query, params SqlParameter[] parameters)
+        public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
         {
             if (!IsFeatureReady()) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
 
-            return _logicalConnection.SendRawRequest(new ExecuteSqlRequest(query, parameters));
+            return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
 
             bool IsFeatureReady()
             {

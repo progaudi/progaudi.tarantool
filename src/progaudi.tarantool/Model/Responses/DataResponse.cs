@@ -2,9 +2,20 @@
 
 namespace ProGaudi.Tarantool.Client.Model.Responses
 {
-    public class DataResponse<T>
+    public class DataResponse
     {
-        public DataResponse(T data, FieldMetadata[] metadata)
+        public DataResponse(SqlInfo sqlInfo)
+        {
+            SqlInfo = sqlInfo;
+        }
+
+        public SqlInfo SqlInfo { get; }
+    }
+
+    public class DataResponse<T> : DataResponse
+    {
+        public DataResponse(T data, FieldMetadata[] metadata, SqlInfo sqlInfo)
+            : base(sqlInfo)
         {
             Data = data;
             MetaData = metadata;
