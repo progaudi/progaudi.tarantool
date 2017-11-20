@@ -19,4 +19,5 @@ install:
 
 script:
   - ./scripts/build-netcore.sh
-  - ./scripts/test-netcore.sh
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; ./scripts/linux-test-netcore.sh ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; ./scripts/mac-test-netcore.sh ; fi

@@ -20,6 +20,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Sql
         }
 
         [Fact]
+        [Trait("Tarantool", "1.8")]
         public async Task SelectData_1_8()
         {
             using (var box = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_8()))

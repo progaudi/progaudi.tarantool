@@ -6,6 +6,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Sql
     public class UpdateTest
     {
         [Fact]
+        [Trait("Tarantool", "1.8")]
         public async Task Simple()
         {
             using (var box = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_8()))
