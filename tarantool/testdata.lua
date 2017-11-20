@@ -1,13 +1,20 @@
 local log = require("log")
 local remote = require('net.box')
+local compat = require('compat')
+
+local new_parts_format_supported = compat.check_version{1, 7, 6}
+local is_nullable_supported = compat.check_version{1, 7, 6}
 
 local function create_space(space)
 	log.info{message2="Creating space.", name=space.name}
 	local format = {}
 	for name, field in pairs(space.fields) do
-		format[field.index] = { name=name, type=field.type, is_nullable=false }
-		if field.is_nullable then
-			format[field.index].is_nullable = true
+		format[field.index] = { name=name, type=field.type }
+		if is_nullable_supported then
+			format[field.index].is_nullable = false
+			if field.is_nullable then
+				format[field.index].is_nullable = true
+			end
 		end
 	end
 
@@ -19,7 +26,12 @@ end
 local function create_index(space, name, unique, type, sequence, ...)
 	local parts = {}
 	for i, v in ipairs({...}) do
-		table.insert(parts, v.name)
+		if new_parts_format_supported then
+			table.insert(parts, v.name)
+		else
+			table.insert(parts, v.index)
+			table.insert(parts, v.type)
+		end
 	end
 
 	local options = {

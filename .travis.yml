@@ -14,7 +14,7 @@ install:
   - ./scripts/dotnet-install.sh
   - PATH=$PATH:$HOME/.dotnet && export PATH
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then docker-compose -f docker-compose.yml up -d ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then tarantool tarantool/tarantool.lua ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then (cd tarantool && tarantool tarantool.lua && cd ..) ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then redis-server --daemonize yes ; fi
 
 script:

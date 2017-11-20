@@ -2,7 +2,7 @@ version: '2'
 
 services:
   tarantool_1_7:
-    image: progaudi/tarantool:1.7.6-0-g7b2945d6c
+    image: progaudi/tarantool:1.7.5-184-g5be3a82be # same version as tarantool in homebrew on mac os
     command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
     volumes:
       - $PWD/tarantool:/usr/local/share/tarantool

@@ -7,4 +7,4 @@ box.cfg
 	log = 'file: tarantool.log'
 }
 
-require('tarantool.testdata')
+require('testdata')
