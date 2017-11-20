@@ -14,7 +14,7 @@ brew uninstall tarantool
 brew install tarantool --HEAD
 
 tarantool tarantool.lua
-dotnet test -c Release --no-build --filter "Tarantool==1.8" tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj -- -parallel assemblies
+dotnet test -c Release --no-build --filter "Tarantool=1.8" tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj -- -parallel assemblies
 
 popd
 popd
