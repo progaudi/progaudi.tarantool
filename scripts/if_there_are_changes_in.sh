@@ -37,11 +37,10 @@ done
 
 pushd ${BASH_SOURCE%/*}/..
 
-commit=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent origin/master) <(git rev-list --first-parent HEAD) | head -1)
 predicate_is_true=0
 for folder in ${logic_folders[@]}; do
     echo "Check for changes in $folder"
-    changes=$(git diff --relative=$folder $commit --quiet --; echo $?)
+    changes=$(git diff --relative=$folder HEAD~1 --quiet --; echo $?)
 
     if [ $changes = 1 ]; then
         predicate_is_true=1
