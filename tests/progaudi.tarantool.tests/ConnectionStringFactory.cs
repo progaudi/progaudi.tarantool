@@ -9,17 +9,17 @@ namespace ProGaudi.Tarantool.Client.Tests
     {
         public static string GetReplicationSource_1_7(string userName = null)
         {
-            return GetReplicationSource(userName, "tarantool_1_7", 3301);
+            return GetReplicationSource(userName, "localhost:3301", "TARANTOOL_1_7_REPLICATION_SOURCE");
         }
 
         public static string GetReplicationSource_1_8(string userName = null)
         {
-            return GetReplicationSource(userName, "tarantool_1_8", 3302);
+            return GetReplicationSource(userName, "localhost:3302", "TARANTOOL_1_8_REPLICATION_SOURCE");
         }
 
         public static async Task<string> GetRedisConnectionString()
         {
-            var tarantoolUrl = Environment.GetEnvironmentVariable("TARANTOOL_REPLICATION_SOURCE");
+            var tarantoolUrl = Environment.GetEnvironmentVariable("TARANTOOL_1_7_REPLICATION_SOURCE");
 
             var host = "127.0.0.1";
             if (tarantoolUrl != null)
@@ -31,16 +31,11 @@ namespace ProGaudi.Tarantool.Client.Tests
             return $"{host}:6379";
         }
 
-        private static string GetReplicationSource(string userName, string hostInDocker, int portOnDev)
+        private static string GetReplicationSource(string userName, string defaultString, string envName)
         {
-            var devMachine = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TARANTOOL_REPLICATION_SOURCE"));
-
-            var host = devMachine ? "localhost" : hostInDocker;
-            var port = devMachine ? portOnDev : 3301;
-
             userName = string.IsNullOrWhiteSpace(userName) ? string.Empty : userName + "@";
 
-            return $"{userName}{host}:{port}";
+            return $"{userName}{Environment.GetEnvironmentVariable(envName) ?? defaultString}";
         }
     }
 }
