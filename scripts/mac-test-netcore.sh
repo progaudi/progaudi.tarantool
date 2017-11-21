@@ -17,6 +17,6 @@ tarantool tarantool.lua
 
 popd
 
-dotnet test -c Release --no-build --filter "Tarantool=1.8" tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj -- -parallel assemblies
+TARANTOOL_1_8_REPLICATION_SOURCE="localhost:3301" dotnet test -c Release --no-build --filter "Tarantool=1.8" tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj -- -parallel assemblies
 
 popd
