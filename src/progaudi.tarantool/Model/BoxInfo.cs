@@ -7,15 +7,15 @@ namespace ProGaudi.Tarantool.Client.Model
     {
         public long Id { get; private set; }
 
-        public long Lsn { get; set; }
+        public long Lsn { get; private set; }
 
-        public long Pid { get; set; }
+        public long Pid { get; private set; }
 
-        public bool ReadOnly { get; set; }
+        public bool ReadOnly { get; private set; }
 
-        public Guid Uuid { get; set; }
+        public Guid Uuid { get; private set; }
 
-        public TarantoolVersion Version { get; set; }
+        public TarantoolVersion Version { get; private set; }
 
         public class Converter : IMsgPackConverter<BoxInfo>
         {

@@ -15,7 +15,7 @@ namespace ProGaudi.Tarantool.Client
 
         private BoxInfo _info;
 
-        private bool? _sqlReady;
+        private bool _sqlReady;
 
         public Box(ClientOptions options)
         {
@@ -39,7 +39,7 @@ namespace ProGaudi.Tarantool.Client
             private set
             {
                 _info = value;
-                _sqlReady = null;
+                _sqlReady = value.IsSqlAvailable();
             }
         }
 
@@ -152,32 +152,16 @@ namespace ProGaudi.Tarantool.Client
 
         public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
         {
-            if (!IsFeatureReady()) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
 
             return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
-
-            bool IsFeatureReady()
-            {
-                if (_sqlReady.HasValue) return _sqlReady.Value;
-                var sqlAvailable = Info.IsSqlAvailable();
-                _sqlReady = sqlAvailable;
-                return sqlAvailable;
-            }
         }
 
         public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
         {
-            if (!IsFeatureReady()) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
 
             return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
-
-            bool IsFeatureReady()
-            {
-                if (_sqlReady.HasValue) return _sqlReady.Value;
-                var sqlAvailable = Info.IsSqlAvailable();
-                _sqlReady = sqlAvailable;
-                return sqlAvailable;
-            }
         }
     }
 }
