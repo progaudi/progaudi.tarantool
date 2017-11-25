@@ -3,8 +3,8 @@ matrix:
     - os: linux # Ubuntu 14.04
       dist: trusty
       sudo: required
-    - os: osx # OSX 10.12
-      osx_image: xcode8.3
+    - os: osx
+      osx_image: xcode9.1
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ./scripts/ubuntu-prereqs.sh ; fi
