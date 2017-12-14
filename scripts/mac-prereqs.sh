@@ -4,7 +4,7 @@ set -ev
 
 brew update
 brew install openssl jq
-brew install tarantool
+brew install tarantool $TARANTOOL_VERSION
 brew install redis
 
 mkdir -p /usr/local/lib
