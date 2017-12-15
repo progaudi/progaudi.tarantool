@@ -19,12 +19,12 @@ namespace ProGaudi.Tarantool.Client.Tests
 
         public static async Task<string> GetRedisConnectionString()
         {
-            var tarantoolUrl = Environment.GetEnvironmentVariable("TARANTOOL_1_7_REPLICATION_SOURCE");
+            var redisUrl = Environment.GetEnvironmentVariable("REDIS_HOST");
 
             var host = "127.0.0.1";
-            if (tarantoolUrl != null)
+            if (!string.IsNullOrWhiteSpace(redisUrl))
             {
-                var resolved = await Dns.GetHostAddressesAsync("redis");
+                var resolved = await Dns.GetHostAddressesAsync(redisUrl);
                 host = resolved.First().ToString();
             }
 

@@ -7,6 +7,7 @@ services:
         environment:
             TARANTOOL_1_7_REPLICATION_SOURCE: "tarantool_1_7:3301"
             TARANTOOL_1_8_REPLICATION_SOURCE: "tarantool_1_8:3301"
+            REDIS_HOST: redis
         links:
             - tarantool_1_7
             - tarantool_1_8
