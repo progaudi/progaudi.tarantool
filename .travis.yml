@@ -8,7 +8,7 @@ matrix:
       env: TARANTOOL_VERSION= TEST_FILTER='--filter "Tarantool!=1.8"'
     - os: osx
       osx_image: xcode9.2
-      env: TARANTOOL_VERSION=--HEAD TEST_FILTER=
+      env: TARANTOOL_VERSION=--HEAD TEST_FILTER='--filter "Tarantool==1.8"'
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ./scripts/ubuntu-prereqs.sh ; fi
