@@ -11,7 +11,7 @@
     <AssemblyName>progaudi.tarantool</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
     <Product>progaudi.tarantool</Product>
-    <Copyright>Copyright © 2016-2017</Copyright>
+    <Copyright>Copyright © 2016-2018</Copyright>
 
     <PackageTags>tarantool;csharp</PackageTags>
     <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>
@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MsgPack.Light" Version="1.4.0" />
+    <PackageReference Include="MsgPack.Light" Version="1.5.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
