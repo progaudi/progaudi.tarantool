@@ -99,6 +99,32 @@ namespace ProGaudi.Tarantool.Client
             return _responseReader.IsConnected && _requestWriter.IsConnected && _physicalConnection.IsConnected;
         }
 
+        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            await SendRequestImpl(request, timeout).ConfigureAwait(false);
+        }
+
+        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(stream, _msgPackContext);
+        }
+
+        public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            return MsgPackSerializer.Deserialize<DataResponse>(stream, _msgPackContext);
+        }
+
+        public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+            where TRequest : IRequest
+        {
+            return (await SendRequestImpl(request, timeout).ConfigureAwait(false)).ToArray();
+        }
+
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
             var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
@@ -115,19 +141,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
-        {
-            await SendRequestImpl<TRequest, EmptyResponse>(request, timeout).ConfigureAwait(false);
-        }
-
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
-        {
-            return await SendRequestImpl<TRequest, DataResponse<TResponse[]>>(request, timeout).ConfigureAwait(false);
-        }
-
-        private async Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, TimeSpan? timeout)
+        private async Task<MemoryStream> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
             where TRequest : IRequest
         {
             if (_disposed)
@@ -156,11 +170,11 @@ namespace ProGaudi.Tarantool.Client
                 var responseStream = await responseTask.ConfigureAwait(false);
                 _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
 
-                return MsgPackSerializer.Deserialize<TResponse>(responseStream, _msgPackContext);
+                return responseStream;
             }
             catch (ArgumentException)
             {
-                _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{ToReadableString(headerBuffer)} \n body: \n{ToReadableString(bodyBuffer)}");
+                _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{headerBuffer.ToReadableString()} \n body: \n{bodyBuffer.ToReadableString()}");
                 throw;
             }
             catch (TimeoutException)
@@ -168,16 +182,6 @@ namespace ProGaudi.Tarantool.Client
                 PingsFailedByTimeoutCount++;
                 throw;
             }
-        }
-
-        private static string ToReadableString(byte[] bytes)
-        {
-            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
-        }
-
-        private static string ToReadableString(ArraySegment<byte> bytes)
-        {
-            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
         }
 
         private ArraySegment<byte> CreateAndSerializeHeader<TRequest>(

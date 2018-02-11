@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
-
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -11,6 +12,10 @@ namespace ProGaudi.Tarantool.Client
         private readonly ClientOptions _clientOptions;
 
         private readonly ILogicalConnection _logicalConnection;
+
+        private BoxInfo _info;
+
+        private bool _sqlReady;
 
         public Box(ClientOptions options)
         {
@@ -22,10 +27,42 @@ namespace ProGaudi.Tarantool.Client
             Schema = new Schema(_logicalConnection);
         }
 
+        public Metrics Metrics { get; }
+
+        public bool IsConnected => _logicalConnection.IsConnected();
+
+        public ISchema Schema { get; }
+
+        public BoxInfo Info
+        {
+            get => _info;
+            private set
+            {
+                _info = value;
+                _sqlReady = value.IsSqlAvailable();
+            }
+        }
+
         public async Task Connect()
         {
             await _logicalConnection.Connect().ConfigureAwait(false);
-            await ReloadSchema().ConfigureAwait(false);
+            await Task.WhenAll(GetAdditionalTasks()).ConfigureAwait(false);
+
+            IEnumerable<Task> GetAdditionalTasks()
+            {
+                if (_clientOptions.ConnectionOptions.ReadSchemaOnConnect)
+                    yield return ReloadSchema();
+
+                if (_clientOptions.ConnectionOptions.ReadBoxInfoOnConnect)
+                    yield return ReloadBoxInfo();
+            }
+        }
+
+        public async Task ReloadBoxInfo()
+        {
+            var report = await Eval<BoxInfo>("return box.info").ConfigureAwait(false);
+            if (report.Data.Length != 1) throw ExceptionHelper.CantParseBoxInfoResponse();
+            Info = report.Data[0];
         }
 
         public static async Task<Box> Connect(string replicationSource)
@@ -34,13 +71,6 @@ namespace ProGaudi.Tarantool.Client
             await box.Connect().ConfigureAwait(false);
             return box;
         }
-
-        public Metrics Metrics
-        {
-            get;
-        }
-
-        public bool IsConnected => _logicalConnection.IsConnected();
 
         public static Task<Box> Connect(string host, int port)
         {
@@ -60,8 +90,6 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public ISchema GetSchema() => Schema;
-
-        public ISchema Schema { get; }
 
         public Task ReloadSchema()
         {
@@ -120,6 +148,20 @@ namespace ProGaudi.Tarantool.Client
         public Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression)
         {
             return Eval<TarantoolTuple, TResponse>(expression, TarantoolTuple.Empty);
+        }
+
+        public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
+        {
+            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+
+            return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
+        }
+
+        public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
+        {
+            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+
+            return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
         }
     }
 }

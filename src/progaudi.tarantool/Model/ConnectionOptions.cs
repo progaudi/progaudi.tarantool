@@ -33,10 +33,19 @@ namespace ProGaudi.Tarantool.Client.Model
         }
 
         public int ReadStreamBufferSize { get; set; } = 4096;
+
         public int WriteNetworkTimeout { get; set; } = -1;
+
         public int ReadNetworkTimeout { get; set; } = -1;
+
         public int PingCheckInterval { get; set; } = -1;
+
         public TimeSpan? PingCheckTimeout { get; set; }
+
         public List<TarantoolNode> Nodes { get; set; } = new List<TarantoolNode>();
+
+        public bool ReadSchemaOnConnect { get; set; } = true;
+
+        public bool ReadBoxInfoOnConnect { get; set; } = true;
     }
 }

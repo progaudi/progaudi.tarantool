@@ -3,8 +3,12 @@ matrix:
     - os: linux # Ubuntu 14.04
       dist: trusty
       sudo: required
-    - os: osx # OSX 10.12
-      osx_image: xcode8.3
+    - os: osx
+      osx_image: xcode9.2
+      env: TARANTOOL_VERSION= TEST_FILTER='--filter "Tarantool!=1.8"'
+    - os: osx
+      osx_image: xcode9.2
+      env: TARANTOOL_VERSION=--HEAD TEST_FILTER='--filter "Tarantool=1.8"'
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ./scripts/ubuntu-prereqs.sh ; fi
@@ -14,9 +18,10 @@ install:
   - ./scripts/dotnet-install.sh
   - PATH=$PATH:$HOME/.dotnet && export PATH
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then docker-compose -f docker-compose.yml up -d ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then tarantool tarantool/tarantool.lua ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then (cd tarantool && tarantool tarantool.lua && cd ..) ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then redis-server --daemonize yes ; fi
 
 script:
   - ./scripts/build-netcore.sh
-  - ./scripts/test-netcore.sh
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then ./scripts/linux-test-netcore.sh ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./scripts/mac-test-netcore.sh ; fi

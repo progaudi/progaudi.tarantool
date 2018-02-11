@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Tests
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            using (var tarantoolClient = new Client.Box(new ClientOptions(ConnectionStringFactory.GetReplicationSource(), logWriter)))
+            using (var tarantoolClient = new Client.Box(new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7(), logWriter)))
             {
                 tarantoolClient.Connect().GetAwaiter().GetResult();
 
@@ -48,11 +48,11 @@ namespace ProGaudi.Tarantool.Client.Tests
     {
         private const uint OperationsCount = 1000;
 
-        private readonly Client.IIndex _index;
+        private readonly IIndex _index;
 
         private readonly uint _id;
 
-        public TestClient(Client.IIndex index, uint threadId)
+        public TestClient(IIndex index, uint threadId)
         {
             _index = index;
             _id = threadId;

@@ -1,7 +1,9 @@
 ﻿using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Converters;
+using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
+using ProGaudi.Tarantool.Client.Model.Responses;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -36,8 +38,10 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterConverter(new IndexCreationOptionsConverter());
             context.RegisterConverter(new IndexConverter());
             context.RegisterConverter(new TupleConverter());
+            context.RegisterConverter(new BoxInfo.Converter());
 
             context.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
+            context.RegisterConverter(new ResponsePacketConverter());
             context.RegisterGenericConverter(typeof(UpdatePacketConverter<>));
             context.RegisterGenericConverter(typeof(CallPacketConverter<>));
             context.RegisterGenericConverter(typeof(DeletePacketConverter<>));
@@ -46,6 +50,7 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterGenericConverter(typeof(SelectPacketConverter<>));
             context.RegisterGenericConverter(typeof(UpsertPacketConverter<>));
             context.RegisterConverter(new PingPacketConverter());
+            context.RegisterConverter(new ExecuteSqlRequestConverter());
 
             context.RegisterGenericConverter(typeof(TupleConverter<>));
             context.RegisterGenericConverter(typeof(TupleConverter<,>));

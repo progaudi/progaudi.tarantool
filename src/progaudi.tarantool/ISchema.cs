@@ -14,5 +14,7 @@ namespace ProGaudi.Tarantool.Client
         ISpace this[uint id] { get; }
 
         Task Reload();
+
+        DateTimeOffset LastReloadTime { get; }
     }
 }

@@ -13,6 +13,7 @@
         Eval = 0x08,
         Upsert = 0x09,
         Call = 0x0A,
+        Execute = 0x0B,
 
         //Admin command codes
         Ping = 0x40,

@@ -6,6 +6,7 @@ using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace ProGaudi.Tarantool.Client.Utils
 {
@@ -107,10 +108,35 @@ namespace ProGaudi.Tarantool.Client.Utils
             switch ((uint)code)
             {
                 case 0x8012:
-                    return "If index part type is NUM, unsingned int should be used.";
+                    return "If index part type is NUM, unsigned int should be used.";
             }
 
             return null;
+        }
+
+        public static Exception VersionCantBeEmpty()
+        {
+            return new ArgumentNullException("version", "TarantoolVersion should be not null.");
+        }
+
+        public static Exception CantParseBoxInfoResponse()
+        {
+            return new SerializationException("Box info response is malformed");
+        }
+
+        public static Exception CantCompareBuilds(TarantoolVersion left, TarantoolVersion right)
+        {
+            return new InvalidOperationException($"Versions '{left}' and '{right}' differs only by commit hash, can't compare them.");
+        }
+
+        public static Exception SqlIsNotAvailable(TarantoolVersion version)
+        {
+            return new InvalidOperationException($"Can't use sql on '{version}' of tarantool. Upgrade to 1.8 (prefer latest one).");
+        }
+
+        public static Exception NoDataInDataResponse()
+        {
+            return new InvalidOperationException("No data in data response");
         }
     }
 }

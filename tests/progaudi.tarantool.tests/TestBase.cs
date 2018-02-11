@@ -7,7 +7,7 @@ namespace ProGaudi.Tarantool.Client.Tests
     {
         public async Task ClearDataAsync(params string[] spaceNames)
         {
-            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource("admin:adminPassword")))
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7("admin:adminPassword")))
             {
                 await tarantoolClient.Call("clear_data", TarantoolTuple.Create(spaceNames));
             }

@@ -2,7 +2,7 @@
 {
     public enum Key : uint
     {
-        //User keys
+        // Request keys
         Code = 0x00,
         Sync = 0x01,
         SchemaId = 0x05,
@@ -17,10 +17,21 @@
         Username = 0x23,
         Expression = 0x27,
         Ops = 0x28,
+        FieldName = 0x29,
+
+        // Response keys
         Data = 0x30,
         Error = 0x31,
+        Metadata = 0x32,
 
-        //Replication keys
+        // Sql keys
+        SqlQueryText = 0x40,
+        SqlParameters = 0x41,
+        SqlOptions = 0x42,
+        SqlInfo = 0x43,
+        SqlRowCount = 0x44,
+
+        // Replication keys
         ServerId = 0x02,
         Lsn = 0x03,
         Timestamp = 0x04,

@@ -17,11 +17,12 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
         [Fact]
         public async Task Smoke()
         {
-            await ClearDataAsync("with_scalar_index");
-
             const string spaceName = "with_scalar_index";
-            var clientOptions = new ClientOptions(ConnectionStringFactory.GetReplicationSource());
-            using (var tarantoolClient = new Tarantool.Client.Box(clientOptions))
+
+            await ClearDataAsync(spaceName);
+
+            var clientOptions = new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7());
+            using (var tarantoolClient = new Client.Box(clientOptions))
             {
                 await tarantoolClient.Connect();
                 var schema = tarantoolClient.GetSchema();

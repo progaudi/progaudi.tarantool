@@ -1,12 +1,14 @@
-version: '2'
+version: '3.2'
 
 services:
-
-  tarantool-client:
-    build: .
-    command: /app/scripts/test-netcore.sh
-    environment:
-        TARANTOOL_REPLICATION_SOURCE: "tarantool:3301"
-    links:
-        - tarantool
-        - redis
+    tarantool-client:
+        build: .
+        command: /app/scripts/test-netcore.sh
+        environment:
+            TARANTOOL_1_7_REPLICATION_SOURCE: "tarantool_1_7:3301"
+            TARANTOOL_1_8_REPLICATION_SOURCE: "tarantool_1_8:3301"
+            REDIS_HOST: redis
+        links:
+            - tarantool_1_7
+            - tarantool_1_8
+            - redis

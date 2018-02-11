@@ -14,33 +14,34 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         [Fact]
         public async Task HashIndexMethods()
         {
-            await ClearDataAsync("primary_only_index");
-
             const string spaceName = "primary_only_index";
-            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
+            
+            await ClearDataAsync(spaceName);
+
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7()))
             {
                 var index = tarantoolClient.GetSchema()[spaceName]["primary"];
 
                 try
                 {
-                    await index.Insert(TarantoolTuple.Create(2, "Music"));
+                    await index.Insert((2, "Music", 0.0));
                 }
                 catch (ArgumentException)
                 {
-                    await index.Delete<TarantoolTuple<int>, TarantoolTuple<int, string, double>>(TarantoolTuple.Create(2));
-                    await index.Insert(TarantoolTuple.Create(2, "Music"));
+                    await index.Delete<ValueTuple<int>, ValueTuple<int, string, double>>(ValueTuple.Create(2));
+                    await index.Insert((2, "Music", 0.0));
                 }
 
-                await index.Select<TarantoolTuple<uint>, TarantoolTuple<int, string>>(TarantoolTuple.Create(1029u));
-                await index.Replace(TarantoolTuple.Create(2, "Car", -245.3));
-                await index.Update<TarantoolTuple<int, string, double>, TarantoolTuple<int>>(
-                    TarantoolTuple.Create(2),
+                await index.Select<ValueTuple<uint>, ValueTuple<int, string>>(ValueTuple.Create(1029u));
+                await index.Replace((2, "Car", -245.3));
+                await index.Update<ValueTuple<int, string, double>, ValueTuple<int>>(
+                    ValueTuple.Create(2),
                     new UpdateOperation[] { UpdateOperation.CreateAddition(100, 2) });
 
-                await index.Upsert(TarantoolTuple.Create(6u), new UpdateOperation[] { UpdateOperation.CreateAssign(2, 2) });
-                await index.Upsert(TarantoolTuple.Create(6u), new UpdateOperation[] { UpdateOperation.CreateAddition(-2, 2) });
+                await index.Upsert((6u, "name", 100.0), new UpdateOperation[] { UpdateOperation.CreateAssign(2, 2) });
+                await index.Upsert((6u, "name", 100.0), new UpdateOperation[] { UpdateOperation.CreateAddition(-2, 2) });
 
-                var result = await index.Select<TarantoolTuple<uint>, TarantoolTuple<uint>>(TarantoolTuple.Create(6u));
+                var result = await index.Select<ValueTuple<uint>, ValueTuple<uint, string, double>>(ValueTuple.Create(6u));
                 result.Data[0].Item1.ShouldBe(6u);
             }
         }
@@ -48,10 +49,11 @@ namespace ProGaudi.Tarantool.Client.Tests.Index
         [Fact]
         public async Task TreeIndexMethods()
         {
-            await ClearDataAsync("space_TreeIndexMethods");
-
             const string spaceName = "space_TreeIndexMethods";
-            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource()))
+
+            await ClearDataAsync(spaceName);
+
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7()))
             {
                 var schema = tarantoolClient.GetSchema();
 

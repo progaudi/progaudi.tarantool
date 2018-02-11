@@ -13,12 +13,16 @@ namespace ProGaudi.Tarantool.Client
 
         Metrics Metrics { get; }
 
+        ISchema Schema { get; }
+
+        BoxInfo Info { get; }
+
         [Obsolete]
         ISchema GetSchema();
 
         Task ReloadSchema();
 
-        ISchema Schema { get; }
+        Task ReloadBoxInfo();
 
         Task Call_1_6(string functionName);
 
@@ -39,5 +43,9 @@ namespace ProGaudi.Tarantool.Client
         Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters);
 
         Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression);
+
+        Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters);
+
+        Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters);
     }
 }
