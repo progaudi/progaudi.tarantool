@@ -34,7 +34,7 @@ namespace ProGaudi.Tarantool.Client.Utils
                 {
                     //Check for our custom attribute
                     var attrs = fi.GetCustomAttributes(typeof(StringValueAttribute), false) as StringValueAttribute[];
-                    if (attrs.Length > 0)
+                    if (attrs != null && attrs.Length > 0)
                         enumStringValue = attrs[0].Value;
 
                     //Check for equality then select actual enum value.
