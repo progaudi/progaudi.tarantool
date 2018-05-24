@@ -35,13 +35,13 @@ namespace ProGaudi.Tarantool.Client
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method should be
         Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple);
 
-        Task<TTuple> Min<TTuple>();
+        //Task<TTuple> Min<TTuple>();
 
-        Task<TTuple> Min<TTuple, TKey>(TKey key);
+        //Task<TTuple> Min<TTuple, TKey>(TKey key);
 
-        Task<TTuple> Max<TTuple>();
+        //Task<TTuple> Max<TTuple>();
 
-        Task<TTuple> Max<TTuple, TKey>(TKey key);
+        //Task<TTuple> Max<TTuple, TKey>(TKey key);
 
         TTuple Random<TTuple>(int randomValue);
 

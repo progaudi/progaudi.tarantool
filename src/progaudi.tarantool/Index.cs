@@ -74,11 +74,6 @@ namespace ProGaudi.Tarantool.Client
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest).ConfigureAwait(false);
         }
 
-        public async Task<TTuple> Min<TTuple>()
-        {
-            return await Min<TTuple, TarantoolTuple>(TarantoolTuple.Empty).ConfigureAwait(false);
-        }
-
         public async Task<TTuple> Min<TTuple, TKey>(TKey key)
         {
             if (Type != IndexType.Tree)
@@ -91,11 +86,6 @@ namespace ProGaudi.Tarantool.Client
 
             var minResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket).ConfigureAwait(false);
             return minResponse.Data.SingleOrDefault();
-        }
-
-        public async Task<TTuple> Max<TTuple>()
-        {
-            return await Max<TTuple, TarantoolTuple>(TarantoolTuple.Empty).ConfigureAwait(false);
         }
 
         public async Task<TTuple> Max<TTuple, TKey>(TKey key)

@@ -22,6 +22,6 @@ namespace progaudi.tarantool.benchmark
         public async Task<long> Redis() => await _redis.StringIncrementAsync("test_for_benchmarking");
 
         [Benchmark]
-        public async Task<DataResponse<int[]>> Tarantool() => await _box.Call<int>("test_for_benchmarking");
+        public async Task<DataResponse<int[]>> Tarantool() => await _box.Call<int, int>("test_for_benchmarking", 0);
     }
 }

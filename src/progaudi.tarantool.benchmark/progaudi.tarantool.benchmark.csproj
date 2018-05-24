@@ -1,9 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <!-- default to allowing all language features -->
+    <WarningLevel>4</WarningLevel>
     <WarningsAsErrors>true</WarningsAsErrors>
+
+    <AssemblyName>progaudi.tarantool</AssemblyName>
+    <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
+    <Product>progaudi.tarantool</Product>
+    <Copyright>Copyright © 2016-2018</Copyright>
 
     <AssemblyName>progaudi.tarantool.benchmark</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Benchmark</RootNamespace>

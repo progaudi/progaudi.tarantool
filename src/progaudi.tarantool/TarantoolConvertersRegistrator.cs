@@ -37,7 +37,6 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterConverter(new IndexPartConverter());
             context.RegisterConverter(new IndexCreationOptionsConverter());
             context.RegisterConverter(new IndexConverter());
-            context.RegisterConverter(new TupleConverter());
             context.RegisterConverter(new BoxInfo.Converter());
 
             context.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
@@ -51,15 +50,6 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterGenericConverter(typeof(UpsertPacketConverter<>));
             context.RegisterConverter(new PingPacketConverter());
             context.RegisterConverter(new ExecuteSqlRequestConverter());
-
-            context.RegisterGenericConverter(typeof(TupleConverter<>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,,,,>));
 
             context.RegisterGenericConverter(typeof(SystemTupleConverter<>));
             context.RegisterGenericConverter(typeof(SystemTupleConverter<,>));
