@@ -16,10 +16,7 @@ namespace ProGaudi.Tarantool.Client
         internal const uint PrimaryIndexId = 0;
 
         private readonly ILogicalConnection _logicalConnection;
-
-        private Dictionary<string, int> _spacesByName = new Dictionary<string, int>();
-        private Dictionary<uint, int> _spacesById = new Dictionary<uint, int>();
-        private SpaceMeta[] _spaces;
+        private NameIdLazyWrapper<SpaceMeta> _spaces;
 
         private Dictionary<uint, int[]> _indicesBySpace = new Dictionary<uint, int[]>();
         private IndexMeta[] _indices;
@@ -35,39 +32,31 @@ namespace ProGaudi.Tarantool.Client
 
         public bool TryGetSpace<T>(string name, out ISpace<T> space)
         {
-            if (!_spacesByName.TryGetValue(name, out var index))
+            SpaceMeta meta;
+            lock (_lockObject)
             {
-                space = default;
-                return false;
+                meta = _spaces[name];
             }
 
-            return GetSpaceByIndex(index, out space);
+            space = new Space<T>(this, meta, _indicesBySpace[meta.Id].Select(x => _indices[x]));
+            return true;
         }
 
         public bool TryGetSpace<T>(uint id, out ISpace<T> space)
         {
-            if (!_spacesById.TryGetValue(id, out var index))
+            SpaceMeta meta;
+            lock (_lockObject)
             {
-                space = default;
-                return false;
+                meta = _spaces[id];
             }
 
-            return GetSpaceByIndex(index, out space);
+            space = new Space<T>(this, meta, _indicesBySpace[meta.Id].Select(x => _indices[x]));
+            return true;
         }
 
         public async Task Reload()
         {
-            var byName = new Dictionary<string, int>();
-            var byId = new Dictionary<uint, int>();
-
             var spaces = await Select<SpaceMeta>(VSpace).ConfigureAwait(false);
-            for (var i = 0; i < spaces.Length; i++)
-            {
-                var space = spaces[i];
-                byName[space.Name] = i;
-                byId[space.Id] = i;
-            }
-
             var indices = await Select<IndexMeta>(VIndex).ConfigureAwait(false);
             var indicesBySpace = indices
                 .Select((x, i) => new {x, i})
@@ -76,22 +65,13 @@ namespace ProGaudi.Tarantool.Client
 
             lock (_lockObject)
             {
-                _spaces = spaces;
-                _spacesByName = byName;
-                _spacesById = byId;
+                _spaces = new NameIdLazyWrapper<SpaceMeta>(spaces, x => x.Id, x => x.Name);
 
                 _indices = indices;
                 _indicesBySpace = indicesBySpace;
 
                 LastReloadTime = DateTimeOffset.UtcNow;
             }
-        }
-
-        private bool GetSpaceByIndex<T>(int index, out ISpace<T> space)
-        {
-            var meta = _spaces[index];
-            space = new Space<T>(this, meta, _indicesBySpace[meta.Id].Select(x => _indices[x]));
-            return true;
         }
 
         private async Task<T[]> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)

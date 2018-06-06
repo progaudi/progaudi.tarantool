@@ -14,12 +14,11 @@ namespace ProGaudi.Tarantool.Client
 
         ISchema Schema { get; }
 
+        ILuaCode<TResult> GetLuaFunc<TResult>(string name);
+
+        ILuaCode<TResult> GetLuaCode<TResult>(string code);
+
         BoxInfo Info { get; }
-
-        [Obsolete]
-        ISchema GetSchema();
-
-        Task ReloadSchema();
 
         Task ReloadBoxInfo();
     }
