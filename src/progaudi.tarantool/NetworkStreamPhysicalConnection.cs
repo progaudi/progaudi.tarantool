@@ -7,10 +7,6 @@ using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Utils;
 
-#if PROGAUDI_NETCORE
-using System.Net;
-#endif
-
 namespace ProGaudi.Tarantool.Client
 {
     internal class NetworkStreamPhysicalConnection : IPhysicalConnection
@@ -67,34 +63,6 @@ namespace ProGaudi.Tarantool.Client
             return await _stream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
         }
 
-#if PROGAUDI_NETCORE
-        /// https://github.com/mongodb/mongo-csharp-driver/commit/9c2097f349d5096a04ea81b0c9ceb60c7e1acee4
-        private static async Task ConnectAsync(Socket socket, string host, int port)
-        {
-            var resolved = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);;
-            for (var i = 0; i < resolved.Length; i++)
-            {
-                try
-                {
-                    await socket.ConnectAsync(resolved[i], port).ConfigureAwait(false);
-                    return;
-                }
-                catch
-                {
-                    // if we have tried all of them and still failed,
-                    // then blow up.
-                    if (i == resolved.Length - 1)
-                    {
-                        throw;
-                    }
-                }
-            }
-
-            // we should never get here...
-            throw new InvalidOperationException("Unabled to resolve endpoint.");
-        }
-#else
-        /// Stolen from corefx github
         private static Task ConnectAsync(Socket socket, string host, int port)
         {
             return Task.Factory.FromAsync(
@@ -104,7 +72,6 @@ namespace ProGaudi.Tarantool.Client
                 port,
                 socket);
         }
-#endif
 
         public bool IsConnected => !_disposed && _stream != null;
 

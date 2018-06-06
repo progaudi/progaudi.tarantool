@@ -33,10 +33,8 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterConverter(new ErrorResponsePacketConverter());
 
             context.RegisterConverter(new SpaceFieldConverter());
-            context.RegisterConverter(new SpaceConverter());
             context.RegisterConverter(new IndexPartConverter());
             context.RegisterConverter(new IndexCreationOptionsConverter());
-            context.RegisterConverter(new IndexConverter());
             context.RegisterConverter(new BoxInfo.Converter());
 
             context.RegisterGenericConverter(typeof(ResponsePacketConverter<>));

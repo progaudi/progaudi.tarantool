@@ -3,6 +3,7 @@
     public enum StorageEngine
     {
         Memtx,
-        Sophia
+        Vinyl,
+        Sysview
     }
 }
