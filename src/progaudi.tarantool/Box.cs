@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MessagePack;
+using MessagePack.Resolvers;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
@@ -21,9 +21,8 @@ namespace ProGaudi.Tarantool.Client
         public Box(ClientOptions options)
         {
             _clientOptions = options;
-            TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
-            _logicalConnection = new LogicalConnectionManager(options);
+            _logicalConnection = new LogicalConnection(options, new RequestIdCounter());
             Metrics = new Metrics(_logicalConnection);
             Schema = new Schema(_logicalConnection);
         }
@@ -33,6 +32,16 @@ namespace ProGaudi.Tarantool.Client
         public bool IsConnected => _logicalConnection.IsConnected();
 
         public ISchema Schema { get; }
+
+        public ILuaCode<TResult> GetLuaFunc<TResult>(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ILuaCode<TResult> GetLuaCode<TResult>(string code)
+        {
+            throw new NotImplementedException();
+        }
 
         public BoxInfo Info
         {
@@ -111,18 +120,34 @@ namespace ProGaudi.Tarantool.Client
             return _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);
         }
 
-        public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
+        //public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
+        //{
+        //    if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+
+        //    return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
+        //}
+
+        //public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
+        //{
+        //    if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+
+        //    return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
+        //}
+
+        static Box()
         {
-            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+            CompositeResolver.RegisterAndSetAsDefault(
+                BuiltinResolver.Instance,
+                AttributeFormatterResolver.Instance,
+                PackerResolver.Instance,
+                EnumResolver.Instance,
 
-            return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
-        }
+                DynamicEnumResolver.Instance,
+                DynamicGenericResolver.Instance,
+                DynamicObjectResolver.Instance,
 
-        public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
-        {
-            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
-
-            return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
+                PrimitiveObjectResolver.Instance
+            );
         }
     }
 }

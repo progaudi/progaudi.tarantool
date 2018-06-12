@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -9,6 +8,6 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected { get; }
 
-        void Write(ArraySegment<byte> header, ArraySegment<byte> body);
+        void Write(byte[] header, byte[] body);
     }
 }

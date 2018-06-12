@@ -1,8 +1,6 @@
 using System;
 using System.Threading.Tasks;
-
-using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
 {

@@ -1,23 +1,20 @@
-﻿using ProGaudi.MsgPack.Light;
-
-namespace ProGaudi.Tarantool.Client.Model
+﻿namespace ProGaudi.Tarantool.Client.Model
 {
     public class ClientOptions
     {
-        public ClientOptions(ILog log = null, MsgPackContext context = null)
-            : this(new ConnectionOptions(), log, context)
+        public ClientOptions(ILog log = null)
+            : this(new ConnectionOptions(), log)
         {
         }
 
-        public ClientOptions(string replicationSource, ILog log = null, MsgPackContext context = null)
-            : this(new ConnectionOptions(replicationSource, log), log, context)
+        public ClientOptions(string replicationSource, ILog log = null)
+            : this(new ConnectionOptions(replicationSource, log), log)
         {
         }
 
-        private ClientOptions(ConnectionOptions options, ILog log, MsgPackContext context)
+        private ClientOptions(ConnectionOptions options, ILog log)
         {
             ConnectionOptions = options;
-            MsgPackContext = context ?? new MsgPackContext();
             if (log != null)
             {
                 LogWriter = new LogWriterWrapper(this, log);
@@ -25,8 +22,6 @@ namespace ProGaudi.Tarantool.Client.Model
         }
 
         public ILog LogWriter { get; }
-
-        public MsgPackContext MsgPackContext { get; }
 
         public ConnectionOptions ConnectionOptions { get; }
 

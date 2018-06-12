@@ -1,23 +1,15 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-using ProGaudi.MsgPack.Light;
-
+using MessagePack;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Headers;
-using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
     internal class LogicalConnection : ILogicalConnection
     {
-        private readonly MsgPackContext _msgPackContext;
-
         private readonly ClientOptions _clientOptions;
 
         private readonly RequestIdCounter _requestIdCounter;
@@ -36,7 +28,6 @@ namespace ProGaudi.Tarantool.Client
         {
             _clientOptions = options;
             _requestIdCounter = requestIdCounter;
-            _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
 
             _physicalConnection = new NetworkStreamPhysicalConnection();
@@ -108,21 +99,23 @@ namespace ProGaudi.Tarantool.Client
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(stream, _msgPackContext);
+            var (result, bodyStart) = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            var formatter = MessagePackSerializer.DefaultResolver.GetFormatter<DataResponse<TResponse[]>>();
+            return formatter.Deserialize(result, bodyStart, MessagePackSerializer.DefaultResolver, out _);
         }
 
         public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            return MsgPackSerializer.Deserialize<DataResponse>(stream, _msgPackContext);
+            var (result, bodyStart) = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            var formatter = MessagePackSerializer.DefaultResolver.GetFormatter<DataResponse>();
+            return formatter.Deserialize(result, bodyStart, MessagePackSerializer.DefaultResolver, out _);
         }
 
         public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return (await SendRequestImpl(request, timeout).ConfigureAwait(false)).ToArray();
+            return (await SendRequestImpl(request, timeout).ConfigureAwait(false)).result;
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
@@ -141,7 +134,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        private async Task<MemoryStream> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
+        private async Task<(byte[] result, int bodyStart)> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
             where TRequest : IRequest
         {
             if (_disposed)
@@ -149,15 +142,13 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(LogicalConnection));
             }
 
-            var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
+            var bodyBuffer = MessagePackSerializer.Serialize(request);
 
             var requestId = _requestIdCounter.GetRequestId();
             var responseTask = _responseReader.GetResponseTask(requestId);
 
-            var headerBuffer = CreateAndSerializeHeader(request, requestId, bodyBuffer);
-            _requestWriter.Write(
-                headerBuffer,
-                new ArraySegment<byte>(bodyBuffer, 0, bodyBuffer.Length));
+            var headerBuffer = MessagePackSerializer.Serialize(new RequestHeader(request.Code, requestId));
+            _requestWriter.Write(headerBuffer, bodyBuffer);
 
             try
             {
@@ -167,10 +158,10 @@ namespace ProGaudi.Tarantool.Client
                     responseTask = responseTask.WithCancellation(cts.Token);
                 }
 
-                var responseStream = await responseTask.ConfigureAwait(false);
-                _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
+                var (result, bodyStart) = await responseTask.ConfigureAwait(false);
+                _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {result.Length}.");
 
-                return responseStream;
+                return (result, bodyStart);
             }
             catch (ArgumentException)
             {
@@ -182,26 +173,6 @@ namespace ProGaudi.Tarantool.Client
                 PingsFailedByTimeoutCount++;
                 throw;
             }
-        }
-
-        private ArraySegment<byte> CreateAndSerializeHeader<TRequest>(
-            TRequest request,
-            RequestId requestId,
-            byte[] serializedRequest) where TRequest : IRequest
-        {
-            var packetSizeBuffer = new byte[Constants.PacketSizeBufferSize + Constants.MaxHeaderLength];
-            var stream = new MemoryStream(packetSizeBuffer);
-
-            var requestHeader = new RequestHeader(request.Code, requestId);
-            stream.Seek(Constants.PacketSizeBufferSize, SeekOrigin.Begin);
-            MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
-
-            var lengthAndHeaderLengthByteCount = (int)stream.Position;
-            var headerLength = lengthAndHeaderLengthByteCount - Constants.PacketSizeBufferSize;
-            var packetLength = new PacketSize((uint) (headerLength + serializedRequest.Length));
-            stream.Seek(0, SeekOrigin.Begin);
-            MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
-            return new ArraySegment<byte>(packetSizeBuffer, 0, lengthAndHeaderLengthByteCount);
         }
     }
 }

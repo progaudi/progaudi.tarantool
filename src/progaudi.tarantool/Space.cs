@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -12,13 +10,13 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly Schema _schema;
         private readonly SpaceMeta _meta;
-        private readonly Lazy<NameIdLazyWrapper<IndexMeta>> _indices;
+        private readonly Lazy<NameIdLazyWrapper<IndexMeta?>> _indices;
 
         public Space(Schema schema, SpaceMeta meta, IEnumerable<IndexMeta> indexMetas)
         {
             _schema = schema;
             _meta = meta;
-            _indices = new Lazy<NameIdLazyWrapper<IndexMeta>>(() => new NameIdLazyWrapper<IndexMeta>(indexMetas.ToArray(), x => x.Id, x => x.Name));
+            _indices = new Lazy<NameIdLazyWrapper<IndexMeta?>>(() => new NameIdLazyWrapper<IndexMeta?>(indexMetas.Select(x => (IndexMeta?)x).ToArray(), x => x.Value.Id, x => x.Value.Name));
         }
 
         public override string ToString()
@@ -52,13 +50,13 @@ namespace ProGaudi.Tarantool.Client
         {
             var meta = _indices.Value[name];
 
-            if (meta == default)
+            if (meta == null)
             {
                 index = default;
                 return false;
             }
 
-            index = new Index<TCastedValue>(meta, _schema);
+            index = new Index<TCastedValue>(meta.Value, _schema);
             return true;
         }
 
@@ -66,22 +64,23 @@ namespace ProGaudi.Tarantool.Client
         {
             var meta = _indices.Value[id];
 
-            if (meta == default)
+            if (meta == null)
             {
                 index = default;
                 return false;
             }
 
-            index = new Index<TCastedValue>(meta, _schema);
+            index = new Index<TCastedValue>(meta.Value, _schema);
             return true;
         }
 
-        public Task<T> Insert(ref T tuple)
+        public async Task<T> Insert(T tuple)
         {
-            throw new NotImplementedException();
+            var result = await _schema.Connection.SendRequest<InsertReplaceRequest<T>, T>(new InsertRequest<T>(Id, tuple));
+            return result.Data[0];
         }
 
-        public Task<T> Insert<TInsertable>(ref TInsertable tuple)
+        public Task<T> Insert<TInsertable>(in TInsertable tuple)
         {
             throw new NotImplementedException();
         }

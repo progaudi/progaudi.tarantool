@@ -1,30 +1,34 @@
 ﻿using System.Collections.Generic;
-using ProGaudi.MsgPack.Light;
+using MessagePack;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
 
 namespace ProGaudi.Tarantool.Client
 {
     // TODO: fix serializer to support struct.
-    [MsgPackArray]
-    public sealed class IndexMeta
+    [MessagePackObject]
+    public struct IndexMeta
     {
-        [MsgPackArrayElement(1)]
-        public uint Id { get; set; }
-
-        [MsgPackArrayElement(0)]
+        [Key(0)]
         public uint SpaceId { get; set; }
 
-        [MsgPackArrayElement(2)]
+        [Key(1)]
+        public uint Id { get; set; }
+
+        [Key(2)]
         public string Name { get; set; }
 
-        [MsgPackArrayElement(4)]
-        public IndexCreationOptions Options { get; set; }
-
-        [MsgPackArrayElement(3)]
+        [Key(3)]
         public IndexType Type { get; set; }
 
-        [MsgPackArrayElement(5)]
-        public IReadOnlyList<IndexPart> Parts { get; set; }
+        [Key(4)]
+        public IndexCreationOptions Options { get; set; }
+
+        [Key(5)]
+        public IndexPart[] Parts { get; set; }
+
+        public override string ToString()
+        {
+            return $"Index: {Name} ({Id}), Unique: {Options.Unique}, Space: {SpaceId}, Parts: {Parts.Length}";
+        }
     }
 }

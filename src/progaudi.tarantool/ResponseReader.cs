@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using JetBrains.Annotations;
-
-using ProGaudi.MsgPack.Light;
+using MessagePack;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.Headers;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
@@ -20,8 +14,8 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
-            new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+        private readonly Dictionary<RequestId, TaskCompletionSource<(byte[] result, int bodyStart)>> _pendingRequests =
+            new Dictionary<RequestId, TaskCompletionSource<(byte[] result, int bodyStart)>>();
 
         private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
@@ -72,7 +66,7 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public Task<MemoryStream> GetResponseTask(RequestId requestId)
+        public Task<(byte[] result, int bodyStart)> GetResponseTask(RequestId requestId)
         {
             try
             {
@@ -88,7 +82,7 @@ namespace ProGaudi.Tarantool.Client
                     throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
                 }
 
-                var tcs = new TaskCompletionSource<MemoryStream>();
+                var tcs = new TaskCompletionSource<(byte[] result, int bodyStart)>();
                 _pendingRequests.Add(requestId, tcs);
 
                 return tcs.Task;
@@ -109,7 +103,7 @@ namespace ProGaudi.Tarantool.Client
             readingTask.ContinueWith(EndReading);
         }
 
-        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
+        private TaskCompletionSource<(byte[] result, int bodyStart)> PopResponseCompletionSource(RequestId requestId)
         {
             try
             {
@@ -215,8 +209,8 @@ namespace ProGaudi.Tarantool.Client
 
         private void MatchResult(byte[] result)
         {
-            var resultStream = new MemoryStream(result);
-            var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
+            var headerFormatter = MessagePackSerializer.DefaultResolver.GetFormatter<ResponseHeader>();
+            var header = headerFormatter.Deserialize(result, 0, MessagePackSerializer.DefaultResolver, out var readSize);
             var tcs = PopResponseCompletionSource(header.RequestId);
 
             if (tcs == null)
@@ -226,15 +220,16 @@ namespace ProGaudi.Tarantool.Client
                 return;
             }
 
-            if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
+            _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
+            if ((header.Code & CommandCodes.ErrorMask) == CommandCodes.ErrorMask)
             {
-                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _clientOptions.MsgPackContext);
+                var errorFormatter = MessagePackSerializer.DefaultResolver.GetFormatter<ErrorResponse>();
+                var errorResponse = errorFormatter.Deserialize(result, readSize, MessagePackSerializer.DefaultResolver, out _);
                 tcs.SetException(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else
             {
-                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
-                tcs.SetResult(resultStream);
+                tcs.SetResult((result, readSize));
             }
         }
 
@@ -295,7 +290,7 @@ namespace ProGaudi.Tarantool.Client
 
             var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
             Array.Copy(_buffer, _parsingOffset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
-            var packetSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer, _clientOptions.MsgPackContext);
+            var packetSize = (int)MessagePackBinary.ReadUInt64(_buffer, _parsingOffset, out _);
 
             return packetSize;
         }

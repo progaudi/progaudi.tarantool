@@ -29,7 +29,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MsgPack.Light" Version="1.5.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="MessagePack" Version="1.7.3.4" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
@@ -54,16 +55,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Converters\SystemTupleConverters.cs">
-      <DependentUpon>SystemTupleConverters.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Converters\ValueTupleConverters.cs">
-      <DependentUpon>ValueTupleConverters.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
     <Compile Update="T4Templates\TarantoolTuples.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

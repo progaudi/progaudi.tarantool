@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.Requests;
+using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -15,7 +14,6 @@ namespace ProGaudi.Tarantool.Client
 
         internal const uint PrimaryIndexId = 0;
 
-        private readonly ILogicalConnection _logicalConnection;
         private NameIdLazyWrapper<SpaceMeta> _spaces;
 
         private Dictionary<uint, int[]> _indicesBySpace = new Dictionary<uint, int[]>();
@@ -25,9 +23,11 @@ namespace ProGaudi.Tarantool.Client
 
         public Schema(ILogicalConnection logicalConnection)
         {
-            _logicalConnection = logicalConnection;
+            Connection = logicalConnection;
         }
 
+        public ILogicalConnection Connection { get; }
+        
         public DateTimeOffset LastReloadTime { get; private set; }
 
         public bool TryGetSpace<T>(string name, out ISpace<T> space)
@@ -78,7 +78,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var request = new SelectRequest<ValueTuple<uint>>(spaceId, PrimaryIndexId, uint.MaxValue, 0, iterator, ValueTuple.Create(id));
 
-            var response = await _logicalConnection
+            var response = await Connection
                 .SendRequest<SelectRequest<ValueTuple<uint>>, T>(request)
                 .ConfigureAwait(false);
             return response.Data;

@@ -8,32 +8,42 @@ namespace Tarantool.Test
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            using (var box = Box.Connect("localhost:3301").GetAwaiter().GetResult())
+            var log = new TextWriterLog(Console.Out);
+            var options = new ClientOptions("localhost:3301");
+            try
             {
-                var schema = box.GetSchema();
-                var space = schema["pivot"];
-                var lst = new Task[1000];
-                var sw = Stopwatch.StartNew();
-                for (var i = 0; i < 1_000_000; i++)
+                using (var box = new Box(options))
                 {
-                    lst[i % 1000] = space.Insert((i, (i, i), i));
+                    box.Connect().GetAwaiter().GetResult();
+                    var schema = box.GetSchema();
+                    schema.TryGetSpace<(int, (int, int), int)>("pivot", out var space);
+                    var lst = new Task[1000];
+                    var sw = Stopwatch.StartNew();
+                    for (var i = 0; i < 1_000_000; i++)
+                    {
+                        lst[i % 1000] = space.Insert((i, (i, i), i));
                     
-                    if (i % 1000 == 999)
-                    {
-                        Task.WhenAll(lst);
-                    }
+                        if (i % 1000 == 999)
+                        {
+                            Task.WaitAll(lst);
+                        }
 
-                    if (i % 10000 == 9999)
-                    {
-                        Console.Write("*");
+                        if (i % 10000 == 9999)
+                        {
+                            Console.Write("*");
+                        }
                     }
+                    sw.Stop();
+
+                    Console.WriteLine();
+                    Console.WriteLine(sw.ElapsedMilliseconds);
                 }
-                sw.Stop();
-
-                Console.WriteLine();
-                Console.WriteLine(sw.ElapsedMilliseconds);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }

@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -56,14 +54,14 @@ namespace ProGaudi.Tarantool.Client
         /// </summary>
         /// <returns>Inserted tuple</returns>
         /// <exception cref="DuplicateKeyException">If primary key is duplicated</exception>
-        Task<T> Insert(ref T tuple);
+        Task<T> Insert(T tuple);
 
         /// <summary>
         /// Inserts a tuple into space. If a space contains sequense, then corresponding element should be nil.
         /// </summary>
         /// <returns>Inserted tuple</returns>
         /// <exception cref="DuplicateKeyException">If primary key is duplicated</exception>
-        Task<T> Insert<TInsertable>(ref TInsertable tuple);
+        Task<T> Insert<TInsertable>(in TInsertable tuple);
 
         /// <summary>
         /// Select tuples using primary index of the space.

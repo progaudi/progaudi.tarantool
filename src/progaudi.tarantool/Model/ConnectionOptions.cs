@@ -46,6 +46,6 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public bool ReadSchemaOnConnect { get; set; } = true;
 
-        public bool ReadBoxInfoOnConnect { get; set; } = true;
+        public bool ReadBoxInfoOnConnect { get; set; } = false;
     }
 }

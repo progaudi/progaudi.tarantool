@@ -1,7 +1,4 @@
-﻿// <copyright file="TaskHelpers.cs" company="eVote">
-//   Copyright © eVote
-// </copyright>
-namespace ProGaudi.Tarantool.Client
+﻿namespace ProGaudi.Tarantool.Client
 {
     using System;
     using System.Threading;
