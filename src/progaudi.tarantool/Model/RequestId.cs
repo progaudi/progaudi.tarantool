@@ -1,6 +1,8 @@
-﻿namespace ProGaudi.Tarantool.Client.Model
+﻿using System;
+
+namespace ProGaudi.Tarantool.Client.Model
 {
-    public struct RequestId
+    public readonly struct RequestId : IEquatable<RequestId>
     {
         public RequestId(ulong value)
         {
@@ -22,6 +24,22 @@
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public bool Equals(RequestId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is RequestId id && Equals(id);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
     }
 }

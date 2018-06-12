@@ -288,11 +288,7 @@ namespace ProGaudi.Tarantool.Client
                 return null;
             }
 
-            var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
-            Array.Copy(_buffer, _parsingOffset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
-            var packetSize = (int)MessagePackBinary.ReadUInt64(_buffer, _parsingOffset, out _);
-
-            return packetSize;
+            return (int)MessagePackBinary.ReadUInt64(_buffer, _parsingOffset, out _);
         }
 
         private bool PacketCompletelyRead(int packetSize)
