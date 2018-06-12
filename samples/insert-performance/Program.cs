@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client;
 using ProGaudi.Tarantool.Client.Model;
@@ -11,7 +12,7 @@ namespace Tarantool.Test
         static void Main()
         {
             var log = new TextWriterLog(Console.Out);
-            var options = new ClientOptions("localhost:3301");
+            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301");
             try
             {
                 using (var box = new Box(options))
@@ -28,6 +29,7 @@ namespace Tarantool.Test
                         if (i % 1000 == 999)
                         {
                             Task.WaitAll(lst);
+                            //return;
                         }
 
                         if (i % 10000 == 9999)

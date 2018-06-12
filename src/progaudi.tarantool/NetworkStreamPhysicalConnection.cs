@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
@@ -37,9 +38,10 @@ namespace ProGaudi.Tarantool.Client
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp)
             {
-                NoDelay = true
+                NoDelay = true,
+                //Blocking = false
             };
-            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port).ConfigureAwait(false);;
+            await _socket.ConnectAsync(singleNode.Uri.Host, singleNode.Uri.Port).ConfigureAwait(false);
 
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
@@ -63,18 +65,9 @@ namespace ProGaudi.Tarantool.Client
             return await _stream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
         }
 
-        private static Task ConnectAsync(Socket socket, string host, int port)
-        {
-            return Task.Factory.FromAsync(
-                (targetHost, targetPort, callback, state) => ((Socket)state).BeginConnect(targetHost, targetPort, callback, state),
-                asyncResult => ((Socket)asyncResult.AsyncState).EndConnect(asyncResult),
-                host,
-                port,
-                socket);
-        }
-
         public bool IsConnected => !_disposed && _stream != null;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CheckConnectionStatus()
         {
             if (_disposed)

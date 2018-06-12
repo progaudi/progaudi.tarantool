@@ -38,3 +38,23 @@ services:
     #     depends_on:
     #         - tarantool_1_7
     #         - tarantool_1_8
+
+    go:
+        build:
+            context: samples/go-insert
+        depends_on:
+            - tarantool_1_8
+
+    net-alpine:
+        build:
+            context: .
+            dockerfile: Dockerfile.alpine
+        depends_on:
+            - tarantool_1_8
+
+    net:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - tarantool_1_8
