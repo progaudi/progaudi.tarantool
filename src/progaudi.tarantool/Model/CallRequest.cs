@@ -1,7 +1,5 @@
 ﻿using System;
-using MessagePack;
-using MessagePack.Formatters;
-using static MessagePack.MessagePackBinary;
+using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
@@ -22,22 +20,31 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public CommandCodes Code => _use17 ? CommandCodes.Call : CommandCodes.OldCall;
 
-        internal class Formatter : IMessagePackFormatter<CallRequest<T>>
+        internal class Formatter : IMsgPackConverter<CallRequest<T>>
         {
-            public int Serialize(ref byte[] bytes, int offset, CallRequest<T> value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<uint> _keyConverter;
+            private IMsgPackConverter<string> _stringConverter;
+            private IMsgPackConverter<T> _tupleConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                var startOffset = offset;
-
-                offset += WriteFixedMapHeaderUnsafe(ref bytes, offset, 2);
-                offset += WriteUInt32(ref bytes, offset, Keys.FunctionName);
-                offset += WriteString(ref bytes, offset, value.FunctionName);
-                offset += WriteUInt32(ref bytes, offset, Keys.Tuple);
-                offset += formatterResolver.GetFormatter<T>().Serialize(ref bytes, offset, value.Tuple, formatterResolver);
-
-                return offset - startOffset;
+                _keyConverter = context.GetConverter<uint>();
+                _stringConverter = context.GetConverter<string>();
+                _tupleConverter = context.GetConverter<T>();
             }
 
-            public CallRequest<T> Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(CallRequest<T> value, IMsgPackWriter writer)
+            {
+                writer.WriteMapHeader(2);
+
+                _keyConverter.Write(Keys.FunctionName, writer);
+                _stringConverter.Write(value.FunctionName, writer);
+
+                _keyConverter.Write(Keys.Tuple, writer);
+                _tupleConverter.Write(value.Tuple, writer);
+            }
+
+            public CallRequest<T> Read(IMsgPackReader reader)
             {
                 throw new NotImplementedException();
             }

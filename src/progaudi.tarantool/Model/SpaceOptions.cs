@@ -1,11 +1,15 @@
-﻿using MessagePack;
+﻿using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    [MessagePackObject]
+    [MsgPackMap]
     public class SpaceOptions
     {
-        [Key("temporary")]
+        public SpaceOptions()
+        {
+        }
+
+        [MsgPackMapElement("temporary")]
         public bool Temporary { get; set; }
 
         public override string ToString()

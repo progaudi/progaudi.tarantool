@@ -1,11 +1,11 @@
 ﻿using System;
-using MessagePack;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
 {
-    [MessagePackObject]
-    public readonly struct IndexMeta : IEquatable<IndexMeta>
+    [MsgPackArray]
+    public class IndexMeta : IEquatable<IndexMeta>
     {
         public IndexMeta(uint spaceId, uint id, string name, IndexType type, IndexCreationOptions options, IndexPart[] parts)
         {
@@ -17,23 +17,27 @@ namespace ProGaudi.Tarantool.Client
             Parts = parts;
         }
 
-        [Key(0)]
-        public uint SpaceId { get; }
+        public IndexMeta()
+        {
+        }
 
-        [Key(1)]
-        public uint Id { get; }
+        [MsgPackArrayElement(0)]
+        public uint SpaceId { get; set; }
 
-        [Key(2)]
-        public string Name { get; }
+        [MsgPackArrayElement(1)]
+        public uint Id { get; set; }
 
-        [Key(3)]
-        public IndexType Type { get; }
+        [MsgPackArrayElement(2)]
+        public string Name { get; set; }
 
-        [Key(4)]
-        public IndexCreationOptions Options { get; }
+        [MsgPackArrayElement(3)]
+        public IndexType Type { get; set; }
 
-        [Key(5)]
-        public IndexPart[] Parts { get; }
+        [MsgPackArrayElement(4)]
+        public IndexCreationOptions Options { get; set; }
+
+        [MsgPackArrayElement(5)]
+        public IndexPart[] Parts { get; set; }
 
         public override string ToString()
         {

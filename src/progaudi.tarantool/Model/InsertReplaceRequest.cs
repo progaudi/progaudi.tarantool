@@ -1,6 +1,5 @@
-﻿using MessagePack;
-using MessagePack.Formatters;
-using static MessagePack.MessagePackBinary;
+﻿using System;
+using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
@@ -19,24 +18,31 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public CommandCodes Code { get; }
 
-        public sealed class Formatter : IMessagePackFormatter<InsertReplaceRequest<T>>
+        public sealed class Formatter : IMsgPackConverter<InsertReplaceRequest<T>>
         {
-            public int Serialize(ref byte[] bytes, int offset, InsertReplaceRequest<T> value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<uint> _uintConverter;
+            private IMsgPackConverter<T> _tupleConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                var startOffset = offset;
-
-                offset += WriteFixedMapHeaderUnsafe(ref bytes, offset, 2);
-                offset += WriteUInt32(ref bytes, offset, Keys.SpaceId);
-                offset += WriteUInt32(ref bytes, offset, value.SpaceId);
-                offset += WriteUInt32(ref bytes, offset, Keys.Tuple);
-                offset += formatterResolver.GetFormatter<T>().Serialize(ref bytes, offset, value.Tuple, formatterResolver);
-
-                return offset - startOffset;
+                _uintConverter = context.GetConverter<uint>();
+                _tupleConverter = context.GetConverter<T>();
             }
 
-            public InsertReplaceRequest<T> Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(InsertReplaceRequest<T> value, IMsgPackWriter writer)
             {
-                throw new System.NotImplementedException();
+                writer.WriteMapHeader(2);
+
+                _uintConverter.Write(Keys.SpaceId, writer);
+                _uintConverter.Write(value.SpaceId, writer);
+
+                _uintConverter.Write(Keys.Tuple, writer);
+                _tupleConverter.Write(value.Tuple, writer);
+            }
+
+            public InsertReplaceRequest<T> Read(IMsgPackReader reader)
+            {
+                throw new NotImplementedException();
             }
         }
     }

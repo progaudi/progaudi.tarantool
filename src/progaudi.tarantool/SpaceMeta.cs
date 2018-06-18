@@ -1,12 +1,16 @@
 ﻿using System;
-using MessagePack;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
 {
-    [MessagePackObject]
-    public struct SpaceMeta : IEquatable<SpaceMeta>
+    [MsgPackArray]
+    public class SpaceMeta : IEquatable<SpaceMeta>
     {
+        public SpaceMeta()
+        {
+        }
+
         public SpaceMeta(uint id, int ownerId, string name, StorageEngine engine, uint fieldCount, SpaceOptions options, SpaceField[] fields)
         {
             Id = id;
@@ -18,26 +22,26 @@ namespace ProGaudi.Tarantool.Client
             Fields = fields;
         }
 
-        [Key(0)]
-        public uint Id { get; }
+        [MsgPackArrayElement(0)]
+        public uint Id { get; set; }
 
-        [Key(1)]
-        public int OwnerId { get; }
+        [MsgPackArrayElement(1)]
+        public int OwnerId { get; set; }
 
-        [Key(2)]
-        public string Name { get; }
+        [MsgPackArrayElement(2)]
+        public string Name { get; set; }
 
-        [Key(3)]
-        public StorageEngine Engine { get; }
+        [MsgPackArrayElement(3)]
+        public StorageEngine Engine { get; set; }
 
-        [Key(4)]
-        public uint FieldCount { get; }
+        [MsgPackArrayElement(4)]
+        public uint FieldCount { get; set; }
 
-        [Key(5)]
-        public SpaceOptions Options { get; }
+        [MsgPackArrayElement(5)]
+        public SpaceOptions Options { get; set; }
 
-        [Key(6)]
-        public SpaceField[] Fields { get; }
+        [MsgPackArrayElement(6)]
+        public SpaceField[] Fields { get; set; }
 
         public override string ToString()
         {

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using MessagePack;
-using MessagePack.Formatters;
+﻿using System;
+using System.Collections.Generic;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Model
@@ -14,43 +14,69 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public SqlInfo SqlInfo { get; }
 
-        public sealed class Formatter : IMessagePackFormatter<DataResponse>
+        public sealed class Formatter : IMsgPackConverter<DataResponse>
         {
-            public int Serialize(ref byte[] bytes, int offset, DataResponse value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<uint> _keyConverter;
+            private IMsgPackConverter<int> _intConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                throw new System.NotImplementedException();
+                _keyConverter = context.GetConverter<uint>();
+                _intConverter = context.GetConverter<int>();
             }
 
-            public DataResponse Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(DataResponse value, IMsgPackWriter writer)
             {
-                if (MessagePackBinary.IsNil(bytes, offset))
+                throw new NotSupportedException();
+            }
+
+            public DataResponse Read(IMsgPackReader reader)
+            {
+                var length = reader.ReadMapLength();
+                if (!(1u <= length && length <= 3))
                 {
-                    readSize = 1;
-                    return null;
+                    throw ExceptionHelper.InvalidMapLength(length, 1u, 2u);
                 }
 
-                var startOffset = offset;
-                var length = MessagePackBinary.ReadMapHeaderRaw(bytes, offset, out readSize);
-                offset += readSize;
+                var sqlInfo = default(SqlInfo);
 
-                var result = default(DataResponse);
                 for (var i = 0; i < length; i++)
                 {
-                    var key = MessagePackBinary.ReadUInt32(bytes, offset, out readSize);
-                    offset += readSize;
-                    switch (key)
+                    var dataKey = _keyConverter.Read(reader);
+                    switch (dataKey)
                     {
                         case Keys.SqlInfo:
-                            result = new DataResponse(formatterResolver.GetFormatter<SqlInfo>().Deserialize(bytes, offset, formatterResolver, out readSize));
-                            offset += readSize;
+                            sqlInfo = ReadSqlInfo(reader, _keyConverter, _intConverter);
                             break;
                         default:
-                            offset += MessagePackBinary.ReadNext(bytes, offset);
-                            break;
+                            throw ExceptionHelper.UnexpectedKey(dataKey, Keys.SqlInfo);
                     }
                 }
 
-                readSize = offset - startOffset;
+                return new DataResponse(sqlInfo);
+            }
+
+            internal static SqlInfo ReadSqlInfo(IMsgPackReader reader, IMsgPackConverter<uint> keyConverter, IMsgPackConverter<int> intConverter)
+            {
+                var length = reader.ReadMapLength();
+                if (length == null)
+                {
+                    return null;
+                }
+
+                var result = default(SqlInfo);
+                for (var i = 0; i < length; i++)
+                {
+                    switch (keyConverter.Read(reader))
+                    {
+                        case Keys.SqlRowCount:
+                            result = new SqlInfo(intConverter.Read(reader));
+                            break;
+                        default:
+                            reader.SkipToken();
+                            break;
+                    }
+                }
 
                 return result;
             }
@@ -70,24 +96,33 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public IReadOnlyList<FieldMetadata> MetaData { get; }
 
-        public new class Formatter : IMessagePackFormatter<DataResponse<T>>
+        public new class Formatter : IMsgPackConverter<DataResponse<T>>
         {
-            public int Serialize(ref byte[] bytes, int offset, DataResponse<T> value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<uint> _keyConverter;
+            private IMsgPackConverter<T> _dataConverter;
+            private IMsgPackConverter<string> _stringConverter;
+            private IMsgPackConverter<int> _intConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                throw new System.NotImplementedException();
+                _keyConverter = context.GetConverter<uint>();
+                _dataConverter = context.GetConverter<T>();
+                _stringConverter = context.GetConverter<string>();
+                _intConverter = context.GetConverter<int>();
             }
 
-            public DataResponse<T> Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(DataResponse<T> value, IMsgPackWriter writer)
             {
-                if (MessagePackBinary.IsNil(bytes, offset))
-                {
-                    readSize = 1;
-                    return null;
-                }
+                throw new NotSupportedException();
+            }
 
-                var startOffset = offset;
-                var length = MessagePackBinary.ReadMapHeaderRaw(bytes, offset, out readSize);
-                offset += readSize;
+            DataResponse<T> IMsgPackConverter<DataResponse<T>>.Read(IMsgPackReader reader)
+            {
+                var length = reader.ReadMapLength();
+                if (!(1u <= length && length <= 3))
+                {
+                    throw ExceptionHelper.InvalidMapLength(length, 1u, 2u);
+                }
 
                 var data = default(T);
                 var dataWasSet = false;
@@ -96,26 +131,21 @@ namespace ProGaudi.Tarantool.Client.Model
 
                 for (var i = 0; i < length; i++)
                 {
-                    var key = MessagePackBinary.ReadUInt32(bytes, offset, out readSize);
-                    offset += readSize;
-                    switch (key)
+                    var dataKey = _keyConverter.Read(reader);
+                    switch (dataKey)
                     {
                         case Keys.Data:
-                            data = formatterResolver.GetFormatter<T>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                            data = _dataConverter.Read(reader);
                             dataWasSet = true;
-                            offset += readSize;
                             break;
                         case Keys.Metadata:
-                            metadata = formatterResolver.GetFormatter<FieldMetadata[]>().Deserialize(bytes, offset, formatterResolver, out readSize);
-                            offset += readSize;
+                            metadata = ReadMetadata(reader);
                             break;
                         case Keys.SqlInfo:
-                            sqlInfo = formatterResolver.GetFormatter<SqlInfo>().Deserialize(bytes, offset, formatterResolver, out readSize);
-                            offset += readSize;
+                            sqlInfo = DataResponse.Formatter.ReadSqlInfo(reader, _keyConverter, _intConverter);
                             break;
                         default:
-                            offset += MessagePackBinary.ReadNext(bytes, offset);
-                            break;
+                            throw ExceptionHelper.UnexpectedKey(dataKey, Keys.Data, Keys.Metadata, Keys.SqlInfo);
                     }
                 }
 
@@ -124,9 +154,42 @@ namespace ProGaudi.Tarantool.Client.Model
                     throw ExceptionHelper.NoDataInDataResponse();
                 }
 
-                readSize = offset - startOffset;
-
                 return new DataResponse<T>(data, metadata, sqlInfo);
+            }
+
+            private FieldMetadata[] ReadMetadata(IMsgPackReader reader)
+            {
+                var length = reader.ReadArrayLength();
+                if (length == null)
+                {
+                    return null;
+                }
+
+                var result = new FieldMetadata[length.Value];
+                for (var i = 0; i < length; i++)
+                {
+                    var metadataLength = reader.ReadMapLength();
+                    if (metadataLength == null)
+                    {
+                        result[i] = null;
+                        continue;
+                    }
+
+                    for (var j = 0; j < metadataLength; j++)
+                    {
+                        switch (_keyConverter.Read(reader))
+                        {
+                            case Keys.FieldName:
+                                result[i] = new FieldMetadata(_stringConverter.Read(reader));
+                                continue;
+                            default:
+                                reader.SkipToken();
+                                break;
+                        }
+                    }
+                }
+
+                return result;
             }
         }
     }

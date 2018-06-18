@@ -10,13 +10,13 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly Schema _schema;
         private readonly SpaceMeta _meta;
-        private readonly Lazy<NameIdLazyWrapper<IndexMeta?>> _indices;
+        private readonly Lazy<NameIdLazyWrapper<IndexMeta>> _indices;
 
         public Space(Schema schema, SpaceMeta meta, IEnumerable<IndexMeta> indexMetas)
         {
             _schema = schema;
             _meta = meta;
-            _indices = new Lazy<NameIdLazyWrapper<IndexMeta?>>(() => new NameIdLazyWrapper<IndexMeta?>(indexMetas.Select(x => (IndexMeta?)x).ToArray(), x => x.Value.Id, x => x.Value.Name));
+            _indices = new Lazy<NameIdLazyWrapper<IndexMeta>>(() => new NameIdLazyWrapper<IndexMeta>(indexMetas.ToArray(), x => x.Id, x => x.Name));
         }
 
         public override string ToString()
@@ -56,7 +56,7 @@ namespace ProGaudi.Tarantool.Client
                 return false;
             }
 
-            index = new Index<TCastedValue>(meta.Value, _schema);
+            index = new Index<TCastedValue>(meta, _schema);
             return true;
         }
 
@@ -70,7 +70,7 @@ namespace ProGaudi.Tarantool.Client
                 return false;
             }
 
-            index = new Index<TCastedValue>(meta.Value, _schema);
+            index = new Index<TCastedValue>(meta, _schema);
             return true;
         }
 

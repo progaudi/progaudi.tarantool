@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MessagePack;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Utils;
 
@@ -74,11 +75,11 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        private delegate void ResultSetter(in ArraySegment<byte> response);
+        private delegate void ResultSetter(in MemoryStream response);
 
         private delegate void ExceptionSetter(Exception ex);
 
-        public Task<TResponse> GetResponseTask<TResponse>(RequestId requestId, Func<ArraySegment<byte>, TResponse> responseCreator)
+        public Task<TResponse> GetResponseTask<TResponse>(RequestId requestId, Func<MemoryStream, TResponse> responseCreator)
         {
             if (_disposed)
             {
@@ -99,7 +100,7 @@ namespace ProGaudi.Tarantool.Client
 
                 return tcs.Task;
 
-                void ResultSetterImpl(in ArraySegment<byte> response) => tcs.SetResult(responseCreator(response));
+                void ResultSetterImpl(in MemoryStream response) => tcs.SetResult(responseCreator(response));
 
                 void ExceptionSetterImpl(Exception ex) => tcs.SetException(ex);
             }
@@ -225,8 +226,8 @@ namespace ProGaudi.Tarantool.Client
 
         private void MatchResult(in ArraySegment<byte> result)
         {
-            var headerFormatter = MessagePackSerializer.DefaultResolver.GetFormatter<ResponseHeader>();
-            var header = headerFormatter.Deserialize(result.Array, result.Offset, MessagePackSerializer.DefaultResolver, out var headerLength);
+            var stream = new MemoryStream(result.Array, result.Offset, result.Count, false, true);
+            var header = MsgPackSerializer.Deserialize<ResponseHeader>(stream, _clientOptions.MsgPackContext);
             var tcs = PopResponseCompletionSource(header.RequestId);
 
             if (tcs == null)
@@ -236,16 +237,23 @@ namespace ProGaudi.Tarantool.Client
                 return;
             }
 
-            _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
             if ((header.Code & CommandCodes.ErrorMask) == CommandCodes.ErrorMask)
             {
-                var errorFormatter = MessagePackSerializer.DefaultResolver.GetFormatter<ErrorResponse>();
-                var errorResponse = errorFormatter.Deserialize(result.Array, result.Offset + headerLength, MessagePackSerializer.DefaultResolver, out _);
+                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} is error.");
+                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(stream, _clientOptions.MsgPackContext);
                 tcs.Item2(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else
             {
-                tcs.Item1(new ArraySegment<byte>(result.Array, result.Offset + headerLength, result.Count - headerLength));
+                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} is ok.");
+                try
+                {
+                    tcs.Item1(stream);
+                }
+                catch (Exception e)
+                {
+                    tcs.Item2(e);
+                }
             }
         }
 
@@ -274,15 +282,19 @@ namespace ProGaudi.Tarantool.Client
                 return Empty;
             }
 
-            var packetSize = _readingOffset - _parsingOffset < Constants.PacketSizeBufferSize
-                ? 0
-                : (int)MessagePackBinary.ReadUInt64(_buffer, _parsingOffset, out _);
-
-            if (packetSize == 0)
+            if (_readingOffset - _parsingOffset < Constants.PacketSizeBufferSize)
             {
                 _clientOptions.LogWriter?.WriteLine($"Can't read packet length, has less than {Constants.PacketSizeBufferSize} bytes.");
                 return Empty;
             }
+
+            var length = new ReadOnlySpan<byte>(_buffer, _parsingOffset, 5);
+            if (length[0] != (byte) DataTypes.UInt32)
+            {
+                throw ExceptionUtils.BadTypeException((DataTypes) length[0], DataTypes.UInt32);
+            }
+
+            var packetSize = (int)BinaryPrimitives.ReadUInt32BigEndian(length.Slice(1));
 
             if (PacketCompletelyRead(packetSize))
             {

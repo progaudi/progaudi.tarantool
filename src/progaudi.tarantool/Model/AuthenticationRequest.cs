@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Linq;
-using MessagePack;
-using MessagePack.Formatters;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Utils;
-using static MessagePack.MessagePackBinary;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    [MessagePackFormatter(typeof(Formatter))]
     public class AuthenticationRequest : IRequest
     {
         private AuthenticationRequest(string username, byte[] scramble)
@@ -53,26 +50,42 @@ namespace ProGaudi.Tarantool.Client.Model
             return string.Concat(bytes.Select(b => b.ToString("X2 ")));
         }
 
-        internal class Formatter : IMessagePackFormatter<AuthenticationRequest>
+        internal class Formatter : IMsgPackConverter<AuthenticationRequest>
         {
-            public int Serialize(ref byte[] bytes, int offset, AuthenticationRequest value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<uint> _keyConverter;
+            private IMsgPackConverter<byte[]> _bytesConverter;
+            private IMsgPackConverter<string> _stringConverter;
+            private IMsgPackConverter<object> _nullConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                if (value == null) return WriteNil(ref bytes, offset);
-
-                var startOffset = offset;
-
-                offset += WriteFixedMapHeaderUnsafe(ref bytes, offset, 2);
-                offset += WriteUInt32(ref bytes, offset, Keys.Username);
-                offset += WriteString(ref bytes, offset, value.Username);
-                offset += WriteUInt32(ref bytes, offset, Keys.Tuple);
-                offset += WriteArrayHeader(ref bytes, offset, 2);
-                offset += WriteString(ref bytes, offset, "chap-sha1");
-                offset += WriteBytes(ref bytes, offset, value.Scramble);
-
-                return offset - startOffset;
+                _keyConverter = context.GetConverter<uint>();
+                _bytesConverter = context.GetConverter<byte[]>();
+                _stringConverter = context.GetConverter<string>();
+                _nullConverter = context.NullConverter;
             }
 
-            public AuthenticationRequest Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(AuthenticationRequest value, IMsgPackWriter writer)
+            {
+                if (value == null)
+                {
+                    _nullConverter.Write(null, writer);
+                    return;
+                }
+
+                writer.WriteMapHeader(2);
+
+                _keyConverter.Write(Keys.Username, writer);
+                _stringConverter.Write(value.Username, writer);
+
+                _keyConverter.Write(Keys.Tuple, writer);
+
+                writer.WriteArrayHeader(2);
+                _stringConverter.Write("chap-sha1", writer);
+                _bytesConverter.Write(value.Scramble, writer);
+            }
+
+            public AuthenticationRequest Read(IMsgPackReader reader)
             {
                 throw new NotImplementedException();
             }

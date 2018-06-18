@@ -1,10 +1,8 @@
-﻿using MessagePack;
-using MessagePack.Formatters;
-using static MessagePack.MessagePackBinary;
+﻿using System;
+using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    [MessagePackFormatter(typeof(Formatter))]
     public class RequestHeader : HeaderBase
     {
         public RequestHeader(CommandCodes code, RequestId requestId)
@@ -12,24 +10,39 @@ namespace ProGaudi.Tarantool.Client.Model
         {
         }
 
-        public sealed class Formatter : IMessagePackFormatter<RequestHeader>
+        public sealed class Formatter : IMsgPackConverter<RequestHeader>
         {
-            public int Serialize(ref byte[] bytes, int offset, RequestHeader value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<uint> _uintConverter;
+            private IMsgPackConverter<ulong> _ulongConverter;
+            private IMsgPackConverter<object> _nullConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                var startOffset = offset;
-
-                offset += WriteFixedMapHeaderUnsafe(ref bytes, offset, 2);
-                offset += WriteUInt32(ref bytes, offset, Keys.Code);
-                offset += WriteUInt32(ref bytes, offset, (uint)value.Code);
-                offset += WriteUInt32(ref bytes, offset, Keys.Sync);
-                offset += WriteUInt64(ref bytes, offset, value.RequestId.Value);
-
-                return offset - startOffset;
+                _uintConverter = context.GetConverter<uint>();
+                _ulongConverter = context.GetConverter<ulong>();
+                _nullConverter = context.NullConverter;
             }
 
-            public RequestHeader Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(RequestHeader value, IMsgPackWriter writer)
             {
-                throw new System.NotImplementedException();
+                if (value == null)
+                {
+                    _nullConverter.Write(null, writer);
+                    return;
+                }
+
+                writer.WriteMapHeader(2u);
+
+                _uintConverter.Write(Keys.Code, writer);
+                _uintConverter.Write((uint)value.Code, writer);
+
+                _uintConverter.Write(Keys.Sync, writer);
+                _ulongConverter.Write(value.RequestId.Value, writer);
+            }
+
+            public RequestHeader Read(IMsgPackReader reader)
+            {
+                throw new NotImplementedException();
             }
         }
     }

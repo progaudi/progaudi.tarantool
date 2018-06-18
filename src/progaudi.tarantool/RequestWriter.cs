@@ -10,7 +10,7 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly ClientOptions _clientOptions;
         private readonly IPhysicalConnection _physicalConnection;
-        private readonly Queue<ArraySegment<byte>> _buffer;
+        private readonly Queue<ReadOnlySequence<byte>> _buffer;
         private readonly object _lock = new object();
         private readonly Thread _thread;
         private readonly ManualResetEventSlim _exitEvent;
@@ -21,7 +21,7 @@ namespace ProGaudi.Tarantool.Client
         {
             _clientOptions = clientOptions;
             _physicalConnection = physicalConnection;
-            _buffer = new Queue<ArraySegment<byte>>();
+            _buffer = new Queue<ReadOnlySequence<byte>>();
             _thread = new Thread(WriteFunction)
             {
                 IsBackground = true,
@@ -44,14 +44,14 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected => !_disposed;
 
-        public void Write(in ArraySegment<byte> body)
+        public void Write(in ReadOnlySequence<byte> body)
         {
             if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(RequestWriter));
             }
 
-            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: body {body.Count} bytes.");
+            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: body {body.Length} bytes.");
             bool shouldSignal;
             lock (_lock)
             {
@@ -101,7 +101,7 @@ namespace ProGaudi.Tarantool.Client
             var count = 0;
             while (true)
             {
-                ArraySegment<byte> request;
+                ReadOnlySequence<byte> request;
                 lock (_lock)
                 {
                     if (_buffer.Count > 0)
@@ -110,12 +110,11 @@ namespace ProGaudi.Tarantool.Client
                         break;
                 }
 
-                _clientOptions?.LogWriter?.WriteLine($"Writing request: {request.Count} bytes.");
+                _clientOptions.LogWriter?.WriteLine($"Writing request: {request.Length} bytes.");
 
                 _physicalConnection.Write(request);
-                ArrayPool<byte>.Shared.Return(request.Array);
 
-                _clientOptions?.LogWriter?.WriteLine($"Wrote request: {request.Count} bytes.");
+                _clientOptions.LogWriter?.WriteLine($"Wrote request: {request.Length} bytes.");
 
                 count++;
                 if (limit > 0 && count > limit)

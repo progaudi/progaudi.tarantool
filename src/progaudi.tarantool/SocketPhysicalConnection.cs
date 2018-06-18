@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -51,7 +52,7 @@ namespace ProGaudi.Tarantool.Client
             throw new NotImplementedException();
         }
 
-        public void Write(in ArraySegment<byte> buffer)
+        public void Write(in ReadOnlySequence<byte> buffer)
         {
             throw new NotImplementedException();
         }

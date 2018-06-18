@@ -1,8 +1,8 @@
-﻿using MessagePack;
+﻿using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    [MessagePackObject]
+    [MsgPackMap]
     public class IndexCreationOptions
     {
         public IndexCreationOptions(bool unique)
@@ -10,7 +10,11 @@ namespace ProGaudi.Tarantool.Client.Model
             Unique = unique;
         }
 
-        [Key("unique")]
-        public bool Unique { get; }
+        public IndexCreationOptions()
+        {
+        }
+
+        [MsgPackMapElement("unique")]
+        public bool Unique { get; set; }
     }
 }

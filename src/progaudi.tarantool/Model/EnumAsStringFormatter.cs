@@ -1,71 +1,67 @@
 ﻿using System;
-using System.Collections.Generic;
-using MessagePack;
-using MessagePack.Formatters;
+using System.Reflection;
+using ProGaudi.MsgPack.Light;
+using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    public sealed class EnumAsStringFormatter<T> : IMessagePackFormatter<T>
+    public sealed class EnumAsStringFormatter<T> : IMsgPackConverter<T>
+        where T : struct
     {
-        private readonly bool _ignoreCase;
-        private readonly Dictionary<string, T> _nameValueMapping;
-        private readonly Dictionary<T, string> _valueNameMapping;
+        private IMsgPackConverter<string> _stringConverter;
 
-        public EnumAsStringFormatter(bool ignoreCase)
+        public void Initialize(MsgPackContext context)
         {
-            _ignoreCase = ignoreCase;
-            var names = Enum.GetNames(typeof(T));
-            var values = Enum.GetValues(typeof(T));
+            _stringConverter = context.GetConverter<string>();
+        }
 
-            _nameValueMapping = new Dictionary<string, T>(names.Length, ignoreCase ? (IEqualityComparer<string>) IgnoreCaseComparer.Instance : EqualityComparer<string>.Default);
-            _valueNameMapping = new Dictionary<T, string>(names.Length);
-
-            for (var i = 0; i < names.Length; i++)
+        static EnumAsStringFormatter()
+        {
+            var enumTypeInfo = typeof(T).GetTypeInfo();
+            if (!enumTypeInfo.IsEnum)
             {
-                _nameValueMapping[names[i]] = (T)values.GetValue(i);
-                _valueNameMapping[(T)values.GetValue(i)] = names[i];
+                throw ExceptionHelper.EnumExpected(enumTypeInfo);
             }
         }
 
-        public int Serialize(ref byte[] bytes, int offset, T value, IFormatterResolver formatterResolver)
+        public void Write(T value, IMsgPackWriter writer)
         {
-            if (!_valueNameMapping.TryGetValue(value, out var name))
-            {
-                name = value.ToString(); // fallback for flags etc, But Enum.ToString is too slow.
-            }
-
-            return MessagePackBinary.WriteString(ref bytes, offset, name);
+            _stringConverter.Write(value.ToString(), writer);
         }
 
-        public T Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+        public T Read(IMsgPackReader reader)
         {
-            var name = MessagePackBinary.ReadString(bytes, offset, out readSize);
+            var stringValue = _stringConverter.Read(reader);
 
-            if (!_nameValueMapping.TryGetValue(name, out var value))
-            {
-                value = (T)Enum.Parse(typeof(T), name, _ignoreCase); // Enum.Parse is too slow
-            }
-
-            return value;
+            return Parse(typeof (T), stringValue, true);
         }
 
-        private class IgnoreCaseComparer : IEqualityComparer<string>
+        public static T Parse(Type type, string stringValue, bool ignoreCase)
         {
-            public static readonly IgnoreCaseComparer Instance = new IgnoreCaseComparer();
+            T output;
+            string enumStringValue = null;
 
-            private IgnoreCaseComparer()
+            if (!type.GetTypeInfo().IsEnum)
             {
+                throw ExceptionHelper.EnumExpected(type);
             }
 
-            public bool Equals(string x, string y)
+            if (!Enum.TryParse(stringValue, ignoreCase, out output))
             {
-                return string.Compare(x, y, StringComparison.InvariantCultureIgnoreCase) == 0;
+
+                //Look for our string value associated with fields in this enum
+                foreach (var fi in type.GetRuntimeFields())
+                {
+                    //Check for equality then select actual enum value.
+                    if (string.Compare(enumStringValue, stringValue, ignoreCase) == 0)
+                    {
+                        output = (T)Enum.Parse(type, fi.Name);
+                        break;
+                    }
+                }
             }
 
-            public int GetHashCode(string obj)
-            {
-                return obj.ToLowerInvariant().GetHashCode();
-            }
+            return output;
         }
     }
 }

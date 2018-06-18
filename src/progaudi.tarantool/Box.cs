@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MessagePack;
-using MessagePack.Resolvers;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Utils;
 
@@ -21,6 +20,7 @@ namespace ProGaudi.Tarantool.Client
         public Box(ClientOptions options)
         {
             _clientOptions = options;
+            TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
             _logicalConnection = new LogicalConnection(options, new RequestIdCounter());
             Metrics = new Metrics(_logicalConnection);
@@ -133,21 +133,5 @@ namespace ProGaudi.Tarantool.Client
 
         //    return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
         //}
-
-        static Box()
-        {
-            CompositeResolver.RegisterAndSetAsDefault(
-                BuiltinResolver.Instance,
-                AttributeFormatterResolver.Instance,
-                PackerResolver.Instance,
-                EnumResolver.Instance,
-
-                DynamicEnumResolver.Instance,
-                DynamicGenericResolver.Instance,
-                DynamicObjectResolver.Instance,
-
-                PrimitiveObjectResolver.Instance
-            );
-        }
     }
 }

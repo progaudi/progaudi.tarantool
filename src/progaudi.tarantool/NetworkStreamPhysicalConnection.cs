@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -47,10 +48,11 @@ namespace ProGaudi.Tarantool.Client
             options.LogWriter?.WriteLine("Socket connection established.");
         }
 
-        public void Write(in ArraySegment<byte> buffer)
+        public void Write(in ReadOnlySequence<byte> buffer)
         {
             CheckConnectionStatus();
-            _stream.Write(buffer.Array, buffer.Offset, buffer.Count);
+            var array = buffer.ToArray();
+            _stream.Write(array, 0, array.Length);
         }
 
         public Stream Stream => _stream;

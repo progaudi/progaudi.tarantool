@@ -1,6 +1,5 @@
-﻿using MessagePack;
-using MessagePack.Formatters;
-using static MessagePack.MessagePackBinary;
+﻿using System;
+using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
@@ -30,34 +29,45 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public CommandCodes Code => CommandCodes.Select;
 
-        public sealed class Formatter : IMessagePackFormatter<SelectRequest<T>>
+        public sealed class Formatter : IMsgPackConverter<SelectRequest<T>>
         {
-            public int Serialize(ref byte[] bytes, int offset, SelectRequest<T> value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<T> _selectKeyConverter;
+            private IMsgPackConverter<uint> _uintConverter;
+            private IMsgPackConverter<Iterator> _iteratorConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                var startOffset = offset;
-
-                offset += WriteFixedMapHeaderUnsafe(ref bytes, offset, 6);
-                offset += WriteUInt32(ref bytes, offset, Keys.SpaceId);
-                offset += WriteUInt32(ref bytes, offset, value.SpaceId);
-                offset += WriteUInt32(ref bytes, offset, Keys.IndexId);
-                offset += WriteUInt32(ref bytes, offset, value.IndexId);
-                offset += WriteUInt32(ref bytes, offset, Keys.Limit);
-                offset += WriteUInt32(ref bytes, offset, value.Limit);
-                offset += WriteUInt32(ref bytes, offset, Keys.Offset);
-                offset += WriteUInt32(ref bytes, offset, value.Offset);
-                offset += WriteUInt32(ref bytes, offset, Keys.Iterator);
-                offset += WriteUInt32(ref bytes, offset, (uint)value.Iterator);
-                offset += WriteUInt32(ref bytes, offset, Keys.Key);
-                offset += formatterResolver
-                    .GetFormatter<T>()
-                    .Serialize(ref bytes, offset, value.SelectKey, formatterResolver);
-
-                return offset - startOffset;
+                _uintConverter = context.GetConverter<uint>();
+                _iteratorConverter = context.GetConverter<Iterator>();
+                _selectKeyConverter = context.GetConverter<T>();
             }
 
-            public SelectRequest<T> Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(SelectRequest<T> value, IMsgPackWriter writer)
             {
-                throw new System.NotImplementedException();
+                writer.WriteMapHeader(6);
+
+                _uintConverter.Write(Keys.SpaceId, writer);
+                _uintConverter.Write(value.SpaceId, writer);
+
+                _uintConverter.Write(Keys.IndexId, writer);
+                _uintConverter.Write(value.IndexId, writer);
+
+                _uintConverter.Write(Keys.Limit, writer);
+                _uintConverter.Write(value.Limit, writer);
+
+                _uintConverter.Write(Keys.Offset, writer);
+                _uintConverter.Write(value.Offset, writer);
+
+                _uintConverter.Write(Keys.Iterator, writer);
+                _iteratorConverter.Write(value.Iterator, writer);
+
+                _uintConverter.Write(Keys.Key, writer);
+                _selectKeyConverter.Write(value.SelectKey, writer);
+            }
+
+            public SelectRequest<T> Read(IMsgPackReader reader)
+            {
+                throw new NotSupportedException();
             }
         }
     }

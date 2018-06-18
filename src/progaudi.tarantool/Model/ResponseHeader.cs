@@ -1,10 +1,9 @@
-﻿using MessagePack;
-using MessagePack.Formatters;
+﻿using System;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
-    [MessagePackFormatter(typeof(Formatter))]
     public class ResponseHeader : HeaderBase
     {
         public ResponseHeader(CommandCodes code, RequestId requestId, ulong? schemaId) : base(code, requestId)
@@ -14,50 +13,57 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public ulong? SchemaId { get; }
 
-        public sealed class Formatter : IMessagePackFormatter<ResponseHeader>
+        public sealed class Formatter : IMsgPackConverter<ResponseHeader>
         {
-            public int Serialize(ref byte[] bytes, int offset, ResponseHeader value, IFormatterResolver formatterResolver)
+            private IMsgPackConverter<uint> _keyConverter;
+            private IMsgPackConverter<ulong> _ulongConverter;
+            private IMsgPackConverter<CommandCodes> _codeConverter;
+
+            public void Initialize(MsgPackContext context)
             {
-                throw new System.NotImplementedException();
+                _keyConverter = context.GetConverter<uint>();
+                _ulongConverter = context.GetConverter<ulong>();
+                _codeConverter = context.GetConverter<CommandCodes>();
             }
 
-            public ResponseHeader Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+            public void Write(ResponseHeader value, IMsgPackWriter writer)
             {
-                var startOffset = offset;
-                var length = MessagePackBinary.ReadMapHeaderRaw(bytes, offset, out readSize);
-                offset += readSize;
+                throw new NotImplementedException();
+            }
+
+            public ResponseHeader Read(IMsgPackReader reader)
+            {
+                var length = reader.ReadMapLength();
+
+                if (!length.HasValue)
+                {
+                    throw ExceptionHelper.InvalidMapLength(length, 2u, 3u);
+                }
 
                 CommandCodes? code = null;
                 RequestId? sync = null;
                 ulong? schemaId = null;
 
-                for (var i = 0; i < length; i++)
+                for (int i = 0; i < length.Value; i++)
                 {
-                    var key = MessagePackBinary.ReadUInt32(bytes, offset, out readSize);
-                    offset += readSize;
+                    var key = _keyConverter.Read(reader);
 
                     switch (key)
                     {
                         case Keys.Code:
-                            code = (CommandCodes) MessagePackBinary.ReadUInt32(bytes, offset, out readSize);
-                            offset += readSize;
+                            code = _codeConverter.Read(reader);
                             break;
                         case Keys.Sync:
-                            sync = new RequestId(MessagePackBinary.ReadUInt64(bytes, offset, out readSize));
-                            offset += readSize;
+                            sync = new RequestId(_ulongConverter.Read(reader));
                             break;
                         case Keys.SchemaId:
-                            schemaId = MessagePackBinary.ReadUInt64(bytes, offset, out readSize);
-                            offset += readSize;
+                            schemaId = _ulongConverter.Read(reader);
                             break;
                         default:
-                            readSize = MessagePackBinary.ReadNextBlock(bytes, offset);
-                            offset += readSize;
+                            reader.SkipToken();
                             break;
                     }
                 }
-
-                readSize = offset - startOffset;
 
                 if (!code.HasValue)
                 {
