@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1-sdk as sdk
+FROM microsoft/dotnet:2.1-sdk-alpine as sdk
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ COPY . .
 RUN dotnet build -c Release progaudi.tarantool.sln
 RUN dotnet msbuild /t:publish /p:NoBuild=True /p:Configuration=Release samples/insert-performance/insert-performance.csproj
 
-FROM microsoft/dotnet:2.1-runtime as runtime
+FROM microsoft/dotnet:2.1-runtime-alpine as runtime
 
 WORKDIR /app
 
