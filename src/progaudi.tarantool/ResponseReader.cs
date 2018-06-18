@@ -16,10 +16,10 @@ namespace ProGaudi.Tarantool.Client
     {
         private static readonly AsyncCallback EndRead = result =>
         {
-            ResponseReader physical;
-            if (result.CompletedSynchronously || (physical = result.AsyncState as ResponseReader) == null) return;
-            if (physical.EndReading(result))
-                physical.BeginReading();
+            ResponseReader reader;
+            if (result.CompletedSynchronously || (reader = result.AsyncState as ResponseReader) == null) return;
+            if (reader.EndReading(result))
+                reader.BeginReading();
         };
 
         private readonly IPhysicalConnection _physicalConnection;
