@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using ProGaudi.Tarantool.Client.Model;
@@ -112,6 +113,7 @@ namespace ProGaudi.Tarantool.Client
                 _clientOptions?.LogWriter?.WriteLine($"Writing request: {request.Count} bytes.");
 
                 _physicalConnection.Write(request);
+                ArrayPool<byte>.Shared.Return(request.Array);
 
                 _clientOptions?.LogWriter?.WriteLine($"Wrote request: {request.Count} bytes.");
 

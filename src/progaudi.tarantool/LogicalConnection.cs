@@ -11,6 +11,13 @@ namespace ProGaudi.Tarantool.Client
 {
     internal class LogicalConnection : ILogicalConnection
     {
+        private static readonly Func<ArraySegment<byte>, IMemoryOwner<byte>> RawByteCreator = x =>
+        {
+            var owner = MemoryPool<byte>.Shared.Rent(x.Count);
+            x.AsMemory().CopyTo(owner.Memory);
+            return owner;
+        };
+
         private readonly ClientOptions _clientOptions;
 
         private readonly RequestIdCounter _requestIdCounter;
@@ -94,33 +101,33 @@ namespace ProGaudi.Tarantool.Client
         public Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return SendRequestImpl(request, timeout);
+            return SendRequestImpl<TRequest, object>(request, _ => null, timeout);
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+        public Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            var (buffer, bodyStart) = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            var formatter = MessagePackSerializer.DefaultResolver.GetFormatter<DataResponse<TResponse[]>>();
-            var result = formatter.Deserialize(buffer, bodyStart, MessagePackSerializer.DefaultResolver, out _);
-            ArrayPool<byte>.Shared.Return(buffer);
-            return result;
+            return SendRequestImpl(request, buffer =>
+            {
+                var formatter = MessagePackSerializer.DefaultResolver.GetFormatter<DataResponse<TResponse[]>>();
+                return formatter.Deserialize(buffer.Array, buffer.Offset, MessagePackSerializer.DefaultResolver, out _);
+            }, timeout);
         }
 
-        public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            var (buffer, bodyStart) = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            var formatter = MessagePackSerializer.DefaultResolver.GetFormatter<DataResponse>();
-            var result = formatter.Deserialize(buffer, bodyStart, MessagePackSerializer.DefaultResolver, out _);
-            ArrayPool<byte>.Shared.Return(buffer);
-            return result;
+            return SendRequestImpl(request, buffer =>
+            {
+                var formatter = MessagePackSerializer.DefaultResolver.GetFormatter<DataResponse>();
+                return formatter.Deserialize(buffer.Array, buffer.Offset, MessagePackSerializer.DefaultResolver, out _);
+            }, timeout);
         }
 
-        public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public Task<IMemoryOwner<byte>> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return (await SendRequestImpl(request, timeout).ConfigureAwait(false)).result;
+            return SendRequestImpl(request, RawByteCreator, timeout);
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
@@ -139,7 +146,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        private async Task<(byte[] result, int bodyStart)> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
+        private Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, Func<ArraySegment<byte>, TResponse> response, TimeSpan? timeout)
             where TRequest : IRequest
         {
             if (_disposed)
@@ -161,7 +168,7 @@ namespace ProGaudi.Tarantool.Client
             var formatter = MessagePackSerializer.DefaultResolver.GetFormatter<TRequest>();
             offset += formatter.Serialize(ref bodyBuffer, offset, request, MessagePackSerializer.DefaultResolver);
             MessagePackBinary.WriteUInt32ForceUInt32Block(ref bodyBuffer, 0, (uint) (offset - 5));
-            var responseTask = _responseReader.GetResponseTask(requestId);
+            var responseTask = _responseReader.GetResponseTask(requestId, response);
             _requestWriter.Write(new ArraySegment<byte>(bodyBuffer, 0, offset));
 
             try
@@ -172,25 +179,17 @@ namespace ProGaudi.Tarantool.Client
                     responseTask = responseTask.WithCancellation(cts.Token);
                 }
 
-                var result = await responseTask.ConfigureAwait(false);
-                _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {result.result.Length}.");
-
-                return result;
+                return responseTask;
             }
             catch (ArgumentException)
             {
-                _logWriter?.WriteLine(
-                    $"Response with requestId {requestId} failed, body: \n{bodyBuffer.ToReadableString()}");
+                _logWriter?.WriteLine($"Request with requestId {requestId} failed, body: \n{bodyBuffer.ToReadableString()}");
                 throw;
             }
             catch (TimeoutException)
             {
                 PingsFailedByTimeoutCount++;
                 throw;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(originalBuffer);
             }
         }
     }

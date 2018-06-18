@@ -12,7 +12,8 @@ namespace Tarantool.Test
         static void Main()
         {
             var log = new TextWriterLog(Console.Out);
-            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301");
+            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301");//, log);
+            var sw = new Stopwatch();
             try
             {
                 using (var box = new Box(options))
@@ -20,11 +21,11 @@ namespace Tarantool.Test
                     box.Connect().GetAwaiter().GetResult();
                     box.Schema.TryGetSpace<(int, (int, int), int)>("pivot", out var space);
                     var lst = new Task[1000];
-                    var sw = Stopwatch.StartNew();
+                    sw.Start();
                     for (var i = 0; i < 1_000_000; i++)
                     {
                         lst[i % 1000] = space.Insert((i, (i, i), i));
-                    
+
                         if (i % 1000 == 999)
                         {
                             Task.WaitAll(lst);
@@ -40,15 +41,18 @@ namespace Tarantool.Test
                             }
                         }
                     }
-                    sw.Stop();
-
-                    Console.WriteLine();
-                    Console.WriteLine(sw.ElapsedMilliseconds);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+            finally
+            {
+                sw.Stop();
+
+                Console.WriteLine();
+                Console.WriteLine(sw.ElapsedMilliseconds);
             }
         }
     }

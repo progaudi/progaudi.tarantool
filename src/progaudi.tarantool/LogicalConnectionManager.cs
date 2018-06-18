@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -165,7 +166,7 @@ namespace ProGaudi.Tarantool.Client
             return result;
         }
 
-        public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public async Task<IMemoryOwner<byte>> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
             await Connect().ConfigureAwait(false);
