@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using MessagePack;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
@@ -10,7 +9,7 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly ClientOptions _clientOptions;
         private readonly IPhysicalConnection _physicalConnection;
-        private readonly Queue<Tuple<byte[], byte[]>> _buffer;
+        private readonly Queue<ArraySegment<byte>> _buffer;
         private readonly object _lock = new object();
         private readonly Thread _thread;
         private readonly ManualResetEventSlim _exitEvent;
@@ -21,7 +20,7 @@ namespace ProGaudi.Tarantool.Client
         {
             _clientOptions = clientOptions;
             _physicalConnection = physicalConnection;
-            _buffer = new Queue<Tuple<byte[], byte[]>>();
+            _buffer = new Queue<ArraySegment<byte>>();
             _thread = new Thread(WriteFunction)
             {
                 IsBackground = true,
@@ -35,7 +34,7 @@ namespace ProGaudi.Tarantool.Client
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(nameof(ResponseReader));
+                throw new ObjectDisposedException(nameof(RequestWriter));
             }
 
             _clientOptions?.LogWriter?.WriteLine("Starting thread");
@@ -44,18 +43,18 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected => !_disposed;
 
-        public void Write(byte[] header, byte[] body)
+        public void Write(in ArraySegment<byte> body)
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(nameof(ResponseReader));
+                throw new ObjectDisposedException(nameof(RequestWriter));
             }
 
-            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: headers {header.Length} bytes, body {body.Length} bytes.");
+            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: body {body.Count} bytes.");
             bool shouldSignal;
             lock (_lock)
             {
-                _buffer.Enqueue(Tuple.Create(header, body));
+                _buffer.Enqueue(body);
                 shouldSignal = _buffer.Count == 1;
             }
 
@@ -98,31 +97,23 @@ namespace ProGaudi.Tarantool.Client
 
         private void WriteRequests(int limit)
         {
-            Tuple<byte[], byte[]> GetRequest()
+            var count = 0;
+            while (true)
             {
+                ArraySegment<byte> request;
                 lock (_lock)
                 {
                     if (_buffer.Count > 0)
-                        return _buffer.Dequeue();
+                        request = _buffer.Dequeue();
+                    else
+                        break;
                 }
 
-                return null;
-            }
+                _clientOptions?.LogWriter?.WriteLine($"Writing request: {request.Count} bytes.");
 
-            Tuple<byte[], byte[]> request;
-            var count = 0;
-            while ((request = GetRequest()) != null)
-            {
-                var header = request.Item1;
-                var body = request.Item2;
-                _clientOptions?.LogWriter?.WriteLine($"Writing request: headers {header.Length} bytes, body {body.Length} bytes.");
+                _physicalConnection.Write(request);
 
-                var length = MessagePackSerializer.Serialize(new RequestLength(header, body));
-                _physicalConnection.Write(length, 0, length.Length);
-                _physicalConnection.Write(header, 0, header.Length);
-                _physicalConnection.Write(body, 0, body.Length);
-
-                _clientOptions?.LogWriter?.WriteLine($"Wrote request: headers {header.Length} bytes, body {body.Length} bytes.");
+                _clientOptions?.LogWriter?.WriteLine($"Wrote request: {request.Count} bytes.");
 
                 count++;
                 if (limit > 0 && count > limit)

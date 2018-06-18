@@ -18,8 +18,7 @@ namespace Tarantool.Test
                 using (var box = new Box(options))
                 {
                     box.Connect().GetAwaiter().GetResult();
-                    var schema = box.GetSchema();
-                    schema.TryGetSpace<(int, (int, int), int)>("pivot", out var space);
+                    box.Schema.TryGetSpace<(int, (int, int), int)>("pivot", out var space);
                     var lst = new Task[1000];
                     var sw = Stopwatch.StartNew();
                     for (var i = 0; i < 1_000_000; i++)
@@ -35,6 +34,10 @@ namespace Tarantool.Test
                         if (i % 10000 == 9999)
                         {
                             Console.Write("*");
+                            if (i % 100000 == 99999)
+                            {
+                                Console.WriteLine();
+                            }
                         }
                     }
                     sw.Stop();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 
@@ -14,6 +15,8 @@ namespace ProGaudi.Tarantool.Client
 
         Task<int> ReadAsync(byte[] buffer, int offset, int count);
 
-        void Write(byte[] buffer, int offset, int count);
+        void Write(in ArraySegment<byte> buffer);
+
+        Stream Stream { get; }
     }
 }

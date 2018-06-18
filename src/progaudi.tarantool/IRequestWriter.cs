@@ -8,6 +8,6 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected { get; }
 
-        void Write(byte[] header, byte[] body);
+        void Write(in ArraySegment<byte> body);
     }
 }

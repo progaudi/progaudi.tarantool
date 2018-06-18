@@ -1,77 +1,49 @@
 ﻿using System;
-using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
-using MessagePack;
-using MessagePack.Formatters;
-using ProGaudi.MsgPack.Light;
-
-using static MessagePack.MessagePackBinary;
+using System.Threading;
+using System.Threading.Tasks;
+using Npgsql;
 
 namespace tests
 {
-    [MessagePackObject]
-    [MsgPackArray]
-    public struct A
+    internal class Program
     {
-        [MsgPackArrayElement(0)]
-        [Key("W")]
-        public int V { get; set; }
-    }
+        private static void Main() => MainAsync().GetAwaiter().GetResult();
 
-    public enum B
-    {
-        C,
-        D
-    }
-
-    [Flags]
-    public enum E
-    {
-        F1 = 0x1,
-        F2 = 0x2,
-        F3 = 0x4
-    }
-
-    public class CallRequest<T>
-    {
-        public CallRequest(string functionName, T tuple)
+        private static async Task MainAsync()
         {
-            FunctionName = functionName;
-            Tuple = tuple;
-        }
-
-        public string FunctionName { get; }
-
-        public T Tuple { get; }
-
-        internal class Formatter : IMessagePackFormatter<CallRequest<T>>
-        {
-            public int Serialize(ref byte[] bytes, int offset, CallRequest<T> value, IFormatterResolver formatterResolver)
+            try
             {
-                offset = WriteFixedMapHeaderUnsafe(ref bytes, offset, 2);
-                offset = WriteInt32ForceInt32Block(ref bytes, offset, 0x10);
-                offset = WriteString(ref bytes, offset, value.FunctionName);
-                offset = WriteInt32ForceInt32Block(ref bytes, offset, 0x11);
-                Console.WriteLine(true);
-                return formatterResolver.GetFormatter<T>().Serialize(ref bytes, offset, value.Tuple, formatterResolver);
-            }
+                var endpoint = new IPEndPoint(IPAddress.Loopback, 10000);
+                var socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+                {
+                    Blocking = false,
+                    NoDelay = true
+                };
+                var args = new SocketAsyncEventArgs
+                {
+                    RemoteEndPoint = endpoint
+                };
+                var c = new AwaitableSocket(args, socket);
+                await c.ConnectAsync(CancellationToken.None);
+                args.BufferList = new[]
+                {
+                    new ArraySegment<byte>(Encoding.ASCII.GetBytes("Hello, world!\n")),
+                    new ArraySegment<byte>(new byte[20])
+                };
 
-            public CallRequest<T> Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+                await c.SendAsync();
+                await c.ReceiveAsync();
+
+                Console.WriteLine(Encoding.ASCII.GetString(args.BufferList[0]));
+                Console.WriteLine(Encoding.ASCII.GetString(args.BufferList[1]));
+            }
+            catch (Exception e)
             {
-                throw new NotImplementedException();
+                Console.WriteLine(e);
             }
-        }
-    }
-
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            //var c = new MsgPackContext();
-            //c.DiscoverConverters();
-            //var b = MessagePackSerializer.Serialize(new CallRequest<A>("123", new A { V = 1 }), new PackerResolver());
-
-            //Console.WriteLine(b.Aggregate(new StringBuilder(), (sb, b1) => sb.AppendFormat("{0:x2} ", b1)));
         }
     }
 }

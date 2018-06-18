@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +14,14 @@ namespace ProGaudi.Tarantool.Client
 {
     internal class ResponseReader : IResponseReader
     {
+        private static readonly AsyncCallback EndRead = result =>
+        {
+            ResponseReader physical;
+            if (result.CompletedSynchronously || (physical = result.AsyncState as ResponseReader) == null) return;
+            if (physical.EndReading(result))
+                physical.BeginReading();
+        };
+
         private readonly IPhysicalConnection _physicalConnection;
 
         private readonly Dictionary<RequestId, TaskCompletionSource<(byte[] result, int bodyStart)>> _pendingRequests =
@@ -20,6 +30,7 @@ namespace ProGaudi.Tarantool.Client
         private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
         private readonly ClientOptions _clientOptions;
+        private readonly byte[] _originalBuffer;
 
         private byte[] _buffer;
 
@@ -29,11 +40,39 @@ namespace ProGaudi.Tarantool.Client
 
         private bool _disposed;
 
+        private readonly Thread _thread;
+
+        private readonly ManualResetEventSlim _exitEvent;
+
         public ResponseReader(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
         {
             _physicalConnection = physicalConnection;
             _clientOptions = clientOptions;
-            _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
+            _originalBuffer = _buffer = ArrayPool<byte>.Shared.Rent(1024 * 1024);
+            _thread = new Thread(ReadingFunc)
+            {
+                IsBackground = true,
+                Name = $"Tarantool :: {clientOptions.Name} :: Write"
+            };
+            _exitEvent = new ManualResetEventSlim(false);
+        }
+
+        private void ReadingFunc()
+        {
+            while (true)
+            {
+                if (_exitEvent.IsSet)
+                {
+                    return;
+                }
+
+                var result = _physicalConnection.Stream.BeginRead(_buffer, 0, _buffer.Length, EndRead, this);
+                if (result.CompletedSynchronously)
+                {
+                    if (!EndReading(result))
+                        return;
+                }
+            }
         }
 
         public bool IsConnected => !_disposed;
@@ -46,37 +85,36 @@ namespace ProGaudi.Tarantool.Client
             }
 
             _disposed = true;
+            _disposed = true;
+            _exitEvent.Set();
+            _thread.Join();
+            _exitEvent.Dispose();
 
-            try
+            ArrayPool<byte>.Shared.Return(_originalBuffer);
+            var exception = new ObjectDisposedException(nameof(ResponseReader));
+
+            lock (_pendingRequestsLock)
             {
-                _pendingRequestsLock.EnterWriteLock();
-
                 _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
 
                 foreach (var response in _pendingRequests.Values)
                 {
-                    response.SetException(new ObjectDisposedException(nameof(ResponseReader)));
+                    response.SetException(exception);
                 }
 
                 _pendingRequests.Clear();
-            }
-            finally
-            {
-                _pendingRequestsLock.ExitWriteLock();
             }
         }
 
         public Task<(byte[] result, int bodyStart)> GetResponseTask(RequestId requestId)
         {
-            try
+            if (_disposed)
             {
-                _pendingRequestsLock.EnterWriteLock();
+                throw new ObjectDisposedException(nameof(ResponseReader));
+            }
 
-                if (_disposed)
-                {
-                    throw new ObjectDisposedException(nameof(ResponseReader));
-                }
-
+            lock (_pendingRequestsLock)
+            {
                 if (_pendingRequests.ContainsKey(requestId))
                 {
                     throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
@@ -87,43 +125,65 @@ namespace ProGaudi.Tarantool.Client
 
                 return tcs.Task;
             }
-            finally
-            {
-                _pendingRequestsLock.ExitWriteLock();
-            }
         }
 
         public void BeginReading()
         {
-            var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(ResponseReader));
+            }
 
-            _clientOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
-
-            var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
-            readingTask.ContinueWith(EndReading);
+            try
+            {
+                bool keepReading;
+                do
+                {
+                    keepReading = false;
+                    var space = EnsureSpaceAndComputeBytesToRead();
+                    var result = _physicalConnection.Stream.BeginRead(_buffer, _readingOffset, space, EndRead, this);
+                    if (result.CompletedSynchronously)
+                    {
+                        keepReading = EndReading(result);
+                    }
+                } while (keepReading);
+            }
+            catch (IOException ex)
+            {
+                _clientOptions?.LogWriter?.WriteLine("Could not connect: " + ex.Message);
+            }
         }
 
         private TaskCompletionSource<(byte[] result, int bodyStart)> PopResponseCompletionSource(RequestId requestId)
         {
-            try
+            if (_disposed)
             {
-                _pendingRequestsLock.EnterWriteLock();
+                throw new ObjectDisposedException(nameof(ResponseReader));
+            }
 
-                if (_disposed)
-                {
-                    throw new ObjectDisposedException(nameof(ResponseReader));
-                }
+            TaskCompletionSource<(byte[] result, int bodyStart)> request;
 
-                if (_pendingRequests.TryGetValue(requestId, out var request))
+            lock (_pendingRequestsLock)
+            {
+                if (_pendingRequests.TryGetValue(requestId, out request))
                 {
                     _pendingRequests.Remove(requestId);
                 }
-
-                return request;
             }
-            finally
+
+            return request;
+        }
+
+        private bool EndReading(IAsyncResult ar)
+        {
+            try
             {
-                _pendingRequestsLock.ExitWriteLock();
+                var bytesRead = _physicalConnection?.Stream.EndRead(ar) ?? 0;
+                return ProcessReadBytes(bytesRead);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -158,9 +218,11 @@ namespace ProGaudi.Tarantool.Client
                 _clientOptions.LogWriter?.WriteLine("EOF");
                 return false;
             }
+
             _readingOffset += readBytesCount;
             var parsedResponsesCount = TryParseResponses();
             _clientOptions.LogWriter?.WriteLine("Processed: " + parsedResponsesCount);
+
             if (!AllBytesProcessed())
             {
                 CopyRemainingBytesToBufferBegin();
@@ -268,10 +330,9 @@ namespace ProGaudi.Tarantool.Client
             if (PacketCompletelyRead(packetSize.Value))
             {
                 _parsingOffset += Constants.PacketSizeBufferSize;
-                var responseBuffer = new byte[packetSize.Value];
+                var responseBuffer = ArrayPool<byte>.Shared.Rent(packetSize.Value);
                 Array.Copy(_buffer, _parsingOffset, responseBuffer, 0, packetSize.Value);
                 _parsingOffset += packetSize.Value;
-
 
                 return responseBuffer;
             }
@@ -303,6 +364,8 @@ namespace ProGaudi.Tarantool.Client
             {
                 return space;
             }
+
+            _clientOptions.LogWriter?.WriteLine($"Resizing buffer from {_buffer.Length} to {_buffer.Length * 2}");
 
             Array.Resize(ref _buffer, _buffer.Length * 2);
             space = _buffer.Length - _readingOffset;
