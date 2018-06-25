@@ -52,7 +52,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         }
 
         [Fact]
-        public async Task ShouldThrowIfThereNoNodesWereConfigured()
+        public async Task ShouldThrowIfThereAreNoNodesWereConfigured()
         {
             var options = new ClientOptions();
             using (var box = new Client.Box(options))
