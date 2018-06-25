@@ -50,5 +50,15 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
                 box.Info.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public async Task ShouldThrowIfThereAreNoNodesWereConfigured()
+        {
+            var options = new ClientOptions();
+            using (var box = new Client.Box(options))
+            {
+                await Assert.ThrowsAsync<ClientSetupException>(() => box.Connect());
+            }
+        }
     }
 }
