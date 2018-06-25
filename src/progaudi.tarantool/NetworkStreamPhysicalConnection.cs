@@ -37,7 +37,7 @@ namespace ProGaudi.Tarantool.Client
         public async Task Connect(ClientOptions options)
         {
             if (! options.ConnectionOptions.Nodes.Any()) 
-                throw new ClientSetupException("There are zero configured nodes");
+                throw new ClientSetupException("There are zero configured nodes, you should provide one");
 
             options.LogWriter?.WriteLine("Starting socket connection...");
             var singleNode = options.ConnectionOptions.Nodes.Single();
