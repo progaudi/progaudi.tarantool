@@ -128,7 +128,7 @@ namespace ProGaudi.Tarantool.Client
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
             if (! _clientOptions.ConnectionOptions.Nodes.Any()) 
-                throw new ClientSetupException("There are no any configured tarantool nodes");
+                throw new ClientSetupException("There are zero configured nodes");
 
             var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
 
