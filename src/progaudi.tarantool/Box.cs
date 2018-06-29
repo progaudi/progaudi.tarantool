@@ -108,16 +108,18 @@ namespace ProGaudi.Tarantool.Client
             return Schema.Reload();
         }
 
-        public Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
+        public async Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters);
-            return _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
+            var result = await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
+            return result.Data;
         }
 
-        public Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
+        public async Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
         {
             var evalRequest = new EvalRequest<TTuple>(expression, parameters);
-            return _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);
+            var result = await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);
+            return result.Data;
         }
 
         //public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)

@@ -79,7 +79,7 @@ namespace ProGaudi.Tarantool.Client
 
         private delegate void ExceptionSetter(Exception ex);
 
-        public Task<TResponse> GetResponseTask<TResponse>(RequestId requestId, Func<MemoryStream, TResponse> responseCreator)
+        public Result<TResponse> GetResponseTask<TResponse>(RequestId requestId, Action<MemoryStream, Result<TResponse>> responseCreator)
         {
             if (_disposed)
             {
@@ -93,16 +93,16 @@ namespace ProGaudi.Tarantool.Client
                     throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
                 }
 
-                var tcs = new TaskCompletionSource<TResponse>();
+                var tcs = new Result<TResponse>();
                 var completionPair = Tuple.Create<ResultSetter, ExceptionSetter>(ResultSetterImpl, ExceptionSetterImpl);
 
                 _pendingRequests.Add(requestId, completionPair);
 
-                return tcs.Task;
+                return tcs;
 
-                void ResultSetterImpl(in MemoryStream response) => tcs.SetResult(responseCreator(response));
+                void ResultSetterImpl(in MemoryStream response) => responseCreator(response, tcs);
 
-                void ExceptionSetterImpl(Exception ex) => tcs.SetException(ex);
+                void ExceptionSetterImpl(Exception ex) => tcs.Error = ex;
             }
         }
 

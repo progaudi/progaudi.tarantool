@@ -77,7 +77,7 @@ namespace ProGaudi.Tarantool.Client
         public async Task<T> Insert(T tuple)
         {
             var result = await _schema.Connection.SendRequest<InsertReplaceRequest<T>, T>(new InsertRequest<T>(Id, tuple));
-            return result.Data[0];
+            return result.Data.Data[0];
         }
 
         public Task<T> Insert<TInsertable>(in TInsertable tuple)

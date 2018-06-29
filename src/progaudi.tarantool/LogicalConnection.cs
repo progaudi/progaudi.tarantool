@@ -101,29 +101,31 @@ namespace ProGaudi.Tarantool.Client
             return _responseReader.IsConnected && _requestWriter.IsConnected && _physicalConnection.IsConnected;
         }
 
-        public Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public Result<object> SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return SendRequestImpl<TRequest, object>(request, _ => null, timeout);
+            return SendRequestImpl<TRequest, object>(request, (_, __) => { });
         }
 
-        public Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+        public Result<TResponse> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return SendRequestImpl(request, buffer => MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(buffer, _clientOptions.MsgPackContext), timeout);
+            return SendRequestImpl<TRequest, TResponse>
+                (request,
+                (buffer, result) => result.Data = MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(buffer, _clientOptions.MsgPackContext));
         }
 
-        public Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
-        {
-            return SendRequestImpl(request, buffer => MsgPackSerializer.Deserialize<DataResponse>(buffer, _clientOptions.MsgPackContext), timeout);
-        }
+        //public Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        //    where TRequest : IRequest
+        //{
+        //    return SendRequestImpl(request, buffer => MsgPackSerializer.Deserialize<DataResponse>(buffer, _clientOptions.MsgPackContext), timeout);
+        //}
 
-        public Task<IMemoryOwner<byte>> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
-        {
-            return SendRequestImpl(request, RawByteCreator, timeout);
-        }
+        //public Task<IMemoryOwner<byte>> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        //    where TRequest : IRequest
+        //{
+        //    return SendRequestImpl(request, RawByteCreator, timeout);
+        //}
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
         {
@@ -137,11 +139,11 @@ namespace ProGaudi.Tarantool.Client
 
             var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
 
-            await SendRequestWithEmptyResponse(authenticateRequest).ConfigureAwait(false);
+            await SendRequestWithEmptyResponse(authenticateRequest);
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        private Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, Func<MemoryStream, TResponse> response, TimeSpan? timeout)
+        private Result<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, Action<MemoryStream, Result<TResponse>> response)
             where TRequest : IRequest
         {
             if (_disposed)
@@ -161,12 +163,6 @@ namespace ProGaudi.Tarantool.Client
 
             try
             {
-                if (timeout.HasValue)
-                {
-                    var cts = new CancellationTokenSource(timeout.Value);
-                    responseTask = responseTask.WithCancellation(cts.Token);
-                }
-
                 return responseTask;
             }
             catch (ArgumentException)

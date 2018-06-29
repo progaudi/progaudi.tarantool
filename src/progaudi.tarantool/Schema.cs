@@ -56,8 +56,8 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task Reload()
         {
-            var spaces = await Select<SpaceMeta>(VSpace).ConfigureAwait(false);
-            var indices = await Select<IndexMeta>(VIndex).ConfigureAwait(false);
+            var spaces = (await Select<SpaceMeta>(VSpace)).Data.Data;
+            var indices = (await Select<IndexMeta>(VIndex)).Data.Data;
             var indicesBySpace = indices
                 .Select((x, i) => new {x, i})
                 .GroupBy(x => x.x.SpaceId)
@@ -74,14 +74,11 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        private async Task<T[]> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)
+        private Result<T> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)
         {
             var request = new SelectRequest<ValueTuple<uint>>(spaceId, PrimaryIndexId, uint.MaxValue, 0, iterator, ValueTuple.Create(id));
 
-            var response = await Connection
-                .SendRequest<SelectRequest<ValueTuple<uint>>, T>(request)
-                .ConfigureAwait(false);
-            return response.Data;
+            return Connection.SendRequest<SelectRequest<ValueTuple<uint>>, T>(request);
         }
     }
 }
