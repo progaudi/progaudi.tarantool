@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Utils;
+using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -16,51 +14,71 @@ namespace ProGaudi.Tarantool.Client
 
         internal const uint PrimaryIndexId = 0;
 
-        private readonly ILogicalConnection _logicalConnection;
+        private NameIdLazyWrapper<SpaceMeta> _spaces;
 
-        private Dictionary<string, ISpace> _indexByName = new Dictionary<string, ISpace>();
+        private Dictionary<uint, int[]> _indicesBySpace = new Dictionary<uint, int[]>();
+        private IndexMeta[] _indices;
 
-        private Dictionary<uint, ISpace> _indexById = new Dictionary<uint, ISpace>();
+        private readonly object _lockObject = new object();
 
         public Schema(ILogicalConnection logicalConnection)
         {
-            _logicalConnection = logicalConnection;
+            Connection = logicalConnection;
         }
 
-        public Task<ISpace> GetSpace(string name) => Task.FromResult(this[name]);
-
-        public Task<ISpace> GetSpace(uint id) => Task.FromResult(this[id]);
-
-        public ISpace this[string name] => _indexByName.TryGetValue(name, out var space) ? space : throw ExceptionHelper.InvalidSpaceName(name);
-
-        public ISpace this[uint id] => _indexById.TryGetValue(id, out var space) ? space : throw ExceptionHelper.InvalidSpaceId(id);
-
+        public ILogicalConnection Connection { get; }
+        
         public DateTimeOffset LastReloadTime { get; private set; }
+
+        public bool TryGetSpace<T>(string name, out ISpace<T> space)
+        {
+            SpaceMeta meta;
+            lock (_lockObject)
+            {
+                meta = _spaces[name];
+            }
+
+            space = new Space<T>(this, meta, _indicesBySpace[meta.Id].Select(x => _indices[x]));
+            return true;
+        }
+
+        public bool TryGetSpace<T>(uint id, out ISpace<T> space)
+        {
+            SpaceMeta meta;
+            lock (_lockObject)
+            {
+                meta = _spaces[id];
+            }
+
+            space = new Space<T>(this, meta, _indicesBySpace[meta.Id].Select(x => _indices[x]));
+            return true;
+        }
 
         public async Task Reload()
         {
-            var byName = new Dictionary<string, ISpace>();
-            var byId = new Dictionary<uint, ISpace>();
+            var spaces = await Select<SpaceMeta>(VSpace).ConfigureAwait(false);
+            var indices = await Select<IndexMeta>(VIndex).ConfigureAwait(false);
+            var indicesBySpace = indices
+                .Select((x, i) => new {x, i})
+                .GroupBy(x => x.x.SpaceId)
+                .ToDictionary(x => x.Key, x => x.Select(y => y.i).ToArray());
 
-            var spaces = await Select<Space>(VSpace).ConfigureAwait(false);
-            foreach (var space in spaces)
+            lock (_lockObject)
             {
-                byName[space.Name] = space;
-                byId[space.Id] = space;
-                space.LogicalConnection = _logicalConnection;
-                space.SetIndices(await Select<Index>(VIndex, Iterator.Eq, space.Id).ConfigureAwait(false));
-            }
+                _spaces = new NameIdLazyWrapper<SpaceMeta>(spaces, x => x.Id, x => x.Name);
 
-            Interlocked.Exchange(ref _indexByName, byName);
-            Interlocked.Exchange(ref _indexById, byId);
-            LastReloadTime = DateTimeOffset.UtcNow;
+                _indices = indices;
+                _indicesBySpace = indicesBySpace;
+
+                LastReloadTime = DateTimeOffset.UtcNow;
+            }
         }
 
         private async Task<T[]> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)
         {
             var request = new SelectRequest<ValueTuple<uint>>(spaceId, PrimaryIndexId, uint.MaxValue, 0, iterator, ValueTuple.Create(id));
 
-            var response = await _logicalConnection
+            var response = await Connection
                 .SendRequest<SelectRequest<ValueTuple<uint>>, T>(request)
                 .ConfigureAwait(false);
             return response.Data;

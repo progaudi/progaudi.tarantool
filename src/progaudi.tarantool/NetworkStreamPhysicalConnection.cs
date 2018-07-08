@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Utils;
-
-#if PROGAUDI_NETCORE
-using System.Net;
-#endif
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -44,19 +42,23 @@ namespace ProGaudi.Tarantool.Client
 
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp)
             {
-                NoDelay = true
+                NoDelay = true,
+                //Blocking = false
             };
-            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port).ConfigureAwait(false);;
+            await _socket.ConnectAsync(singleNode.Uri.Host, singleNode.Uri.Port).ConfigureAwait(false);
 
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
         }
 
-        public void Write(byte[] buffer, int offset, int count)
+        public void Write(in ReadOnlySequence<byte> buffer)
         {
             CheckConnectionStatus();
-            _stream.Write(buffer, offset, count);
+            var array = buffer.ToArray();
+            _stream.Write(array, 0, array.Length);
         }
+
+        public Stream Stream => _stream;
 
         public async Task Flush()
         {
@@ -70,47 +72,9 @@ namespace ProGaudi.Tarantool.Client
             return await _stream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
         }
 
-#if PROGAUDI_NETCORE
-        /// https://github.com/mongodb/mongo-csharp-driver/commit/9c2097f349d5096a04ea81b0c9ceb60c7e1acee4
-        private static async Task ConnectAsync(Socket socket, string host, int port)
-        {
-            var resolved = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);;
-            for (var i = 0; i < resolved.Length; i++)
-            {
-                try
-                {
-                    await socket.ConnectAsync(resolved[i], port).ConfigureAwait(false);
-                    return;
-                }
-                catch
-                {
-                    // if we have tried all of them and still failed,
-                    // then blow up.
-                    if (i == resolved.Length - 1)
-                    {
-                        throw;
-                    }
-                }
-            }
-
-            // we should never get here...
-            throw new InvalidOperationException("Unabled to resolve endpoint.");
-        }
-#else
-        /// Stolen from corefx github
-        private static Task ConnectAsync(Socket socket, string host, int port)
-        {
-            return Task.Factory.FromAsync(
-                (targetHost, targetPort, callback, state) => ((Socket)state).BeginConnect(targetHost, targetPort, callback, state),
-                asyncResult => ((Socket)asyncResult.AsyncState).EndConnect(asyncResult),
-                host,
-                port,
-                socket);
-        }
-#endif
-
         public bool IsConnected => !_disposed && _stream != null;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CheckConnectionStatus()
         {
             if (_disposed)

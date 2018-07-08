@@ -1,8 +1,7 @@
 using System;
+using System.Buffers;
 using System.Threading.Tasks;
-
-using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Model.Responses;
+using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -21,7 +20,7 @@ namespace ProGaudi.Tarantool.Client
         Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest;
 
-        Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        Task<IMemoryOwner<byte>> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest;
 
         uint PingsFailedByTimeoutCount { get; }

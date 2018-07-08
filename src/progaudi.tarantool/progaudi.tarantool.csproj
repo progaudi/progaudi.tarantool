@@ -1,16 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net46;netstandard1.4;netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFrameworks>netstandard1.4;netstandard2.0</TargetFrameworks>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
     <PatchLevelVersion Condition=" '$(BuildNumber)' != '' ">$(BuildNumber).1-prerelease</PatchLevelVersion>
-    <Version>0.9.$(PatchLevelVersion)</Version>
+    <Version>1.0.$(PatchLevelVersion)</Version>
 
-    <Description>Tarantool low-level client Library</Description>
+    <Description>Tarantool client Library</Description>
+
+    <LangVersion>latest</LangVersion>
+    <!-- default to allowing all language features -->
+    <WarningLevel>4</WarningLevel>
     <WarningsAsErrors>true</WarningsAsErrors>
 
     <AssemblyName>progaudi.tarantool</AssemblyName>
@@ -26,11 +27,11 @@
     <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
   </PropertyGroup>
-
   <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
     <PackageReference Include="MsgPack.Light" Version="1.5.0" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.0" />
+    <PackageReference Include="System.Memory" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,16 +54,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Converters\SystemTupleConverters.cs">
-      <DependentUpon>SystemTupleConverters.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Converters\ValueTupleConverters.cs">
-      <DependentUpon>ValueTupleConverters.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
     <Compile Update="T4Templates\TarantoolTuples.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -79,8 +70,4 @@
       <DependentUpon>ValueTupleConverters.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">
-    <DefineConstants>$(DefineConstants);PROGAUDI_NETCORE</DefineConstants>
-  </PropertyGroup>
 </Project>

@@ -1,10 +1,5 @@
 ﻿using System;
-using ProGaudi.MsgPack.Light;
-
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.Headers;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -22,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new ArgumentException($"Invalid map length: {string.Join(", ", expected)} is expected, but got {actual}.");
         }
 
-        public static Exception UnexpectedKey(Key actual, params Key[] expected)
+        public static Exception UnexpectedKey(uint actual, params uint[] expected)
         {
             return new ArgumentException($"Unexpected key: {string.Join(", ", expected)} is expected, but got {actual}.");
         }
@@ -30,11 +25,6 @@ namespace ProGaudi.Tarantool.Client.Utils
         public static Exception InvalidArrayLength(uint expected, uint? actual)
         {
             return new ArgumentException($"Invalid array length: {expected} is expected, but got {actual}.");
-        }
-
-        public static Exception UnexpectedDataType(DataTypes expected, DataTypes actual)
-        {
-            return new ArgumentException($"Unexpected data type: {expected} is expected, but got {actual}.");
         }
 
         public static Exception NotConnected()
@@ -103,7 +93,7 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new ArgumentException($"Task with id {requestId} already sent.");
         }
 
-        private static string GetDetailedTarantoolMessage(CommandCode code)
+        private static string GetDetailedTarantoolMessage(CommandCodes code)
         {
             switch ((uint)code)
             {

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
@@ -22,7 +22,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions = options;
             TarantoolConvertersRegistrator.Register(options.MsgPackContext);
 
-            _logicalConnection = new LogicalConnectionManager(options);
+            _logicalConnection = new LogicalConnection(options, new RequestIdCounter());
             Metrics = new Metrics(_logicalConnection);
             Schema = new Schema(_logicalConnection);
         }
@@ -32,6 +32,16 @@ namespace ProGaudi.Tarantool.Client
         public bool IsConnected => _logicalConnection.IsConnected();
 
         public ISchema Schema { get; }
+
+        public ILuaCode<TResult> GetLuaFunc<TResult>(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ILuaCode<TResult> GetLuaCode<TResult>(string code)
+        {
+            throw new NotImplementedException();
+        }
 
         public BoxInfo Info
         {
@@ -58,11 +68,12 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public async Task ReloadBoxInfo()
+        public Task ReloadBoxInfo()
         {
-            var report = await Eval<BoxInfo>("return box.info").ConfigureAwait(false);
-            if (report.Data.Length != 1) throw ExceptionHelper.CantParseBoxInfoResponse();
-            Info = report.Data[0];
+            //var report = await Eval<BoxInfo, >("return box.info").ConfigureAwait(false);
+            //if (report.Data.Length != 1) throw ExceptionHelper.CantParseBoxInfoResponse();
+            //Info = report.Data[0];
+            throw new NotImplementedException();
         }
 
         public static async Task<Box> Connect(string replicationSource)
@@ -97,71 +108,30 @@ namespace ProGaudi.Tarantool.Client
             return Schema.Reload();
         }
 
-        public async Task Call_1_6(string functionName)
-        {
-            await Call_1_6<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty).ConfigureAwait(false);
-        }
-
-        public async Task Call_1_6<TTuple>(string functionName, TTuple parameters)
-        {
-            await Call_1_6<TTuple, TarantoolTuple>(functionName, parameters).ConfigureAwait(false);
-        }
-
-        public Task<DataResponse<TResponse[]>> Call_1_6<TResponse>(string functionName)
-        {
-            return Call_1_6<TarantoolTuple, TResponse>(functionName, TarantoolTuple.Empty);
-        }
-
-        public async Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters)
-        {
-            var callRequest = new CallRequest<TTuple>(functionName, parameters, false);
-            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
-        }
-
-        public async Task Call(string functionName)
-        {
-            await Call<TarantoolTuple, TarantoolTuple>(functionName, TarantoolTuple.Empty).ConfigureAwait(false);
-        }
-
-        public async Task Call<TTuple>(string functionName, TTuple parameters)
-        {
-            await Call<TTuple, TarantoolTuple>(functionName, parameters).ConfigureAwait(false);
-        }
-
-        public Task<DataResponse<TResponse[]>> Call<TResponse>(string functionName)
-        {
-            return Call<TarantoolTuple, TResponse>(functionName, TarantoolTuple.Empty);
-        }
-
-        public async Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
+        public Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
         {
             var callRequest = new CallRequest<TTuple>(functionName, parameters);
-            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
+            return _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest);
         }
 
-        public async Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
+        public Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
         {
             var evalRequest = new EvalRequest<TTuple>(expression, parameters);
-            return await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest).ConfigureAwait(false);
+            return _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest);
         }
 
-        public Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression)
-        {
-            return Eval<TarantoolTuple, TResponse>(expression, TarantoolTuple.Empty);
-        }
+        //public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
+        //{
+        //    if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
 
-        public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
-        {
-            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+        //    return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
+        //}
 
-            return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
-        }
+        //public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
+        //{
+        //    if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
 
-        public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
-        {
-            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
-
-            return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
-        }
+        //    return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
+        //}
     }
 }

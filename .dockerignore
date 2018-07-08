@@ -1,0 +1,7 @@
+.github
+.vs
+.vscode
+Scripts
+tests
+**/bin
+**/obj

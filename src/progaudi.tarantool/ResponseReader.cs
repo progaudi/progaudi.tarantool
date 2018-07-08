@@ -1,31 +1,36 @@
 ﻿using System;
+using System.Buffers;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using JetBrains.Annotations;
-
 using ProGaudi.MsgPack.Light;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.Headers;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
     internal class ResponseReader : IResponseReader
     {
+        private static readonly AsyncCallback EndRead = result =>
+        {
+            ResponseReader reader;
+            if (result.CompletedSynchronously || (reader = result.AsyncState as ResponseReader) == null) return;
+            if (reader.EndReading(result))
+                reader.BeginReading();
+        };
+
         private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
-            new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+        private readonly Dictionary<RequestId, Tuple<ResultSetter, ExceptionSetter>> _pendingRequests = new Dictionary<RequestId, Tuple<ResultSetter, ExceptionSetter>>();
 
         private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
         private readonly ClientOptions _clientOptions;
+        private readonly byte[] _originalBuffer;
 
         private byte[] _buffer;
 
@@ -39,7 +44,7 @@ namespace ProGaudi.Tarantool.Client
         {
             _physicalConnection = physicalConnection;
             _clientOptions = clientOptions;
-            _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
+            _originalBuffer = _buffer = ArrayPool<byte>.Shared.Rent(1024 * 1024);
         }
 
         public bool IsConnected => !_disposed;
@@ -52,109 +57,113 @@ namespace ProGaudi.Tarantool.Client
             }
 
             _disposed = true;
+            _disposed = true;
 
-            try
+            ArrayPool<byte>.Shared.Return(_originalBuffer);
+            var exception = new ObjectDisposedException(nameof(ResponseReader));
+
+            lock (_pendingRequestsLock)
             {
-                _pendingRequestsLock.EnterWriteLock();
-
                 _clientOptions.LogWriter?.WriteLine("Cancelling all pending requests and setting faulted state...");
 
-                foreach (var response in _pendingRequests.Values)
+                foreach (var value in _pendingRequests.Values)
                 {
-                    response.SetException(new ObjectDisposedException(nameof(ResponseReader)));
+                    value.Item2(exception);
                 }
 
                 _pendingRequests.Clear();
             }
-            finally
-            {
-                _pendingRequestsLock.ExitWriteLock();
-            }
         }
 
-        public Task<MemoryStream> GetResponseTask(RequestId requestId)
+        private delegate void ResultSetter(in MemoryStream response);
+
+        private delegate void ExceptionSetter(Exception ex);
+
+        public Task<TResponse> GetResponseTask<TResponse>(RequestId requestId, Func<MemoryStream, TResponse> responseCreator)
         {
-            try
+            if (_disposed)
             {
-                _pendingRequestsLock.EnterWriteLock();
+                throw new ObjectDisposedException(nameof(ResponseReader));
+            }
 
-                if (_disposed)
-                {
-                    throw new ObjectDisposedException(nameof(ResponseReader));
-                }
-
+            lock (_pendingRequestsLock)
+            {
                 if (_pendingRequests.ContainsKey(requestId))
                 {
                     throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
                 }
 
-                var tcs = new TaskCompletionSource<MemoryStream>();
-                _pendingRequests.Add(requestId, tcs);
+                var tcs = new TaskCompletionSource<TResponse>();
+                var completionPair = Tuple.Create<ResultSetter, ExceptionSetter>(ResultSetterImpl, ExceptionSetterImpl);
+
+                _pendingRequests.Add(requestId, completionPair);
 
                 return tcs.Task;
-            }
-            finally
-            {
-                _pendingRequestsLock.ExitWriteLock();
+
+                void ResultSetterImpl(in MemoryStream response) => tcs.SetResult(responseCreator(response));
+
+                void ExceptionSetterImpl(Exception ex) => tcs.SetException(ex);
             }
         }
 
         public void BeginReading()
         {
-            var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(ResponseReader));
+            }
 
-            _clientOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
-
-            var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
-            readingTask.ContinueWith(EndReading);
-        }
-
-        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
-        {
             try
             {
-                _pendingRequestsLock.EnterWriteLock();
-
-                if (_disposed)
+                bool keepReading;
+                do
                 {
-                    throw new ObjectDisposedException(nameof(ResponseReader));
-                }
-
-                if (_pendingRequests.TryGetValue(requestId, out var request))
-                {
-                    _pendingRequests.Remove(requestId);
-                }
-
-                return request;
+                    keepReading = false;
+                    var space = EnsureSpaceAndComputeBytesToRead();
+                    var result = _physicalConnection.Stream.BeginRead(_buffer, _readingOffset, space, EndRead, this);
+                    if (result.CompletedSynchronously)
+                    {
+                        keepReading = EndReading(result);
+                    }
+                } while (keepReading);
             }
-            finally
+            catch (IOException ex)
             {
-                _pendingRequestsLock.ExitWriteLock();
+                _clientOptions?.LogWriter?.WriteLine("Could not connect: " + ex.Message);
             }
         }
 
-        private void EndReading(Task<int> readWork)
+        private Tuple<ResultSetter, ExceptionSetter> PopResponseCompletionSource(RequestId requestId)
         {
             if (_disposed)
             {
-                _clientOptions.LogWriter?.WriteLine("Attempt to end reading in disposed state... Exiting.");
-                return;
+                throw new ObjectDisposedException(nameof(ResponseReader));
             }
 
-            if (readWork.Status == TaskStatus.RanToCompletion)
-            {
-                var readBytesCount = readWork.Result;
-                _clientOptions.LogWriter?.WriteLine($"End reading from connection, read bytes count: {readBytesCount}");
+            Tuple<ResultSetter, ExceptionSetter> request;
 
-                if (ProcessReadBytes(readBytesCount))
+            lock (_pendingRequestsLock)
+            {
+                if (_pendingRequests.TryGetValue(requestId, out request))
                 {
-                    BeginReading();
-                    return;
+                    _pendingRequests.Remove(requestId);
                 }
             }
 
-            _clientOptions.LogWriter?.WriteLine($"Connection read failed: {readWork.Exception}");
-            Dispose();
+            return request;
+        }
+
+        private bool EndReading(IAsyncResult ar)
+        {
+            try
+            {
+                var bytesRead = _physicalConnection?.Stream.EndRead(ar) ?? 0;
+                return ProcessReadBytes(bytesRead);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private bool ProcessReadBytes(int readBytesCount)
@@ -164,9 +173,11 @@ namespace ProGaudi.Tarantool.Client
                 _clientOptions.LogWriter?.WriteLine("EOF");
                 return false;
             }
+
             _readingOffset += readBytesCount;
             var parsedResponsesCount = TryParseResponses();
             _clientOptions.LogWriter?.WriteLine("Processed: " + parsedResponsesCount);
+
             if (!AllBytesProcessed())
             {
                 CopyRemainingBytesToBufferBegin();
@@ -201,7 +212,7 @@ namespace ProGaudi.Tarantool.Client
             do
             {
                 var response = TryParseResponse();
-                nonEmptyResult = response != null;
+                nonEmptyResult = response != Empty;
                 if (!nonEmptyResult)
                 {
                     continue;
@@ -213,10 +224,10 @@ namespace ProGaudi.Tarantool.Client
             return messageCount;
         }
 
-        private void MatchResult(byte[] result)
+        private void MatchResult(in ArraySegment<byte> result)
         {
-            var resultStream = new MemoryStream(result);
-            var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
+            var stream = new MemoryStream(result.Array, result.Offset, result.Count, false, true);
+            var header = MsgPackSerializer.Deserialize<ResponseHeader>(stream, _clientOptions.MsgPackContext);
             var tcs = PopResponseCompletionSource(header.RequestId);
 
             if (tcs == null)
@@ -226,19 +237,27 @@ namespace ProGaudi.Tarantool.Client
                 return;
             }
 
-            if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
+            if ((header.Code & CommandCodes.ErrorMask) == CommandCodes.ErrorMask)
             {
-                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _clientOptions.MsgPackContext);
-                tcs.SetException(ExceptionHelper.TarantoolError(header, errorResponse));
+                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} is error.");
+                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(stream, _clientOptions.MsgPackContext);
+                tcs.Item2(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else
             {
-                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
-                tcs.SetResult(resultStream);
+                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} is ok.");
+                try
+                {
+                    tcs.Item1(stream);
+                }
+                catch (Exception e)
+                {
+                    tcs.Item2(e);
+                }
             }
         }
 
-        private static void LogUnMatchedResponse(byte[] result, [NotNull]ILog logWriter)
+        private static void LogUnMatchedResponse(Span<byte> result, [NotNull]ILog logWriter)
         {
             var builder = new StringBuilder("Warning: can't match request via requestId from response. Response:");
             var length = 80/3;
@@ -255,49 +274,39 @@ namespace ProGaudi.Tarantool.Client
             logWriter.WriteLine(builder.ToString());
         }
 
-        private byte[] TryParseResponse()
+        private static readonly ArraySegment<byte> Empty = new ArraySegment<byte>(Array.Empty<byte>());
+        private ArraySegment<byte> TryParseResponse()
         {
             if (AllBytesProcessed())
             {
-                return null;
+                return Empty;
             }
 
-            var packetSize = GetPacketSize();
-
-            if (!packetSize.HasValue)
-            {
-                _clientOptions.LogWriter?.WriteLine($"Can't read packet length, has less than {Constants.PacketSizeBufferSize} bytes.");
-                return null;
-            }
-
-            if (PacketCompletelyRead(packetSize.Value))
-            {
-                _parsingOffset += Constants.PacketSizeBufferSize;
-                var responseBuffer = new byte[packetSize.Value];
-                Array.Copy(_buffer, _parsingOffset, responseBuffer, 0, packetSize.Value);
-                _parsingOffset += packetSize.Value;
-
-
-                return responseBuffer;
-            }
-
-            _clientOptions.LogWriter?.WriteLine($"Packet  with length {packetSize} is not completely read.");
-
-            return null;
-        }
-
-        private int? GetPacketSize()
-        {
             if (_readingOffset - _parsingOffset < Constants.PacketSizeBufferSize)
             {
-                return null;
+                _clientOptions.LogWriter?.WriteLine($"Can't read packet length, has less than {Constants.PacketSizeBufferSize} bytes.");
+                return Empty;
             }
 
-            var headerSizeBuffer = new byte[Constants.PacketSizeBufferSize];
-            Array.Copy(_buffer, _parsingOffset, headerSizeBuffer, 0, Constants.PacketSizeBufferSize);
-            var packetSize = (int)MsgPackSerializer.Deserialize<ulong>(headerSizeBuffer, _clientOptions.MsgPackContext);
+            var length = new ReadOnlySpan<byte>(_buffer, _parsingOffset, 5);
+            if (length[0] != (byte) DataTypes.UInt32)
+            {
+                throw ExceptionUtils.BadTypeException((DataTypes) length[0], DataTypes.UInt32);
+            }
 
-            return packetSize;
+            var packetSize = (int)BinaryPrimitives.ReadUInt32BigEndian(length.Slice(1));
+
+            if (PacketCompletelyRead(packetSize))
+            {
+                var offset = _parsingOffset += Constants.PacketSizeBufferSize;
+                _parsingOffset += packetSize;
+
+                return new ArraySegment<byte>(_buffer, offset, packetSize);
+            }
+
+            _clientOptions.LogWriter?.WriteLine($"Packet with length {packetSize} is not completely read.");
+
+            return Empty;
         }
 
         private bool PacketCompletelyRead(int packetSize)
@@ -312,6 +321,8 @@ namespace ProGaudi.Tarantool.Client
             {
                 return space;
             }
+
+            _clientOptions.LogWriter?.WriteLine($"Resizing buffer from {_buffer.Length} to {_buffer.Length * 2}");
 
             Array.Resize(ref _buffer, _buffer.Length * 2);
             space = _buffer.Length - _readingOffset;

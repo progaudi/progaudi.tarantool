@@ -10,7 +10,7 @@ namespace ProGaudi.Tarantool.Client
     {
         void BeginReading();
 
-        Task<MemoryStream> GetResponseTask(RequestId requestId);
+        Task<TResponse> GetResponseTask<TResponse>(RequestId requestId, Func<MemoryStream, TResponse> responseCreator);
 
         bool IsConnected { get; }
     }

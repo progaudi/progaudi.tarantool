@@ -1,22 +1,25 @@
 ﻿using System;
+using System.Buffers;
+using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using ProGaudi.MsgPack.Light;
-
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Headers;
-using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
     internal class LogicalConnection : ILogicalConnection
     {
-        private readonly MsgPackContext _msgPackContext;
+        private static readonly Func<MemoryStream, IMemoryOwner<byte>> RawByteCreator = x =>
+        {
+            var length = (int) (x.Length - x.Position);
+            var owner = MemoryPool<byte>.Shared.Rent(length);
+            new ReadOnlyMemory<byte>(x.GetBuffer(), (int) x.Position, length).CopyTo(owner.Memory);
+            return owner;
+        };
 
         private readonly ClientOptions _clientOptions;
 
@@ -36,7 +39,6 @@ namespace ProGaudi.Tarantool.Client
         {
             _clientOptions = options;
             _requestIdCounter = requestIdCounter;
-            _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
 
             _physicalConnection = new NetworkStreamPhysicalConnection();
@@ -99,30 +101,28 @@ namespace ProGaudi.Tarantool.Client
             return _responseReader.IsConnected && _requestWriter.IsConnected && _physicalConnection.IsConnected;
         }
 
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            return SendRequestImpl<TRequest, object>(request, _ => null, timeout);
         }
 
-        public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
+        public Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(stream, _msgPackContext);
+            return SendRequestImpl(request, buffer => MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(buffer, _clientOptions.MsgPackContext), timeout);
         }
 
-        public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            var stream = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            return MsgPackSerializer.Deserialize<DataResponse>(stream, _msgPackContext);
+            return SendRequestImpl(request, buffer => MsgPackSerializer.Deserialize<DataResponse>(buffer, _clientOptions.MsgPackContext), timeout);
         }
 
-        public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
+        public Task<IMemoryOwner<byte>> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : IRequest
         {
-            return (await SendRequestImpl(request, timeout).ConfigureAwait(false)).ToArray();
+            return SendRequestImpl(request, RawByteCreator, timeout);
         }
 
         private async Task LoginIfNotGuest(GreetingsResponse greetings)
@@ -144,7 +144,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        private async Task<MemoryStream> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
+        private Task<TResponse> SendRequestImpl<TRequest, TResponse>(TRequest request, Func<MemoryStream, TResponse> response, TimeSpan? timeout)
             where TRequest : IRequest
         {
             if (_disposed)
@@ -152,15 +152,15 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(LogicalConnection));
             }
 
-            var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
-
             var requestId = _requestIdCounter.GetRequestId();
-            var responseTask = _responseReader.GetResponseTask(requestId);
-
-            var headerBuffer = CreateAndSerializeHeader(request, requestId, bodyBuffer);
-            _requestWriter.Write(
-                headerBuffer,
-                new ArraySegment<byte>(bodyBuffer, 0, bodyBuffer.Length));
+            var header = MsgPackSerializer.Serialize(new RequestHeader(request.Code, requestId), _clientOptions.MsgPackContext);
+            var body = MsgPackSerializer.Serialize(request, _clientOptions.MsgPackContext);
+            var length = new byte[5];
+            length[0] = (byte) DataTypes.UInt32;
+            BinaryPrimitives.WriteUInt32BigEndian(new Span<byte>(length, 1, 4), (uint) (header.Length + body.Length));
+            var responseTask = _responseReader.GetResponseTask(requestId, response);
+            var bodyBuffer = TarantoolSegment.CreateSequence(length, header, body);
+            _requestWriter.Write(bodyBuffer);
 
             try
             {
@@ -170,14 +170,11 @@ namespace ProGaudi.Tarantool.Client
                     responseTask = responseTask.WithCancellation(cts.Token);
                 }
 
-                var responseStream = await responseTask.ConfigureAwait(false);
-                _logWriter?.WriteLine($"Response with requestId {requestId} is recieved, length: {responseStream.Length}.");
-
-                return responseStream;
+                return responseTask;
             }
             catch (ArgumentException)
             {
-                _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{headerBuffer.ToReadableString()} \n body: \n{bodyBuffer.ToReadableString()}");
+                _logWriter?.WriteLine($"Request with requestId {requestId} failed, body: \n{bodyBuffer.ToReadableString()}");
                 throw;
             }
             catch (TimeoutException)
@@ -185,26 +182,6 @@ namespace ProGaudi.Tarantool.Client
                 PingsFailedByTimeoutCount++;
                 throw;
             }
-        }
-
-        private ArraySegment<byte> CreateAndSerializeHeader<TRequest>(
-            TRequest request,
-            RequestId requestId,
-            byte[] serializedRequest) where TRequest : IRequest
-        {
-            var packetSizeBuffer = new byte[Constants.PacketSizeBufferSize + Constants.MaxHeaderLength];
-            var stream = new MemoryStream(packetSizeBuffer);
-
-            var requestHeader = new RequestHeader(request.Code, requestId);
-            stream.Seek(Constants.PacketSizeBufferSize, SeekOrigin.Begin);
-            MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
-
-            var lengthAndHeaderLengthByteCount = (int)stream.Position;
-            var headerLength = lengthAndHeaderLengthByteCount - Constants.PacketSizeBufferSize;
-            var packetLength = new PacketSize((uint) (headerLength + serializedRequest.Length));
-            stream.Seek(0, SeekOrigin.Begin);
-            MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
-            return new ArraySegment<byte>(packetSizeBuffer, 0, lengthAndHeaderLengthByteCount);
         }
     }
 }
