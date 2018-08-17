@@ -72,45 +72,40 @@ local spaces = {
 			id =      { index = 1, name="id", type = "unsigned" },
 			name =    { index = 2, name="name", type = "string" }
 		}
+	},
+	scalar = {
+		name = "with_scalar_index",
+		fields = {
+			id =      { index = 1, name="id", type = "scalar" }
+		}
 	}
 }
 
-local function create_spaces_and_indecies()
+local function create_spaces_and_indices()
 	local space = create_space(spaces.primary_only_index)
 	create_index(space, "primary", true, "HASH", nil, spaces.primary_only_index.fields.id)
 
 	space = create_space(spaces.performance)
 	create_index(space, "primary", true, "HASH", nil, spaces.performance.fields.id)
 
-	space = box.schema.space.create('with_scalar_index', { if_not_exists = true })
-	space:create_index('primary', {type='tree', parts={1, 'scalar'}, if_not_exists = true})
+	space = create_space(spaces.scalar)
+	create_index(space, "primary", true, "TREE", nil, spaces.scalar.fields.id)
 end
 
 local function init()
-	create_spaces_and_indecies()
+	create_spaces_and_indices()
 
 	box.schema.user.create('notSetPassword', { if_not_exists = true })
 	box.schema.user.create('emptyPassword', { password = '', if_not_exists = true })
-
 	box.schema.user.create('operator', {password = 'operator', if_not_exists = true })
-	box.schema.user.grant('operator','read,write,execute','universe', { if_not_exists = true })
-	box.schema.user.grant('guest','read,write,execute','universe', { if_not_exists = true })
-	box.schema.user.grant('emptyPassword','read,write,execute','universe', { if_not_exists = true })
-	box.schema.user.passwd('admin', 'adminPassword')
+
+	box.schema.user.grant('operator', 'read,write,execute', 'universe', nil, { if_not_exists = true })
+	box.schema.user.grant('guest', 'read,write,execute', 'universe', nil, { if_not_exists = true })
+	box.schema.user.grant('emptyPassword', 'read,write,execute', 'universe', nil, { if_not_exists = true })
 end
 
-local function space_TreeIndexMethods()
-	local sequence = box.schema.sequence.create('space_TreeIndexMethods_id')
-	local space = create_space(spaces.treeIndexMethods)
-	create_index(space, "treeIndex", true, "TREE", sequence.name, spaces.treeIndexMethods.fields.id)
-
-	space:insert{nil, 'asdf'}
-	space:insert{nil, 'zcxv'}
-	space:insert{nil, 'qwer'}
-end
 
 box.once('init', init)
-box.once('space_TreeIndexMethods', space_TreeIndexMethods)
 
 local log = require('log')
 
