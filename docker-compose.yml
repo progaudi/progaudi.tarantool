@@ -1,31 +1,29 @@
 version: '3.2'
 
 services:
-    tarantool_1_7:
-        image: progaudi/tarantool:1.7.5-184-g5be3a82be # same version as tarantool in homebrew on mac os
     tarantool_1_9:
         image: progaudi/tarantool:1.9
         command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
         volumes:
             - $PWD/tarantool:/usr/local/share/tarantool
+        healthcheck: 
+            disable: true
         ports:
             - "3301:3301"
         environment:
             TARANTOOL_USER_NAME: admin
             TARANTOOL_USER_PASSWORD: adminPassword
             TARANTOOL_SLAB_ALLOC_ARENA: 0.1
+    # redis:
+    #     image: redis:3.0-alpine
+    #     command: redis-server
+    #     ports:
+    #         - 6379:6379
 
-
-    redis:
-        image: redis:3.0-alpine
-        command: redis-server
-        ports:
-            - 6379:6379
-
-    admin:
-        image: quay.io/basis-company/tarantool-admin
-        ports:
-            - 8888:80
-        depends_on:
-            - tarantool_1_7
-            - tarantool_1_8
+    # admin:
+    #     image: quay.io/basis-company/tarantool-admin
+    #     ports:
+    #         - 8888:80
+    #     depends_on:
+    #         - tarantool_1_7
+    #         - tarantool_1_8

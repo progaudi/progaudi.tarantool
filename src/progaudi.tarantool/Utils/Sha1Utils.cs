@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -15,42 +16,36 @@ namespace ProGaudi.Tarantool.Client.Utils
 
         public static byte[] Hash(byte[] bytes)
         {
-            var sha1 = SHA1.Create();
-            var hashBytes = sha1.ComputeHash(bytes);
-
-            return hashBytes;
-        }
-
-        public static string HexStringFromBytes(byte[] bytes)
-        {
-            var sb = new StringBuilder();
-            foreach (var b in bytes)
+            using (var sha1 = SHA1.Create())
             {
-                var hex = b.ToString("x2");
-                sb.Append(hex);
+                return sha1.ComputeHash(bytes);
             }
-            return sb.ToString();
         }
 
-        public static byte[] Hash(byte[] salt, byte[] str)
+        public static byte[] Hash(ReadOnlySpan<byte> salt, ReadOnlySpan<byte> str)
         {
-            var salted = new byte[salt.Length + str.Length];
-            Array.Copy(salt, salted, salt.Length);
-            Array.Copy(str, 0, salted, salt.Length, str.Length);
+            var size = salt.Length + str.Length;
+            using (var salted = MemoryPool<byte>.Shared.Rent(size))
+            {
+                var memory = salted.Memory;
+                salt.CopyTo(memory.Span);
+                str.CopyTo(memory.Span.Slice(salt.Length));
 
-            return Hash(salted);
+                return Hash(memory.Slice(0, size).ToArray());
+            }
         }
 
-        public static byte[] Xor(byte[] array1, byte[] array2)
+        public static void Xor(ReadOnlySpan<byte> array1, ReadOnlySpan<byte> array2, Span<byte> destination)
         {
-            var result = new byte[array1.Length];
+            if (array1.Length != array2.Length)
+                throw new InvalidOperationException("array1 and array2 should be of same length");
+            if (array1.Length != destination.Length)
+                throw new InvalidOperationException("array1 and destination should be of same length");
 
             for (int i = 0; i < array1.Length; i++)
             {
-                result[i] = (byte)(array1[i] ^ array2[i]);
+                destination[i] = (byte)(array1[i] ^ array2[i]);
             }
-
-            return result;
         }
     }
 }

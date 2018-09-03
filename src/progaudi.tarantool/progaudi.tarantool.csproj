@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net46;netstandard1.4;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFrameworks>netstandard1.4;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
@@ -17,6 +17,7 @@
     <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
     <Product>progaudi.tarantool</Product>
     <Copyright>Copyright © 2016-2018</Copyright>
+    <LangVersion>latest</LangVersion>
 
     <PackageTags>tarantool;csharp</PackageTags>
     <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>
@@ -78,6 +79,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ValueTupleConverters.tt</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Pipelines.Sockets.Unofficial">
+      <Version>0.2.1-alpha.90</Version>
+    </PackageReference>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">

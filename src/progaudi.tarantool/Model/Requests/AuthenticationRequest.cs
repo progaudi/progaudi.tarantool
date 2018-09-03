@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Buffers;
 using System.Linq;
-
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
-    public class AuthenticationRequest : IRequest
+    public class AuthenticationRequest : IRequest, IDisposable
     {
-        private AuthenticationRequest(string username, byte[] scramble)
+        private AuthenticationRequest(string username, IMemoryOwner<byte> scramble)
         {
             Username = username;
             Scramble = scramble;
@@ -17,39 +17,34 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
 
         public string Username { get; }
 
-        public byte[] Scramble { get; }
+        public IMemoryOwner<byte> Scramble { get; }
 
         public CommandCode Code => CommandCode.Auth;
 
         public static AuthenticationRequest Create(GreetingsResponse greetings, UriBuilder uri)
         {
-            var scrable = GetScrable(greetings, uri.Password);
-            var authenticationPacket = new AuthenticationRequest(uri.UserName, scrable);
-            return authenticationPacket;
+            var scramble = GetScramble(greetings, uri.Password);
+            return new AuthenticationRequest(uri.UserName, scramble);
         }
 
-        private static byte[] GetScrable(GreetingsResponse greetings, string password)
+        private static IMemoryOwner<byte> GetScramble(GreetingsResponse greetings, string password)
         {
-            var decodedSalt = greetings.Salt;
-            var first20SaltBytes = new byte[20];
-            Array.Copy(decodedSalt, first20SaltBytes, 20);
+            var first20SaltBytes = greetings.Salt.AsSpan(0, 20);
 
             var step1 = Sha1Utils.Hash(password);
             var step2 = Sha1Utils.Hash(step1);
             var step3 = Sha1Utils.Hash(first20SaltBytes, step2);
-            var scrambleBytes = Sha1Utils.Xor(step1, step3);
+            var owner = MemoryPool<byte>.Shared.Rent(step1.Length);
+            Sha1Utils.Xor(step1, step3, owner.Memory.Span);
 
-            return scrambleBytes;
+            return owner;
         }
 
-        public override string ToString()
-        {
-            return $"Username: {Username}, Scramble: {ToReadableString(Scramble)}";
-        }
+        public override string ToString() => $"Username: {Username}, Scramble: {string.Join(" ", Scramble.Memory.ToArray().Select(x => x.ToString("x2")))}";
 
-        private static string ToReadableString(byte[] bytes)
+        public void Dispose()
         {
-            return string.Concat(bytes.Select(b => b.ToString("X2 ")));
+            Scramble?.Dispose();
         }
     }
 }

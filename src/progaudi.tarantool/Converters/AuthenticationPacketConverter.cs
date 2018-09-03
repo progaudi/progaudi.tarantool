@@ -39,7 +39,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 
             writer.WriteArrayHeader(2);
             _stringConverter.Write("chap-sha1", writer);
-            _bytesConverter.Write(value.Scramble, writer);
+            //_bytesConverter.Write(value.Scramble, writer);
         }
 
         public AuthenticationRequest Read(IMsgPackReader reader)
