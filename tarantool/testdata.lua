@@ -152,7 +152,6 @@ function return_tuple()
 	return { 1, 2 }
 end
 
-
 function return_array()
 	log.info('return_array called')
 	return {{ "abc", "def" }}
@@ -165,6 +164,10 @@ end
 
 function return_nothing()
 	log.info('return_nothing called')
+end
+
+function replace(t)
+	return box.space.with_scalar_index:replace(t)
 end
 
 local truncate_space = function(name)
