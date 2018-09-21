@@ -1,0 +1,47 @@
+jobs:
+- job: macOsBuild
+  pool:
+    name: Hosted macOS
+  steps:
+    - template: .azure/builds.yml
+
+- job: linuxBuild
+  pool:
+    name: Hosted Ubuntu 1604
+  steps:
+    - template: .azure/builds.yml
+
+- job: linuxTest
+  dependsOn:
+  - linuxBuild
+  pool:
+    name: Hosted Ubuntu 1604
+  steps:
+    - script: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin -channel 1.1
+      displayName: Installing .netcore 1.1
+    - template: .azure/tests.yml
+      parameters:
+        netcore1Global: false
+
+- job: winBuild
+  pool:
+    name: Hosted VS2017
+  steps:
+    - template: .azure/builds.yml
+
+- job: winTest
+  dependsOn:
+  - winBuild
+  pool:
+    name: Hosted VS2017
+  steps:
+    - template: .azure/tests.yml
+
+- job: pushToNuget
+  dependsOn:
+  - linuxTest
+  - winTest
+  pool:
+    name: Hosted VS2017
+  steps:
+    - template: .azure/publish.yml
