@@ -1,19 +1,11 @@
 jobs:
-- job: macOsBuild
+- job: macOs
   pool:
     name: Hosted macOS
   steps:
-    - template: .azure/builds.yml
+    - template: .azure/tests.yml
 
-- job: linuxBuild
-  pool:
-    name: Hosted Ubuntu 1604
-  steps:
-    - template: .azure/builds.yml
-
-- job: linuxTest
-  dependsOn:
-  - linuxBuild
+- job: linux
   pool:
     name: Hosted Ubuntu 1604
   steps:
@@ -23,25 +15,25 @@ jobs:
       parameters:
         netcore1Global: false
 
-- job: winBuild
-  pool:
-    name: Hosted VS2017
-  steps:
-    - template: .azure/builds.yml
-
-- job: winTest
+- job: win
   dependsOn:
-  - winBuild
+  - macOs
+  - linux
   pool:
     name: Hosted VS2017
   steps:
     - template: .azure/tests.yml
 
-- job: pushToNuget
-  dependsOn:
-  - linuxTest
-  - winTest
-  pool:
-    name: Hosted VS2017
-  steps:
-    - template: .azure/publish.yml
+    - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+      - task: NuGetCommand@2
+        displayName: push nuget packages
+        inputs:
+          command: push
+          packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+          nuGetFeedType: external
+          publishFeedCredentials: api.nuget.org
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: nupkgs
