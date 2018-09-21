@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Model
         private ClientOptions(ConnectionOptions options, ILog log, MsgPackContext context)
         {
             ConnectionOptions = options;
-            MsgPackContext = context ?? new MsgPackContext();
+            MsgPackContext = context ?? new MsgPackContext(binaryCompatibilityMode: true);
             if (log != null)
             {
                 LogWriter = new LogWriterWrapper(this, log);

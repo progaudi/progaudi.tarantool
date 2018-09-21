@@ -8,9 +8,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "progaudi.tarantool.tests", "tests\progaudi.tarantool.tests\progaudi.tarantool.tests.csproj", "{4C681801-9A6B-4CE9-8EAA-23F80917F046}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{14BAEDF1-BEFC-4FB2-AAC9-08D397191216}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "progaudi.tarantool.benchmark", "src\progaudi.tarantool.benchmark\progaudi.tarantool.benchmark.csproj", "{CD96AC2D-505F-4FDF-82FB-76F51CC28FF4}"
 EndProject
