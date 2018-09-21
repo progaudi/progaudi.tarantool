@@ -27,6 +27,14 @@ jobs:
   steps:
     - template: .azure/build.yml
 
+    - task: PowerShell@2
+      displayName: pack nuget package
+      inputs:
+        targetType: inline
+        script: |
+            $version = $(git describe --tags | %{$_ -replace '-([^g])', '.$1'})
+            dotnet pack --no-build -v minimal -c Release /property:Version=$version /property:PackageOutputPath=$(Build.ArtifactStagingDirectory)
+
     - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
       - task: NuGetCommand@2
         displayName: push nuget packages
