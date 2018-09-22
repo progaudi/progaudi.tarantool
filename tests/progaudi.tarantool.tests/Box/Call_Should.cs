@@ -131,5 +131,22 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
                 Should.NotThrow(async () => await tarantoolClient.Call("return_nothing"));
             }
         }
+
+        [Fact]
+        public async Task replace_via_call()
+        {
+            using (var tarantoolClient = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_8()))
+            {
+                var tuple = ("123", new byte[] { 1, 2, 3 });
+                var result = await tarantoolClient.Call<ValueTuple<string, byte[]>[], ValueTuple<string, byte[]>>(
+                    "replace",
+                    new [] { tuple });
+
+                var firstTuple = result.Data[0];
+                
+                tuple.Item1.ShouldBe(firstTuple.Item1);
+                tuple.Item2.ShouldBe(firstTuple.Item2);
+            }
+        }
     }
 }

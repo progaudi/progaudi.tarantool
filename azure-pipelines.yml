@@ -3,14 +3,17 @@ jobs:
   pool:
     name: Hosted macOS
   steps:
-    - template: .azure/tests.yml
+    - template: .azure/build.yml
 
 - job: linux
   pool:
     name: Hosted Ubuntu 1604
   steps:
+    - template: .azure/build.yml
+
     - script: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin -channel 1.1
       displayName: Installing .netcore 1.1
+
     - template: .azure/tests.yml
       parameters:
         netcore1Global: false
@@ -22,7 +25,15 @@ jobs:
   pool:
     name: Hosted VS2017
   steps:
-    - template: .azure/tests.yml
+    - template: .azure/build.yml
+
+    - task: PowerShell@2
+      displayName: pack nuget package
+      inputs:
+        targetType: inline
+        script: |
+            $version = $(git describe --tags | %{$_ -replace '-([^g])', '.$1'})
+            dotnet pack --no-build -v minimal -c Release /property:Version=$version /property:PackageOutputPath=$(Build.ArtifactStagingDirectory)
 
     - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
       - task: NuGetCommand@2
