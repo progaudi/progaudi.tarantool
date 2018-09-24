@@ -21,10 +21,10 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
 
         public CommandCode Code => CommandCode.Auth;
 
-        public static AuthenticationRequest Create(GreetingsResponse greetings, UriBuilder uri)
+        public static AuthenticationRequest Create(GreetingsResponse greetings, TarantoolNode node)
         {
-            var scramble = GetScramble(greetings, uri.Password);
-            return new AuthenticationRequest(uri.UserName, scramble);
+            var scramble = GetScramble(greetings, node.Pwd);
+            return new AuthenticationRequest(node.User, scramble);
         }
 
         private static IMemoryOwner<byte> GetScramble(GreetingsResponse greetings, string password)

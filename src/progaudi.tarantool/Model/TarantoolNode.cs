@@ -5,22 +5,39 @@ namespace ProGaudi.Tarantool.Client.Model
 {
     public class TarantoolNode
     {
-        public TarantoolNode()
-        {
-        }
-
         private TarantoolNode([NotNull] string url)
         {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentException("Value cannot be null or empty.", nameof(url));
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                throw new ArgumentException(nameof(url));
+            }
+            
+            var parts = url.Split("@", StringSplitOptions.RemoveEmptyEntries);
+            string port;
+            if (parts.Length == 1)
+            {
+                (Host, port) = ParseByColon(parts[0]);
+            }
+            else
+            {
+                (Host, port) = ParseByColon(parts[1]);
+                (User, Pwd) = ParseByColon(parts[0]);
+            }
 
-            if (!url.StartsWith("tarantool://"))
-                url = "tarantool://" + url;
+            Port = int.Parse(port);
 
-            Uri = new UriBuilder(new Uri(url, UriKind.RelativeOrAbsolute));
+            (string, string) ParseByColon(string s)
+            {
+                var x = s.Split(":", StringSplitOptions.RemoveEmptyEntries);
+
+                return x.Length == 1 ? (x[0], null) : (x[0], x[1]);
+            }
         }
 
-        public UriBuilder Uri { get; }
+        public string Host { get; }
+        public int Port { get; }
+        public string User { get; }
+        public string Pwd { get; }
 
         public static TarantoolNode TryParse(string url, ILog log)
         {

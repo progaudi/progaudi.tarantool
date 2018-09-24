@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Pipelines.Sockets.Unofficial;
 using ProGaudi.MsgPack;
+using ProGaudi.Tarantool.Client;
+using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Model.Responses;
@@ -16,7 +18,14 @@ namespace TestPipelines
 {
     class Program
     {
-        static void Main(string[] args) => MainAsync(args).GetAwaiter().GetResult();
+        static void Main(string[] args) => MainAsync2(args).GetAwaiter().GetResult();
+
+        private static async Task MainAsync2(string[] args)
+        {
+            var box = new Box(new ClientOptions("operator@operator@localhost:3301"));
+            await box.Connect();
+        }
+
         static async Task MainAsync(string[] args)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -36,7 +45,7 @@ namespace TestPipelines
                 var greetings = new GreetingsResponse(owner.RealMemory.Span);
                 Console.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
                 sc.Input.AdvanceTo(result.Buffer.End);
-                var authenticateRequest = AuthenticationRequest.Create(greetings, new UriBuilder("operator:operator@localhost:3301"));
+                var authenticateRequest = AuthenticationRequest.Create(greetings, TarantoolNode.TryParse("operator:operator@localhost:3301", null));
                 var length = SendAuth(sc.Output.GetSpan(1024), authenticateRequest);
                 sc.Output.Advance(length);
                 await sc.Output.FlushAsync();

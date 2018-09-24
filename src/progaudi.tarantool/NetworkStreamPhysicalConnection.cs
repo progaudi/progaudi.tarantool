@@ -46,7 +46,7 @@ namespace ProGaudi.Tarantool.Client
             {
                 NoDelay = true
             };
-            await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port).ConfigureAwait(false);;
+            await ConnectAsync(_socket, singleNode.Host, singleNode.Port).ConfigureAwait(false);;
 
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");

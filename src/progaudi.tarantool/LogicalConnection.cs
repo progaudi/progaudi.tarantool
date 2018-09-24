@@ -132,13 +132,13 @@ namespace ProGaudi.Tarantool.Client
 
             var singleNode = _clientOptions.ConnectionOptions.Nodes.Single();
 
-            if (string.IsNullOrEmpty(singleNode.Uri.UserName))
+            if (string.IsNullOrEmpty(singleNode.User))
             {
                 _clientOptions.LogWriter?.WriteLine("Guest mode, no authentication attempt.");
                 return;
             }
 
-            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode.Uri);
+            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode);
 
             await SendRequestWithEmptyResponse(authenticateRequest).ConfigureAwait(false);
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
