@@ -1,39 +1,9 @@
 jobs:
-- job: macOs
-  pool:
-    name: Hosted macOS
-  steps:
-    - template: .azure/tests.yml
-
-- job: linux
-  pool:
-    name: Hosted Ubuntu 1604
-  steps:
-    - script: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin -channel 1.1
-      displayName: Installing .netcore 1.1
-    - template: .azure/tests.yml
-      parameters:
-        netcore1Global: false
-
 - job: win
-  dependsOn:
-  - macOs
-  - linux
   pool:
     name: Hosted VS2017
   steps:
-    - template: .azure/tests.yml
-
-    - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
-      - task: NuGetCommand@2
-        displayName: push nuget packages
-        inputs:
-          command: push
-          packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-          nuGetFeedType: external
-          publishFeedCredentials: api.nuget.org
-
-    - task: PublishBuildArtifacts@1
+    - task: Bash@3
       inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: nupkgs
+        targetType: inline
+        script: docker-compose up -d
