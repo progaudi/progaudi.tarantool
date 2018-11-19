@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-using JetBrains.Annotations;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
@@ -19,8 +15,8 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly Dictionary<RequestId, TaskCompletionSource<MemoryStream>> _pendingRequests =
-            new Dictionary<RequestId, TaskCompletionSource<MemoryStream>>();
+        private readonly Dictionary<RequestId, TaskCompletionSource<ReadOnlyMemory<byte>>> _pendingRequests =
+            new Dictionary<RequestId, TaskCompletionSource<ReadOnlyMemory<byte>>>();
 
         private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
@@ -33,12 +29,16 @@ namespace ProGaudi.Tarantool.Client
         private int _parsingOffset;
 
         private bool _disposed;
+        private readonly IMsgPackParser<ResponseHeader> _headerParser;
+        private readonly IMsgPackParser<ErrorResponse> _errorParser;
 
         public ResponseReader(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
         {
             _physicalConnection = physicalConnection;
             _clientOptions = clientOptions;
             _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
+            _headerParser = _clientOptions.MsgPackContext.GetRequiredParser<ResponseHeader>();
+            _errorParser = _clientOptions.MsgPackContext.GetRequiredParser<ErrorResponse>();
         }
 
         public bool IsConnected => !_disposed;
@@ -71,7 +71,7 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public Task<MemoryStream> GetResponseTask(RequestId requestId)
+        public Task<ReadOnlyMemory<byte>> GetResponseTask(RequestId requestId)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace ProGaudi.Tarantool.Client
                     throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
                 }
 
-                var tcs = new TaskCompletionSource<MemoryStream>();
+                var tcs = new TaskCompletionSource<ReadOnlyMemory<byte>>();
                 _pendingRequests.Add(requestId, tcs);
 
                 return tcs.Task;
@@ -108,7 +108,7 @@ namespace ProGaudi.Tarantool.Client
             readingTask.ContinueWith(EndReading);
         }
 
-        private TaskCompletionSource<MemoryStream> PopResponseCompletionSource(RequestId requestId)
+        private TaskCompletionSource<ReadOnlyMemory<byte>> PopResponseCompletionSource(RequestId requestId)
         {
             try
             {
@@ -212,46 +212,30 @@ namespace ProGaudi.Tarantool.Client
             return messageCount;
         }
 
-        private void MatchResult(byte[] result)
+        private void MatchResult(ReadOnlyMemory<byte> result)
         {
-            var resultStream = new MemoryStream(result);
-            var header= MsgPackSerializer.Deserialize<ResponseHeader>(resultStream, _clientOptions.MsgPackContext);
+            var readSize = 0;
+            var header = _headerParser.Parse(result.Span, out var temp);
+            readSize += temp;
             var tcs = PopResponseCompletionSource(header.RequestId);
 
             if (tcs == null)
             {
-                if (_clientOptions.LogWriter != null)
-                    LogUnMatchedResponse(result, _clientOptions.LogWriter);
+                _clientOptions.LogWriter?.WriteLine($"Warning: can't match request via requestId from response. Response:\n{ByteUtils.ToReadableString(result.Span)}");
+
                 return;
             }
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
-                var errorResponse = MsgPackSerializer.Deserialize<ErrorResponse>(resultStream, _clientOptions.MsgPackContext);
+                var errorResponse = _errorParser.Parse(result.Slice(readSize).Span, out _);
                 tcs.SetException(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else
             {
                 _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
-                tcs.SetResult(resultStream);
+                tcs.SetResult(result.Slice(readSize));
             }
-        }
-
-        private static void LogUnMatchedResponse(byte[] result, [NotNull]ILog logWriter)
-        {
-            var builder = new StringBuilder("Warning: can't match request via requestId from response. Response:");
-            var length = 80/3;
-            for (var i = 0; i < result.Length; i++)
-            {
-                if (i%length == 0)
-                    builder.AppendLine().Append("   ");
-                else
-                    builder.Append(" ");
-
-                builder.AppendFormat("{0:X2}", result[i]);
-            }
-
-            logWriter.WriteLine(builder.ToString());
         }
 
         private byte[] TryParseResponse()

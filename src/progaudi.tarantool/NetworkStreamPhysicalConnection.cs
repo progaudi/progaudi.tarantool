@@ -52,10 +52,10 @@ namespace ProGaudi.Tarantool.Client
             options.LogWriter?.WriteLine("Socket connection established.");
         }
 
-        public void Write(byte[] buffer, int offset, int count)
+        public void Write(ReadOnlyMemory<byte> buffer)
         {
             CheckConnectionStatus();
-            _stream.Write(buffer, offset, count);
+            _stream.Write(buffer.Span);
         }
 
         public async Task Flush()

@@ -12,6 +12,6 @@ namespace ProGaudi.Tarantool.Client.Model.Headers
 
         public CommandCode Code { get; }
 
-        public RequestId RequestId { get; set; }
+        public RequestId RequestId { get; }
     }
 }

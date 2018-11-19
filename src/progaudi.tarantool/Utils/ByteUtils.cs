@@ -1,18 +1,25 @@
 ﻿using System;
-using System.Linq;
+using System.Text;
 
 namespace ProGaudi.Tarantool.Client.Utils
 {
     public static class ByteUtils
     {
-        public static string ToReadableString(this byte[] bytes)
+        public static string ToReadableString(ReadOnlySpan<byte> span)
         {
-            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
-        }
+            var builder = new StringBuilder();
+            var length = 80/3;
+            for (var i = 0; i < span.Length; i++)
+            {
+                if (i%length == 0)
+                    builder.AppendLine().Append("   ");
+                else
+                    builder.Append(" ");
 
-        public static string ToReadableString(this ArraySegment<byte> bytes)
-        {
-            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
+                builder.AppendFormat((string) "{0:X2}", (object) span[i]);
+            }
+
+            return builder.ToString();
         }
     }
 }
