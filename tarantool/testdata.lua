@@ -66,6 +66,14 @@ local spaces = {
 			name =    { index = 2, name="name", type = "string" }
 		}
 	},
+	pivot = {
+		name = "pivot",
+		fields = {
+			id =      { index = 1, name="id", type = "unsigned" },
+			arr =     { index = 2, name="arr", type = "array" },
+			age =     { index = 3, name="age", type = "unsigned" }
+		}
+	},
 	treeIndexMethods = {
 		name = "space_TreeIndexMethods",
 		fields = {
@@ -82,6 +90,9 @@ local function create_spaces_and_indecies()
 	space = create_space(spaces.performance)
 	create_index(space, "primary", true, "HASH", nil, spaces.performance.fields.id)
 
+	space = create_space(spaces.pivot)
+	create_index(space, "primary", true, "HASH", nil, spaces.pivot.fields.id)
+
 	space = box.schema.space.create('with_scalar_index', { if_not_exists = true })
 	space:create_index('primary', {type='tree', parts={1, 'scalar'}, if_not_exists = true})
 end
@@ -93,9 +104,9 @@ local function init()
 	box.schema.user.create('emptyPassword', { password = '', if_not_exists = true })
 
 	box.schema.user.create('operator', {password = 'operator', if_not_exists = true })
-	box.schema.user.grant('operator','read,write,execute','universe', { if_not_exists = true })
-	box.schema.user.grant('guest','read,write,execute','universe', { if_not_exists = true })
-	box.schema.user.grant('emptyPassword','read,write,execute','universe', { if_not_exists = true })
+	box.schema.user.grant('operator','read,write,execute','universe', nil, { if_not_exists = true })
+	box.schema.user.grant('guest','read,write,execute','universe', nil, { if_not_exists = true })
+	box.schema.user.grant('emptyPassword','read,write,execute','universe', nil, { if_not_exists = true })
 	box.schema.user.passwd('admin', 'adminPassword')
 end
 

@@ -2,10 +2,19 @@ FROM microsoft/dotnet:2.1-sdk as sdk
 
 WORKDIR /app
 
+COPY progaudi.tarantool.sln .
+
+RUN mkdir -p /app/src/progaudi.tarantool
+COPY src/progaudi.tarantool/progaudi.tarantool.csproj /app/src/progaudi.tarantool/progaudi.tarantool.csproj
+
+RUN mkdir -p /app/samples/insert-performance
+COPY samples/insert-performance/insert-performance.csproj /app/samples/insert-performance/insert-performance.csproj
+
+RUN dotnet restore progaudi.tarantool.sln
+
 # copy csproj and restore as distinct layers
 COPY . .
-RUN dotnet build -c Release progaudi.tarantool.sln
-RUN dotnet msbuild /t:publish /p:NoBuild=True /p:Configuration=Release samples/insert-performance/insert-performance.csproj
+RUN dotnet publish -c Release -f netcoreapp2.1 progaudi.tarantool.sln
 
 FROM microsoft/dotnet:2.1-runtime as runtime
 

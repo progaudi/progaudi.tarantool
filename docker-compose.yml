@@ -14,7 +14,7 @@ services:
     #         TARANTOOL_SLAB_ALLOC_ARENA: 2
 
     tarantool_1_8:
-        image: progaudi/tarantool:1.9.0-47-gfabbcfa68
+        image: progaudi/tarantool:1.10.2-29-g6dd0d2fb7
         command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
         volumes:
             - $PWD/tarantool:/usr/local/share/tarantool
@@ -39,11 +39,12 @@ services:
     #         - tarantool_1_7
     #         - tarantool_1_8
 
-    # go:
-    #     build:
-    #         context: samples/go-insert
-    #     depends_on:
-    #         - tarantool_1_8
+    go:
+        build:
+            context: samples/go-insert
+        depends_on:
+            - tarantool_1_8
+        command: insert
 
     net-alpine:
         build:

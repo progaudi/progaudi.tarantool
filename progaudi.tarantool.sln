@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "progaudi.tarantool", "src\progaudi.tarantool\progaudi.tarantool.csproj", "{DD007E9F-FB2D-4351-AAB7-F2D367B295C4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{14BAEDF1-BEFC-4FB2-AAC9-08D397191216}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "insert-performance", "samples\insert-performance\insert-performance.csproj", "{939BD0F9-50A2-417B-B6E1-3FB0FBE257A3}"
 EndProject
