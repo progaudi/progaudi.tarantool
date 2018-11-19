@@ -6,12 +6,12 @@ using ProGaudi.Tarantool.Client.Model.Headers;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class RequestHeaderConverter : IMsgPackFormatter<RequestHeader>
+    internal class RequestHeaderFormatter : IMsgPackFormatter<RequestHeader>
     {
         private readonly IMsgPackFormatter<Key> _keyConverter;
         private readonly IMsgPackFormatter<CommandCode> _codeConverter;
 
-        public RequestHeaderConverter(MsgPackContext context)
+        public RequestHeaderFormatter(MsgPackContext context)
         {
             _keyConverter = context.GetRequiredFormatter<Key>();
             _codeConverter = context.GetRequiredFormatter<CommandCode>();

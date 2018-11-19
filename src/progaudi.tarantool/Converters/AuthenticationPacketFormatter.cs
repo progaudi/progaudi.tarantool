@@ -24,7 +24,7 @@ namespace ProGaudi.Tarantool.Client.Converters
         static AuthenticationPacketFormatter()
         {
             var memory = new byte["chap-sha1".Length + 1];
-            MsgPackSpec.WriteFixString(memory, "chap-sha1");
+            MsgPackSpec.WriteFixString(memory, "chap-sha1".AsSpan());
             ChapSha1 = memory;
         }
 

@@ -7,12 +7,12 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class SpaceConverter : IMsgPackParser<Space>
+    internal class SpaceParser : IMsgPackParser<Space>
     {
         private readonly IMsgPackParser<StorageEngine> _engineConverter;
         private readonly IMsgPackParser<List<SpaceField>> _fieldConverter;
 
-        public SpaceConverter(MsgPackContext context)
+        public SpaceParser(MsgPackContext context)
         {
             _engineConverter = context.GetRequiredParser<StorageEngine>();
             _fieldConverter = context.GetRequiredParser<List<SpaceField>>();

@@ -1,19 +1,30 @@
 version: '3.2'
 
 services:
-    tarantool_1_9:
-        image: progaudi/tarantool:1.9
+    # tarantool_1_7:
+    #     image: progaudi/tarantool:1.7.5-184-g5be3a82be # same version as tarantool in homebrew on mac os
+    #     command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
+    #     volumes:
+    #         - $PWD/tarantool:/usr/local/share/tarantool
+    #     ports:
+    #         - "3301:3301"
+    #     environment:
+    #         TARANTOOL_USER_NAME: admin
+    #         TARANTOOL_USER_PASSWORD: adminPassword
+    #         TARANTOOL_SLAB_ALLOC_ARENA: 2
+
+    tarantool_1_8:
+        image: progaudi/tarantool:1.10.2-29-g6dd0d2fb7
         command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
         volumes:
             - $PWD/tarantool:/usr/local/share/tarantool
-        healthcheck: 
-            disable: true
         ports:
             - "3301:3301"
         environment:
             TARANTOOL_USER_NAME: admin
             TARANTOOL_USER_PASSWORD: adminPassword
-            TARANTOOL_SLAB_ALLOC_ARENA: 0.1
+            TARANTOOL_SLAB_ALLOC_ARENA: 2
+
     # redis:
     #     image: redis:3.0-alpine
     #     command: redis-server
@@ -27,3 +38,24 @@ services:
     #     depends_on:
     #         - tarantool_1_7
     #         - tarantool_1_8
+
+    go:
+        image: benchmark-baseline-go
+        depends_on:
+            - tarantool_1_8
+        command: insert
+
+    net-alpine-baseline:
+        image: benchmark-baseline-alpine
+        depends_on:
+            - tarantool_1_8
+
+    net-baseline:
+        image: benchmark-baseline-2.1
+        depends_on:
+            - tarantool_1_8
+
+    net20-baseline:
+        image: benchmark-baseline-2.0
+        depends_on:
+            - tarantool_1_8

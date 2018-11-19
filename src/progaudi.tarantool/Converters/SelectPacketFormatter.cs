@@ -5,13 +5,13 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class SelectPacketConverter<T> : IMsgPackFormatter<SelectRequest<T>>
+    internal class SelectPacketFormatter<T> : IMsgPackFormatter<SelectRequest<T>>
     {
         private readonly IMsgPackFormatter<T> _selectKeyConverter;
         private readonly IMsgPackFormatter<Key> _keyConverter;
         private readonly IMsgPackFormatter<Iterator> _iteratorConverter;
 
-        public SelectPacketConverter(MsgPackContext context)
+        public SelectPacketFormatter(MsgPackContext context)
         {
             _keyConverter = context.GetRequiredFormatter<Key>();
             _iteratorConverter = context.GetRequiredFormatter<Iterator>();

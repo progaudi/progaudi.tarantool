@@ -7,12 +7,12 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class ResponseHeaderConverter : IMsgPackParser<ResponseHeader>
+    internal class ResponseHeaderParser : IMsgPackParser<ResponseHeader>
     {
         private readonly IMsgPackParser<Key> _keyConverter;
         private readonly IMsgPackParser<CommandCode> _codeConverter;
 
-        public ResponseHeaderConverter(MsgPackContext context)
+        public ResponseHeaderParser(MsgPackContext context)
         {
             _keyConverter = context.GetRequiredParser<Key>();
             _codeConverter = context.GetRequiredParser<CommandCode>();

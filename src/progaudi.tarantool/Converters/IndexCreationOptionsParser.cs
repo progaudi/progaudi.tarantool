@@ -4,7 +4,7 @@ using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexCreationOptionsConverter : IMsgPackParser<IndexCreationOptions>
+    internal class IndexCreationOptionsParser : IMsgPackParser<IndexCreationOptions>
     {
         public IndexCreationOptions Parse(ReadOnlySpan<byte> source, out int readSize)
         {

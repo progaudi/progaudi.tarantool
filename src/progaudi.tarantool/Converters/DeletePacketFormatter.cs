@@ -8,13 +8,11 @@ namespace ProGaudi.Tarantool.Client.Converters
     internal class DeletePacketFormatter<T> : IMsgPackFormatter<DeleteRequest<T>>
     {
         private readonly IMsgPackFormatter<Key> _keyFormatter;
-        private readonly IMsgPackFormatter<uint> _uintFormatter;
         private readonly IMsgPackFormatter<T> _selectKeyFormatter;
 
         public DeletePacketFormatter(MsgPackContext context)
         {
             _keyFormatter = context.GetRequiredFormatter<Key>();
-            _uintFormatter = context.GetRequiredFormatter<uint>();
             _selectKeyFormatter = context.GetRequiredFormatter<T>();
         }
 
@@ -27,13 +25,13 @@ namespace ProGaudi.Tarantool.Client.Converters
         
         public int Format(Span<byte> destination, DeleteRequest<T> value)
         {
-            var result = MsgPackSpec.WriteFixMapHeader(destination, 2);
+            var result = MsgPackSpec.WriteFixMapHeader(destination, 3);
 
             result += _keyFormatter.Format(destination.Slice(result), Key.SpaceId);
-            result += _uintFormatter.Format(destination.Slice(result), value.SpaceId);
+            result += MsgPackSpec.WriteUInt32(destination.Slice(result), value.SpaceId);
 
             result += _keyFormatter.Format(destination.Slice(result), Key.IndexId);
-            result += _uintFormatter.Format(destination.Slice(result), value.IndexId);
+            result += MsgPackSpec.WriteUInt32(destination.Slice(result), value.IndexId);
 
             result += _keyFormatter.Format(destination.Slice(result), Key.Key);
             result += _selectKeyFormatter.Format(destination.Slice(result), value.Key);

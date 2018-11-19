@@ -5,11 +5,11 @@ using ProGaudi.Tarantool.Client.Model.Enums;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    public class SpaceFieldConverter : IMsgPackParser<SpaceField>
+    public class SpaceFieldParser : IMsgPackParser<SpaceField>
     {
         private readonly IMsgPackParser<FieldType> _typeConverter;
 
-        public SpaceFieldConverter(MsgPackContext context)
+        public SpaceFieldParser(MsgPackContext context)
         {
             _typeConverter = context.GetRequiredParser<FieldType>();
         }

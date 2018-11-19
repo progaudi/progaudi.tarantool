@@ -4,7 +4,7 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class PingPacketConverter : IMsgPackFormatter<PingRequest>
+    internal class PingPacketFormatter : IMsgPackFormatter<PingRequest>
     {
         public int GetBufferSize(PingRequest value) => 0;
 

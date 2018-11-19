@@ -6,11 +6,11 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class ResponsePacketConverter : IMsgPackParser<DataResponse>
+    internal class ResponsePacketParser : IMsgPackParser<DataResponse>
     {
         private readonly IMsgPackParser<Key> _keyConverter;
 
-        public ResponsePacketConverter(MsgPackContext context)
+        public ResponsePacketParser(MsgPackContext context)
         {
             _keyConverter = context.GetRequiredParser<Key>();
         }
@@ -67,12 +67,12 @@ namespace ProGaudi.Tarantool.Client.Converters
         }
     }
 
-    internal class ResponsePacketConverter<T> : IMsgPackParser<DataResponse<T>>
+    internal class ResponsePacketParser<T> : IMsgPackParser<DataResponse<T>>
     {
         private readonly IMsgPackParser<Key> _keyConverter;
         private readonly IMsgPackParser<T> _dataConverter;
 
-        public ResponsePacketConverter(MsgPackContext context)
+        public ResponsePacketParser(MsgPackContext context)
         {
             _keyConverter = context.GetRequiredParser<Key>();
             _dataConverter = context.GetRequiredParser<T>();
@@ -104,7 +104,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         metadata = ReadMetadata(source, ref readSize);
                         break;
                     case Key.SqlInfo:
-                        sqlInfo = ResponsePacketConverter.ReadSqlInfo(source, _keyConverter, ref readSize);
+                        sqlInfo = ResponsePacketParser.ReadSqlInfo(source, _keyConverter, ref readSize);
                         break;
                     default:
                         throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data, Key.Metadata);

@@ -18,7 +18,7 @@ local function create_space(space)
 		end
 	end
 
-	local created_space = box.schema.space.create(space.name, { format = format, if_not_exists=true })
+	local created_space = box.schema.space.create(space.name, { format = format, if_not_exists=true, field_count=#format })
 	log.info{message2="Created space.", name=space.name}
 	return created_space
 end
@@ -66,46 +66,62 @@ local spaces = {
 			name =    { index = 2, name="name", type = "string" }
 		}
 	},
+	pivot = {
+		name = "pivot",
+		fields = {
+			id =      { index = 1, name="id", type = "unsigned" },
+			arr =     { index = 2, name="arr", type = "array" },
+			age =     { index = 3, name="age", type = "unsigned" }
+		}
+	},
 	treeIndexMethods = {
 		name = "space_TreeIndexMethods",
 		fields = {
 			id =      { index = 1, name="id", type = "unsigned" },
 			name =    { index = 2, name="name", type = "string" }
 		}
-	},
-	scalar = {
-		name = "with_scalar_index",
-		fields = {
-			id =      { index = 1, name="id", type = "scalar" }
-		}
 	}
 }
 
-local function create_spaces_and_indices()
+local function create_spaces_and_indecies()
 	local space = create_space(spaces.primary_only_index)
 	create_index(space, "primary", true, "HASH", nil, spaces.primary_only_index.fields.id)
 
 	space = create_space(spaces.performance)
 	create_index(space, "primary", true, "HASH", nil, spaces.performance.fields.id)
 
-	space = create_space(spaces.scalar)
-	create_index(space, "primary", true, "TREE", nil, spaces.scalar.fields.id)
+	space = create_space(spaces.pivot)
+	create_index(space, "primary", true, "HASH", nil, spaces.pivot.fields.id)
+
+	space = box.schema.space.create('with_scalar_index', { if_not_exists = true })
+	space:create_index('primary', {type='tree', parts={1, 'scalar'}, if_not_exists = true})
 end
 
 local function init()
-	create_spaces_and_indices()
+	create_spaces_and_indecies()
 
 	box.schema.user.create('notSetPassword', { if_not_exists = true })
 	box.schema.user.create('emptyPassword', { password = '', if_not_exists = true })
-	box.schema.user.create('operator', {password = 'operator', if_not_exists = true })
 
-	box.schema.user.grant('operator', 'read,write,execute', 'universe', nil, { if_not_exists = true })
-	box.schema.user.grant('guest', 'read,write,execute', 'universe', nil, { if_not_exists = true })
-	box.schema.user.grant('emptyPassword', 'read,write,execute', 'universe', nil, { if_not_exists = true })
+	box.schema.user.create('operator', {password = 'operator', if_not_exists = true })
+	box.schema.user.grant('operator','read,write,execute','universe', nil, { if_not_exists = true })
+	box.schema.user.grant('guest','read,write,execute','universe', nil, { if_not_exists = true })
+	box.schema.user.grant('emptyPassword','read,write,execute','universe', nil, { if_not_exists = true })
+	box.schema.user.passwd('admin', 'adminPassword')
 end
 
+local function space_TreeIndexMethods()
+	local sequence = box.schema.sequence.create('space_TreeIndexMethods_id')
+	local space = create_space(spaces.treeIndexMethods)
+	create_index(space, "treeIndex", true, "TREE", sequence.name, spaces.treeIndexMethods.fields.id)
+
+	space:insert{nil, 'asdf'}
+	space:insert{nil, 'zcxv'}
+	space:insert{nil, 'qwer'}
+end
 
 box.once('init', init)
+box.once('space_TreeIndexMethods', space_TreeIndexMethods)
 
 local log = require('log')
 
@@ -122,15 +138,15 @@ function log_auth ()
 	local m = 'Authentication attempt'
 	log.info(m)
 end
-function log_auth_status(user_name, status)
-	local m = 'Authenticated user ' .. user_name .. ', status: ' .. tostring(status)
+function log_auth_ok (user_name)
+	local m = 'Authenticated user ' .. user_name
 	log.info(m)
 end
 
 box.session.on_connect(log_connect)
 box.session.on_disconnect(log_disconnect)
 box.session.on_auth(log_auth)
-box.session.on_auth(log_auth_status)
+box.session.on_auth(log_auth_ok)
 
 function return_null()
 	log.info('return_null called')
@@ -147,6 +163,7 @@ function return_tuple()
 	return { 1, 2 }
 end
 
+
 function return_array()
 	log.info('return_array called')
 	return {{ "abc", "def" }}
@@ -159,10 +176,6 @@ end
 
 function return_nothing()
 	log.info('return_nothing called')
-end
-
-function stored_replace(t)
-	return box.space.with_scalar_index:replace(t)
 end
 
 local truncate_space = function(name)

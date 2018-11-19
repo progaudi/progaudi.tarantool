@@ -7,11 +7,11 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexPartConverter : IMsgPackParser<IndexPart>
+    internal class IndexPartParser : IMsgPackParser<IndexPart>
     {
         private readonly IMsgPackParser<IndexPartType> _indexPartTypeParser;
 
-        public IndexPartConverter(MsgPackContext context)
+        public IndexPartParser(MsgPackContext context)
         {
             _indexPartTypeParser = context.GetRequiredParser<IndexPartType>();
         }

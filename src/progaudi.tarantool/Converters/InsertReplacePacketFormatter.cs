@@ -5,12 +5,12 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class InsertReplacePacketConverter<T> : IMsgPackFormatter<InsertReplaceRequest<T>>
+    internal class InsertReplacePacketFormatter<T> : IMsgPackFormatter<InsertReplaceRequest<T>>
     {
         private readonly IMsgPackFormatter<Key> _keyConverter;
         private readonly IMsgPackFormatter<T> _tupleConverter;
 
-        public InsertReplacePacketConverter(MsgPackContext context)
+        public InsertReplacePacketFormatter(MsgPackContext context)
         {
             _keyConverter = context.GetRequiredFormatter<Key>();
             _tupleConverter = context.GetRequiredFormatter<T>();
