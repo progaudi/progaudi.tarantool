@@ -6,8 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using JetBrains.Annotations;
-
-using ProGaudi.MsgPack.Light;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Headers;

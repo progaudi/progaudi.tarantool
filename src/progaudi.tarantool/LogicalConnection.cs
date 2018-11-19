@@ -3,9 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Requests;
@@ -81,7 +79,7 @@ namespace ProGaudi.Tarantool.Client
 
             PingsFailedByTimeoutCount = 0;
 
-            _responseReader.BeginReading();
+            //_responseReader.BeginReading();
             _requestWriter.BeginWriting();
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
@@ -140,7 +138,7 @@ namespace ProGaudi.Tarantool.Client
 
             var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode);
 
-            await SendRequestWithEmptyResponse(authenticateRequest).ConfigureAwait(false);
+            SendRequestWithEmptyResponse(authenticateRequest).ConfigureAwait(false);
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 

@@ -1,44 +1,32 @@
-﻿using ProGaudi.MsgPack.Light;
-
+﻿using System;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexCreationOptionsConverter:IMsgPackConverter<IndexCreationOptions>
+    internal class IndexCreationOptionsConverter : IMsgPackParser<IndexCreationOptions>
     {
-        private MsgPackContext context;
-
-        public void Initialize(MsgPackContext context)
+        public IndexCreationOptions Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            this.context= context;
-        }
-
-        public void Write(IndexCreationOptions value, IMsgPackWriter writer)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IndexCreationOptions Read(IMsgPackReader reader)
-        {
-            var optionsCount = reader.ReadMapLength();
-            var stringConverter = context.GetConverter<string>();
-            var boolConverter = context.GetConverter<bool>();
-
+            var optionsCount = MsgPackSpec.ReadMapHeader(source, out readSize);
             var unique = false;
-            for (int i = 0; i < optionsCount.Value; i++)
+
+            for (var i = 0; i < optionsCount; i++)
             {
-                var key = stringConverter.Read(reader);
+                var key = MsgPackSpec.ReadString(source.Slice(readSize), out var temp);
+                readSize += temp;
                 switch (key)
                 {
-                    case "unique":
-                        unique = boolConverter.Read(reader);
+                    case nameof(unique):
+                        unique = MsgPackSpec.ReadBoolean(source.Slice(readSize), out temp);
+                        readSize += temp;
                         break;
                     default:
-                        reader.SkipToken();
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
                         break;
                 }
             }
-
+            
             return new IndexCreationOptions(unique);
         }
     }

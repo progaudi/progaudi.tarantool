@@ -1,51 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexConverter : IMsgPackConverter<Index>
+    internal class IndexConverter : IMsgPackParser<Index>
     {
-        private IMsgPackConverter<uint> _uintConverter;
-        private IMsgPackConverter<string> _stringConverter;
-        private IMsgPackConverter<IndexType> _indexTypeConverter;
-        private IMsgPackConverter<IndexCreationOptions> _optionsConverter;
-        private IMsgPackConverter<List<IndexPart>> _indexPartsConverter;
+        private readonly IMsgPackParser<IndexType> _indexTypeConverter;
+        private readonly IMsgPackParser<IndexCreationOptions> _optionsConverter;
+        private readonly IMsgPackParser<List<IndexPart>> _indexPartsConverter;
 
-        public void Initialize(MsgPackContext context)
+        public IndexConverter(MsgPackContext context)
         {
-            _uintConverter = context.GetConverter<uint>();
-            _stringConverter = context.GetConverter<string>();
-            _indexTypeConverter = context.GetConverter<IndexType>();
-            _optionsConverter = context.GetConverter<IndexCreationOptions>();
-            _indexPartsConverter = context.GetConverter<List<IndexPart>>();
+            _indexTypeConverter = context.GetRequiredParser<IndexType>();
+            _optionsConverter = context.GetRequiredParser<IndexCreationOptions>();
+            _indexPartsConverter = context.GetRequiredParser<List<IndexPart>>();
         }
 
-        public void Write(Index value, IMsgPackWriter writer)
+        public Index Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            throw new NotImplementedException();
-        }
-
-        public Index Read(IMsgPackReader reader)
-        {
-            var length = reader.ReadArrayLength();
-
+            var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
+            
             if (length != 6u)
             {
                 throw ExceptionHelper.InvalidArrayLength(6u, length);
             }
 
-            var spaceId = _uintConverter.Read(reader);
-            var id= _uintConverter.Read(reader);
-            var name = _stringConverter.Read(reader);
-            var type = _indexTypeConverter.Read(reader);
-            var options = _optionsConverter.Read(reader);
-            var indexParts = _indexPartsConverter.Read(reader);
+            var spaceId = MsgPackSpec.ReadUInt32(source.Slice(readSize), out var temp); readSize += temp;
+            var id= MsgPackSpec.ReadUInt32(source.Slice(readSize), out temp); readSize += temp;
+            var name = MsgPackSpec.ReadString(source.Slice(readSize), out temp); readSize += temp;
+            var type = _indexTypeConverter.Parse(source.Slice(readSize), out temp); readSize += temp;
+            var options = _optionsConverter.Parse(source.Slice(readSize), out temp); readSize += temp;
+            var indexParts = _indexPartsConverter.Parse(source.Slice(readSize), out temp); readSize += temp;
 
             return new Index(id, spaceId, name, options.Unique, type, indexParts.AsReadOnly());
         }

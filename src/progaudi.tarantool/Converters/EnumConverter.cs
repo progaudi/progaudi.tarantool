@@ -1,102 +1,63 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Utils;
 
-namespace ProGaudi.Tarantool.Client.Converters
+namespace ProGaudi.Tarantool.Client.Formatters
 {
-    internal class EnumConverter<T> : IMsgPackConverter<T>
+    internal sealed class EnumFormatter<T> : IMsgPackFormatter<T>, IMsgPackParser<T>
         where T : struct, IConvertible
     {
-        private IMsgPackConverter<sbyte> _sbyteConverter;
-        private IMsgPackConverter<byte> _byteConverter;
-        private IMsgPackConverter<short> _shortConverter;
-        private IMsgPackConverter<ushort> _ushortConverter;
-        private IMsgPackConverter<int> _intConverter;
-        private IMsgPackConverter<uint> _uintConverter;
-        private IMsgPackConverter<long> _longConverter;
-        private IMsgPackConverter<ulong> _ulongConverter;
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly int Length;
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly Type UnderlyingType;
 
-        private readonly Dictionary<Type, Action<T, IMsgPackWriter>> _writeMethodsCache = new Dictionary<Type, Action<T, IMsgPackWriter>>();
-        private readonly Dictionary<Type, Func<IMsgPackReader, T>> _readMethodsCache = new Dictionary<Type, Func<IMsgPackReader, T>>();
-
-        public void Initialize(MsgPackContext context)
-        {
-            _sbyteConverter = context.GetConverter<sbyte>();
-            _byteConverter = context.GetConverter<byte>();
-            _shortConverter = context.GetConverter<short>();
-            _ushortConverter = context.GetConverter<ushort>();
-            _intConverter = context.GetConverter<int>();
-            _uintConverter = context.GetConverter<uint>();
-            _longConverter = context.GetConverter<long>();
-            _ulongConverter = context.GetConverter<ulong>();
-
-            InitializeWriteMethodsChache();
-            InitializeReadMethodsCache();
-        }
-
-        private void InitializeReadMethodsCache()
-        {
-            _readMethodsCache.Add(typeof(sbyte), reader => (T)Enum.ToObject(typeof(T), _sbyteConverter.Read(reader)));
-            _readMethodsCache.Add(typeof(byte), reader => (T)Enum.ToObject(typeof(T), _byteConverter.Read(reader)));
-            _readMethodsCache.Add(typeof(short), reader => (T)Enum.ToObject(typeof(T), _shortConverter.Read(reader)));
-            _readMethodsCache.Add(typeof(ushort), reader => (T)Enum.ToObject(typeof(T), _ushortConverter.Read(reader)));
-            _readMethodsCache.Add(typeof(int), reader => (T)Enum.ToObject(typeof(T), _intConverter.Read(reader)));
-            _readMethodsCache.Add(typeof(uint), reader => (T)Enum.ToObject(typeof(T), _uintConverter.Read(reader)));
-            _readMethodsCache.Add(typeof(long), reader => (T)Enum.ToObject(typeof(T), _longConverter.Read(reader)));
-            _readMethodsCache.Add(typeof(ulong), reader => (T)Enum.ToObject(typeof(T), _ulongConverter.Read(reader)));
-        }
-
-        private void InitializeWriteMethodsChache()
-        {
-            _writeMethodsCache.Add(typeof(sbyte), (value, writer) => _sbyteConverter.Write(value.ToSByte(CultureInfo.InvariantCulture), writer));
-            _writeMethodsCache.Add(typeof(byte), (value, writer) => _byteConverter.Write(value.ToByte(CultureInfo.InvariantCulture), writer));
-            _writeMethodsCache.Add(typeof(short), (value, writer) => _shortConverter.Write(value.ToInt16(CultureInfo.InvariantCulture), writer));
-            _writeMethodsCache.Add(typeof(ushort), (value, writer) => _ushortConverter.Write(value.ToUInt16(CultureInfo.InvariantCulture), writer));
-            _writeMethodsCache.Add(typeof(int), (value, writer) => _intConverter.Write(value.ToInt32(CultureInfo.InvariantCulture), writer));
-            _writeMethodsCache.Add(typeof(uint), (value, writer) => _uintConverter.Write(value.ToUInt32(CultureInfo.InvariantCulture), writer));
-            _writeMethodsCache.Add(typeof(long), (value, writer) => _longConverter.Write(value.ToInt64(CultureInfo.InvariantCulture), writer));
-            _writeMethodsCache.Add(typeof(ulong), (value, writer) => _ulongConverter.Write(value.ToUInt64(CultureInfo.InvariantCulture), writer));
-        }
-
-        static EnumConverter()
+        static EnumFormatter()
         {
             var enumTypeInfo = typeof(T).GetTypeInfo();
             if (!enumTypeInfo.IsEnum)
             {
                 throw ExceptionHelper.EnumExpected(enumTypeInfo);
             }
+
+            UnderlyingType = enumTypeInfo.GetEnumUnderlyingType();
+            Length = Caches.Lengths.TryGetValue(UnderlyingType, out var x) ? x : throw ExceptionHelper.UnexpectedEnumUnderlyingType(UnderlyingType);
         }
 
-        public void Write(T value, IMsgPackWriter writer)
-        {
-            var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));
+        public int GetBufferSize(T value) => Length;
 
-            Action<T, IMsgPackWriter> writeMethod;
-            if (_writeMethodsCache.TryGetValue(enumUnderlyingType, out writeMethod))
-            {
-                writeMethod(value, writer);
-            }
-            else
-            {
-                throw ExceptionHelper.UnexpectedEnumUnderlyingType(enumUnderlyingType);
-            }
+        public bool HasConstantSize => true;
+
+        public int Format(Span<byte> destination, T value)
+        {
+            if (UnderlyingType == typeof(byte)) return MsgPackSpec.WriteFixUInt8(destination, Convert.ToByte(value, CultureInfo.InvariantCulture));
+            if (UnderlyingType == typeof(sbyte)) return MsgPackSpec.WriteFixInt8(destination, Convert.ToSByte(value, CultureInfo.InvariantCulture));
+            if (UnderlyingType == typeof(ushort)) return MsgPackSpec.WriteFixUInt16(destination, Convert.ToUInt16(value, CultureInfo.InvariantCulture));
+            if (UnderlyingType == typeof(short)) return MsgPackSpec.WriteFixInt16(destination, Convert.ToInt16(value, CultureInfo.InvariantCulture));
+            if (UnderlyingType == typeof(uint)) return MsgPackSpec.WriteFixUInt32(destination, Convert.ToUInt32(value, CultureInfo.InvariantCulture));
+            if (UnderlyingType == typeof(int)) return MsgPackSpec.WriteFixInt32(destination, Convert.ToInt32(value, CultureInfo.InvariantCulture));
+            if (UnderlyingType == typeof(ulong)) return MsgPackSpec.WriteFixUInt64(destination, Convert.ToUInt64(value, CultureInfo.InvariantCulture));
+            if (UnderlyingType == typeof(long)) return MsgPackSpec.WriteFixInt64(destination, Convert.ToInt64(value, CultureInfo.InvariantCulture));
+            
+            // we'll fail in static ctor
+            throw ExceptionHelper.UnexpectedEnumUnderlyingType(UnderlyingType);
         }
 
-        public T Read(IMsgPackReader reader)
+        public T Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            var enumUnderlyingType = Enum.GetUnderlyingType(typeof(T));
-            Func<IMsgPackReader, T> readMethod;
-            if (_readMethodsCache.TryGetValue(enumUnderlyingType, out readMethod))
-            {
-                return readMethod(reader);
-            }
+            if (UnderlyingType == typeof(byte)) return (T) (object) MsgPackSpec.ReadFixUInt8(source, out readSize);
+            if (UnderlyingType == typeof(sbyte)) return (T) (object) MsgPackSpec.ReadFixInt8(source, out readSize);
+            if (UnderlyingType == typeof(ushort)) return (T) (object) MsgPackSpec.ReadFixUInt16(source, out readSize);
+            if (UnderlyingType == typeof(short)) return (T) (object) MsgPackSpec.ReadFixInt16(source, out readSize);
+            if (UnderlyingType == typeof(uint)) return (T) (object) MsgPackSpec.ReadFixUInt32(source, out readSize);
+            if (UnderlyingType == typeof(int)) return (T) (object) MsgPackSpec.ReadFixInt32(source, out readSize);
+            if (UnderlyingType == typeof(ulong)) return (T) (object) MsgPackSpec.ReadFixUInt64(source, out readSize);
+            if (UnderlyingType == typeof(long)) return (T) (object) MsgPackSpec.ReadFixInt64(source, out readSize);
 
-            throw ExceptionHelper.UnexpectedEnumUnderlyingType(enumUnderlyingType);
+            // we'll fail in static ctor
+            throw ExceptionHelper.UnexpectedEnumUnderlyingType(UnderlyingType);
         }
     }
 }

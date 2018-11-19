@@ -1,5 +1,5 @@
 ﻿using System;
-using ProGaudi.MsgPack.Light;
+using ProGaudi.MsgPack;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
@@ -17,75 +17,52 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public TarantoolVersion Version { get; private set; }
 
-        public class Converter : IMsgPackConverter<BoxInfo>
+        public class Converter : IMsgPackParser<BoxInfo>
         {
-            private IMsgPackConverter<string> _stringConverter;
-            private MsgPackContext _context;
-            private bool _initialized;
-            private IMsgPackConverter<long> _longConverter;
-            private IMsgPackConverter<bool> _boolConverter;
-
-            public void Initialize(MsgPackContext context)
+            public BoxInfo Parse(ReadOnlySpan<byte> source, out int readSize)
             {
-                _context = context;
-            }
+                if (MsgPackSpec.TryReadNil(source, out readSize)) return null;
 
-            public void Write(BoxInfo value, IMsgPackWriter writer)
-            {
-                throw new NotSupportedException();
-            }
-
-            public BoxInfo Read(IMsgPackReader reader)
-            {
-                if (!_initialized)
-                {
-                    InitializeIfNeeded();
-                }
-
-                var mapLength = reader.ReadMapLength();
-                if (!mapLength.HasValue)
-                {
-                    return null;
-                }
+                var mapLength = MsgPackSpec.ReadMapHeader(source, out readSize);
 
                 var result = new BoxInfo();
                 for (var i = 0; i < mapLength; i++)
                 {
-                    switch (_stringConverter.Read(reader))
+                    var propertyName = MsgPackSpec.ReadString(source, out var temp);
+                    readSize += temp;
+                    switch (propertyName)
                     {
                         case "id":
-                            result.Id = _longConverter.Read(reader);
+                            result.Id = MsgPackSpec.ReadInt32(source, out temp);
+                            readSize += temp;
                             break;
                         case "lsn":
-                            result.Lsn = _longConverter.Read(reader);
+                            result.Lsn = MsgPackSpec.ReadInt32(source, out temp);
+                            readSize += temp;
                             break;
                         case "pid":
-                            result.Pid = _longConverter.Read(reader);
+                            result.Pid = MsgPackSpec.ReadInt32(source, out temp);
+                            readSize += temp;
                             break;
                         case "ro":
-                            result.ReadOnly = _boolConverter.Read(reader);
+                            result.ReadOnly = MsgPackSpec.ReadBoolean(source, out temp);
+                            readSize += temp;
                             break;
                         case "uuid":
-                            result.Uuid = Guid.Parse(_stringConverter.Read(reader));
+                            result.Uuid = Guid.Parse(MsgPackSpec.ReadString(source, out temp));
+                            readSize += temp;
                             break;
                         case "version":
-                            result.Version = TarantoolVersion.Parse(_stringConverter.Read(reader));
+                            result.Version = TarantoolVersion.Parse(MsgPackSpec.ReadString(source, out temp));
+                            readSize += temp;
                             break;
                         default:
-                            reader.SkipToken();
+                            readSize += MsgPackSpec.ReadToken(source).Length;
                             break;
                     }
                 }
 
                 return result;
-            }
-
-            private void InitializeIfNeeded()
-            {
-                _initialized = true;
-                _stringConverter = _context.GetConverter<string>();
-                _longConverter = _context.GetConverter<long>();
-                _boolConverter = _context.GetConverter<bool>();
             }
         }
     }

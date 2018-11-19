@@ -44,8 +44,8 @@ namespace ProGaudi.Tarantool.Client
 
         Task<DataResponse<TResponse[]>> Eval<TResponse>(string expression);
 
-        Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters);
-
-        Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters);
+//        Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters);
+//
+//        Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters);
     }
 }

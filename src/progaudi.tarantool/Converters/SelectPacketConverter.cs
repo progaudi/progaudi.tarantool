@@ -1,52 +1,50 @@
 ﻿using System;
-
-using ProGaudi.MsgPack.Light;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class SelectPacketConverter<T> : IMsgPackConverter<SelectRequest<T>>
+    internal class SelectPacketConverter<T> : IMsgPackFormatter<SelectRequest<T>>
     {
-        private IMsgPackConverter<T> _selectKeyConverter;
-        private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<uint> _uintConverter;
-        private IMsgPackConverter<Iterator> _iteratorConverter;
+        private readonly IMsgPackFormatter<T> _selectKeyConverter;
+        private readonly IMsgPackFormatter<Key> _keyConverter;
+        private readonly IMsgPackFormatter<Iterator> _iteratorConverter;
 
-        public void Initialize(MsgPackContext context)
+        public SelectPacketConverter(MsgPackContext context)
         {
-            _keyConverter = context.GetConverter<Key>();
-            _uintConverter = context.GetConverter<uint>();
-            _iteratorConverter = context.GetConverter<Iterator>();
-            _selectKeyConverter = context.GetConverter<T>();
+            _keyConverter = context.GetRequiredFormatter<Key>();
+            _iteratorConverter = context.GetRequiredFormatter<Iterator>();
+            _selectKeyConverter = context.GetRequiredFormatter<T>();
         }
 
-        public void Write(SelectRequest<T> value, IMsgPackWriter writer)
+        public int GetBufferSize(SelectRequest<T> value) => 11 * DataLengths.UInt32 + _selectKeyConverter.GetBufferSize(value.SelectKey);
+
+        public bool HasConstantSize => false;
+        
+        public int Format(Span<byte> destination, SelectRequest<T> value)
         {
-            writer.WriteMapHeader(6);
+            var result = MsgPackSpec.WriteFixMapHeader(destination, 6);
 
-            _keyConverter.Write(Key.SpaceId, writer);
-            _uintConverter.Write(value.SpaceId, writer);
+            result += _keyConverter.Format(destination.Slice(result), Key.SpaceId);
+            result += MsgPackSpec.WriteUInt32(destination.Slice(result), value.SpaceId);
 
-            _keyConverter.Write(Key.IndexId, writer);
-            _uintConverter.Write(value.IndexId, writer);
+            result += _keyConverter.Format(destination.Slice(result), Key.IndexId);
+            result += MsgPackSpec.WriteUInt32(destination.Slice(result), value.IndexId);
 
-            _keyConverter.Write(Key.Limit, writer);
-            _uintConverter.Write(value.Limit, writer);
+            result += _keyConverter.Format(destination.Slice(result), Key.Limit);
+            result += MsgPackSpec.WriteUInt32(destination.Slice(result), value.Limit);
 
-            _keyConverter.Write(Key.Offset, writer);
-            _uintConverter.Write(value.Offset, writer);
+            result += _keyConverter.Format(destination.Slice(result), Key.Offset);
+            result += MsgPackSpec.WriteUInt32(destination.Slice(result), value.Offset);
+            
+            result += _keyConverter.Format(destination.Slice(result), Key.Iterator);
+            result += _iteratorConverter.Format(destination.Slice(result), value.Iterator);
 
-            _keyConverter.Write(Key.Iterator, writer);
-            _iteratorConverter.Write(value.Iterator, writer);
+            result += _keyConverter.Format(destination.Slice(result), Key.Key);
+            result += _selectKeyConverter.Format(destination.Slice(result), value.SelectKey);
 
-            _keyConverter.Write(Key.Key, writer);
-            _selectKeyConverter.Write(value.SelectKey, writer);
-        }
-
-        public SelectRequest<T> Read(IMsgPackReader reader)
-        {
-            throw new NotSupportedException();
+            return result;
         }
     }
 }

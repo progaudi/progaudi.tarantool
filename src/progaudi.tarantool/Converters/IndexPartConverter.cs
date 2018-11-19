@@ -1,90 +1,72 @@
-﻿using System.Runtime.Serialization;
-using ProGaudi.MsgPack.Light;
-
+﻿using System;
+using System.Runtime.Serialization;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexPartConverter : IMsgPackConverter<IndexPart>
+    internal class IndexPartConverter : IMsgPackParser<IndexPart>
     {
-        private IMsgPackConverter<uint> _uintConverter;
-        private IMsgPackConverter<IndexPartType> _indexPartTypeConverter;
-        private IMsgPackConverter<string> _stringConverter;
+        private readonly IMsgPackParser<IndexPartType> _indexPartTypeParser;
 
-        public void Initialize(MsgPackContext context)
+        public IndexPartConverter(MsgPackContext context)
         {
-            _uintConverter = context.GetConverter<uint>();
-            _indexPartTypeConverter = context.GetConverter<IndexPartType>();
-            _stringConverter = context.GetConverter<string>();
+            _indexPartTypeParser = context.GetRequiredParser<IndexPartType>();
         }
 
-        public void Write(IndexPart value, IMsgPackWriter writer) => throw new System.NotImplementedException();
-
-        public IndexPart Read(IMsgPackReader reader)
+        public IndexPart Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            var type = reader.ReadDataType();
-            switch (type)
+            if (MsgPackSpec.TryReadMapHeader(source, out var mapLength, out readSize))
             {
-                case DataTypes.Map16:
-                    return ReadFromMap(reader, ReadUInt16(reader));
-
-                case DataTypes.Map32:
-                    return ReadFromMap(reader, ReadUInt32(reader));
-
-                case DataTypes.Array16:
-                    return ReadFromArray(reader, ReadUInt16(reader));
-
-                case DataTypes.Array32:
-                    return ReadFromArray(reader, ReadUInt32(reader));
+                return ReadFromMap(source, mapLength, ref readSize);
             }
 
-            var length = TryGetLengthFromFixMap(type);
-            if (length.HasValue)
+            if (MsgPackSpec.TryReadArrayHeader(source, out var arrayHeader, out readSize))
             {
-                return ReadFromMap(reader, length.Value);
+                return ReadFromArray(source, arrayHeader, ref readSize);
             }
 
-            length = TryGetLengthFromFixArray(type);
-            if (length != null)
-            {
-                return ReadFromArray(reader, length.Value);
-            }
-
-            throw ExceptionUtils.BadTypeException(type, DataTypes.Map16, DataTypes.Map32, DataTypes.FixMap, DataTypes.Array16, DataTypes.Array32, DataTypes.FixArray);
+            throw ExceptionHelper.CodeIsNotArrayOrMap(source[0]);
         }
 
-        private IndexPart ReadFromArray(IMsgPackReader reader, uint length)
+        private IndexPart ReadFromArray(in ReadOnlySpan<byte> source, int length, ref int readSize)
         {
             if (length != 2u)
             {
                 throw ExceptionHelper.InvalidArrayLength(2u, length);
             }
 
-            var fieldNo = _uintConverter.Read(reader);
-            var indexPartType = _indexPartTypeConverter.Read(reader);
+            var fieldNo = MsgPackSpec.ReadUInt32(source.Slice(readSize), out var temp);
+            readSize += temp;
+            var indexPartType = _indexPartTypeParser.Parse(source.Slice(readSize), out temp);
+            readSize += temp;
 
             return new IndexPart(fieldNo, indexPartType);
         }
 
-        private IndexPart ReadFromMap(IMsgPackReader reader, uint length)
+        private IndexPart ReadFromMap(ReadOnlySpan<byte> source, int length, ref int readSize)
         {
             uint? fieldNo = null;
             IndexPartType? indexPartType = null;
 
             for (var i = 0; i < length; i++)
             {
-                switch (_stringConverter.Read(reader))
+                var name = MsgPackSpec.ReadString(source.Slice(readSize), out var temp);
+                readSize += temp;
+                switch (name)
                 {
                     case "field":
-                        fieldNo = _uintConverter.Read(reader);
+                        fieldNo = MsgPackSpec.ReadUInt32(source.Slice(readSize), out temp);
+                        readSize += temp;
                         break;
                     case "type":
-                        indexPartType = _indexPartTypeConverter.Read(reader);
+                        indexPartType = _indexPartTypeParser.Parse(source.Slice(readSize), out temp);
+                        readSize += temp;
                         break;
                     default:
-                        reader.SkipToken();
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
                         break;
                 }
             }
@@ -95,33 +77,6 @@ namespace ProGaudi.Tarantool.Client.Converters
             }
 
             throw new SerializationException("Can't read fieldNo or indexPart from map of index metadata");
-        }
-
-        private static uint? TryGetLengthFromFixArray(DataTypes type)
-        {
-            var length = type - DataTypes.FixArray;
-            return type.GetHighBits(4) == DataTypes.FixArray.GetHighBits(4) ? length : (uint?)null;
-        }
-
-        private static uint? TryGetLengthFromFixMap(DataTypes type)
-        {
-            var length = type - DataTypes.FixMap;
-            return type.GetHighBits(4) == DataTypes.FixMap.GetHighBits(4) ? length : (uint?)null;
-        }
-
-        internal static ushort ReadUInt16(IMsgPackReader reader)
-        {
-            return (ushort)((reader.ReadByte() << 8) + reader.ReadByte());
-        }
-
-        internal static uint ReadUInt32(IMsgPackReader reader)
-        {
-            var temp = (uint)(reader.ReadByte() << 24);
-            temp += (uint)reader.ReadByte() << 16;
-            temp += (uint)reader.ReadByte() << 8;
-            temp += reader.ReadByte();
-
-            return temp;
         }
     }
 }

@@ -2,13 +2,10 @@
 using System.Buffers;
 using System.Linq;
 using ProGaudi.Buffers;
-using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.Responses;
-using ProGaudi.Tarantool.Client.Utils;
 
-namespace ProGaudi.Tarantool.Client.Model.Requests
+namespace TestPipelines
 {
-    public class AuthenticationRequest : IRequest, IDisposable
+    public class AuthenticationRequest : IDisposable
     {
         private AuthenticationRequest(string username, IMemoryOwner<byte> scramble)
         {

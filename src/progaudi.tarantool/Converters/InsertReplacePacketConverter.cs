@@ -1,40 +1,37 @@
 ﻿using System;
-
-using ProGaudi.MsgPack.Light;
-
-using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class InsertReplacePacketConverter<T> : IMsgPackConverter<InsertReplaceRequest<T>>
+    internal class InsertReplacePacketConverter<T> : IMsgPackFormatter<InsertReplaceRequest<T>>
     {
-        private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<uint> _uintConverter;
-        private IMsgPackConverter<T> _tupleConverter;
+        private readonly IMsgPackFormatter<Key> _keyConverter;
+        private readonly IMsgPackFormatter<T> _tupleConverter;
 
-        public void Initialize(MsgPackContext context)
+        public InsertReplacePacketConverter(MsgPackContext context)
         {
-            _keyConverter = context.GetConverter<Key>();
-            _uintConverter = context.GetConverter<uint>();
-            _tupleConverter = context.GetConverter<T>();
+            _keyConverter = context.GetRequiredFormatter<Key>();
+            _tupleConverter = context.GetRequiredFormatter<T>();
         }
 
-        public void Write(InsertReplaceRequest<T> value, IMsgPackWriter writer)
+        public int GetBufferSize(InsertReplaceRequest<T> value) => DataLengths.FixMapHeader
+                                                                   + 3 * DataLengths.UInt32 
+                                                                   + _tupleConverter.GetBufferSize(value.Tuple);
+
+        public bool HasConstantSize => false;
+        
+        public int Format(Span<byte> destination, InsertReplaceRequest<T> value)
         {
-            writer.WriteMapHeader(2);
+            var result = MsgPackSpec.WriteFixMapHeader(destination, 2);
+            
+            result += _keyConverter.Format(destination.Slice(result), Key.SpaceId);
+            result += MsgPackSpec.WriteUInt32(destination.Slice(result), value.SpaceId);
+            result += _keyConverter.Format(destination.Slice(result), Key.Tuple);
+            result += _tupleConverter.Format(destination.Slice(result), value.Tuple);
 
-            _keyConverter.Write(Key.SpaceId, writer);
-            _uintConverter.Write(value.SpaceId, writer);
-
-            _keyConverter.Write(Key.Tuple, writer);
-            _tupleConverter.Write(value.Tuple, writer);
-        }
-
-        public InsertReplaceRequest<T> Read(IMsgPackReader reader)
-        {
-            throw new NotImplementedException();
+            return result;
         }
     }
 }

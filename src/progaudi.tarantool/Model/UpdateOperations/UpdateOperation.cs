@@ -1,4 +1,4 @@
-﻿using ProGaudi.MsgPack.Light;
+﻿using ProGaudi.MsgPack;
 
 namespace ProGaudi.Tarantool.Client.Model.UpdateOperations
 {
@@ -17,15 +17,15 @@ namespace ProGaudi.Tarantool.Client.Model.UpdateOperations
             Argument = argument;
         }
 
-        public override IMsgPackConverter<UpdateOperation> GetConverter(MsgPackContext context)
+        public override IMsgPackFormatter<UpdateOperation> GetConverter(MsgPackContext context)
         {
-            return (IMsgPackConverter<UpdateOperation>) context.GetConverter<UpdateOperation<T>>();
+            return (IMsgPackFormatter<UpdateOperation>) context.GetRequiredFormatter<UpdateOperation<T>>();
         }
     }
 
     public abstract class UpdateOperation
     {
-        public abstract IMsgPackConverter<UpdateOperation> GetConverter(MsgPackContext context);
+        public abstract IMsgPackFormatter<UpdateOperation> GetConverter(MsgPackContext context);
 
         #region Integer Operation Factory
 

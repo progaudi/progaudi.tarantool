@@ -1,46 +1,37 @@
 ﻿using System;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class ResponsePacketConverter : IMsgPackConverter<DataResponse>
+    internal class ResponsePacketConverter : IMsgPackParser<DataResponse>
     {
-        private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<int> _intConverter;
+        private readonly IMsgPackParser<Key> _keyConverter;
 
-        public virtual void Initialize(MsgPackContext context)
+        public ResponsePacketConverter(MsgPackContext context)
         {
-            _keyConverter = context.GetConverter<Key>();
-            _intConverter = context.GetConverter<int>();
+            _keyConverter = context.GetRequiredParser<Key>();
         }
 
-        public void Write(DataResponse value, IMsgPackWriter writer)
+        public DataResponse Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            throw new NotSupportedException();
-        }
-
-        public DataResponse Read(IMsgPackReader reader)
-        {
-            var length = reader.ReadMapLength();
+            var length = MsgPackSpec.ReadMapHeader(source, out readSize);
             if (!(1u <= length && length <= 3))
             {
                 throw ExceptionHelper.InvalidMapLength(length, 1u, 2u);
             }
 
             var sqlInfo = default(SqlInfo);
-
             for (var i = 0; i < length; i++)
             {
-                var dataKey = _keyConverter.Read(reader);
+                var dataKey = _keyConverter.Parse(source, out var temp);
+                readSize += temp;
                 switch (dataKey)
                 {
                     case Key.SqlInfo:
-                        sqlInfo = ReadSqlInfo(reader, _keyConverter, _intConverter);
+                        sqlInfo = ReadSqlInfo(source, _keyConverter, ref readSize);
                         break;
                     default:
                         throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data, Key.Metadata);
@@ -50,24 +41,24 @@ namespace ProGaudi.Tarantool.Client.Converters
             return new DataResponse(sqlInfo);
         }
 
-        internal static SqlInfo ReadSqlInfo(IMsgPackReader reader, IMsgPackConverter<Key> keyConverter, IMsgPackConverter<int> intConverter)
+        internal static SqlInfo ReadSqlInfo(ReadOnlySpan<byte> source, IMsgPackParser<Key> keyConverter, ref int readSize)
         {
-            var length = reader.ReadMapLength();
-            if (length == null)
-            {
-                return null;
-            }
+            var length = MsgPackSpec.ReadMapHeader(source.Slice(readSize), out var temp);
+            readSize += temp;
 
             var result = default(SqlInfo);
             for (var i = 0; i < length; i++)
             {
-                switch (keyConverter.Read(reader))
+                var dataKey = keyConverter.Parse(source, out temp);
+                readSize += temp;
+                switch (dataKey)
                 {
                     case Key.SqlRowCount:
-                        result = new SqlInfo(intConverter.Read(reader));
+                        result = new SqlInfo(MsgPackSpec.ReadInt32(source.Slice(readSize), out temp));
+                        readSize += temp;
                         break;
                     default:
-                        reader.SkipToken();
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
                         break;
                 }
             }
@@ -76,29 +67,20 @@ namespace ProGaudi.Tarantool.Client.Converters
         }
     }
 
-    internal class ResponsePacketConverter<T> : IMsgPackConverter<DataResponse<T>>
+    internal class ResponsePacketConverter<T> : IMsgPackParser<DataResponse<T>>
     {
-        private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<T> _dataConverter;
-        private IMsgPackConverter<string> _stringConverter;
-        private IMsgPackConverter<int> _intConverter;
+        private readonly IMsgPackParser<Key> _keyConverter;
+        private readonly IMsgPackParser<T> _dataConverter;
 
-        public void Initialize(MsgPackContext context)
+        public ResponsePacketConverter(MsgPackContext context)
         {
-            _keyConverter = context.GetConverter<Key>();
-            _dataConverter = context.GetConverter<T>();
-            _stringConverter = context.GetConverter<string>();
-            _intConverter = context.GetConverter<int>();
+            _keyConverter = context.GetRequiredParser<Key>();
+            _dataConverter = context.GetRequiredParser<T>();
         }
 
-        public void Write(DataResponse<T> value, IMsgPackWriter writer)
+        public DataResponse<T> Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            throw new NotSupportedException();
-        }
-
-        DataResponse<T> IMsgPackConverter<DataResponse<T>>.Read(IMsgPackReader reader)
-        {
-            var length = reader.ReadMapLength();
+            var length = MsgPackSpec.ReadMapHeader(source, out readSize);
             if (!(1u <= length && length <= 3))
             {
                 throw ExceptionHelper.InvalidMapLength(length, 1u, 2u);
@@ -111,18 +93,18 @@ namespace ProGaudi.Tarantool.Client.Converters
 
             for (var i = 0; i < length; i++)
             {
-                var dataKey = _keyConverter.Read(reader);
+                var dataKey = _keyConverter.Parse(source.Slice(readSize), out var temp); readSize += temp;
                 switch (dataKey)
                 {
                     case Key.Data:
-                        data = _dataConverter.Read(reader);
+                        data = _dataConverter.Parse(source.Slice(readSize), out temp); readSize += temp;
                         dataWasSet = true;
                         break;
                     case Key.Metadata:
-                        metadata = ReadMetadata(reader);
+                        metadata = ReadMetadata(source, ref readSize);
                         break;
                     case Key.SqlInfo:
-                        sqlInfo = ResponsePacketConverter.ReadSqlInfo(reader, _keyConverter, _intConverter);
+                        sqlInfo = ResponsePacketConverter.ReadSqlInfo(source, _keyConverter, ref readSize);
                         break;
                     default:
                         throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data, Key.Metadata);
@@ -137,18 +119,18 @@ namespace ProGaudi.Tarantool.Client.Converters
             return new DataResponse<T>(data, metadata, sqlInfo);
         }
 
-        private FieldMetadata[] ReadMetadata(IMsgPackReader reader)
+        private FieldMetadata[] ReadMetadata(ReadOnlySpan<byte> source, ref int readSize)
         {
-            var length = reader.ReadArrayLength();
-            if (length == null)
-            {
-                return null;
-            }
+            var length = MsgPackSpec.ReadArrayHeader(source, out var temp); readSize += temp;
+            var result = new FieldMetadata[length];
 
-            var result = new FieldMetadata[length.Value];
             for (var i = 0; i < length; i++)
             {
-                var metadataLength = reader.ReadMapLength();
+                var metadataLength = MsgPackSpec.TryReadNil(source, out temp)
+                    ? default(uint?)
+                    : MsgPackSpec.ReadMapHeader(source, out temp);
+                readSize += temp;
+
                 if (metadataLength == null)
                 {
                     result[i] = null;
@@ -157,13 +139,16 @@ namespace ProGaudi.Tarantool.Client.Converters
 
                 for (var j = 0; j < metadataLength; j++)
                 {
-                    switch (_keyConverter.Read(reader))
+                    var key = _keyConverter.Parse(source.Slice(readSize), out temp);
+                    readSize += temp;
+                    switch (key)
                     {
                         case Key.FieldName:
-                            result[i] = new FieldMetadata(_stringConverter.Read(reader));
+                            result[i] = new FieldMetadata(MsgPackSpec.ReadString(source.Slice(readSize), out temp));
+                            readSize += temp;
                             continue;
                         default:
-                            reader.SkipToken();
+                            readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
                             break;
                     }
                 }

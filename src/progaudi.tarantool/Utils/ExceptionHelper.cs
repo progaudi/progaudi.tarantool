@@ -1,12 +1,11 @@
 ﻿using System;
-using ProGaudi.MsgPack.Light;
-
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ProGaudi.MsgPack;
 
 namespace ProGaudi.Tarantool.Client.Utils
 {
@@ -27,14 +26,17 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new ArgumentException($"Unexpected key: {string.Join(", ", expected)} is expected, but got {actual}.");
         }
 
-        public static Exception InvalidArrayLength(uint expected, uint? actual)
+        public static Exception CodeIsNotArrayOrMap(byte code) => new InvalidOperationException(
+            $"Wrong data code: 0x{code:x2}. Expected:\n"
+            + $"- {DataCodes.Map16:x2}, {DataCodes.Map32:x2}\n"
+            + $"- 0x{DataCodes.FixMapMin:x2} <= code <= 0x{DataCodes.FixMapMax:x2}\n" 
+            + $"- {DataCodes.Array16:x2}, {DataCodes.Array32:x2}\n"
+            + $"- 0x{DataCodes.FixArrayMin:x2} <= code <= 0x{DataCodes.FixArrayMin:x2}."
+        );
+
+        public static Exception InvalidArrayLength(uint expected, int actual)
         {
             return new ArgumentException($"Invalid array length: {expected} is expected, but got {actual}.");
-        }
-
-        public static Exception UnexpectedDataType(DataTypes expected, DataTypes actual)
-        {
-            return new ArgumentException($"Unexpected data type: {expected} is expected, but got {actual}.");
         }
 
         public static Exception NotConnected()

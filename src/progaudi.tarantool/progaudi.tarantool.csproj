@@ -29,62 +29,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MsgPack.Light" Version="1.6.2" />
+    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" Condition=" '$(IsDocker)' != 'defined' ">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="progaudi.buffers" Version="1.0.1" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="T4Templates\TarantoolTuples.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>TarantoolTuples.cs</LastGenOutput>
-    </None>
-    <None Update="T4Templates\SystemTupleConverters.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SystemTupleConverters.cs</LastGenOutput>
-    </None>
-    <None Update="T4Templates\ValueTupleConverters.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ValueTupleConverters.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Converters\SystemTupleConverters.cs">
-      <DependentUpon>SystemTupleConverters.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="Converters\ValueTupleConverters.cs">
-      <DependentUpon>ValueTupleConverters.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Update="T4Templates\TarantoolTuples.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>TarantoolTuples.tt</DependentUpon>
-    </Compile>
-    <Compile Update="T4Templates\SystemTupleConverters.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SystemTupleConverters.tt</DependentUpon>
-    </Compile>
-    <Compile Update="T4Templates\ValueTupleConverters.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ValueTupleConverters.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Pipelines.Sockets.Unofficial">
       <Version>0.2.1-alpha.90</Version>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MsgPack.Light\src\msgpack.light\msgpack.light.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">

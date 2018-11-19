@@ -1,7 +1,5 @@
 ﻿using System;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Headers;
@@ -9,56 +7,48 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class ResponseHeaderConverter : IMsgPackConverter<ResponseHeader>
+    internal class ResponseHeaderConverter : IMsgPackParser<ResponseHeader>
     {
-        private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<ulong> _ulongConverter;
-        private IMsgPackConverter<RequestId> _requestIdConverter;
-        private IMsgPackConverter<CommandCode> _codeConverter;
+        private readonly IMsgPackParser<Key> _keyConverter;
+        private readonly IMsgPackParser<CommandCode> _codeConverter;
 
-        public void Initialize(MsgPackContext context)
+        public ResponseHeaderConverter(MsgPackContext context)
         {
-            _keyConverter = context.GetConverter<Key>();
-            _ulongConverter = context.GetConverter<ulong>();
-            _codeConverter = context.GetConverter<CommandCode>();
-            _requestIdConverter = context.GetConverter<RequestId>();
+            _keyConverter = context.GetRequiredParser<Key>();
+            _codeConverter = context.GetRequiredParser<CommandCode>();
         }
 
-        public void Write(ResponseHeader value, IMsgPackWriter writer)
+        public ResponseHeader Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            throw new NotImplementedException();
-        }
-
-        public ResponseHeader Read(IMsgPackReader reader)
-        {
-            var length = reader.ReadMapLength();
-
-            if (!length.HasValue)
-            {
-                throw ExceptionHelper.InvalidMapLength(length, 2u, 3u);
-            }
-
+            var length = MsgPackSpec.ReadMapHeader(source, out readSize);
+            
+            if (!(2 <= length && length <= 3)) throw ExceptionHelper.InvalidMapLength(length, 2u, 3u);
+            
             CommandCode? code = null;
             RequestId? sync = null;
             ulong? schemaId = null;
 
-            for (int i = 0; i < length.Value; i++)
+            for (var i = 0; i < length; i++)
             {
-                var key = _keyConverter.Read(reader);
+                var key = _keyConverter.Parse(source.Slice(readSize), out var temp);
+                readSize += temp;
 
                 switch (key)
                 {
                     case Key.Code:
-                        code = _codeConverter.Read(reader);
+                        code = _codeConverter.Parse(source.Slice(readSize), out temp);
+                        readSize += temp;
                         break;
                     case Key.Sync:
-                        sync = _requestIdConverter.Read(reader);
+                        sync = new RequestId(MsgPackSpec.ReadUInt64(source.Slice(readSize), out temp));
+                        readSize += temp;
                         break;
                     case Key.SchemaId:
-                        schemaId = _ulongConverter.Read(reader);
+                        schemaId = MsgPackSpec.ReadUInt64(source.Slice(readSize), out temp);
+                        readSize += temp;
                         break;
                     default:
-                        reader.SkipToken();
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
                         break;
                 }
             }

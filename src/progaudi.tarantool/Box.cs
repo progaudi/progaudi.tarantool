@@ -150,18 +150,18 @@ namespace ProGaudi.Tarantool.Client
             return Eval<TarantoolTuple, TResponse>(expression, TarantoolTuple.Empty);
         }
 
-        public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
-        {
-            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
-
-            return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
-        }
-
-        public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
-        {
-            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
-
-            return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
-        }
+//        public Task<DataResponse> ExecuteSql(string query, params SqlParameter[] parameters)
+//        {
+//            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+//
+//            return _logicalConnection.SendRequest(new ExecuteSqlRequest(query, parameters));
+//        }
+//
+//        public Task<DataResponse<TResponse[]>> ExecuteSql<TResponse>(string query, params SqlParameter[] parameters)
+//        {
+//            if (!_sqlReady) throw ExceptionHelper.SqlIsNotAvailable(Info.Version);
+//
+//            return _logicalConnection.SendRequest<ExecuteSqlRequest, TResponse>(new ExecuteSqlRequest(query, parameters));
+//        }
     }
 }

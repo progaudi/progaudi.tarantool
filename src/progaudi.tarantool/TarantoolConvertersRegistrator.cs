@@ -1,81 +1,41 @@
-﻿using ProGaudi.MsgPack.Light;
-
+﻿using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Converters;
+using ProGaudi.Tarantool.Client.Formatters;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
-using ProGaudi.Tarantool.Client.Model.Responses;
 
 namespace ProGaudi.Tarantool.Client
 {
-    public class TarantoolConvertersRegistrator
+    public static class TarantoolConvertersRegistrator
     {
         public static void Register(MsgPackContext context)
         {
-            context.RegisterConverter(new EnumConverter<Key>());
-            context.RegisterConverter(new EnumConverter<CommandCode>());
-            context.RegisterConverter(new EnumConverter<Iterator>());
-            context.RegisterConverter(new RequestIdConverter());
-            context.RegisterConverter(new PacketSizeConverter());
+            context.GetFormatter<StorageEngine>();
+            context.GetFormatter<FieldType>();
+            context.GetFormatter<IndexPartType>();
+            context.GetFormatter<IndexType>();
+            
+            context.RegisterFormatter(new EnumFormatter<Key>());
+            context.RegisterFormatter(new EnumFormatter<CommandCode>());
+            context.RegisterFormatter(new EnumFormatter<Iterator>());
+            context.RegisterFormatter(new PingPacketConverter());
+            context.RegisterFormatter(new AuthenticationPacketFormatter(context));
+            context.RegisterFormatter(new RequestHeaderConverter(context));
 
-            context.RegisterConverter(new FromStringEnumConverter<StorageEngine>());
-            context.RegisterConverter(new FromStringEnumConverter<FieldType>());
-            context.RegisterConverter(new FromStringEnumConverter<IndexPartType>());
-            context.RegisterConverter(new FromStringEnumConverter<IndexType>());
+            context.RegisterParser(new EnumFormatter<Key>());
+            context.RegisterParser(new EnumFormatter<CommandCode>());
+            context.RegisterParser(new EnumFormatter<Iterator>());
 
-            context.RegisterConverter(new StringSliceOperationConverter());
-            context.RegisterGenericConverter(typeof(UpdateOperationConverter<>));
-
-            context.RegisterConverter(new ResponseHeaderConverter());
-            context.RegisterConverter(new RequestHeaderConverter());
-
-            context.RegisterConverter(new AuthenticationPacketConverter());
-            context.RegisterConverter(new EmptyResponseConverter());
-            context.RegisterConverter(new ErrorResponsePacketConverter());
-
-            context.RegisterConverter(new SpaceFieldConverter());
-            context.RegisterConverter(new SpaceConverter());
-            context.RegisterConverter(new IndexPartConverter());
-            context.RegisterConverter(new IndexCreationOptionsConverter());
-            context.RegisterConverter(new IndexConverter());
-            context.RegisterConverter(new TupleConverter());
-            context.RegisterConverter(new BoxInfo.Converter());
-
-            context.RegisterGenericConverter(typeof(ResponsePacketConverter<>));
-            context.RegisterConverter(new ResponsePacketConverter());
-            context.RegisterGenericConverter(typeof(UpdatePacketConverter<>));
-            context.RegisterGenericConverter(typeof(CallPacketConverter<>));
-            context.RegisterGenericConverter(typeof(DeletePacketConverter<>));
-            context.RegisterGenericConverter(typeof(EvalPacketConverter<>));
-            context.RegisterGenericConverter(typeof(InsertReplacePacketConverter<>));
-            context.RegisterGenericConverter(typeof(SelectPacketConverter<>));
-            context.RegisterGenericConverter(typeof(UpsertPacketConverter<>));
-            context.RegisterConverter(new PingPacketConverter());
-            context.RegisterConverter(new ExecuteSqlRequestConverter());
-
-            context.RegisterGenericConverter(typeof(TupleConverter<>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,,,>));
-            context.RegisterGenericConverter(typeof(TupleConverter<,,,,,,,>));
-
-            context.RegisterGenericConverter(typeof(SystemTupleConverter<>));
-            context.RegisterGenericConverter(typeof(SystemTupleConverter<,>));
-            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,>));
-            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,>));
-            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,,>));
-            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,,,>));
-            context.RegisterGenericConverter(typeof(SystemTupleConverter<,,,,,,>));
-
-            context.RegisterGenericConverter(typeof(ValueTupleConverter<>));
-            context.RegisterGenericConverter(typeof(ValueTupleConverter<,>));
-            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,>));
-            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,>));
-            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,,>));
-            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,,,>));
-            context.RegisterGenericConverter(typeof(ValueTupleConverter<,,,,,,>));
+            context.RegisterParser(new ResponseHeaderConverter(context));
+            context.RegisterParser(new EmptyResponseParser(context));
+            context.RegisterParser(new ErrorResponsePacketParser(context));
+            context.RegisterParser(new SpaceFieldConverter(context));
+            context.RegisterParser(new SpaceConverter(context));
+            context.RegisterParser(new IndexPartConverter(context));
+            context.RegisterParser(new IndexCreationOptionsConverter());
+            context.RegisterParser(new IndexConverter(context));
+            context.RegisterParser(new BoxInfo.Converter());
+            context.RegisterParser(new ResponsePacketConverter(context));
         }
     }
 }

@@ -1,24 +1,15 @@
 ﻿using System;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class PingPacketConverter : IMsgPackConverter<PingRequest>
+    internal class PingPacketConverter : IMsgPackFormatter<PingRequest>
     {
-        public void Initialize(MsgPackContext context)
-        {
-        }
+        public int GetBufferSize(PingRequest value) => 0;
 
-        public void Write(PingRequest value, IMsgPackWriter writer)
-        {
-        }
-
-        public PingRequest Read(IMsgPackReader reader)
-        {
-            throw new NotImplementedException();
-        }
+        public bool HasConstantSize => false;
+        
+        public int Format(Span<byte> destination, PingRequest value) => 0;
     }
 }

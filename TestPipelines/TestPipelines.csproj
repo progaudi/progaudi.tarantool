@@ -8,7 +8,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\mgravell\Pipelines.Sockets.Unofficial\src\Pipelines.Sockets.Unofficial\Pipelines.Sockets.Unofficial.csproj" />
-    <ProjectReference Include="..\src\progaudi.tarantool\progaudi.tarantool.csproj" />
+    <!--<ProjectReference Include="..\src\progaudi.tarantool\progaudi.tarantool.csproj" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="progaudi.buffers" Version="1.0.1" />
+    <PackageReference Include="progaudi.msgpack.spec" Version="2.0.0.7-g2933f52" />
   </ItemGroup>
 
 </Project>

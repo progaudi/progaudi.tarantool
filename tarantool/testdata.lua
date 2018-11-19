@@ -18,7 +18,7 @@ local function create_space(space)
 		end
 	end
 
-	local created_space = box.schema.space.create(space.name, { format = format, if_not_exists=true, field_count=#format })
+	local created_space = box.schema.space.create(space.name, { format = format, if_not_exists=true })
 	log.info{message2="Created space.", name=space.name}
 	return created_space
 end
@@ -122,15 +122,15 @@ function log_auth ()
 	local m = 'Authentication attempt'
 	log.info(m)
 end
-function log_auth_ok (user_name)
-	local m = 'Authenticated user ' .. user_name
+function log_auth_status(user_name, status)
+	local m = 'Authenticated user ' .. user_name .. ', status: ' .. tostring(status)
 	log.info(m)
 end
 
 box.session.on_connect(log_connect)
 box.session.on_disconnect(log_disconnect)
 box.session.on_auth(log_auth)
-box.session.on_auth(log_auth_ok)
+box.session.on_auth(log_auth_status)
 
 function return_null()
 	log.info('return_null called')
@@ -161,7 +161,7 @@ function return_nothing()
 	log.info('return_nothing called')
 end
 
-function replace(t)
+function stored_replace(t)
 	return box.space.with_scalar_index:replace(t)
 end
 

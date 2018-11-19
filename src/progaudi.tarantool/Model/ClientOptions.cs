@@ -1,4 +1,4 @@
-﻿using ProGaudi.MsgPack.Light;
+﻿using ProGaudi.MsgPack;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
@@ -17,7 +17,7 @@ namespace ProGaudi.Tarantool.Client.Model
         private ClientOptions(ConnectionOptions options, ILog log, MsgPackContext context)
         {
             ConnectionOptions = options;
-            MsgPackContext = context ?? new MsgPackContext(binaryCompatibilityMode: true);
+            MsgPackContext = context ?? new MsgPackContext(/*binaryCompatibilityMode: true*/);
             if (log != null)
             {
                 LogWriter = new LogWriterWrapper(this, log);

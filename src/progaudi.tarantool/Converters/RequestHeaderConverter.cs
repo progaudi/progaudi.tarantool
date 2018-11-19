@@ -1,48 +1,36 @@
 ﻿using System;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Headers;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class RequestHeaderConverter : IMsgPackConverter<RequestHeader>
+    internal class RequestHeaderConverter : IMsgPackFormatter<RequestHeader>
     {
-        private IMsgPackConverter<Key> _keyConverter;
-        private IMsgPackConverter<RequestId> _requestIdConverter;
-        private IMsgPackConverter<CommandCode> _codeConverter;
-        private IMsgPackConverter<object> _nullConverter;
+        private readonly IMsgPackFormatter<Key> _keyConverter;
+        private readonly IMsgPackFormatter<CommandCode> _codeConverter;
 
-        public void Initialize(MsgPackContext context)
+        public RequestHeaderConverter(MsgPackContext context)
         {
-            _keyConverter = context.GetConverter<Key>();
-            _requestIdConverter = context.GetConverter<RequestId>();
-            _codeConverter = context.GetConverter<CommandCode>();
-            _nullConverter = context.NullConverter;
+            _keyConverter = context.GetRequiredFormatter<Key>();
+            _codeConverter = context.GetRequiredFormatter<CommandCode>();
         }
 
-        public void Write(RequestHeader value, IMsgPackWriter writer)
+        public int GetBufferSize(RequestHeader value) => DataLengths.FixMapHeader + 2 * DataLengths.UInt32 + DataLengths.UInt64;
+
+        public bool HasConstantSize => true;
+        
+        public int Format(Span<byte> destination, RequestHeader value)
         {
-            if (value == null)
-            {
-                _nullConverter.Write(null, writer);
-                return;
-            }
+            var result = MsgPackSpec.WriteFixMapHeader(destination, 2);
 
-            writer.WriteMapHeader(2u);
+            result += _keyConverter.Format(destination.Slice(result), Key.Code);
+            result += _codeConverter.Format(destination.Slice(result), value.Code);
+            result += _keyConverter.Format(destination.Slice(result), Key.Sync);
+            result += MsgPackSpec.WriteFixUInt64(destination.Slice(result), value.RequestId.Value);
 
-            _keyConverter.Write(Key.Code, writer);
-            _codeConverter.Write(value.Code, writer);
-
-            _keyConverter.Write(Key.Sync, writer);
-            _requestIdConverter.Write(value.RequestId, writer);
-        }
-
-        public RequestHeader Read(IMsgPackReader reader)
-        {
-            throw new NotImplementedException();
+            return result;
         }
     }
 }

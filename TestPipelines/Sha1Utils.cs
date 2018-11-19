@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using ProGaudi.Buffers;
 
-namespace ProGaudi.Tarantool.Client.Utils
+namespace TestPipelines
 {
     internal static class Sha1Utils
     {

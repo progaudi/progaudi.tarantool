@@ -1,48 +1,38 @@
 ﻿using System;
-
-using ProGaudi.MsgPack.Light;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    public class SpaceFieldConverter:IMsgPackConverter<SpaceField>
+    public class SpaceFieldConverter : IMsgPackParser<SpaceField>
     {
-        private IMsgPackConverter<string> _stringConverter;
-        private IMsgPackConverter<FieldType> _typeConverter;
+        private readonly IMsgPackParser<FieldType> _typeConverter;
 
-        public void Initialize(MsgPackContext context)
+        public SpaceFieldConverter(MsgPackContext context)
         {
-            _stringConverter = context.GetConverter<string>();
-            _typeConverter = context.GetConverter<FieldType>();
+            _typeConverter = context.GetRequiredParser<FieldType>();
         }
 
-        public void Write(SpaceField value, IMsgPackWriter writer)
+        public SpaceField Parse(ReadOnlySpan<byte> source, out int readSize)
         {
-            throw new NotImplementedException();
-        }
-
-        public SpaceField Read(IMsgPackReader reader)
-        {
-            var dictLength = reader.ReadMapLength();
-
-            string name = null;
+            var length = MsgPackSpec.ReadMapHeader(source, out readSize);
+            string name = default;
             var type = (FieldType) (-1);
-
-            for (int i = 0; i < dictLength.Value; i++)
+            
+            for (var i = 0; i < length; i++)
             {
-                var key = _stringConverter.Read(reader);
+                var key = MsgPackSpec.ReadString(source.Slice(readSize), out var temp); readSize += temp; 
                 switch (key)
                 {
                     case "name":
-                        name = _stringConverter.Read(reader);
+                        name = MsgPackSpec.ReadString(source.Slice(readSize), out temp); readSize += temp; 
                         break;
                     case "type":
-                        type = _typeConverter.Read(reader);
+                        type = _typeConverter.Parse(source.Slice(readSize), out temp); readSize += temp; 
                         break;
                     default:
-                        reader.SkipToken();
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
                         break;
                 }
             }
