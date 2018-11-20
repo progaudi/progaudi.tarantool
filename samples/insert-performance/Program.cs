@@ -12,8 +12,8 @@ namespace Tarantool.Test
         static void Main()
         {
             var log = new TextWriterLog(Console.Out);
-//            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301");
-            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301", log);
+            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301");
+//            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301", log);
             var sw = new Stopwatch();
             try
             {
