@@ -1,6 +1,6 @@
 ﻿namespace ProGaudi.Tarantool.Client.Model.Enums
 {
-    public enum IndexPartType
+    public enum IndexPartType2
     {
         Str,
         Num

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
@@ -16,7 +15,7 @@ namespace ProGaudi.Tarantool.Client
 
         string Name { get; }
 
-        StorageEngine Engine { get; }
+        string Engine { get; }
 
         IReadOnlyCollection<IIndex> Indices { get; }
 

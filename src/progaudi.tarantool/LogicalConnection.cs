@@ -81,7 +81,7 @@ namespace ProGaudi.Tarantool.Client
 
             PingsFailedByTimeoutCount = 0;
 
-            //_responseReader.BeginReading();
+            _responseReader.BeginReading();
             _requestWriter.BeginWriting();
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
@@ -164,7 +164,7 @@ namespace ProGaudi.Tarantool.Client
                 var headerLength = _headerFormatter.Format(requestBuffer.Span, requestHeader);
                 var bodyLength = formatter.Format(requestBuffer.Slice(headerLength).Span, request);
                 var dataLength = headerLength + bodyLength;
-                MsgPackSpec.WriteFixInt64(bodyBuffer.Memory.Span, dataLength);
+                MsgPackSpec.WriteFixUInt32(bodyBuffer.Memory.Span, (uint) dataLength);
 
                 var package = bodyBuffer.Memory.Slice(0, Constants.PacketSizeBufferSize + dataLength);
                 _requestWriter.Write(package);

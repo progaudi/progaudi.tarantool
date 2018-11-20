@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 
 namespace ProGaudi.Tarantool.Client
 {

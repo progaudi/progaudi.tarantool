@@ -1,10 +1,8 @@
-﻿using ProGaudi.Tarantool.Client.Model.Enums;
-
-namespace ProGaudi.Tarantool.Client.Model
+﻿namespace ProGaudi.Tarantool.Client.Model
 {
     public class SpaceField
     {
-        public SpaceField(string name, FieldType type)
+        public SpaceField(string name, string type)
         {
             Name = name;
             Type = type;
@@ -12,6 +10,6 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public string Name { get; }
 
-        public FieldType Type { get; }
+        public string Type { get; }
     }
 }

@@ -1,10 +1,8 @@
-﻿using ProGaudi.Tarantool.Client.Model.Enums;
-
-namespace ProGaudi.Tarantool.Client.Model
+﻿namespace ProGaudi.Tarantool.Client.Model
 {
     public class IndexPart
     {
-        public IndexPart(uint fieldNo, IndexPartType type)
+        public IndexPart(uint fieldNo, string type)
         {
             FieldNo = fieldNo;
             Type = type;
@@ -12,6 +10,6 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public uint FieldNo { get; }
 
-        public IndexPartType Type { get; }
+        public string Type { get; }
     }
 }

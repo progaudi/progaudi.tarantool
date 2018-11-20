@@ -59,3 +59,10 @@ services:
         image: benchmark-baseline-2.0
         depends_on:
             - tarantool_1_8
+
+    net:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - tarantool_1_8

@@ -2,20 +2,12 @@
 using System.Runtime.Serialization;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class IndexPartParser : IMsgPackParser<IndexPart>
     {
-        private readonly IMsgPackParser<IndexPartType> _indexPartTypeParser;
-
-        public IndexPartParser(MsgPackContext context)
-        {
-            _indexPartTypeParser = context.GetRequiredParser<IndexPartType>();
-        }
-
         public IndexPart Parse(ReadOnlySpan<byte> source, out int readSize)
         {
             if (MsgPackSpec.TryReadMapHeader(source, out var mapLength, out readSize))
@@ -40,7 +32,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 
             var fieldNo = MsgPackSpec.ReadUInt32(source.Slice(readSize), out var temp);
             readSize += temp;
-            var indexPartType = _indexPartTypeParser.Parse(source.Slice(readSize), out temp);
+            var indexPartType = MsgPackSpec.ReadString(source.Slice(readSize), out temp);
             readSize += temp;
 
             return new IndexPart(fieldNo, indexPartType);
@@ -49,7 +41,7 @@ namespace ProGaudi.Tarantool.Client.Converters
         private IndexPart ReadFromMap(ReadOnlySpan<byte> source, int length, ref int readSize)
         {
             uint? fieldNo = null;
-            IndexPartType? indexPartType = null;
+            string indexPartType = null;
 
             for (var i = 0; i < length; i++)
             {
@@ -62,7 +54,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         readSize += temp;
                         break;
                     case "type":
-                        indexPartType = _indexPartTypeParser.Parse(source.Slice(readSize), out temp);
+                        indexPartType = MsgPackSpec.ReadString(source.Slice(readSize), out temp);
                         readSize += temp;
                         break;
                     default:
@@ -71,9 +63,9 @@ namespace ProGaudi.Tarantool.Client.Converters
                 }
             }
 
-            if (fieldNo.HasValue && indexPartType.HasValue)
+            if (fieldNo.HasValue && indexPartType != null)
             {
-                return new IndexPart(fieldNo.Value, indexPartType.Value);
+                return new IndexPart(fieldNo.Value, indexPartType);
             }
 
             throw new SerializationException("Can't read fieldNo or indexPart from map of index metadata");

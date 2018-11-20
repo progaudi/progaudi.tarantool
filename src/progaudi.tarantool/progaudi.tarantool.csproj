@@ -38,8 +38,8 @@
     <PackageReference Include="progaudi.buffers" Version="1.0.1" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-    <PackageReference Include="MsgPack.Light" Version="1.6.2.24-gc7f80a8" />
     <PackageReference Include="Pipelines.Sockets.Unofficial" Version="1.0.7" />
+    <PackageReference Include="MsgPack.Light" Version="1.6.2.25-g0350b6b" />
   </ItemGroup>
 
   <ItemGroup>

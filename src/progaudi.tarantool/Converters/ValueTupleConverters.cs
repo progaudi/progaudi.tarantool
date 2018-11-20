@@ -356,7 +356,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 		public ValueTuple<T1> Parse(ReadOnlySpan<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
-			const uint expected = 8u;
+			const uint expected = 1u;
 			if (length != expected) throw ExceptionHelper.InvalidArrayLength(expected, length);
 
 			// ReSharper disable once InlineOutVariableDeclaration
@@ -380,7 +380,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 		public (T1, T2) Parse(ReadOnlySpan<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
-			const uint expected = 8u;
+			const uint expected = 2u;
 			if (length != expected) throw ExceptionHelper.InvalidArrayLength(expected, length);
 
 			// ReSharper disable once InlineOutVariableDeclaration
@@ -410,7 +410,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 		public (T1, T2, T3) Parse(ReadOnlySpan<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
-			const uint expected = 8u;
+			const uint expected = 3u;
 			if (length != expected) throw ExceptionHelper.InvalidArrayLength(expected, length);
 
 			// ReSharper disable once InlineOutVariableDeclaration
@@ -444,7 +444,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 		public (T1, T2, T3, T4) Parse(ReadOnlySpan<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
-			const uint expected = 8u;
+			const uint expected = 4u;
 			if (length != expected) throw ExceptionHelper.InvalidArrayLength(expected, length);
 
 			// ReSharper disable once InlineOutVariableDeclaration
@@ -482,7 +482,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 		public (T1, T2, T3, T4, T5) Parse(ReadOnlySpan<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
-			const uint expected = 8u;
+			const uint expected = 5u;
 			if (length != expected) throw ExceptionHelper.InvalidArrayLength(expected, length);
 
 			// ReSharper disable once InlineOutVariableDeclaration
@@ -524,7 +524,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 		public (T1, T2, T3, T4, T5, T6) Parse(ReadOnlySpan<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
-			const uint expected = 8u;
+			const uint expected = 6u;
 			if (length != expected) throw ExceptionHelper.InvalidArrayLength(expected, length);
 
 			// ReSharper disable once InlineOutVariableDeclaration
@@ -570,7 +570,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 		public (T1, T2, T3, T4, T5, T6, T7) Parse(ReadOnlySpan<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
-			const uint expected = 8u;
+			const uint expected = 7u;
 			if (length != expected) throw ExceptionHelper.InvalidArrayLength(expected, length);
 
 			// ReSharper disable once InlineOutVariableDeclaration

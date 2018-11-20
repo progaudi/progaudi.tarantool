@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using ProGaudi.Tarantool.Client.Model.Enums;
-
-namespace ProGaudi.Tarantool.Client.Model.Requests
+﻿namespace ProGaudi.Tarantool.Client.Model.Requests
 {
 //    public class ExecuteSqlRequest : IRequest
 //    {

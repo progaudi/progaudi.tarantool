@@ -2,11 +2,14 @@
 
 namespace ProGaudi.Tarantool.Client.Model.Enums
 {
-    public enum FieldType
+    public enum FieldType2
     {
         Str,
         Num,
         [StringValue("*")]
-        Any
+        Any,
+        unsigned,
+        array,
+        
     }
 }

@@ -10,13 +10,13 @@ namespace ProGaudi.Tarantool.Client
     {
         public static void Register(MsgPackContext context)
         {
-            context.GetFormatter<StorageEngine>();
-            context.GetFormatter<FieldType>();
-            context.GetFormatter<IndexPartType>();
             context.GetFormatter<IndexType>();
             
-            context.RegisterGenericFormatter(typeof(EnumFormatter<>));
+            context.RegisterFormatter(new EnumFormatter<Key>());
+            context.RegisterFormatter(new EnumFormatter<CommandCode>());
+            context.RegisterFormatter(new EnumFormatter<Iterator>());
             context.RegisterGenericFormatter(typeof(CallPacketFormatter<>));
+            context.RegisterGenericFormatter(typeof(EvalPacketFormatter<>));
             context.RegisterGenericFormatter(typeof(DeletePacketFormatter<>));
             context.RegisterGenericFormatter(typeof(InsertReplacePacketFormatter<>));
             context.RegisterGenericFormatter(typeof(SelectPacketFormatter<>));
@@ -33,7 +33,9 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterFormatter(new AuthenticationPacketFormatter(context));
             context.RegisterFormatter(new RequestHeaderFormatter(context));
 
-            context.RegisterGenericParser(typeof(EnumFormatter<>));
+            context.RegisterParser(new EnumFormatter<Key>());
+            context.RegisterParser(new EnumFormatter<CommandCode>());
+            context.RegisterParser(new EnumFormatter<Iterator>());
             context.RegisterGenericParser(typeof(ResponsePacketParser<>));
             context.RegisterGenericParser(typeof(ValueTupleParser<>));
             context.RegisterGenericParser(typeof(ValueTupleParser<,>));
@@ -47,9 +49,9 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterParser(new ResponseHeaderParser(context));
             context.RegisterParser(new EmptyResponseParser(context));
             context.RegisterParser(new ErrorResponsePacketParser(context));
-            context.RegisterParser(new SpaceFieldParser(context));
+            context.RegisterParser(new SpaceFieldParser());
             context.RegisterParser(new SpaceParser(context));
-            context.RegisterParser(new IndexPartParser(context));
+            context.RegisterParser(new IndexPartParser());
             context.RegisterParser(new IndexCreationOptionsParser());
             context.RegisterParser(new IndexParser(context));
             context.RegisterParser(new BoxInfo.Converter());
