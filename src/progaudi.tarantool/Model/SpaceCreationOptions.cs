@@ -15,7 +15,7 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public bool IfNotExists { get; set; } = false;
 
-        public StorageEngine StorageEngine { get; set; } = StorageEngine.Memtx;
+        public string StorageEngine { get; set; } = "memtx";
 
         public string User { get; set; } = null;
 

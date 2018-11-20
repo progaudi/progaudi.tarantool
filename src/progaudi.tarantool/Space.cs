@@ -20,7 +20,7 @@ namespace ProGaudi.Tarantool.Client
 
         public ILogicalConnection LogicalConnection { get; set; }
 
-        public Space(uint id, uint fieldCount, string name, StorageEngine engine, IReadOnlyCollection<SpaceField> fields)
+        public Space(uint id, uint fieldCount, string name, string engine, IReadOnlyCollection<SpaceField> fields)
         {
             Id = id;
             FieldCount = fieldCount;
@@ -35,7 +35,7 @@ namespace ProGaudi.Tarantool.Client
 
         public string Name { get; }
 
-        public StorageEngine Engine { get; }
+        public string Engine { get; }
 
         public IReadOnlyCollection<IIndex> Indices => _indexByName.Values;
 

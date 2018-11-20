@@ -40,6 +40,7 @@ services:
     #         - tarantool_1_8
 
     go:
+        image: benchmark-baseline-go
         build:
             context: samples/go-insert
         depends_on:
@@ -47,6 +48,7 @@ services:
         command: insert
 
     net-alpine:
+        image: benchmark-baseline-alpine
         build:
             context: .
             dockerfile: Dockerfile.alpine
@@ -54,6 +56,7 @@ services:
             - tarantool_1_8
 
     net:
+        image: benchmark-baseline-2.1
         build:
             context: .
             dockerfile: Dockerfile
@@ -61,6 +64,7 @@ services:
             - tarantool_1_8
 
     net20:
+        image: benchmark-baseline-2.0
         build:
             context: .
             dockerfile: Dockerfile.2.0

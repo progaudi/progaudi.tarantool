@@ -16,7 +16,7 @@ namespace ProGaudi.Tarantool.Client
 
         string Name { get; }
 
-        StorageEngine Engine { get; }
+        string Engine { get; }
 
         IReadOnlyCollection<IIndex> Indices { get; }
 

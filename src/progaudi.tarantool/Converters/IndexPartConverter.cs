@@ -2,7 +2,6 @@
 using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
@@ -10,13 +9,11 @@ namespace ProGaudi.Tarantool.Client.Converters
     internal class IndexPartConverter : IMsgPackConverter<IndexPart>
     {
         private IMsgPackConverter<uint> _uintConverter;
-        private IMsgPackConverter<IndexPartType> _indexPartTypeConverter;
         private IMsgPackConverter<string> _stringConverter;
 
         public void Initialize(MsgPackContext context)
         {
             _uintConverter = context.GetConverter<uint>();
-            _indexPartTypeConverter = context.GetConverter<IndexPartType>();
             _stringConverter = context.GetConverter<string>();
         }
 
@@ -63,7 +60,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             }
 
             var fieldNo = _uintConverter.Read(reader);
-            var indexPartType = _indexPartTypeConverter.Read(reader);
+            var indexPartType = _stringConverter.Read(reader);
 
             return new IndexPart(fieldNo, indexPartType);
         }
@@ -71,7 +68,7 @@ namespace ProGaudi.Tarantool.Client.Converters
         private IndexPart ReadFromMap(IMsgPackReader reader, uint length)
         {
             uint? fieldNo = null;
-            IndexPartType? indexPartType = null;
+            string indexPartType = null;
 
             for (var i = 0; i < length; i++)
             {
@@ -81,7 +78,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         fieldNo = _uintConverter.Read(reader);
                         break;
                     case "type":
-                        indexPartType = _indexPartTypeConverter.Read(reader);
+                        indexPartType = _stringConverter.Read(reader);
                         break;
                     default:
                         reader.SkipToken();
@@ -89,9 +86,9 @@ namespace ProGaudi.Tarantool.Client.Converters
                 }
             }
 
-            if (fieldNo.HasValue && indexPartType.HasValue)
+            if (fieldNo.HasValue && indexPartType != null)
             {
-                return new IndexPart(fieldNo.Value, indexPartType.Value);
+                return new IndexPart(fieldNo.Value, indexPartType);
             }
 
             throw new SerializationException("Can't read fieldNo or indexPart from map of index metadata");

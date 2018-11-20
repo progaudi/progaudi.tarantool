@@ -13,14 +13,12 @@ namespace ProGaudi.Tarantool.Client.Converters
     {
         private IMsgPackConverter<uint> _uintConverter;
         private IMsgPackConverter<string> _stringConverter;
-        private IMsgPackConverter<StorageEngine> _engineConverter;
         private IMsgPackConverter<List<SpaceField>> _fieldConverter;
 
         public void Initialize(MsgPackContext context)
         {
             _uintConverter = context.GetConverter<uint>();
             _stringConverter = context.GetConverter<string>();
-            _engineConverter = context.GetConverter<StorageEngine>();
             _fieldConverter = context.GetConverter<List<SpaceField>>();
         }
 
@@ -44,7 +42,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             reader.SkipToken();
 
             var name = _stringConverter.Read(reader);
-            var engine = _engineConverter.Read(reader);
+            var engine = _stringConverter.Read(reader);
             var fieldCount = _uintConverter.Read(reader);
 
             //TODO Find what skipped dictionary used for

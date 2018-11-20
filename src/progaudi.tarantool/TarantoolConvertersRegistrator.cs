@@ -17,9 +17,7 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterConverter(new RequestIdConverter());
             context.RegisterConverter(new PacketSizeConverter());
 
-            context.RegisterConverter(new FromStringEnumConverter<StorageEngine>());
             context.RegisterConverter(new FromStringEnumConverter<FieldType>());
-            context.RegisterConverter(new FromStringEnumConverter<IndexPartType>());
             context.RegisterConverter(new FromStringEnumConverter<IndexType>());
 
             context.RegisterConverter(new StringSliceOperationConverter());
