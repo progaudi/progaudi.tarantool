@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Requests;
@@ -14,9 +14,10 @@ namespace ProGaudi.Tarantool.Client
 {
     public class Index : IIndex
     {
+        private readonly MsgPackContext _context;
         public ILogicalConnection LogicalConnection { get; set; }
 
-        public Index(uint id, uint spaceId, string name, bool unique, IndexType type, IReadOnlyList<IndexPart> parts)
+        public Index(uint id, uint spaceId, string name, bool unique, IndexType type, IReadOnlyList<IndexPart> parts, MsgPackContext context)
         {
             Id = id;
             SpaceId = spaceId;
@@ -24,6 +25,7 @@ namespace ProGaudi.Tarantool.Client
             Unique = unique;
             Type = type;
             Parts = parts;
+            _context = context;
         }
 
         public uint Id { get; }
@@ -51,7 +53,8 @@ namespace ProGaudi.Tarantool.Client
                 options?.Limit ?? uint.MaxValue,
                 options?.Offset ?? 0,
                 options?.Iterator ?? Iterator.Eq,
-                key);
+                key,
+                _context);
 
             return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest).ConfigureAwait(false);
         }
@@ -60,7 +63,7 @@ namespace ProGaudi.Tarantool.Client
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
         public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
         {
-            var insertRequest = new InsertRequest<TTuple>(SpaceId, tuple);
+            var insertRequest = new InsertRequest<TTuple>(SpaceId, tuple, _context);
 
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest).ConfigureAwait(false);
         }
@@ -69,7 +72,7 @@ namespace ProGaudi.Tarantool.Client
         ///But common sense, and sources https://github.com/tarantool/tarantool/blob/1.7/src/box/lua/index.c says that that method sould be
         public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
         {
-            var replaceRequest = new ReplaceRequest<TTuple>(SpaceId, tuple);
+            var replaceRequest = new ReplaceRequest<TTuple>(SpaceId, tuple, _context);
 
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest).ConfigureAwait(false);
         }
@@ -87,7 +90,7 @@ namespace ProGaudi.Tarantool.Client
             }
             var iterator = key == null ? Iterator.Eq : Iterator.Ge;
 
-            var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key);
+            var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key, _context);
 
             var minResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket).ConfigureAwait(false);
             return minResponse.Data.SingleOrDefault();
@@ -106,7 +109,7 @@ namespace ProGaudi.Tarantool.Client
             }
             var iterator = key == null ? Iterator.Req : Iterator.Le;
 
-            var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key);
+            var selectPacket = new SelectRequest<TKey>(SpaceId, Id, 1, 0, iterator, key, _context);
 
             var maxResponse = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectPacket).ConfigureAwait(false);
             return maxResponse.Data.SingleOrDefault();
@@ -128,6 +131,7 @@ namespace ProGaudi.Tarantool.Client
                 SpaceId,
                 Id,
                 key,
+                _context,
                 updateOperations);
 
             return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest).ConfigureAwait(false);
@@ -138,6 +142,7 @@ namespace ProGaudi.Tarantool.Client
             var updateRequest = new UpsertRequest<TKey>(
                 SpaceId,
                 key,
+                _context,
                 updateOperations);
 
             await LogicalConnection.SendRequestWithEmptyResponse(updateRequest).ConfigureAwait(false);
@@ -145,7 +150,7 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
         {
-            var deleteRequest = new DeleteRequest<TKey>(SpaceId, Id, key);
+            var deleteRequest = new DeleteRequest<TKey>(SpaceId, Id, key, _context);
 
             return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest).ConfigureAwait(false);
         }

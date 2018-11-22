@@ -27,7 +27,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             result += _keyConverter.Format(destination.Slice(result), Key.Code);
             result += _codeConverter.Format(destination.Slice(result), value.Code);
             result += _keyConverter.Format(destination.Slice(result), Key.Sync);
-            result += MsgPackSpec.WriteFixUInt64(destination.Slice(result), value.RequestId.Value);
+            result += MsgPackSpec.WriteFixUInt64(destination.Slice(result), value.Id.Value);
 
             return result;
         }

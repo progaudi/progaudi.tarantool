@@ -13,8 +13,6 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly ClientOptions _clientOptions;
 
-        private readonly RequestIdCounter _requestIdCounter = new RequestIdCounter();
-
         private LogicalConnection _droppableLogicalConnection;
 
         private readonly ManualResetEvent _connected = new ManualResetEvent(true);
@@ -38,6 +36,7 @@ namespace ProGaudi.Tarantool.Client
         public LogicalConnectionManager(ClientOptions options)
         {
             _clientOptions = options;
+            _pingRequest = new PingRequest(options.MsgPackContext);
 
             if (_clientOptions.ConnectionOptions.PingCheckInterval >= 0)
             {
@@ -83,7 +82,7 @@ namespace ProGaudi.Tarantool.Client
 
                 _clientOptions.LogWriter?.WriteLine($"{nameof(LogicalConnectionManager)}: Connecting...");
 
-                var newConnection = new LogicalConnection(_clientOptions, _requestIdCounter);
+                var newConnection = new LogicalConnection(_clientOptions);
                 await newConnection.Connect().ConfigureAwait(false);;
                 Interlocked.Exchange(ref _droppableLogicalConnection, newConnection)?.Dispose();
 
@@ -102,7 +101,7 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        private static readonly PingRequest _pingRequest = new PingRequest();
+        private readonly PingRequest _pingRequest;
 
         private void CheckPing()
         {
@@ -145,7 +144,7 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
+            where TRequest : Request
         {
             await Connect().ConfigureAwait(false);
 
@@ -156,7 +155,7 @@ namespace ProGaudi.Tarantool.Client
             return result;
         }
 
-        public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null) where TRequest : IRequest
+        public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null) where TRequest : Request
         {
             await Connect().ConfigureAwait(false);
 
@@ -168,7 +167,7 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
+            where TRequest : Request
         {
             await Connect().ConfigureAwait(false);
 
@@ -179,7 +178,7 @@ namespace ProGaudi.Tarantool.Client
             return result;
         }
 
-        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null) where TRequest : IRequest
+        public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null) where TRequest : Request
         {
             await Connect().ConfigureAwait(false);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -14,6 +15,6 @@ namespace ProGaudi.Tarantool.Client
 
         Task<int> ReadAsync(byte[] buffer, int offset, int count);
 
-        void Write(ReadOnlyMemory<byte> buffer);
+        void Write(Request request);
     }
 }

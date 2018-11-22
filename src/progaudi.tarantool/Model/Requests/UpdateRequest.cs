@@ -1,16 +1,22 @@
-﻿using ProGaudi.Tarantool.Client.Model.Enums;
+﻿using System;
+using ProGaudi.MsgPack;
+using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
-    public class UpdateRequest<TKey> : IRequest
+    public class UpdateRequest<TKey> : Request
     {
-        public UpdateRequest(uint spaceId, uint indexId, TKey key, UpdateOperation[] updateOperations)
+        private readonly IMsgPackFormatter<UpdateRequest<TKey>> _formatter;
+
+        public UpdateRequest(uint spaceId, uint indexId, TKey key, MsgPackContext context, params UpdateOperation[] updateOperations)
+            : base(CommandCode.Update, context)
         {
             SpaceId = spaceId;
             IndexId = indexId;
             Key = key;
             UpdateOperations = updateOperations;
+            _formatter = context.GetRequiredFormatter<UpdateRequest<TKey>>();
         }
 
         public uint SpaceId { get; }
@@ -21,6 +27,8 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
 
         public UpdateOperation[] UpdateOperations { get; }
 
-        public CommandCode Code => CommandCode.Update;
+        protected override int GetApproximateBodyLength() => _formatter.GetBufferSize(this);
+
+        protected override int WriteBodyTo(Span<byte> buffer) => _formatter.Format(buffer, this);
     }
 }

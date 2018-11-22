@@ -8,10 +8,12 @@ namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class SpaceParser : IMsgPackParser<Space>
     {
+        private readonly MsgPackContext _context;
         private readonly IMsgPackParser<List<SpaceField>> _fieldConverter;
 
         public SpaceParser(MsgPackContext context)
         {
+            _context = context;
             _fieldConverter = context.GetRequiredParser<List<SpaceField>>();
         }
 
@@ -40,7 +42,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 
             var fields = _fieldConverter.Parse(source.Slice(readSize), out temp); readSize += temp;
             
-            return new Space(id, fieldCount, name, engine, fields.AsReadOnly());
+            return new Space(id, fieldCount, name, engine, fields.AsReadOnly(), _context);
         }
     }
 }

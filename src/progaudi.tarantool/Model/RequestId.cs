@@ -1,27 +1,15 @@
 ﻿namespace ProGaudi.Tarantool.Client.Model
 {
-    public struct RequestId
+    public readonly struct RequestId
     {
-        public RequestId(ulong value)
-        {
-            Value = value;
-        }
+        public RequestId(ulong value) => Value = value;
 
         public ulong Value { get; }
 
-        public static implicit operator ulong(RequestId id)
-        {
-            return id.Value;
-        }
+        public static implicit operator ulong(RequestId id) => id.Value;
 
-        public static explicit operator RequestId(ulong id)
-        {
-            return new RequestId(id);
-        }
+        public static explicit operator RequestId(ulong id) => new RequestId(id);
 
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
+        public override string ToString() => Value.ToString();
     }
 }

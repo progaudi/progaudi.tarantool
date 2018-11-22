@@ -25,7 +25,7 @@ namespace ProGaudi.Tarantool.Client
 
             _logicalConnection = new LogicalConnectionManager(options);
             Metrics = new Metrics(_logicalConnection);
-            Schema = new Schema(_logicalConnection);
+            Schema = new Schema(_logicalConnection, _clientOptions.MsgPackContext);
         }
 
         public Metrics Metrics { get; }
@@ -98,12 +98,6 @@ namespace ProGaudi.Tarantool.Client
             return Schema.Reload();
         }
 
-        public async Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters)
-        {
-            var callRequest = new CallRequest<TTuple>(functionName, parameters, false);
-            return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
-        }
-
         public async Task Call(string functionName)
         {
             await Call<int[], int[]>(functionName, Array.Empty<int>()).ConfigureAwait(false);
@@ -121,13 +115,13 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<DataResponse<TResponse[]>> Call<TTuple, TResponse>(string functionName, TTuple parameters)
         {
-            var callRequest = new CallRequest<TTuple>(functionName, parameters);
+            var callRequest = new CallRequest<TTuple>(functionName, parameters, _clientOptions.MsgPackContext);
             return await _logicalConnection.SendRequest<CallRequest<TTuple>, TResponse>(callRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TResponse[]>> Eval<TTuple, TResponse>(string expression, TTuple parameters)
         {
-            var evalRequest = new EvalRequest<TTuple>(expression, parameters);
+            var evalRequest = new EvalRequest<TTuple>(expression, parameters, _clientOptions.MsgPackContext);
             return await _logicalConnection.SendRequest<EvalRequest<TTuple>, TResponse>(evalRequest).ConfigureAwait(false);
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -9,7 +10,7 @@ namespace ProGaudi.Tarantool.Client
     {
         private readonly ClientOptions _clientOptions;
         private readonly IPhysicalConnection _physicalConnection;
-        private readonly Queue<ReadOnlyMemory<byte>> _buffer;
+        private readonly Queue<Request> _buffer;
         private readonly object _lock = new object();
         private readonly Thread _thread;
         private readonly ManualResetEventSlim _exitEvent;
@@ -20,7 +21,7 @@ namespace ProGaudi.Tarantool.Client
         {
             _clientOptions = clientOptions;
             _physicalConnection = physicalConnection;
-            _buffer = new Queue<ReadOnlyMemory<byte>>();
+            _buffer = new Queue<Request>();
             _thread = new Thread(WriteFunction)
             {
                 IsBackground = true,
@@ -43,18 +44,18 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected => !_disposed;
         
-        public void Write(ReadOnlyMemory<byte> package)
+        public void Write(Request request)
         {
             if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(ResponseReader));
             }
 
-            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: {package.Length} bytes");
+            _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: {request.Header.Code} code.");
             bool shouldSignal;
             lock (_lock)
             {
-                _buffer.Enqueue(package);
+                _buffer.Enqueue(request);
                 shouldSignal = _buffer.Count == 1;
             }
 
@@ -97,7 +98,7 @@ namespace ProGaudi.Tarantool.Client
 
         private void WriteRequests(int limit)
         {
-            ReadOnlyMemory<byte> GetRequest()
+            Request GetRequest()
             {
                 lock (_lock)
                 {
@@ -108,15 +109,15 @@ namespace ProGaudi.Tarantool.Client
                 return null;
             }
 
-            ReadOnlyMemory<byte> request;
+            Request request;
             var count = 0;
-            while (!(request = GetRequest()).IsEmpty)
+            while ((request = GetRequest()) != null)
             {
-                _clientOptions?.LogWriter?.WriteLine($"Writing request {request.Length} bytes.");
+//                _clientOptions?.LogWriter?.WriteLine($"Writing request {request.Length} bytes.");
 
                 _physicalConnection.Write(request);
 
-                _clientOptions?.LogWriter?.WriteLine($"Wrote request {request.Length} bytes.");
+//                _clientOptions?.LogWriter?.WriteLine($"Wrote request {request.Length} bytes.");
 
                 count++;
                 if (limit > 0 && count > limit)

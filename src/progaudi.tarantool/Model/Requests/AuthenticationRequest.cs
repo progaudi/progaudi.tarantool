@@ -2,36 +2,33 @@
 using System.Buffers;
 using System.Linq;
 using ProGaudi.Buffers;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
-    public class AuthenticationRequest : IRequest, IDisposable
+    public class AuthenticationRequest : Request, IDisposable
     {
-        private AuthenticationRequest(string username, IMemoryOwner<byte> scramble)
+        private readonly IMsgPackFormatter<AuthenticationRequest> _formatter;
+
+        private AuthenticationRequest(string username, IMemoryOwner<byte> scramble, MsgPackContext context)
+            : base(CommandCode.Auth, context)
         {
             Username = username;
             Scramble = scramble;
+            _formatter = context.GetRequiredFormatter<AuthenticationRequest>();
         }
 
         public string Username { get; }
 
         public IMemoryOwner<byte> Scramble { get; }
 
-        public CommandCode Code => CommandCode.Auth;
-
-        public static AuthenticationRequest Create(GreetingsResponse greetings, TarantoolNode node)
+        public static AuthenticationRequest Create(GreetingsResponse greetings, TarantoolNode node, MsgPackContext context)
         {
             var scramble = GetScramble(greetings, node.Pwd);
-            return new AuthenticationRequest(node.User, scramble);
-        }
-
-        public static AuthenticationRequest Create(GreetingsResponse greetings, string username, string password)
-        {
-            var scramble = GetScramble(greetings, password);
-            return new AuthenticationRequest(username, scramble);
+            return new AuthenticationRequest(node.User, scramble, context);
         }
         
         private static IMemoryOwner<byte> GetScramble(GreetingsResponse greetings, string password)
@@ -53,5 +50,9 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
         {
             Scramble?.Dispose();
         }
+
+        protected override int GetApproximateBodyLength() => _formatter.GetBufferSize(this);
+
+        protected override int WriteBodyTo(Span<byte> buffer) => _formatter.Format(buffer, this);
     }
 }

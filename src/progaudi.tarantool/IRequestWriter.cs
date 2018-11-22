@@ -1,4 +1,5 @@
 ﻿using System;
+using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -8,6 +9,6 @@ namespace ProGaudi.Tarantool.Client
 
         bool IsConnected { get; }
 
-        void Write(ReadOnlyMemory<byte> package);
+        void Write(Request request);
     }
 }

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Buffers;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
-using ProGaudi.Tarantool.Client.Model.Headers;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Model.Responses;
 using ProGaudi.Tarantool.Client.Utils;
@@ -18,8 +16,6 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly ClientOptions _clientOptions;
 
-        private readonly RequestIdCounter _requestIdCounter;
-
         private readonly IPhysicalConnection _physicalConnection;
 
         private readonly IResponseReader _responseReader;
@@ -29,19 +25,16 @@ namespace ProGaudi.Tarantool.Client
         private readonly ILog _logWriter;
 
         private bool _disposed;
-        private readonly IMsgPackFormatter<RequestHeader> _headerFormatter;
 
-        public LogicalConnection(ClientOptions options, RequestIdCounter requestIdCounter)
+        public LogicalConnection(ClientOptions options)
         {
             _clientOptions = options;
-            _requestIdCounter = requestIdCounter;
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
 
             _physicalConnection = new NetworkStreamPhysicalConnection();
             _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
             _requestWriter = new RequestWriter(_clientOptions, _physicalConnection);
-            _headerFormatter = _msgPackContext.GetFormatter<RequestHeader>();
         }
 
         public uint PingsFailedByTimeoutCount
@@ -100,27 +93,27 @@ namespace ProGaudi.Tarantool.Client
         }
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
+            where TRequest : Request
         {
             await SendRequestImpl(request, timeout).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
+            where TRequest : Request
         {
             var memory = await SendRequestImpl(request, timeout).ConfigureAwait(false);
             return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(memory.Span, _msgPackContext);
         }
 
         public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
+            where TRequest : Request
         {
             var memory = await SendRequestImpl(request, timeout).ConfigureAwait(false);
             return MsgPackSerializer.Deserialize<DataResponse>(memory.Span, _msgPackContext);
         }
 
         public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest
+            where TRequest : Request
         {
             return (await SendRequestImpl(request, timeout).ConfigureAwait(false)).ToArray();
         }
@@ -138,60 +131,45 @@ namespace ProGaudi.Tarantool.Client
                 return;
             }
 
-            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode);
+            var authenticateRequest = AuthenticationRequest.Create(greetings, singleNode, _msgPackContext);
 
             await SendRequestWithEmptyResponse(authenticateRequest).ConfigureAwait(false);
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
         private async Task<ReadOnlyMemory<byte>> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
-            where TRequest : IRequest
+            where TRequest : Request
         {
             if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(LogicalConnection));
             }
 
-            var formatter = _msgPackContext.GetRequiredFormatter<TRequest>();
-            var expectedLength = Constants.PacketSizeBufferSize + Constants.MaxHeaderLength + formatter.GetBufferSize(request);
-            using (var bodyBuffer = MemoryPool<byte>.Shared.Rent(expectedLength))
+            var responseTask = _responseReader.GetResponseTask(request.Header.Id);
+            _requestWriter.Write(request);
+
+            try
             {
-                var requestId = _requestIdCounter.GetRequestId();
-                var responseTask = _responseReader.GetResponseTask(requestId);
-                var requestBuffer = bodyBuffer.Memory.Slice(Constants.PacketSizeBufferSize);
-
-                var requestHeader = new RequestHeader(request.Code, requestId);
-                var headerLength = _headerFormatter.Format(requestBuffer.Span, requestHeader);
-                var bodyLength = formatter.Format(requestBuffer.Slice(headerLength).Span, request);
-                var dataLength = headerLength + bodyLength;
-                MsgPackSpec.WriteFixUInt32(bodyBuffer.Memory.Span, (uint) dataLength);
-
-                var package = bodyBuffer.Memory.Slice(0, Constants.PacketSizeBufferSize + dataLength);
-                _requestWriter.Write(package);
-
-                try
+                if (timeout.HasValue)
                 {
-                    if (timeout.HasValue)
-                    {
-                        var cts = new CancellationTokenSource(timeout.Value);
-                        responseTask = responseTask.WithCancellation(cts.Token);
-                    }
+                    var cts = new CancellationTokenSource(timeout.Value);
+                    responseTask = responseTask.WithCancellation(cts.Token);
+                }
 
-                    var responseStream = await responseTask.ConfigureAwait(false);
-                    _logWriter?.WriteLine($"Response with requestId {requestId} is received, length: {responseStream.Length}.");
+                var responseStream = await responseTask.ConfigureAwait(false);
+                _logWriter?.WriteLine($"Response with requestId {request.Header.Id} is received, length: {responseStream.Length}.");
 
-                    return responseStream;
-                }
-                catch (ArgumentException)
-                {
-                    _logWriter?.WriteLine($"Response with requestId {requestId} failed, package:\n{ByteUtils.ToReadableString(package.Span)}");
-                    throw;
-                }
-                catch (TimeoutException)
-                {
-                    PingsFailedByTimeoutCount++;
-                    throw;
-                }
+                return responseStream;
+            }
+            catch (ArgumentException)
+            {
+                _logWriter?.WriteLine($"Response with requestId {request.Header.Id} failed");
+                throw;
+            }
+            catch (TimeoutException)
+            {
+                PingsFailedByTimeoutCount++;
+                throw;
             }
         }
     }

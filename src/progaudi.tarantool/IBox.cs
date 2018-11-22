@@ -24,8 +24,6 @@ namespace ProGaudi.Tarantool.Client
 
         Task ReloadBoxInfo();
 
-        Task<DataResponse<TResponse[]>> Call_1_6<TTuple, TResponse>(string functionName, TTuple parameters);
-
         Task Call(string functionName);
 
         Task Call<TTuple>(string functionName, TTuple parameters);

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
+using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Utils;
 
 #if PROGAUDI_NETCORE
@@ -52,10 +54,17 @@ namespace ProGaudi.Tarantool.Client
             options.LogWriter?.WriteLine("Socket connection established.");
         }
 
-        public void Write(ReadOnlyMemory<byte> buffer)
+        public void Write(Request request)
         {
             CheckConnectionStatus();
-            _stream.Write(buffer.Span);
+            var approximateLength = Constants.PacketSizeBufferSize + request.GetApproximateLength();
+            using (var bodyBuffer = MemoryPool<byte>.Shared.Rent(approximateLength))
+            {
+                var span = bodyBuffer.Memory.Span;
+                var bodyLength = request.WriteTo(span.Slice(Constants.PacketSizeBufferSize));
+                MsgPackSpec.WriteFixUInt32(span, (uint) bodyLength);
+                _stream.Write(span.Slice(0, Constants.PacketSizeBufferSize + bodyLength));                
+            }
         }
 
         public async Task Flush()

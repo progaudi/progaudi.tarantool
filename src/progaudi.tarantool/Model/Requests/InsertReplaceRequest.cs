@@ -1,12 +1,13 @@
-﻿using ProGaudi.Tarantool.Client.Model.Enums;
+﻿using ProGaudi.MsgPack;
+using ProGaudi.Tarantool.Client.Model.Enums;
 
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
-    public abstract class InsertReplaceRequest<T> : IRequest
+    public abstract class InsertReplaceRequest<T> : Request
     {
-        protected InsertReplaceRequest(CommandCode code, uint spaceId, T tuple)
+        protected InsertReplaceRequest(CommandCode code, uint spaceId, T tuple, MsgPackContext context)
+            : base(code, context)
         {
-            Code = code;
             SpaceId = spaceId;
             Tuple = tuple;
         }
@@ -14,7 +15,5 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
         public uint SpaceId { get; }
 
         public T Tuple { get; }
-
-        public CommandCode Code { get; }
     }
 }

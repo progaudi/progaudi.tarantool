@@ -47,7 +47,7 @@ namespace ProGaudi.Tarantool.Client.Utils
         public static ArgumentException TarantoolError(ResponseHeader header, ErrorResponse errorResponse)
         {
             var detailedMessage = GetDetailedTarantoolMessage(header.Code);
-            return new ArgumentException($"Tarantool returns an error for request with id: {header.RequestId}, code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}. {detailedMessage}");
+            return new ArgumentException($"Tarantool returns an error for request with id: {header.Id}, code: 0x{header.Code:X}  and message: {errorResponse.ErrorMessage}. {detailedMessage}");
         }
 
         public static ArgumentOutOfRangeException WrongRequestId(RequestId requestId)

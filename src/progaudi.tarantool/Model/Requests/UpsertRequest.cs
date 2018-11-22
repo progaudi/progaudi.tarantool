@@ -1,15 +1,21 @@
-﻿using ProGaudi.Tarantool.Client.Model.Enums;
+﻿using System;
+using ProGaudi.MsgPack;
+using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.UpdateOperations;
 
 namespace ProGaudi.Tarantool.Client.Model.Requests
 {
-    public class UpsertRequest<TTuple> : IRequest
+    public class UpsertRequest<TTuple> : Request
     {
-        public UpsertRequest(uint spaceId, TTuple tuple, UpdateOperation[] updateOperations)
+        private readonly IMsgPackFormatter<UpsertRequest<TTuple>> _formatter;
+
+        public UpsertRequest(uint spaceId, TTuple tuple, MsgPackContext context, params UpdateOperation[] updateOperations)
+            : base(CommandCode.Upsert, context)
         {
             SpaceId = spaceId;
             Tuple = tuple;
             UpdateOperations = updateOperations;
+            _formatter = context.GetRequiredFormatter<UpsertRequest<TTuple>>();
         }
 
         public UpdateOperation[] UpdateOperations { get; }
@@ -18,6 +24,8 @@ namespace ProGaudi.Tarantool.Client.Model.Requests
 
         public TTuple Tuple { get; }
 
-        public CommandCode Code => CommandCode.Upsert;
+        protected override int GetApproximateBodyLength() => _formatter.GetBufferSize(this);
+
+        protected override int WriteBodyTo(Span<byte> buffer) => _formatter.Format(buffer, this);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Requests;
 using ProGaudi.Tarantool.Client.Utils;
@@ -17,14 +18,16 @@ namespace ProGaudi.Tarantool.Client
         internal const uint PrimaryIndexId = 0;
 
         private readonly ILogicalConnection _logicalConnection;
+        private readonly MsgPackContext _context;
 
         private Dictionary<string, ISpace> _indexByName = new Dictionary<string, ISpace>();
 
         private Dictionary<uint, ISpace> _indexById = new Dictionary<uint, ISpace>();
 
-        public Schema(ILogicalConnection logicalConnection)
+        public Schema(ILogicalConnection logicalConnection, MsgPackContext context)
         {
             _logicalConnection = logicalConnection;
+            _context = context;
         }
 
         public Task<ISpace> GetSpace(string name) => Task.FromResult(this[name]);
@@ -58,7 +61,7 @@ namespace ProGaudi.Tarantool.Client
 
         private async Task<T[]> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)
         {
-            var request = new SelectRequest<ValueTuple<uint>>(spaceId, PrimaryIndexId, uint.MaxValue, 0, iterator, ValueTuple.Create(id));
+            var request = new SelectRequest<ValueTuple<uint>>(spaceId, PrimaryIndexId, uint.MaxValue, 0, iterator, ValueTuple.Create(id), _context);
 
             var response = await _logicalConnection
                 .SendRequest<SelectRequest<ValueTuple<uint>>, T>(request)

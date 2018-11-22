@@ -13,16 +13,16 @@ namespace ProGaudi.Tarantool.Client
         bool IsConnected();
 
         Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest;
+            where TRequest : Request;
 
         Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest;
+            where TRequest : Request;
 
         Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest;
+            where TRequest : Request;
 
         Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
-            where TRequest : IRequest;
+            where TRequest : Request;
 
         uint PingsFailedByTimeoutCount { get; }
     }

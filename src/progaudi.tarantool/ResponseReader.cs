@@ -217,7 +217,7 @@ namespace ProGaudi.Tarantool.Client
             var readSize = 0;
             var header = _headerParser.Parse(result.Span, out var temp);
             readSize += temp;
-            var tcs = PopResponseCompletionSource(header.RequestId);
+            var tcs = PopResponseCompletionSource(header.Id);
 
             if (tcs == null)
             {
@@ -233,7 +233,7 @@ namespace ProGaudi.Tarantool.Client
             }
             else
             {
-                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
+                _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.Id} found.");
                 tcs.SetResult(result.Slice(readSize));
             }
         }

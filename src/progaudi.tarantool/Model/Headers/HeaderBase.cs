@@ -4,14 +4,14 @@ namespace ProGaudi.Tarantool.Client.Model.Headers
 {
     public abstract class HeaderBase
     {
-        protected HeaderBase(CommandCode code, RequestId requestId)
+        protected HeaderBase(CommandCode code, RequestId id)
         {
             Code = code;
-            RequestId = requestId;
+            Id = id;
         }
 
         public CommandCode Code { get; }
 
-        public RequestId RequestId { get; }
+        public RequestId Id { get; }
     }
 }

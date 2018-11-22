@@ -4,7 +4,7 @@ namespace ProGaudi.Tarantool.Client.Model.Headers
 {
     public class ResponseHeader : HeaderBase
     {
-        public ResponseHeader(CommandCode code, RequestId requestId, ulong? schemaId) : base(code, requestId)
+        public ResponseHeader(CommandCode code, RequestId id, ulong? schemaId) : base(code, id)
         {
             SchemaId = schemaId;
         }

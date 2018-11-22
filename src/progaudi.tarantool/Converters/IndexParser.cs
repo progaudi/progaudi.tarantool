@@ -9,12 +9,14 @@ namespace ProGaudi.Tarantool.Client.Converters
 {
     internal class IndexParser : IMsgPackParser<Index>
     {
+        private readonly MsgPackContext _context;
         private readonly IMsgPackParser<IndexType> _indexTypeConverter;
         private readonly IMsgPackParser<IndexCreationOptions> _optionsConverter;
         private readonly IMsgPackParser<List<IndexPart>> _indexPartsConverter;
 
         public IndexParser(MsgPackContext context)
         {
+            _context = context;
             _indexTypeConverter = context.GetRequiredParser<IndexType>();
             _optionsConverter = context.GetRequiredParser<IndexCreationOptions>();
             _indexPartsConverter = context.GetRequiredParser<List<IndexPart>>();
@@ -36,7 +38,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             var options = _optionsConverter.Parse(source.Slice(readSize), out temp); readSize += temp;
             var indexParts = _indexPartsConverter.Parse(source.Slice(readSize), out temp); readSize += temp;
 
-            return new Index(id, spaceId, name, options.Unique, type, indexParts.AsReadOnly());
+            return new Index(id, spaceId, name, options.Unique, type, indexParts.AsReadOnly(), _context);
         }
     }
 }

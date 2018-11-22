@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Requests;
@@ -17,16 +17,18 @@ namespace ProGaudi.Tarantool.Client
     {
         private Dictionary<string, IIndex> _indexByName = new Dictionary<string, IIndex>();
         private Dictionary<uint, IIndex> _indexById = new Dictionary<uint, IIndex>();
+        private readonly MsgPackContext _context;
 
         public ILogicalConnection LogicalConnection { get; set; }
 
-        public Space(uint id, uint fieldCount, string name, string engine, IReadOnlyCollection<SpaceField> fields)
+        public Space(uint id, uint fieldCount, string name, string engine, IReadOnlyCollection<SpaceField> fields, MsgPackContext context)
         {
             Id = id;
             FieldCount = fieldCount;
             Name = name;
             Engine = engine;
             Fields = fields;
+            _context = context;
         }
 
         public uint Id { get; }
@@ -70,26 +72,26 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<DataResponse<TTuple[]>> Insert<TTuple>(TTuple tuple)
         {
-            var insertRequest = new InsertRequest<TTuple>(Id, tuple);
+            var insertRequest = new InsertRequest<TTuple>(Id, tuple, _context);
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(insertRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TTuple[]>> Select<TKey, TTuple>(TKey selectKey)
         {
-            var selectRequest = new SelectRequest<TKey>(Id, Schema.PrimaryIndexId, uint.MaxValue, 0, Iterator.Eq, selectKey);
+            var selectRequest = new SelectRequest<TKey>(Id, Schema.PrimaryIndexId, uint.MaxValue, 0, Iterator.Eq, selectKey, _context);
             return await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest).ConfigureAwait(false);
         }
 
         public async Task<TTuple> Get<TKey, TTuple>(TKey key)
         {
-            var selectRequest = new SelectRequest<TKey>(Id, Schema.PrimaryIndexId, 1, 0, Iterator.Eq, key);
+            var selectRequest = new SelectRequest<TKey>(Id, Schema.PrimaryIndexId, 1, 0, Iterator.Eq, key, _context);
             var response = await LogicalConnection.SendRequest<SelectRequest<TKey>, TTuple>(selectRequest).ConfigureAwait(false);
             return response.Data.SingleOrDefault();
         }
 
         public async Task<DataResponse<TTuple[]>> Replace<TTuple>(TTuple tuple)
         {
-            var replaceRequest = new ReplaceRequest<TTuple>(Id, tuple);
+            var replaceRequest = new ReplaceRequest<TTuple>(Id, tuple, _context);
             return await LogicalConnection.SendRequest<InsertReplaceRequest<TTuple>, TTuple>(replaceRequest).ConfigureAwait(false);
         }
 
@@ -101,19 +103,19 @@ namespace ProGaudi.Tarantool.Client
 
         public async Task<DataResponse<TTuple[]>> Update<TKey, TTuple>(TKey key, UpdateOperation[] updateOperations)
         {
-            var updateRequest = new UpdateRequest<TKey>(Id, Schema.PrimaryIndexId, key, updateOperations);
+            var updateRequest = new UpdateRequest<TKey>(Id, Schema.PrimaryIndexId, key, _context, updateOperations);
             return await LogicalConnection.SendRequest<UpdateRequest<TKey>, TTuple>(updateRequest).ConfigureAwait(false);
         }
 
         public async Task Upsert<TTuple>(TTuple tuple, UpdateOperation[] updateOperations)
         {
-            var upsertRequest = new UpsertRequest<TTuple>(Id, tuple, updateOperations);
+            var upsertRequest = new UpsertRequest<TTuple>(Id, tuple, _context, updateOperations);
             await LogicalConnection.SendRequestWithEmptyResponse(upsertRequest).ConfigureAwait(false);
         }
 
         public async Task<DataResponse<TTuple[]>> Delete<TKey, TTuple>(TKey key)
         {
-            var deleteRequest = new DeleteRequest<TKey>(Id, Schema.PrimaryIndexId, key);
+            var deleteRequest = new DeleteRequest<TKey>(Id, Schema.PrimaryIndexId, key, _context);
             return await LogicalConnection.SendRequest<DeleteRequest<TKey>, TTuple>(deleteRequest).ConfigureAwait(false);
         }
 
