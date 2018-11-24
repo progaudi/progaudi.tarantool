@@ -18,10 +18,6 @@ namespace ProGaudi.Tarantool.Client
 
         private readonly IPhysicalConnection _physicalConnection;
 
-        private readonly IResponseReader _responseReader;
-
-        private readonly IRequestWriter _requestWriter;
-
         private readonly ILog _logWriter;
 
         private bool _disposed;
@@ -32,9 +28,7 @@ namespace ProGaudi.Tarantool.Client
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
 
-            _physicalConnection = new NetworkStreamPhysicalConnection();
-            _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
-            _requestWriter = new RequestWriter(_clientOptions, _physicalConnection);
+            _physicalConnection = new NetworkStreamPhysicalConnection(_clientOptions);
         }
 
         public uint PingsFailedByTimeoutCount
@@ -51,31 +45,22 @@ namespace ProGaudi.Tarantool.Client
             }
 
             _disposed = true;
-
-            _responseReader.Dispose();
-            _requestWriter.Dispose();
             _physicalConnection.Dispose();
         }
 
         public async Task Connect()
         {
-            await _physicalConnection.Connect(_clientOptions).ConfigureAwait(false);
-
-            var greetingsResponseBytes = new byte[128];
-            var readCount = await _physicalConnection.ReadAsync(greetingsResponseBytes, 0, greetingsResponseBytes.Length).ConfigureAwait(false);
-            if (readCount != greetingsResponseBytes.Length)
+            var greetingsResponseBytes = await _physicalConnection.Connect(_clientOptions).ConfigureAwait(false);
+            if (greetingsResponseBytes.Length != Constants.GreetingsSize)
             {
-                throw ExceptionHelper.UnexpectedGreetingBytesCount(readCount);
+                throw ExceptionHelper.UnexpectedGreetingBytesCount(greetingsResponseBytes.Length);
             }
 
-            var greetings = new GreetingsResponse(greetingsResponseBytes);
+            var greetings = new GreetingsResponse(greetingsResponseBytes.Span);
 
             _clientOptions.LogWriter?.WriteLine($"Greetings received, salt is {Convert.ToBase64String(greetings.Salt)} .");
 
             PingsFailedByTimeoutCount = 0;
-
-            _responseReader.BeginReading();
-            _requestWriter.BeginWriting();
 
             _clientOptions.LogWriter?.WriteLine("Server responses reading started.");
 
@@ -84,12 +69,7 @@ namespace ProGaudi.Tarantool.Client
 
         public bool IsConnected()
         {
-            if (_disposed)
-            {
-                return false;
-            }
-
-            return _responseReader.IsConnected && _requestWriter.IsConnected && _physicalConnection.IsConnected;
+            return !_disposed && _physicalConnection.IsConnected;
         }
 
         public async Task SendRequestWithEmptyResponse<TRequest>(TRequest request, TimeSpan? timeout = null)
@@ -145,8 +125,8 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(LogicalConnection));
             }
 
-            var responseTask = _responseReader.GetResponseTask(request.Header.Id);
-            _requestWriter.Write(request);
+            var responseTask = _physicalConnection.Reader.GetResponseTask(request.Header.Id);
+            _physicalConnection.Writer.Write(request);
 
             try
             {

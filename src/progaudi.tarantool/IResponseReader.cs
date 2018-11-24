@@ -7,10 +7,8 @@ namespace ProGaudi.Tarantool.Client
 {
     public interface IResponseReader : IDisposable
     {
-        void BeginReading();
+        void Start();
 
         Task<ReadOnlyMemory<byte>> GetResponseTask(RequestId requestId);
-
-        bool IsConnected { get; }
     }
 }

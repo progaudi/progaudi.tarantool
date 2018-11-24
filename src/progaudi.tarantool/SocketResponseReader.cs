@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ProGaudi.MsgPack;
@@ -11,16 +12,15 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal class ResponseReader : IResponseReader
+    internal class SocketResponseReader : IResponseReader
     {
-        private readonly IPhysicalConnection _physicalConnection;
-
         private readonly Dictionary<RequestId, TaskCompletionSource<ReadOnlyMemory<byte>>> _pendingRequests =
             new Dictionary<RequestId, TaskCompletionSource<ReadOnlyMemory<byte>>>();
 
         private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
         private readonly ClientOptions _clientOptions;
+        private readonly Stream _stream;
 
         private byte[] _buffer;
 
@@ -32,16 +32,14 @@ namespace ProGaudi.Tarantool.Client
         private readonly IMsgPackParser<ResponseHeader> _headerParser;
         private readonly IMsgPackParser<ErrorResponse> _errorParser;
 
-        public ResponseReader(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
+        public SocketResponseReader(ClientOptions clientOptions, Stream stream)
         {
-            _physicalConnection = physicalConnection;
             _clientOptions = clientOptions;
+            _stream = stream;
             _buffer = new byte[clientOptions.ConnectionOptions.ReadStreamBufferSize];
             _headerParser = _clientOptions.MsgPackContext.GetRequiredParser<ResponseHeader>();
             _errorParser = _clientOptions.MsgPackContext.GetRequiredParser<ErrorResponse>();
         }
-
-        public bool IsConnected => !_disposed;
 
         public void Dispose()
         {
@@ -60,7 +58,7 @@ namespace ProGaudi.Tarantool.Client
 
                 foreach (var response in _pendingRequests.Values)
                 {
-                    response.SetException(new ObjectDisposedException(nameof(ResponseReader)));
+                    response.SetException(new ObjectDisposedException(nameof(SocketResponseReader)));
                 }
 
                 _pendingRequests.Clear();
@@ -79,7 +77,7 @@ namespace ProGaudi.Tarantool.Client
 
                 if (_disposed)
                 {
-                    throw new ObjectDisposedException(nameof(ResponseReader));
+                    throw new ObjectDisposedException(nameof(SocketResponseReader));
                 }
 
                 if (_pendingRequests.ContainsKey(requestId))
@@ -98,13 +96,13 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public void BeginReading()
+        public void Start()
         {
             var freeBufferSpace = EnsureSpaceAndComputeBytesToRead();
 
             _clientOptions.LogWriter?.WriteLine($"Begin reading from connection to buffer, bytes count: {freeBufferSpace}");
 
-            var readingTask = _physicalConnection.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
+            var readingTask = _stream.ReadAsync(_buffer, _readingOffset, freeBufferSpace);
             readingTask.ContinueWith(EndReading);
         }
 
@@ -116,7 +114,7 @@ namespace ProGaudi.Tarantool.Client
 
                 if (_disposed)
                 {
-                    throw new ObjectDisposedException(nameof(ResponseReader));
+                    throw new ObjectDisposedException(nameof(SocketResponseReader));
                 }
 
                 if (_pendingRequests.TryGetValue(requestId, out var request))
@@ -147,7 +145,7 @@ namespace ProGaudi.Tarantool.Client
 
                 if (ProcessReadBytes(readBytesCount))
                 {
-                    BeginReading();
+                    Start();
                     return;
                 }
             }

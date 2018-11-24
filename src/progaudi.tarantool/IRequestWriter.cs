@@ -3,11 +3,9 @@ using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal interface IRequestWriter : IDisposable
+    public interface IRequestWriter : IDisposable
     {
-        void BeginWriting();
-
-        bool IsConnected { get; }
+        void Start();
 
         void Write(Request request);
     }

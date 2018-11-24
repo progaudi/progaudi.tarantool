@@ -17,11 +17,20 @@ namespace ProGaudi.Tarantool.Client
 {
     internal class NetworkStreamPhysicalConnection : IPhysicalConnection
     {
+        private readonly ClientOptions _clientOptions;
+        
         private Stream _stream;
 
         private Socket _socket;
 
         private bool _disposed;
+        private IResponseReader _reader;
+        private IRequestWriter _writer;
+
+        public NetworkStreamPhysicalConnection(ClientOptions clientOptions)
+        {
+            _clientOptions = clientOptions;
+        }
 
         public void Dispose()
         {
@@ -36,7 +45,7 @@ namespace ProGaudi.Tarantool.Client
             _socket?.Dispose();
         }
 
-        public async Task Connect(ClientOptions options)
+        public async Task<ReadOnlyMemory<byte>> Connect(ClientOptions options)
         {
             if (! options.ConnectionOptions.Nodes.Any()) 
                 throw new ClientSetupException("There are zero configured nodes, you should provide one");
@@ -52,31 +61,15 @@ namespace ProGaudi.Tarantool.Client
 
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
-        }
+            Memory<byte> result = new byte[Constants.GreetingsSize];
+            var read = await _stream.ReadAsync(result);
+                
+            Writer = new SocketRequestWriter(_clientOptions, _stream);
+            Writer.Start();
+            Reader = new SocketResponseReader(_clientOptions, _stream);
+            Reader.Start();
 
-        public void Write(Request request)
-        {
-            CheckConnectionStatus();
-            var approximateLength = Constants.PacketSizeBufferSize + request.GetApproximateLength();
-            using (var bodyBuffer = MemoryPool<byte>.Shared.Rent(approximateLength))
-            {
-                var span = bodyBuffer.Memory.Span;
-                var bodyLength = request.WriteTo(span.Slice(Constants.PacketSizeBufferSize));
-                MsgPackSpec.WriteFixUInt32(span, (uint) bodyLength);
-                _stream.Write(span.Slice(0, Constants.PacketSizeBufferSize + bodyLength));                
-            }
-        }
-
-        public async Task Flush()
-        {
-            CheckConnectionStatus();
-            await _stream.FlushAsync().ConfigureAwait(false);
-        }
-
-        public async Task<int> ReadAsync(byte[] buffer, int offset, int count)
-        {
-            CheckConnectionStatus();
-            return await _stream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
+            return result.Slice(0, read);
         }
 
 #if PROGAUDI_NETCORE
@@ -119,6 +112,26 @@ namespace ProGaudi.Tarantool.Client
 #endif
 
         public bool IsConnected => !_disposed && _stream != null;
+
+        public IResponseReader Reader
+        {
+            get
+            {
+                CheckConnectionStatus();
+                return _reader;
+            }
+            private set => _reader = value;
+        }
+
+        public IRequestWriter Writer
+        {
+            get
+            {
+                CheckConnectionStatus();
+                return _writer;
+            }
+            private set => _writer = value;
+        }
 
         private void CheckConnectionStatus()
         {

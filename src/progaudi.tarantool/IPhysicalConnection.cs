@@ -7,14 +7,12 @@ namespace ProGaudi.Tarantool.Client
 {
     public interface IPhysicalConnection : IDisposable
     {
-        Task Connect(ClientOptions options);
-
-        Task Flush();
+        Task<ReadOnlyMemory<byte>> Connect(ClientOptions options);
 
         bool IsConnected { get; }
-
-        Task<int> ReadAsync(byte[] buffer, int offset, int count);
-
-        void Write(Request request);
+        
+        IResponseReader Reader { get; }
+        
+        IRequestWriter Writer { get; }
     }
 }

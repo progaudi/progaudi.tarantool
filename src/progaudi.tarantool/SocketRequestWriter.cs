@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
+using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Requests;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal class RequestWriter : IRequestWriter
+    internal class SocketRequestWriter : IRequestWriter
     {
         private readonly ClientOptions _clientOptions;
-        private readonly IPhysicalConnection _physicalConnection;
+        private readonly Stream _stream;
         private readonly Queue<Request> _buffer;
         private readonly object _lock = new object();
         private readonly Thread _thread;
@@ -17,10 +20,10 @@ namespace ProGaudi.Tarantool.Client
         private readonly ManualResetEventSlim _newRequestsAvailable;
         private bool _disposed;
 
-        public RequestWriter(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
+        public SocketRequestWriter(ClientOptions clientOptions, Stream stream)
         {
             _clientOptions = clientOptions;
-            _physicalConnection = physicalConnection;
+            _stream = stream;
             _buffer = new Queue<Request>();
             _thread = new Thread(WriteFunction)
             {
@@ -31,24 +34,22 @@ namespace ProGaudi.Tarantool.Client
             _newRequestsAvailable = new ManualResetEventSlim();
         }
 
-        public void BeginWriting()
+        public void Start()
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(nameof(ResponseReader));
+                throw new ObjectDisposedException(nameof(SocketResponseReader));
             }
 
             _clientOptions?.LogWriter?.WriteLine("Starting thread");
             _thread.Start();
         }
-
-        public bool IsConnected => !_disposed;
         
         public void Write(Request request)
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(nameof(ResponseReader));
+                throw new ObjectDisposedException(nameof(SocketResponseReader));
             }
 
             _clientOptions?.LogWriter?.WriteLine($"Enqueuing request: {request.Header.Code} code.");
@@ -113,11 +114,16 @@ namespace ProGaudi.Tarantool.Client
             var count = 0;
             while ((request = GetRequest()) != null)
             {
-//                _clientOptions?.LogWriter?.WriteLine($"Writing request {request.Length} bytes.");
-
-                _physicalConnection.Write(request);
-
-//                _clientOptions?.LogWriter?.WriteLine($"Wrote request {request.Length} bytes.");
+                var approximateLength = Constants.PacketSizeBufferSize + request.GetApproximateLength();
+                using (var bodyBuffer = MemoryPool<byte>.Shared.Rent(approximateLength))
+                {
+                    var span = bodyBuffer.Memory.Span;
+                    var bodyLength = request.WriteTo(span.Slice(Constants.PacketSizeBufferSize));
+                    _clientOptions?.LogWriter?.WriteLine($"Writing request: {bodyLength} bytes, requested {approximateLength} bytes.");
+                    MsgPackSpec.WriteFixUInt32(span, (uint) bodyLength);
+                    _stream.Write(span.Slice(0, Constants.PacketSizeBufferSize + bodyLength));                
+                    _clientOptions?.LogWriter?.WriteLine($"Wrote request {bodyLength} bytes.");
+                }
 
                 count++;
                 if (limit > 0 && count > limit)
@@ -132,7 +138,7 @@ namespace ProGaudi.Tarantool.Client
                     _newRequestsAvailable.Reset();
             }
 
-            _physicalConnection.Flush();
+            _stream.Flush();
         }
     }
 }
