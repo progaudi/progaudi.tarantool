@@ -14,5 +14,7 @@ namespace ProGaudi.Tarantool.Client
         IResponseReader Reader { get; }
         
         IRequestWriter Writer { get; }
+        
+        ITaskSource TaskSource { get; }
     }
 }

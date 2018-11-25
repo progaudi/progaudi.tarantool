@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Requests;
-using ProGaudi.Tarantool.Client.Utils;
 
 #if PROGAUDI_NETCORE
 using System.Net;
@@ -15,7 +14,7 @@ using System.Net;
 
 namespace ProGaudi.Tarantool.Client
 {
-    internal class NetworkStreamPhysicalConnection : IPhysicalConnection
+    internal sealed class NetworkStreamPhysicalConnection : PhysicalConnection
     {
         private readonly ClientOptions _clientOptions;
         
@@ -23,52 +22,37 @@ namespace ProGaudi.Tarantool.Client
 
         private Socket _socket;
 
-        private bool _disposed;
-        private IResponseReader _reader;
-        private IRequestWriter _writer;
-
         public NetworkStreamPhysicalConnection(ClientOptions clientOptions)
         {
             _clientOptions = clientOptions;
         }
 
-        public void Dispose()
+        public override bool IsConnected => base.IsConnected && _stream != null;
+
+        protected override void Dispose(bool disposing)
         {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-
+            base.Dispose(disposing);
+            if (!disposing) return;
             _stream?.Dispose();
             _socket?.Dispose();
         }
 
-        public async Task<ReadOnlyMemory<byte>> Connect(ClientOptions options)
+        protected override async Task<ReadOnlyMemory<byte>> ConnectAndReadGreeting(ClientOptions options, TarantoolNode singleNode)
         {
-            if (! options.ConnectionOptions.Nodes.Any()) 
-                throw new ClientSetupException("There are zero configured nodes, you should provide one");
-
             options.LogWriter?.WriteLine("Starting socket connection...");
-            var singleNode = options.ConnectionOptions.Nodes.Single();
-
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp)
             {
                 NoDelay = true
             };
-            await ConnectAsync(_socket, singleNode.Host, singleNode.Port).ConfigureAwait(false);;
+            await ConnectAsync(_socket, singleNode.Host, singleNode.Port).ConfigureAwait(false);
 
             _stream = new NetworkStream(_socket, true);
             options.LogWriter?.WriteLine("Socket connection established.");
             Memory<byte> result = new byte[Constants.GreetingsSize];
             var read = await _stream.ReadAsync(result);
-                
-            Writer = new SocketRequestWriter(_clientOptions, _stream);
-            Writer.Start();
-            Reader = new SocketResponseReader(_clientOptions, _stream);
-            Reader.Start();
 
+            Writer = new SocketRequestWriter(_clientOptions, _stream);
+            Reader = new SocketResponseReader(_clientOptions, _stream, TaskSource);
             return result.Slice(0, read);
         }
 
@@ -110,40 +94,5 @@ namespace ProGaudi.Tarantool.Client
                 socket);
         }
 #endif
-
-        public bool IsConnected => !_disposed && _stream != null;
-
-        public IResponseReader Reader
-        {
-            get
-            {
-                CheckConnectionStatus();
-                return _reader;
-            }
-            private set => _reader = value;
-        }
-
-        public IRequestWriter Writer
-        {
-            get
-            {
-                CheckConnectionStatus();
-                return _writer;
-            }
-            private set => _writer = value;
-        }
-
-        private void CheckConnectionStatus()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(NetworkStreamPhysicalConnection));
-            }
-
-            if (!IsConnected)
-            {
-                throw ExceptionHelper.NotConnected();
-            }
-        }
     }
 }

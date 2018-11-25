@@ -125,7 +125,7 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(LogicalConnection));
             }
 
-            var responseTask = _physicalConnection.Reader.GetResponseTask(request.Header.Id);
+            var responseTask = _physicalConnection.TaskSource.GetResponseTask(request.Header.Id);
             _physicalConnection.Writer.Write(request);
 
             try
