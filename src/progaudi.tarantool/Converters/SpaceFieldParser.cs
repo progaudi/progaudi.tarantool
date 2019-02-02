@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Buffers;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    public class SpaceFieldParser : IMsgPackParser<SpaceField>
+    public class SpaceFieldParser : IMsgPackSequenceParser<SpaceField>
     {
-        public SpaceField Parse(ReadOnlySpan<byte> source, out int readSize)
+        public SpaceField Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             var length = MsgPackSpec.ReadMapHeader(source, out readSize);
             string name = default;
@@ -24,7 +25,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         type = MsgPackSpec.ReadString(source.Slice(readSize), out temp); readSize += temp; 
                         break;
                     default:
-                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).GetIntLength();
                         break;
                 }
             }

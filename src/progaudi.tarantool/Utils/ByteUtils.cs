@@ -1,22 +1,27 @@
-﻿using System;
+﻿using System.Buffers;
 using System.Text;
 
 namespace ProGaudi.Tarantool.Client.Utils
 {
     public static class ByteUtils
     {
-        public static string ToReadableString(ReadOnlySpan<byte> span)
+        public static string ToReadableString(ReadOnlySequence<byte> sequence)
         {
             var builder = new StringBuilder();
             var length = 80/3;
-            for (var i = 0; i < span.Length; i++)
+            foreach (var memory in sequence)
             {
-                if (i%length == 0)
-                    builder.AppendLine().Append("   ");
-                else
-                    builder.Append(" ");
+                var span = memory.Span;
 
-                builder.AppendFormat((string) "{0:X2}", (object) span[i]);
+                for (var i = 0; i < span.Length; i++)
+                {
+                    if (i % length == 0)
+                        builder.AppendLine().Append("   ");
+                    else
+                        builder.Append(" ");
+
+                    builder.AppendFormat("{0:X2}", span[i]);
+                }
             }
 
             return builder.ToString();

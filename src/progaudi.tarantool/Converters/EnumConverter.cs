@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Globalization;
 using System.Reflection;
 using ProGaudi.MsgPack;
@@ -6,7 +7,7 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Formatters
 {
-    internal sealed class EnumFormatter<T> : IMsgPackFormatter<T>, IMsgPackParser<T>
+    internal sealed class EnumFormatter<T> : IMsgPackFormatter<T>, IMsgPackSequenceParser<T>
         where T : struct, IConvertible
     {
         // ReSharper disable once StaticMemberInGenericType
@@ -45,7 +46,7 @@ namespace ProGaudi.Tarantool.Client.Formatters
             throw ExceptionHelper.UnexpectedEnumUnderlyingType(UnderlyingType);
         }
 
-        public T Parse(ReadOnlySpan<byte> source, out int readSize)
+        public T Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             if (UnderlyingType == typeof(byte)) return (T) (object) MsgPackSpec.ReadUInt8(source, out readSize);
             if (UnderlyingType == typeof(sbyte)) return (T) (object) MsgPackSpec.ReadInt8(source, out readSize);

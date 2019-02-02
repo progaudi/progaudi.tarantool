@@ -9,11 +9,15 @@ namespace Tarantool.Test
 {
     class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
             var log = new TextWriterLog(Console.Out);
             var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301");
-//            var options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301", log);
+//            options = new ClientOptions(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "localhost:3301" : "tarantool_1_8:3301", log);
+
+            options.ConnectionOptions.UsePipelines = args.Length > 0;
+//            options.ConnectionOptions.UsePipelines = true;
+            options.ConnectionOptions.PingCheckInterval = 0;
             var sw = new Stopwatch();
             try
             {
@@ -21,16 +25,16 @@ namespace Tarantool.Test
                 {
                     box.Connect().GetAwaiter().GetResult();
                     var space = box.Schema["pivot"];
-                    var lst = new Task[1000];
+                    const int batchSize = 10;
+                    var lst = new Task[batchSize];
                     sw.Start();
                     for (var i = 0; i < 1_000_000; i++)
                     {
-                        lst[i % 1000] = space.Insert((i, (i, i), i));
+                        lst[i % batchSize] = space.Insert((i, (i, i), i));
 
-                        if (i % 1000 == 999)
+                        if (i % batchSize == batchSize - 1)
                         {
                             Task.WaitAll(lst);
-                            //return;
                         }
 
                         if (i % 10000 == 9999)

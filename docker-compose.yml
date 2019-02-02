@@ -66,3 +66,14 @@ services:
             dockerfile: Dockerfile
         depends_on:
             - tarantool_1_8
+
+    net-pipelines:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - tarantool_1_8
+        command:
+            - dotnet
+            - insert-performance.dll
+            - use-pipelines

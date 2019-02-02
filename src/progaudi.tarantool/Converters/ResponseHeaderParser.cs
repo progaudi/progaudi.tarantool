@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Buffers;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
@@ -7,18 +7,18 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class ResponseHeaderParser : IMsgPackParser<ResponseHeader>
+    internal class ResponseHeaderParser : IMsgPackSequenceParser<ResponseHeader>
     {
-        private readonly IMsgPackParser<Key> _keyConverter;
-        private readonly IMsgPackParser<CommandCode> _codeConverter;
+        private readonly IMsgPackSequenceParser<Key> _keyConverter;
+        private readonly IMsgPackSequenceParser<CommandCode> _codeConverter;
 
         public ResponseHeaderParser(MsgPackContext context)
         {
-            _keyConverter = context.GetRequiredParser<Key>();
-            _codeConverter = context.GetRequiredParser<CommandCode>();
+            _keyConverter = context.GetRequiredSequenceParser<Key>();
+            _codeConverter = context.GetRequiredSequenceParser<CommandCode>();
         }
 
-        public ResponseHeader Parse(ReadOnlySpan<byte> source, out int readSize)
+        public ResponseHeader Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             var length = MsgPackSpec.ReadMapHeader(source, out readSize);
             
@@ -48,7 +48,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         readSize += temp;
                         break;
                     default:
-                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).GetIntLength();
                         break;
                 }
             }

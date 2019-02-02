@@ -1,4 +1,4 @@
-using System;
+using System.Buffers;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
@@ -6,18 +6,18 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class ErrorResponsePacketParser : IMsgPackParser<ErrorResponse>
+    internal class ErrorResponsePacketParser : IMsgPackSequenceParser<ErrorResponse>
     {
-        private readonly IMsgPackParser<Key> _keyParser;
-        private readonly IMsgPackParser<string> _stringParser;
+        private readonly IMsgPackSequenceParser<Key> _keyParser;
+        private readonly IMsgPackSequenceParser<string> _stringParser;
 
         public ErrorResponsePacketParser(MsgPackContext context)
         {
-            _keyParser = context.GetRequiredParser<Key>();
-            _stringParser = context.GetRequiredParser<string>();
+            _keyParser = context.GetRequiredSequenceParser<Key>();
+            _stringParser = context.GetRequiredSequenceParser<string>();
         }
 
-        public ErrorResponse Parse(ReadOnlySpan<byte> source, out int readSize)
+        public ErrorResponse Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             var length = MsgPackSpec.ReadMapHeader(source, out readSize);
 

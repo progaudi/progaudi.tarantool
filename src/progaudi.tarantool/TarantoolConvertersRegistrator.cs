@@ -36,15 +36,15 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterParser(new EnumFormatter<Key>());
             context.RegisterParser(new EnumFormatter<CommandCode>());
             context.RegisterParser(new EnumFormatter<Iterator>());
-            context.RegisterGenericParser(typeof(ResponsePacketParser<>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<,>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<,,>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<,,,>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<,,,,>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<,,,,,>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<,,,,,,>));
-            context.RegisterGenericParser(typeof(ValueTupleParser<,,,,,,,>));
+            context.RegisterGenericSequenceParser(typeof(ResponsePacketParser<>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<,>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<,,,>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<,,,,>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<,,,,,>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<,,,,,,>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<,,>));
+            context.RegisterGenericSequenceParser(typeof(ValueTupleParser<,,,,,,,>));
 
             context.RegisterParser(new ResponseHeaderParser(context));
             context.RegisterParser(new EmptyResponseParser(context));

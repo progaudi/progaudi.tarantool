@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using ProGaudi.MsgPack;
 
 namespace ProGaudi.Tarantool.Client.Model
@@ -17,9 +18,9 @@ namespace ProGaudi.Tarantool.Client.Model
 
         public TarantoolVersion Version { get; private set; }
 
-        public class Converter : IMsgPackParser<BoxInfo>
+        public class Converter : IMsgPackSequenceParser<BoxInfo>
         {
-            public BoxInfo Parse(ReadOnlySpan<byte> source, out int readSize)
+            public BoxInfo Parse(ReadOnlySequence<byte> source, out int readSize)
             {
                 if (MsgPackSpec.TryReadNil(source, out readSize)) return null;
 
@@ -57,7 +58,7 @@ namespace ProGaudi.Tarantool.Client.Model
                             readSize += temp;
                             break;
                         default:
-                            readSize += MsgPackSpec.ReadToken(source).Length;
+                            readSize += MsgPackSpec.ReadToken(source).GetIntLength();
                             break;
                     }
                 }

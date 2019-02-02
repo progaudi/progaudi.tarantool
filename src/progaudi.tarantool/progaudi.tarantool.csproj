@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
@@ -29,17 +29,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" Condition=" '$(IsDocker)' != 'defined' ">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="progaudi.buffers" Version="1.0.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" Condition=" '$(IsDocker)' != 'defined' " PrivateAssets="all" />
+    <PackageReference Include="msgpack.light" Version="1.6.2.31-g7d7e83d" />
+    <PackageReference Include="progaudi.buffers" Version="2.0.1" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-    <PackageReference Include="Pipelines.Sockets.Unofficial" Version="1.0.7" />
-    <PackageReference Include="MsgPack.Light" Version="1.6.2.25-g0350b6b" />
+    <PackageReference Include="Pipelines.Sockets.Unofficial" Version="1.0.9" />
   </ItemGroup>
 
   <ItemGroup>

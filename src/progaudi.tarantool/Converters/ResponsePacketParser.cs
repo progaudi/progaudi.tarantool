@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Buffers;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
@@ -6,16 +6,16 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class ResponsePacketParser : IMsgPackParser<DataResponse>
+    internal class ResponsePacketParser : IMsgPackSequenceParser<DataResponse>
     {
-        private readonly IMsgPackParser<Key> _keyConverter;
+        private readonly IMsgPackSequenceParser<Key> _keyConverter;
 
         public ResponsePacketParser(MsgPackContext context)
         {
-            _keyConverter = context.GetRequiredParser<Key>();
+            _keyConverter = context.GetRequiredSequenceParser<Key>();
         }
 
-        public DataResponse Parse(ReadOnlySpan<byte> source, out int readSize)
+        public DataResponse Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             var length = MsgPackSpec.ReadMapHeader(source, out readSize);
             if (!(1u <= length && length <= 3))
@@ -41,7 +41,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             return new DataResponse(sqlInfo);
         }
 
-        internal static SqlInfo ReadSqlInfo(ReadOnlySpan<byte> source, IMsgPackParser<Key> keyConverter, ref int readSize)
+        internal static SqlInfo ReadSqlInfo(ReadOnlySequence<byte> source, IMsgPackSequenceParser<Key> keyConverter, ref int readSize)
         {
             var length = MsgPackSpec.ReadMapHeader(source.Slice(readSize), out var temp);
             readSize += temp;
@@ -58,7 +58,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         readSize += temp;
                         break;
                     default:
-                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).GetIntLength();
                         break;
                 }
             }
@@ -67,18 +67,18 @@ namespace ProGaudi.Tarantool.Client.Converters
         }
     }
 
-    internal class ResponsePacketParser<T> : IMsgPackParser<DataResponse<T>>
+    internal class ResponsePacketParser<T> : IMsgPackSequenceParser<DataResponse<T>>
     {
-        private readonly IMsgPackParser<Key> _keyConverter;
-        private readonly IMsgPackParser<T> _dataConverter;
+        private readonly IMsgPackSequenceParser<Key> _keyConverter;
+        private readonly IMsgPackSequenceParser<T> _dataConverter;
 
         public ResponsePacketParser(MsgPackContext context)
         {
-            _keyConverter = context.GetRequiredParser<Key>();
-            _dataConverter = context.GetRequiredParser<T>();
+            _keyConverter = context.GetRequiredSequenceParser<Key>();
+            _dataConverter = context.GetRequiredSequenceParser<T>();
         }
 
-        public DataResponse<T> Parse(ReadOnlySpan<byte> source, out int readSize)
+        public DataResponse<T> Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             var length = MsgPackSpec.ReadMapHeader(source, out readSize);
             if (!(1u <= length && length <= 3))
@@ -119,7 +119,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             return new DataResponse<T>(data, metadata, sqlInfo);
         }
 
-        private FieldMetadata[] ReadMetadata(ReadOnlySpan<byte> source, ref int readSize)
+        private FieldMetadata[] ReadMetadata(ReadOnlySequence<byte> source, ref int readSize)
         {
             var length = MsgPackSpec.ReadArrayHeader(source, out var temp); readSize += temp;
             var result = new FieldMetadata[length];
@@ -148,7 +148,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                             readSize += temp;
                             continue;
                         default:
-                            readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
+                            readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).GetIntLength();
                             break;
                     }
                 }

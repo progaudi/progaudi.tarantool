@@ -1,12 +1,12 @@
-﻿using System;
+﻿using System.Buffers;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexCreationOptionsParser : IMsgPackParser<IndexCreationOptions>
+    internal class IndexCreationOptionsParser : IMsgPackSequenceParser<IndexCreationOptions>
     {
-        public IndexCreationOptions Parse(ReadOnlySpan<byte> source, out int readSize)
+        public IndexCreationOptions Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             var optionsCount = MsgPackSpec.ReadMapHeader(source, out readSize);
             var unique = false;
@@ -22,7 +22,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         readSize += temp;
                         break;
                     default:
-                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).GetIntLength();
                         break;
                 }
             }

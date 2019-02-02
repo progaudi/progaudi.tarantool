@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,9 @@ namespace ProGaudi.Tarantool.Client
             _msgPackContext = options.MsgPackContext;
             _logWriter = options.LogWriter;
 
-            _physicalConnection = new NetworkStreamPhysicalConnection(_clientOptions);
+            _physicalConnection = _clientOptions.ConnectionOptions.UsePipelines
+                ? (IPhysicalConnection) new PipelinePhysicalConnection()
+                : new NetworkStreamPhysicalConnection();
         }
 
         public uint PingsFailedByTimeoutCount
@@ -81,15 +84,15 @@ namespace ProGaudi.Tarantool.Client
         public async Task<DataResponse<TResponse[]>> SendRequest<TRequest, TResponse>(TRequest request, TimeSpan? timeout = null)
             where TRequest : Request
         {
-            var memory = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(memory.Span, _msgPackContext);
+            var sequence = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            return MsgPackSerializer.Deserialize<DataResponse<TResponse[]>>(sequence, _msgPackContext);
         }
 
         public async Task<DataResponse> SendRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
             where TRequest : Request
         {
-            var memory = await SendRequestImpl(request, timeout).ConfigureAwait(false);
-            return MsgPackSerializer.Deserialize<DataResponse>(memory.Span, _msgPackContext);
+            var sequence = await SendRequestImpl(request, timeout).ConfigureAwait(false);
+            return MsgPackSerializer.Deserialize<DataResponse>(sequence, _msgPackContext);
         }
 
         public async Task<byte[]> SendRawRequest<TRequest>(TRequest request, TimeSpan? timeout = null)
@@ -117,7 +120,7 @@ namespace ProGaudi.Tarantool.Client
             _clientOptions.LogWriter?.WriteLine($"Authentication request send: {authenticateRequest}");
         }
 
-        private async Task<ReadOnlyMemory<byte>> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
+        private async Task<ReadOnlySequence<byte>> SendRequestImpl<TRequest>(TRequest request, TimeSpan? timeout)
             where TRequest : Request
         {
             if (_disposed)

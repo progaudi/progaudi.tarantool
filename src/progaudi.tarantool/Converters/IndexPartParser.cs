@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Buffers;
 using System.Runtime.Serialization;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
@@ -6,9 +6,9 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexPartParser : IMsgPackParser<IndexPart>
+    internal class IndexPartParser : IMsgPackSequenceParser<IndexPart>
     {
-        public IndexPart Parse(ReadOnlySpan<byte> source, out int readSize)
+        public IndexPart Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             if (MsgPackSpec.TryReadMapHeader(source, out var mapLength, out readSize))
             {
@@ -20,10 +20,10 @@ namespace ProGaudi.Tarantool.Client.Converters
                 return ReadFromArray(source, arrayHeader, ref readSize);
             }
 
-            throw ExceptionHelper.CodeIsNotArrayOrMap(source[0]);
+            throw ExceptionHelper.CodeIsNotArrayOrMap(source.GetFirst());
         }
 
-        private IndexPart ReadFromArray(in ReadOnlySpan<byte> source, int length, ref int readSize)
+        private static IndexPart ReadFromArray(in ReadOnlySequence<byte> source, int length, ref int readSize)
         {
             if (length != 2u)
             {
@@ -38,7 +38,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             return new IndexPart(fieldNo, indexPartType);
         }
 
-        private IndexPart ReadFromMap(ReadOnlySpan<byte> source, int length, ref int readSize)
+        private static IndexPart ReadFromMap(in ReadOnlySequence<byte> source, int length, ref int readSize)
         {
             uint? fieldNo = null;
             string indexPartType = null;
@@ -58,7 +58,7 @@ namespace ProGaudi.Tarantool.Client.Converters
                         readSize += temp;
                         break;
                     default:
-                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).Length;
+                        readSize += MsgPackSpec.ReadToken(source.Slice(readSize)).GetIntLength();
                         break;
                 }
             }

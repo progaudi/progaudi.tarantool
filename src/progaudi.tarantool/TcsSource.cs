@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,20 +14,20 @@ namespace ProGaudi.Tarantool.Client
 {
     public sealed class TcsSource : ITaskSource
     {
-        private readonly Dictionary<RequestId, TaskCompletionSource<ReadOnlyMemory<byte>>> _pendingRequests =
-            new Dictionary<RequestId, TaskCompletionSource<ReadOnlyMemory<byte>>>();
+        private readonly Dictionary<RequestId, TaskCompletionSource<ReadOnlySequence<byte>>> _pendingRequests =
+            new Dictionary<RequestId, TaskCompletionSource<ReadOnlySequence<byte>>>();
 
         private readonly ReaderWriterLockSlim _pendingRequestsLock = new ReaderWriterLockSlim();
 
         private bool _disposed;
-        private readonly IMsgPackParser<ResponseHeader> _headerParser;
-        private readonly IMsgPackParser<ErrorResponse> _errorParser;
+        private readonly IMsgPackSequenceParser<ResponseHeader> _headerParser;
+        private readonly IMsgPackSequenceParser<ErrorResponse> _errorParser;
         private readonly ILog _logWriter;
 
         public TcsSource(ClientOptions clientOptions)
         {
-            _headerParser = clientOptions.MsgPackContext.GetRequiredParser<ResponseHeader>();
-            _errorParser = clientOptions.MsgPackContext.GetRequiredParser<ErrorResponse>();
+            _headerParser = clientOptions.MsgPackContext.GetRequiredSequenceParser<ResponseHeader>();
+            _errorParser = clientOptions.MsgPackContext.GetRequiredSequenceParser<ErrorResponse>();
             _logWriter = clientOptions.LogWriter;
         }
 
@@ -57,7 +58,7 @@ namespace ProGaudi.Tarantool.Client
             _pendingRequestsLock.Dispose();
         }
 
-        public Task<ReadOnlyMemory<byte>> GetResponseTask(RequestId requestId)
+        public Task<ReadOnlySequence<byte>> GetResponseTask(in RequestId requestId)
         {
             try
             {
@@ -73,7 +74,7 @@ namespace ProGaudi.Tarantool.Client
                     throw ExceptionHelper.RequestWithSuchIdAlreadySent(requestId);
                 }
 
-                var tcs = new TaskCompletionSource<ReadOnlyMemory<byte>>();
+                var tcs = new TaskCompletionSource<ReadOnlySequence<byte>>();
                 _pendingRequests.Add(requestId, tcs);
 
                 return tcs.Task;
@@ -84,33 +85,35 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        public void MatchResult(ReadOnlyMemory<byte> result)
+        public void MatchResult(in ReadOnlyMemory<byte> result) => MatchResult(new ReadOnlySequence<byte>(result));
+
+        public void MatchResult(in ReadOnlySequence<byte> sequence)
         {
             var readSize = 0;
-            var header = _headerParser.Parse(result.Span, out var temp);
+            var header = _headerParser.Parse(sequence, out var temp);
             readSize += temp;
             var tcs = PopResponseCompletionSource(header.Id);
 
             if (tcs == null)
             {
-                _logWriter?.WriteLine($"Warning: can't match request via requestId from response. Response:\n{ByteUtils.ToReadableString(result.Span)}");
+                _logWriter?.WriteLine($"Warning: can't match request via requestId from response. Response:\n{ByteUtils.ToReadableString(sequence)}");
 
                 return;
             }
 
             if ((header.Code & CommandCode.ErrorMask) == CommandCode.ErrorMask)
             {
-                var errorResponse = _errorParser.Parse(result.Slice(readSize).Span, out _);
+                var errorResponse = _errorParser.Parse(sequence.Slice(readSize), out _);
                 tcs.SetException(ExceptionHelper.TarantoolError(header, errorResponse));
             }
             else
             {
                 _logWriter?.WriteLine($"Match for request with id {header.Id} found.");
-                tcs.SetResult(result.Slice(readSize));
+                tcs.SetResult(sequence.Slice(readSize));
             }
         }
 
-        private TaskCompletionSource<ReadOnlyMemory<byte>> PopResponseCompletionSource(RequestId requestId)
+        private TaskCompletionSource<ReadOnlySequence<byte>> PopResponseCompletionSource(RequestId requestId)
         {
             try
             {

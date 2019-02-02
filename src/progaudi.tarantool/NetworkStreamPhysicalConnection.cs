@@ -16,16 +16,9 @@ namespace ProGaudi.Tarantool.Client
 {
     internal sealed class NetworkStreamPhysicalConnection : PhysicalConnection
     {
-        private readonly ClientOptions _clientOptions;
-        
         private Stream _stream;
 
         private Socket _socket;
-
-        public NetworkStreamPhysicalConnection(ClientOptions clientOptions)
-        {
-            _clientOptions = clientOptions;
-        }
 
         public override bool IsConnected => base.IsConnected && _stream != null;
 
@@ -51,8 +44,8 @@ namespace ProGaudi.Tarantool.Client
             Memory<byte> result = new byte[Constants.GreetingsSize];
             var read = await _stream.ReadAsync(result);
 
-            Writer = new SocketRequestWriter(_clientOptions, _stream);
-            Reader = new SocketResponseReader(_clientOptions, _stream, TaskSource);
+            Writer = new SocketRequestWriter(options, _stream);
+            Reader = new SocketResponseReader(options, _stream, TaskSource);
             return result.Slice(0, read);
         }
 

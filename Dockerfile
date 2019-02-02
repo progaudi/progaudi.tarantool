@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1-sdk as sdk
+FROM microsoft/dotnet:2.2-sdk as sdk
 
 WORKDIR /app
 
@@ -14,12 +14,12 @@ RUN dotnet restore progaudi.tarantool.sln
 
 # copy csproj and restore as distinct layers
 COPY . .
-RUN dotnet publish -c Release -f netcoreapp2.1 progaudi.tarantool.sln
+RUN dotnet publish -c Release -f netcoreapp2.2 progaudi.tarantool.sln
 
-FROM microsoft/dotnet:2.1-runtime as runtime
+FROM microsoft/dotnet:2.2-runtime as runtime
 
 WORKDIR /app
 
-COPY --from=sdk /app/samples/insert-performance/bin/Release/netcoreapp2.1/publish .
+COPY --from=sdk /app/samples/insert-performance/bin/Release/netcoreapp2.2/publish .
 
 CMD ["dotnet", "insert-performance.dll"]

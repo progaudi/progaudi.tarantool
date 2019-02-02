@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Buffers;
 using System.Collections.Generic;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Model;
@@ -7,22 +7,22 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-    internal class IndexParser : IMsgPackParser<Index>
+    internal class IndexParser : IMsgPackSequenceParser<Index>
     {
         private readonly MsgPackContext _context;
-        private readonly IMsgPackParser<IndexType> _indexTypeConverter;
-        private readonly IMsgPackParser<IndexCreationOptions> _optionsConverter;
-        private readonly IMsgPackParser<List<IndexPart>> _indexPartsConverter;
+        private readonly IMsgPackSequenceParser<IndexType> _indexTypeConverter;
+        private readonly IMsgPackSequenceParser<IndexCreationOptions> _optionsConverter;
+        private readonly IMsgPackSequenceParser<List<IndexPart>> _indexPartsConverter;
 
         public IndexParser(MsgPackContext context)
         {
             _context = context;
-            _indexTypeConverter = context.GetRequiredParser<IndexType>();
-            _optionsConverter = context.GetRequiredParser<IndexCreationOptions>();
-            _indexPartsConverter = context.GetRequiredParser<List<IndexPart>>();
+            _indexTypeConverter = context.GetRequiredSequenceParser<IndexType>();
+            _optionsConverter = context.GetRequiredSequenceParser<IndexCreationOptions>();
+            _indexPartsConverter = context.GetRequiredSequenceParser<List<IndexPart>>();
         }
 
-        public Index Parse(ReadOnlySpan<byte> source, out int readSize)
+        public Index Parse(ReadOnlySequence<byte> source, out int readSize)
         {
             var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
             

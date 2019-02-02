@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "progaudi.tarantool", "src\p
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{14BAEDF1-BEFC-4FB2-AAC9-08D397191216}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "insert-performance", "samples\insert-performance\insert-performance.csproj", "{672CAEDB-0A2E-4C4B-8C0B-779777F5408C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "insert-performance", "samples\insert-performance\insert-performance.csproj", "{672CAEDB-0A2E-4C4B-8C0B-779777F5408C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

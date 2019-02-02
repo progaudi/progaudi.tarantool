@@ -1,6 +1,7 @@
   
 
 using System;
+using System.Buffers;
 using ProGaudi.MsgPack;
 using ProGaudi.Tarantool.Client.Utils;
 
@@ -344,16 +345,16 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1> : IMsgPackParser<ValueTuple<T1>>
+	public class ValueTupleParser<T1> : IMsgPackSequenceParser<ValueTuple<T1>>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
 		}
 
-		public ValueTuple<T1> Parse(ReadOnlySpan<byte> source, out int readSize)
+		public ValueTuple<T1> Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 1u;
@@ -366,18 +367,18 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1, T2> : IMsgPackParser<(T1, T2)>
+	public class ValueTupleParser<T1, T2> : IMsgPackSequenceParser<(T1, T2)>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
-		private readonly IMsgPackParser<T2> _t2Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T2> _t2Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
-			_t2Parser = context.GetRequiredParser<T2>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
+			_t2Parser = context.GetRequiredSequenceParser<T2>();
 		}
 
-		public (T1, T2) Parse(ReadOnlySpan<byte> source, out int readSize)
+		public (T1, T2) Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 2u;
@@ -394,20 +395,20 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1, T2, T3> : IMsgPackParser<(T1, T2, T3)>
+	public class ValueTupleParser<T1, T2, T3> : IMsgPackSequenceParser<(T1, T2, T3)>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
-		private readonly IMsgPackParser<T2> _t2Parser;
-		private readonly IMsgPackParser<T3> _t3Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T2> _t2Parser;
+		private readonly IMsgPackSequenceParser<T3> _t3Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
-			_t2Parser = context.GetRequiredParser<T2>();
-			_t3Parser = context.GetRequiredParser<T3>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
+			_t2Parser = context.GetRequiredSequenceParser<T2>();
+			_t3Parser = context.GetRequiredSequenceParser<T3>();
 		}
 
-		public (T1, T2, T3) Parse(ReadOnlySpan<byte> source, out int readSize)
+		public (T1, T2, T3) Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 3u;
@@ -426,22 +427,22 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1, T2, T3, T4> : IMsgPackParser<(T1, T2, T3, T4)>
+	public class ValueTupleParser<T1, T2, T3, T4> : IMsgPackSequenceParser<(T1, T2, T3, T4)>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
-		private readonly IMsgPackParser<T2> _t2Parser;
-		private readonly IMsgPackParser<T3> _t3Parser;
-		private readonly IMsgPackParser<T4> _t4Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T2> _t2Parser;
+		private readonly IMsgPackSequenceParser<T3> _t3Parser;
+		private readonly IMsgPackSequenceParser<T4> _t4Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
-			_t2Parser = context.GetRequiredParser<T2>();
-			_t3Parser = context.GetRequiredParser<T3>();
-			_t4Parser = context.GetRequiredParser<T4>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
+			_t2Parser = context.GetRequiredSequenceParser<T2>();
+			_t3Parser = context.GetRequiredSequenceParser<T3>();
+			_t4Parser = context.GetRequiredSequenceParser<T4>();
 		}
 
-		public (T1, T2, T3, T4) Parse(ReadOnlySpan<byte> source, out int readSize)
+		public (T1, T2, T3, T4) Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 4u;
@@ -462,24 +463,24 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1, T2, T3, T4, T5> : IMsgPackParser<(T1, T2, T3, T4, T5)>
+	public class ValueTupleParser<T1, T2, T3, T4, T5> : IMsgPackSequenceParser<(T1, T2, T3, T4, T5)>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
-		private readonly IMsgPackParser<T2> _t2Parser;
-		private readonly IMsgPackParser<T3> _t3Parser;
-		private readonly IMsgPackParser<T4> _t4Parser;
-		private readonly IMsgPackParser<T5> _t5Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T2> _t2Parser;
+		private readonly IMsgPackSequenceParser<T3> _t3Parser;
+		private readonly IMsgPackSequenceParser<T4> _t4Parser;
+		private readonly IMsgPackSequenceParser<T5> _t5Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
-			_t2Parser = context.GetRequiredParser<T2>();
-			_t3Parser = context.GetRequiredParser<T3>();
-			_t4Parser = context.GetRequiredParser<T4>();
-			_t5Parser = context.GetRequiredParser<T5>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
+			_t2Parser = context.GetRequiredSequenceParser<T2>();
+			_t3Parser = context.GetRequiredSequenceParser<T3>();
+			_t4Parser = context.GetRequiredSequenceParser<T4>();
+			_t5Parser = context.GetRequiredSequenceParser<T5>();
 		}
 
-		public (T1, T2, T3, T4, T5) Parse(ReadOnlySpan<byte> source, out int readSize)
+		public (T1, T2, T3, T4, T5) Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 5u;
@@ -502,26 +503,26 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1, T2, T3, T4, T5, T6> : IMsgPackParser<(T1, T2, T3, T4, T5, T6)>
+	public class ValueTupleParser<T1, T2, T3, T4, T5, T6> : IMsgPackSequenceParser<(T1, T2, T3, T4, T5, T6)>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
-		private readonly IMsgPackParser<T2> _t2Parser;
-		private readonly IMsgPackParser<T3> _t3Parser;
-		private readonly IMsgPackParser<T4> _t4Parser;
-		private readonly IMsgPackParser<T5> _t5Parser;
-		private readonly IMsgPackParser<T6> _t6Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T2> _t2Parser;
+		private readonly IMsgPackSequenceParser<T3> _t3Parser;
+		private readonly IMsgPackSequenceParser<T4> _t4Parser;
+		private readonly IMsgPackSequenceParser<T5> _t5Parser;
+		private readonly IMsgPackSequenceParser<T6> _t6Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
-			_t2Parser = context.GetRequiredParser<T2>();
-			_t3Parser = context.GetRequiredParser<T3>();
-			_t4Parser = context.GetRequiredParser<T4>();
-			_t5Parser = context.GetRequiredParser<T5>();
-			_t6Parser = context.GetRequiredParser<T6>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
+			_t2Parser = context.GetRequiredSequenceParser<T2>();
+			_t3Parser = context.GetRequiredSequenceParser<T3>();
+			_t4Parser = context.GetRequiredSequenceParser<T4>();
+			_t5Parser = context.GetRequiredSequenceParser<T5>();
+			_t6Parser = context.GetRequiredSequenceParser<T6>();
 		}
 
-		public (T1, T2, T3, T4, T5, T6) Parse(ReadOnlySpan<byte> source, out int readSize)
+		public (T1, T2, T3, T4, T5, T6) Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 6u;
@@ -546,28 +547,28 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1, T2, T3, T4, T5, T6, T7> : IMsgPackParser<(T1, T2, T3, T4, T5, T6, T7)>
+	public class ValueTupleParser<T1, T2, T3, T4, T5, T6, T7> : IMsgPackSequenceParser<(T1, T2, T3, T4, T5, T6, T7)>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
-		private readonly IMsgPackParser<T2> _t2Parser;
-		private readonly IMsgPackParser<T3> _t3Parser;
-		private readonly IMsgPackParser<T4> _t4Parser;
-		private readonly IMsgPackParser<T5> _t5Parser;
-		private readonly IMsgPackParser<T6> _t6Parser;
-		private readonly IMsgPackParser<T7> _t7Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T2> _t2Parser;
+		private readonly IMsgPackSequenceParser<T3> _t3Parser;
+		private readonly IMsgPackSequenceParser<T4> _t4Parser;
+		private readonly IMsgPackSequenceParser<T5> _t5Parser;
+		private readonly IMsgPackSequenceParser<T6> _t6Parser;
+		private readonly IMsgPackSequenceParser<T7> _t7Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
-			_t2Parser = context.GetRequiredParser<T2>();
-			_t3Parser = context.GetRequiredParser<T3>();
-			_t4Parser = context.GetRequiredParser<T4>();
-			_t5Parser = context.GetRequiredParser<T5>();
-			_t6Parser = context.GetRequiredParser<T6>();
-			_t7Parser = context.GetRequiredParser<T7>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
+			_t2Parser = context.GetRequiredSequenceParser<T2>();
+			_t3Parser = context.GetRequiredSequenceParser<T3>();
+			_t4Parser = context.GetRequiredSequenceParser<T4>();
+			_t5Parser = context.GetRequiredSequenceParser<T5>();
+			_t6Parser = context.GetRequiredSequenceParser<T6>();
+			_t7Parser = context.GetRequiredSequenceParser<T7>();
 		}
 
-		public (T1, T2, T3, T4, T5, T6, T7) Parse(ReadOnlySpan<byte> source, out int readSize)
+		public (T1, T2, T3, T4, T5, T6, T7) Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 7u;
@@ -594,30 +595,30 @@ namespace ProGaudi.Tarantool.Client.Converters
 		}
 	}
 
-	public class ValueTupleParser<T1, T2, T3, T4, T5, T6, T7, T8> : IMsgPackParser<(T1, T2, T3, T4, T5, T6, T7, T8)>
+	public class ValueTupleParser<T1, T2, T3, T4, T5, T6, T7, T8> : IMsgPackSequenceParser<(T1, T2, T3, T4, T5, T6, T7, T8)>
 	{
-		private readonly IMsgPackParser<T1> _t1Parser;
-		private readonly IMsgPackParser<T2> _t2Parser;
-		private readonly IMsgPackParser<T3> _t3Parser;
-		private readonly IMsgPackParser<T4> _t4Parser;
-		private readonly IMsgPackParser<T5> _t5Parser;
-		private readonly IMsgPackParser<T6> _t6Parser;
-		private readonly IMsgPackParser<T7> _t7Parser;
-		private readonly IMsgPackParser<T8> _t8Parser;
+		private readonly IMsgPackSequenceParser<T1> _t1Parser;
+		private readonly IMsgPackSequenceParser<T2> _t2Parser;
+		private readonly IMsgPackSequenceParser<T3> _t3Parser;
+		private readonly IMsgPackSequenceParser<T4> _t4Parser;
+		private readonly IMsgPackSequenceParser<T5> _t5Parser;
+		private readonly IMsgPackSequenceParser<T6> _t6Parser;
+		private readonly IMsgPackSequenceParser<T7> _t7Parser;
+		private readonly IMsgPackSequenceParser<T8> _t8Parser;
 
 		public ValueTupleParser(MsgPackContext context)
 		{
-			_t1Parser = context.GetRequiredParser<T1>();
-			_t2Parser = context.GetRequiredParser<T2>();
-			_t3Parser = context.GetRequiredParser<T3>();
-			_t4Parser = context.GetRequiredParser<T4>();
-			_t5Parser = context.GetRequiredParser<T5>();
-			_t6Parser = context.GetRequiredParser<T6>();
-			_t7Parser = context.GetRequiredParser<T7>();
-			_t8Parser = context.GetRequiredParser<T8>();
+			_t1Parser = context.GetRequiredSequenceParser<T1>();
+			_t2Parser = context.GetRequiredSequenceParser<T2>();
+			_t3Parser = context.GetRequiredSequenceParser<T3>();
+			_t4Parser = context.GetRequiredSequenceParser<T4>();
+			_t5Parser = context.GetRequiredSequenceParser<T5>();
+			_t6Parser = context.GetRequiredSequenceParser<T6>();
+			_t7Parser = context.GetRequiredSequenceParser<T7>();
+			_t8Parser = context.GetRequiredSequenceParser<T8>();
 		}
 
-		public (T1, T2, T3, T4, T5, T6, T7, T8) Parse(ReadOnlySpan<byte> source, out int readSize)
+		public (T1, T2, T3, T4, T5, T6, T7, T8) Parse(ReadOnlySequence<byte> source, out int readSize)
 		{
 			var length = MsgPackSpec.ReadArrayHeader(source, out readSize);
 			const uint expected = 8u;
