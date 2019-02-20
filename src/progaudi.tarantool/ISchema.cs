@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ProGaudi.Tarantool.Client
@@ -16,5 +17,7 @@ namespace ProGaudi.Tarantool.Client
         Task Reload();
 
         DateTimeOffset LastReloadTime { get; }
+
+        IReadOnlyCollection<ISpace> Spaces { get; }
     }
 }
