@@ -56,6 +56,8 @@ namespace ProGaudi.Tarantool.Client
             LastReloadTime = DateTimeOffset.UtcNow;
         }
 
+        public IReadOnlyCollection<ISpace> Spaces => _indexByName.Values;
+
         private async Task<T[]> Select<T>(uint spaceId, Iterator iterator = Iterator.All, uint id = 0u)
         {
             var request = new SelectRequest<ValueTuple<uint>>(spaceId, PrimaryIndexId, uint.MaxValue, 0, iterator, ValueTuple.Create(id));
