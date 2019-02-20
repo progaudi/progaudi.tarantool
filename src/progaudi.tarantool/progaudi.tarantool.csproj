@@ -28,6 +28,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitLink" Version="3.1.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="MsgPack.Light" Version="1.6.2" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
