@@ -1,50 +1,13 @@
+variables:
+  sln: progaudi.tarantool.sln
+  tests: tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: progaudi/azure-pipelines
+      endpoint: progaudi
+
 jobs:
-- job: macOs
-  pool:
-    name: Hosted macOS
-  steps:
-    - template: .azure/build.yml
-
-- job: linux
-  pool:
-    name: Hosted Ubuntu 1604
-  steps:
-    - template: .azure/build.yml
-
-    - script: curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin -channel 1.1
-      displayName: Installing .netcore 1.1
-
-    - template: .azure/tests.yml
-      parameters:
-        netcore1Global: false
-
-- job: win
-  dependsOn:
-  - macOs
-  - linux
-  pool:
-    name: Hosted VS2017
-  steps:
-    - template: .azure/build.yml
-
-    - task: PowerShell@2
-      displayName: pack nuget package
-      inputs:
-        targetType: inline
-        script: |
-            $version = $(git describe --tags | %{$_ -replace '-([^g])', '.$1'})
-            dotnet pack --no-build -v minimal -c Release /property:Version=$version /property:PackageOutputPath=$(Build.ArtifactStagingDirectory)
-
-    - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
-      - task: NuGetCommand@2
-        displayName: push nuget packages
-        inputs:
-          command: push
-          packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-          nuGetFeedType: external
-          publishFeedCredentials: api.nuget.org
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: nupkgs
+- template: library/nuget.yml@templates
