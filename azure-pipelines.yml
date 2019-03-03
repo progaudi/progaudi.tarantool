@@ -1,6 +1,7 @@
 variables:
   sln: progaudi.tarantool.sln
   tests: tests/progaudi.tarantool.tests/progaudi.tarantool.tests.csproj
+  runDockerComposeBeforeTests: true
 
 resources:
   repositories:
@@ -11,5 +12,4 @@ resources:
 
 jobs:
 - template: library/nuget.yml@templates
-  parameters:
-      runDockerComposeBeforeTests: true
+      
