@@ -11,3 +11,5 @@ resources:
 
 jobs:
 - template: library/nuget.yml@templates
+  parameters:
+      runDockerComposeBeforeTests: true
