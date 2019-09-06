@@ -27,9 +27,9 @@ namespace ProGaudi.Tarantool.Client
 
         private const int _connectionTimeout = 1000;
 
-        private const int _pingTimerInterval = 10000;
+        private const int _pingTimerInterval = 100;
 
-        private readonly int _pingCheckInterval = 100000;
+        private readonly int _pingCheckInterval = 1000;
 
         private readonly TimeSpan? _pingTimeout;
 

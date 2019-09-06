@@ -29,7 +29,7 @@ namespace ProGaudi.Tarantool.Client
         private readonly IRequestWriter _requestWriter;
 
         private readonly ILog _logWriter;
-
+        private readonly ArraySegment<byte> _dummyEmptyArray;
         private bool _disposed;
 
         public LogicalConnection(ClientOptions options, RequestIdCounter requestIdCounter)
@@ -42,6 +42,7 @@ namespace ProGaudi.Tarantool.Client
             _physicalConnection = new NetworkStreamPhysicalConnection();
             _responseReader = new ResponseReader(_clientOptions, _physicalConnection);
             _requestWriter = new RequestWriter(_clientOptions, _physicalConnection);
+            _dummyEmptyArray = new ArraySegment<byte>(new byte[] { }, 0, 0);
         }
 
         public uint PingsFailedByTimeoutCount
@@ -168,11 +169,12 @@ namespace ProGaudi.Tarantool.Client
                 throw new InvalidOperationException("broken buffer");
             }
 
+            //keep API for the sake of backward comp.
             _requestWriter.Write(
                 // merged header and body
                 buffer,
                 // dummy array
-                new ArraySegment<byte>(new byte[] { }, 0, 0));
+               _dummyEmptyArray);
 
             try
             {

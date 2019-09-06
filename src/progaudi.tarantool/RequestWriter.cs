@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using ProGaudi.Tarantool.Client.Model;
 
 namespace ProGaudi.Tarantool.Client
@@ -18,7 +19,7 @@ namespace ProGaudi.Tarantool.Client
         private readonly ManualResetEventSlim _newRequestsAvailable;
         private readonly ConnectionOptions _connectionOptions;
         private bool _disposed;
-        private int _remaining;
+        private long _remaining;
 
         public RequestWriter(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
         {
@@ -85,7 +86,7 @@ namespace ProGaudi.Tarantool.Client
         {
             var handles = new[] { _exitEvent.WaitHandle, _newRequestsAvailable.WaitHandle };
             var throttle = _connectionOptions.WriteThrottlePeriodInMs;
-
+            long remaining;
             while (true)
             {
                 switch (WaitHandle.WaitAny(handles))
@@ -96,7 +97,12 @@ namespace ProGaudi.Tarantool.Client
                         WriteRequests(_connectionOptions.WriteStreamBufferSize, 
                             _connectionOptions.MaxRequestsInBatch);
 
-                        if(throttle > 0 && _remaining < _connectionOptions.MinRequestsWithThrottle)
+                        remaining = Interlocked.Read(ref _remaining);
+
+                        // Thread.Sleep will be called only if the number of pending bytes less than
+                        // MinRequestsWithThrottle
+
+                        if (throttle > 0 && remaining < _connectionOptions.MinRequestsWithThrottle)
                             Thread.Sleep(throttle);
 
                         break;
@@ -146,7 +152,6 @@ namespace ProGaudi.Tarantool.Client
                 }
 
             }
-            Debug.WriteLine($"{count} {length}");
 
             if (list.Count > 0)
             {
