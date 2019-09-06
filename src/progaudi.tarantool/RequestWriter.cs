@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using ProGaudi.Tarantool.Client.Model;
 
@@ -14,7 +16,9 @@ namespace ProGaudi.Tarantool.Client
         private readonly Thread _thread;
         private readonly ManualResetEventSlim _exitEvent;
         private readonly ManualResetEventSlim _newRequestsAvailable;
+        private readonly ConnectionOptions _connectionOptions;
         private bool _disposed;
+        private int _remaining;
 
         public RequestWriter(ClientOptions clientOptions, IPhysicalConnection physicalConnection)
         {
@@ -28,6 +32,7 @@ namespace ProGaudi.Tarantool.Client
             };
             _exitEvent = new ManualResetEventSlim();
             _newRequestsAvailable = new ManualResetEventSlim();
+            _connectionOptions = _clientOptions.ConnectionOptions;
         }
 
         public void BeginWriting()
@@ -79,6 +84,7 @@ namespace ProGaudi.Tarantool.Client
         private void WriteFunction()
         {
             var handles = new[] { _exitEvent.WaitHandle, _newRequestsAvailable.WaitHandle };
+            var throttle = _connectionOptions.WriteThrottlePeriodInMs;
 
             while (true)
             {
@@ -87,7 +93,12 @@ namespace ProGaudi.Tarantool.Client
                     case 0:
                         return;
                     case 1:
-                        WriteRequests(200);
+                        WriteRequests(_connectionOptions.WriteStreamBufferSize, 
+                            _connectionOptions.MaxRequestsInBatch);
+
+                        if(throttle > 0 && _remaining < _connectionOptions.MinRequestsWithThrottle)
+                            Thread.Sleep(throttle);
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -95,7 +106,7 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        private void WriteRequests(int limit)
+        private void WriteRequests(int bufferLength, int limit)
         {
             void WriteBuffer(ArraySegment<byte> buffer)
             {
@@ -107,7 +118,10 @@ namespace ProGaudi.Tarantool.Client
                 lock (_lock)
                 {
                     if (_buffer.Count > 0)
+                    {
+                        _remaining = _buffer.Count + 1;
                         return _buffer.Dequeue();
+                    }
                 }
 
                 return null;
@@ -115,20 +129,37 @@ namespace ProGaudi.Tarantool.Client
 
             Tuple<ArraySegment<byte>, ArraySegment<byte>> request;
             var count = 0;
+            UInt64 length = 0;
+            List<Tuple<ArraySegment<byte>, ArraySegment<byte>>> list = new List<Tuple<ArraySegment<byte>, ArraySegment<byte>>>();
             while ((request = GetRequest()) != null)
             {
                 _clientOptions?.LogWriter?.WriteLine($"Writing request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
-
-                WriteBuffer(request.Item1);
-                WriteBuffer(request.Item2);
-
+                length += (uint)request.Item1.Count;
+               
+                list.Add(request);
                 _clientOptions?.LogWriter?.WriteLine($"Wrote request: headers {request.Item1.Count} bytes, body {request.Item2.Count} bytes.");
 
                 count++;
-                if (limit > 0 && count > limit)
+                if ((limit > 0 && count > limit ) || length > (ulong) bufferLength)
                 {
                     break;
                 }
+
+            }
+            Debug.WriteLine($"{count} {length}");
+
+            if (list.Count > 0)
+            {
+                // merge requests into one buffer
+                var result = new byte[length];
+                int position = 0;
+                foreach (var r in list)
+                {
+                    Buffer.BlockCopy(r.Item1.Array, r.Item1.Offset, result, position, r.Item1.Count);
+                    position += r.Item1.Count;
+                }
+
+                WriteBuffer(new ArraySegment<byte>(result));
             }
 
             lock (_lock)

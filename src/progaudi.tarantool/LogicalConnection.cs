@@ -152,15 +152,27 @@ namespace ProGaudi.Tarantool.Client
                 throw new ObjectDisposedException(nameof(LogicalConnection));
             }
 
-            var bodyBuffer = MsgPackSerializer.Serialize(request, _msgPackContext);
-
+          
             var requestId = _requestIdCounter.GetRequestId();
             var responseTask = _responseReader.GetResponseTask(requestId);
 
-            var headerBuffer = CreateAndSerializeHeader(request, requestId, bodyBuffer);
+            var stream = CreateAndSerializeHeader(request, requestId);
+            MsgPackSerializer.Serialize(request, stream, _msgPackContext);
+            var totalLength = stream.Position - Constants.PacketSizeBufferSize;
+            var packetLength = new PacketSize((uint)(totalLength));
+            AddPacketSize(stream, packetLength);
+
+            ArraySegment<byte> buffer;
+            if(!stream.TryGetBuffer(out buffer))
+            {
+                throw new InvalidOperationException("broken buffer");
+            }
+
             _requestWriter.Write(
-                headerBuffer,
-                new ArraySegment<byte>(bodyBuffer, 0, bodyBuffer.Length));
+                // merged header and body
+                buffer,
+                // dummy array
+                new ArraySegment<byte>(new byte[] { }, 0, 0));
 
             try
             {
@@ -177,7 +189,7 @@ namespace ProGaudi.Tarantool.Client
             }
             catch (ArgumentException)
             {
-                _logWriter?.WriteLine($"Response with requestId {requestId} failed, header:\n{headerBuffer.ToReadableString()} \n body: \n{bodyBuffer.ToReadableString()}");
+                _logWriter?.WriteLine($"Response with requestId {requestId} failed, content:\n{buffer.ToReadableString()} ");
                 throw;
             }
             catch (TimeoutException)
@@ -187,24 +199,23 @@ namespace ProGaudi.Tarantool.Client
             }
         }
 
-        private ArraySegment<byte> CreateAndSerializeHeader<TRequest>(
+        private MemoryStream CreateAndSerializeHeader<TRequest>(
             TRequest request,
-            RequestId requestId,
-            byte[] serializedRequest) where TRequest : IRequest
+            RequestId requestId) where TRequest : IRequest
         {
-            var packetSizeBuffer = new byte[Constants.PacketSizeBufferSize + Constants.MaxHeaderLength];
-            var stream = new MemoryStream(packetSizeBuffer);
-
+            var stream = new MemoryStream();
+           
             var requestHeader = new RequestHeader(request.Code, requestId);
             stream.Seek(Constants.PacketSizeBufferSize, SeekOrigin.Begin);
             MsgPackSerializer.Serialize(requestHeader, stream, _msgPackContext);
 
-            var lengthAndHeaderLengthByteCount = (int)stream.Position;
-            var headerLength = lengthAndHeaderLengthByteCount - Constants.PacketSizeBufferSize;
-            var packetLength = new PacketSize((uint) (headerLength + serializedRequest.Length));
+            return stream;
+        }
+
+        private void AddPacketSize(MemoryStream stream, PacketSize packetLength)
+        {
             stream.Seek(0, SeekOrigin.Begin);
             MsgPackSerializer.Serialize(packetLength, stream, _msgPackContext);
-            return new ArraySegment<byte>(packetSizeBuffer, 0, lengthAndHeaderLengthByteCount);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using ProGaudi.MsgPack.Light;
+﻿using System;
+using System.Net.Sockets;
+using ProGaudi.MsgPack.Light;
 
 namespace ProGaudi.Tarantool.Client.Model
 {
@@ -23,6 +25,8 @@ namespace ProGaudi.Tarantool.Client.Model
                 LogWriter = new LogWriterWrapper(this, log);
             }
         }
+
+        public Action<Socket> ConfigureSocket { get; set; }
 
         public ILog LogWriter { get; }
 

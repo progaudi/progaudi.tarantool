@@ -46,6 +46,15 @@ namespace ProGaudi.Tarantool.Client
             {
                 NoDelay = true
             };
+
+            if(options.ConfigureSocket != null)
+            {
+                options.ConfigureSocket(_socket);
+            }
+
+            _socket.SendBufferSize = _socket.SendBufferSize * 2;
+            _socket.ReceiveBufferSize = _socket.ReceiveBufferSize * 2;
+
             await ConnectAsync(_socket, singleNode.Uri.Host, singleNode.Uri.Port).ConfigureAwait(false);;
 
             _stream = new NetworkStream(_socket, true);
