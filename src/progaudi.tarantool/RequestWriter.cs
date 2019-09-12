@@ -131,7 +131,7 @@ namespace ProGaudi.Tarantool.Client
                     }
                 }
 
-                result = default;
+                result = default(ArraySegment<byte>);
                 return false;
              }
 
