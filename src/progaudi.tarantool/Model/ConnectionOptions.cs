@@ -31,8 +31,21 @@ namespace ProGaudi.Tarantool.Client.Model
                 }
             }
         }
+        public int WriteStreamBufferSize { get; set; } = 8192 * 2;
 
-        public int ReadStreamBufferSize { get; set; } = 4096;
+        /// <summary>
+        /// If number of pending requests more than the value, Throttle does not apply
+        /// </summary>
+        public int MinRequestsWithThrottle { get; set; } = 16;
+
+        /// <summary>
+        /// 0 - unlimited
+        /// </summary>
+        public int MaxRequestsInBatch { get; set; } = 0;
+
+        public int WriteThrottlePeriodInMs { get; set; } = 10;
+
+        public int ReadStreamBufferSize { get; set; } = 8192;
 
         public int WriteNetworkTimeout { get; set; } = -1;
 
