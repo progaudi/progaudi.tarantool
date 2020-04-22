@@ -234,7 +234,7 @@ namespace ProGaudi.Tarantool.Client
             else
             {
                 _clientOptions.LogWriter?.WriteLine($"Match for request with id {header.RequestId} found.");
-                tcs.SetResult(resultStream);
+                Task.Run(() => tcs.SetResult(resultStream));
             }
         }
 

@@ -17,7 +17,7 @@
         Username = 0x23,
         Expression = 0x27,
         Ops = 0x28,
-        FieldName = 0x29,
+        FieldName = 0x00,
 
         // Response keys
         Data = 0x30,
@@ -29,8 +29,8 @@
         SqlQueryText = 0x40,
         SqlParameters = 0x41,
         SqlOptions = 0x42,
-        SqlInfo = 0x43,
-        SqlRowCount = 0x44,
+        SqlInfo = 0x42,
+        SqlRowCount = 0x00,
 
         // Replication keys
         ServerId = 0x02,
