@@ -8,6 +8,7 @@ using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
+
     internal class ErrorResponsePacketConverter : IMsgPackConverter<ErrorResponse>
     {
         private IMsgPackConverter<Key> _keyConverter;
@@ -28,20 +29,14 @@ namespace ProGaudi.Tarantool.Client.Converters
         {
             string errorMessage = null;
             var length = reader.ReadMapLength();
-
-            if (length != 1u)
-            {
-                throw ExceptionHelper.InvalidMapLength(length, 1u);
-            }
-
+            
             var errorKey = _keyConverter.Read(reader);
             if (errorKey != Key.Error)
             {
                 throw ExceptionHelper.UnexpectedKey(errorKey, Key.Error);
             }
-
             errorMessage = _stringConverter.Read(reader);
-
+            
             return new ErrorResponse(errorMessage);
         }
     }
