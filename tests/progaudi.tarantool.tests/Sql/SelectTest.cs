@@ -11,7 +11,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Sql
         [Fact]
         public async Task Exception_1_7()
         {
-            using (var box = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7()))
+            using (var box = await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7()))
             {
                 box.Info.Version.Major.ShouldBe((1, 7));
                 var e = await Should.ThrowAsync<InvalidOperationException>(async () => await box.ExecuteSql("select 1"));
@@ -23,7 +23,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Sql
         [Trait("Tarantool", "1.8")]
         public async Task SelectData_1_8()
         {
-            using (var box = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_8()))
+            using (var box = await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_8()))
             {
                 box.Info.Version.Major.ShouldBe((1, 8));
                 var result = await box.ExecuteSql<(int, string, int)>("select 1 as ABC, 'z', 3");

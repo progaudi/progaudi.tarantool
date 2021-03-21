@@ -10,7 +10,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Sql
         [Trait("Tarantool", "1.8")]
         public async Task Simple()
         {
-            using (var box = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_8()))
+            using (var box = await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_8()))
             {
                 try
                 {

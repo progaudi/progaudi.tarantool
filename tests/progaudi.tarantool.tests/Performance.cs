@@ -11,13 +11,13 @@ namespace ProGaudi.Tarantool.Client.Tests
     public class Performance : TestBase
     {
         [Fact(Skip = "Added just for profiling")]
-        public void MultithreadTest()
+        public async Task MultithreadTest()
         {
             var logWriter = new StringWriterLog();
             var threadsCount = 100;
             const string spaceName = "performance";
 
-            using (var tarantoolClient = new Client.Box(new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7(), logWriter)))
+            using (var tarantoolClient = new Client.Box(new ClientOptions(await ConnectionStringFactory.GetReplicationSource_1_7(), logWriter)))
             {
                 tarantoolClient.Connect().GetAwaiter().GetResult();
 

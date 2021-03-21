@@ -21,8 +21,9 @@
 
         // Response keys
         Data = 0x30,
-        Error = 0x31,
+        Error24 = 0x31,
         Metadata = 0x32,
+        Error = 0x52,
 
         // Sql keys
         SqlQueryText = 0x40,
