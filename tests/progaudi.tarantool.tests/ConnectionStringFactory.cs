@@ -9,26 +9,30 @@ namespace ProGaudi.Tarantool.Client.Tests
     {
         public static string GetReplicationSource_1_7(string userName = null)
         {
-            return GetReplicationSource(userName, "localhost:3301", "TARANTOOL_1_7_REPLICATION_SOURCE");
+            return GetReplicationSource(userName, $"{ResolveHostname("localhost")}:3301", "TARANTOOL_1_7_REPLICATION_SOURCE");
         }
 
         public static string GetReplicationSource_1_8(string userName = null)
         {
-            return GetReplicationSource(userName, "localhost:3302", "TARANTOOL_1_8_REPLICATION_SOURCE");
+            return GetReplicationSource(userName, $"{ResolveHostname("localhost")}:3302", "TARANTOOL_1_8_REPLICATION_SOURCE");
         }
 
         public static async Task<string> GetRedisConnectionString()
         {
             var redisUrl = Environment.GetEnvironmentVariable("REDIS_HOST");
 
-            var host = "127.0.0.1";
-            if (!string.IsNullOrWhiteSpace(redisUrl))
+            return $"{await ResolveHostname(redisUrl)}:6379";
+        }
+
+        private static async Task<string> ResolveHostname(string host)
+        {
+            if (!string.IsNullOrWhiteSpace(host))
             {
-                var resolved = await Dns.GetHostAddressesAsync(redisUrl);
-                host = resolved.First().ToString();
+                var resolved = await Dns.GetHostAddressesAsync(host);
+                return resolved.First().ToString();
             }
 
-            return $"{host}:6379";
+            return "127.0.0.1";
         }
 
         private static string GetReplicationSource(string userName, string defaultString, string envName)
