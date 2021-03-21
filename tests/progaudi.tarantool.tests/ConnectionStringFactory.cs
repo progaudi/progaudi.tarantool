@@ -7,14 +7,14 @@ namespace ProGaudi.Tarantool.Client.Tests
 {
     internal class ConnectionStringFactory
     {
-        public static string GetReplicationSource_1_7(string userName = null)
+        public static async Task<string> GetReplicationSource_1_7(string userName = null)
         {
-            return GetReplicationSource(userName, $"{ResolveHostname("localhost")}:3301", "TARANTOOL_1_7_REPLICATION_SOURCE");
+            return GetReplicationSource(userName, $"{await ResolveHostname("localhost")}:3301", "TARANTOOL_1_7_REPLICATION_SOURCE");
         }
 
-        public static string GetReplicationSource_1_8(string userName = null)
+        public static async Task<string> GetReplicationSource_1_8(string userName = null)
         {
-            return GetReplicationSource(userName, $"{ResolveHostname("localhost")}:3302", "TARANTOOL_1_8_REPLICATION_SOURCE");
+            return GetReplicationSource(userName, $"{await ResolveHostname("localhost")}:3302", "TARANTOOL_1_8_REPLICATION_SOURCE");
         }
 
         public static async Task<string> GetRedisConnectionString()
@@ -29,7 +29,11 @@ namespace ProGaudi.Tarantool.Client.Tests
             if (!string.IsNullOrWhiteSpace(host))
             {
                 var resolved = await Dns.GetHostAddressesAsync(host);
-                return resolved.First().ToString();
+                var ip = resolved.First().ToString();
+                if (ip == "::1")
+                {
+                    return "127.0.0.1";
+                }
             }
 
             return "127.0.0.1";

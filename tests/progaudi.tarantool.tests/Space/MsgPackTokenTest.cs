@@ -21,7 +21,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Space
 
             await ClearDataAsync(spaceName);
 
-            var clientOptions = new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7());
+            var clientOptions = new ClientOptions(await ConnectionStringFactory.GetReplicationSource_1_7());
             using (var tarantoolClient = new Client.Box(clientOptions))
             {
                 await tarantoolClient.Connect();

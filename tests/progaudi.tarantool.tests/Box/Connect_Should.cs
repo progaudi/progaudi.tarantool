@@ -14,40 +14,40 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task connect_if_UserName_is_null_and_GuestMode()
         {
-            using (await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7()))
+            using (await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7()))
             { }
         }
 
         [Fact]
         public async Task throw_exception_if_password_is_wrong()
         {
-            await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7("operator:wrongPassword")).ShouldThrowAsync<ArgumentException>();
+            await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7("operator:wrongPassword")).ShouldThrowAsync<ArgumentException>();
         }
 
         [Fact]
         public async Task throw_exception_if_password_is_empty_for_user_with_unset_password()
         {
-            await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7("notSetPassword:")).ShouldThrowAsync<ArgumentException>();
+            await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7("notSetPassword:")).ShouldThrowAsync<ArgumentException>();
         }
 
         [Fact]
         public async Task connect_if_password_is_empty_for_user_with_empty_password()
         {
-            using (await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7("emptyPassword:")))
+            using (await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7("emptyPassword:")))
             { }
         }
 
         [Fact]
         public async Task connect_with_credentials()
         {
-            using (await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7("operator:operator")))
+            using (await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7("operator:operator")))
             { }
         }
 
         [Fact]
         public async Task do_nothing_if_already_connected()
         {
-            using (var box = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7("operator:operator")))
+            using (var box = await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7("operator:operator")))
             {
                 var result = await box.Call_1_6<TarantoolTuple<double>, TarantoolTuple<double>>("math.sqrt", TarantoolTuple.Create(1.3));
 
@@ -68,7 +68,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task not_throw_expection_if_used_inside_another_class()
         {
-            using (var box = await Client.Box.Connect(ConnectionStringFactory.GetReplicationSource_1_7("operator:operator")))
+            using (var box = await Client.Box.Connect(await ConnectionStringFactory.GetReplicationSource_1_7("operator:operator")))
             using (var boxUser = new BoxUser(box))
             {
                 var result = await boxUser.TestMethod();
@@ -81,7 +81,7 @@ namespace ProGaudi.Tarantool.Client.Tests.Box
         [Fact]
         public async Task change_IsConnected_state()
         {
-            using (var box = new Client.Box(new ClientOptions(ConnectionStringFactory.GetReplicationSource_1_7("operator:operator"))))
+            using (var box = new Client.Box(new ClientOptions(await ConnectionStringFactory.GetReplicationSource_1_7("operator:operator"))))
             {
                 box.IsConnected.ShouldBeFalse();
                 await box.Connect();
