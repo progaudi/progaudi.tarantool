@@ -4,11 +4,9 @@ using ProGaudi.MsgPack.Light;
 
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
-using ProGaudi.Tarantool.Client.Utils;
 
 namespace ProGaudi.Tarantool.Client.Converters
 {
-
     internal class ErrorResponsePacketConverter : IMsgPackConverter<ErrorResponse>
     {
         private IMsgPackConverter<Key> _keyConverter;
@@ -29,14 +27,26 @@ namespace ProGaudi.Tarantool.Client.Converters
         {
             string errorMessage = null;
             var length = reader.ReadMapLength();
-            
-            var errorKey = _keyConverter.Read(reader);
-            if (errorKey != Key.Error)
+
+            for (var i = 0; i < length; i++)
             {
-                throw ExceptionHelper.UnexpectedKey(errorKey, Key.Error);
+                var errorKey = _keyConverter.Read(reader);
+
+                switch (errorKey)
+                {
+                    case Key.Error24:
+                        errorMessage = _stringConverter.Read(reader);
+                        break;
+                    case Key.Error:
+                        // TODO: add parsing of new error metadata
+                        reader.SkipToken();
+                        break;
+                    default:
+                        reader.SkipToken();
+                        break;
+                }
             }
-            errorMessage = _stringConverter.Read(reader);
-            
+
             return new ErrorResponse(errorMessage);
         }
     }
