@@ -42,6 +42,9 @@ namespace ProGaudi.Tarantool.Client.Converters
                     case Key.SqlInfo:
                         sqlInfo = ReadSqlInfo(reader, _keyConverter, _intConverter);
                         break;
+                    case Key.SqlInfo_2_0_4:
+                        sqlInfo = ReadSqlInfo(reader, _keyConverter, _intConverter);
+                        break;
                     default:
                         throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data, Key.Metadata);
                 }
@@ -64,6 +67,9 @@ namespace ProGaudi.Tarantool.Client.Converters
                 switch (keyConverter.Read(reader))
                 {
                     case Key.SqlRowCount:
+                        result = new SqlInfo(intConverter.Read(reader));
+                        break;
+                    case Key.SqlRowCount_2_0_4:
                         result = new SqlInfo(intConverter.Read(reader));
                         break;
                     default:
@@ -124,6 +130,9 @@ namespace ProGaudi.Tarantool.Client.Converters
                     case Key.SqlInfo:
                         sqlInfo = ResponsePacketConverter.ReadSqlInfo(reader, _keyConverter, _intConverter);
                         break;
+                    case Key.SqlInfo_2_0_4:
+                        sqlInfo = ResponsePacketConverter.ReadSqlInfo(reader, _keyConverter, _intConverter);
+                        break;
                     default:
                         throw ExceptionHelper.UnexpectedKey(dataKey, Key.Data, Key.Metadata);
                 }
@@ -160,6 +169,9 @@ namespace ProGaudi.Tarantool.Client.Converters
                     switch (_keyConverter.Read(reader))
                     {
                         case Key.FieldName:
+                            result[i] = new FieldMetadata(_stringConverter.Read(reader));
+                            continue;
+                        case Key.FieldName_2_0_4:
                             result[i] = new FieldMetadata(_stringConverter.Read(reader));
                             continue;
                         default:
