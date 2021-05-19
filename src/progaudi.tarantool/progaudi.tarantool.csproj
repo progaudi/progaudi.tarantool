@@ -27,10 +27,22 @@
     <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
   </PropertyGroup>
 
+  <PropertyGroup>
+      <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
+      <PublishRepositoryUrl>true</PublishRepositoryUrl>
+      <!-- Optional: Embed source files that are not tracked by the source control manager to the PDB -->
+      <EmbedUntrackedSources>true</EmbedUntrackedSources>
+      <!-- Optional: Include PDB in the built .nupkg -->
+      <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="MsgPack.Light" Version="1.6.2" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" Condition=" '$(IsDocker)' != 'defined' ">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
