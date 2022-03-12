@@ -1,6 +1,6 @@
 # progaudi.tarantool
 
-Dotnet client for Tarantool NoSql database.
+Dotnet client for Tarantool NoSql database made by Analtoy Popov 🤠🤠🤠
 
 # Key features
  - Full [IProto](https://tarantool.org/doc/dev_guide/box-protocol.html) protocol coverage.
