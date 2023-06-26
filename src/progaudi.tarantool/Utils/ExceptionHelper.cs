@@ -37,6 +37,16 @@ namespace ProGaudi.Tarantool.Client.Utils
             return new ArgumentException($"Unexpected data type: {expected} is expected, but got {actual}.");
         }
 
+        public static Exception UnexpectedDataType(byte actualCode, params byte[] expectedCodes)
+        {
+            return new ArgumentException($"Unexpected data type: {String.Join(", ", expectedCodes)} is expected, but got {actualCode}.");
+        }
+
+        public static Exception UnexpectedMsgPackHeader(byte actual, byte expected)
+        {
+            return new ArgumentException($"Unexpected msgpack header: {expected} is expected, but got {actual}.");
+        }
+
         public static Exception NotConnected()
         {
             return new InvalidOperationException("Can't perform operation. Looks like we are not connected to tarantool. Call 'Connect' method before calling any other operations.");

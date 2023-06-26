@@ -1,0 +1,24 @@
+version: '3.2'
+
+services:
+    tarantool_2_10:
+        image: tarantool/tarantool:2.10
+        command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
+        volumes:
+            - ./tarantool:/usr/local/share/tarantool
+        ports:
+            - "3310:3301"
+        environment:
+            TARANTOOL_USER_NAME: admin
+            TARANTOOL_USER_PASSWORD: adminPassword
+
+    tarantool_2_11:
+        image: tarantool/tarantool:2.11
+        command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
+        volumes:
+            - ./tarantool:/usr/local/share/tarantool
+        ports:
+            - "3311:3301"
+        environment:
+            TARANTOOL_USER_NAME: admin
+            TARANTOOL_USER_PASSWORD: adminPassword
