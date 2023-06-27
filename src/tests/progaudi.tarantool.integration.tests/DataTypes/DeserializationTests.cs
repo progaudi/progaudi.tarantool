@@ -1,22 +1,9 @@
 using Xunit;
 using Shouldly;
-using System.Globalization;
-using System;
+using System.Text;
 
 namespace progaudi.tarantool.integration.tests.DataTypes
 {
-    // X - nil
-    // X - boolean
-    // X - integer
-    // X - float64 (double)
-    // ??? binary
-    // (deserialize only yet, partially for ext type, not fixext type) decimal 
-    // X (deserialize only yet) - datetime
-    // (can't use C# TimeSpan for deserialization, because tarantool's interval can contains years and months) interval
-    // X (deserialize only yet) - uuid
-    // X map
-    // X array
-
     /// <summary>
     /// Test suite, where we create and return some values in Tarantool via Lua and Eval command, 
     /// and check that this value deserialize into correspoding C# class/structure correctly
@@ -24,10 +11,19 @@ namespace progaudi.tarantool.integration.tests.DataTypes
     public class DeserializationTests : TarantoolBaseTest
     {
         [Fact]
-        public async Task DeserializeNil_ShouldBeCorrectAsync()
+        public async Task DeserializeNull_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
             var result = await tarantoolClient.Eval<string>("return box.NULL");
+            result.Data.Length.ShouldBe(1);
+            result.Data[0].ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task DeserializeNil_ShouldBeCorrectAsync()
+        {
+            using var tarantoolClient = await GetTarantoolClient();
+            var result = await tarantoolClient.Eval<string>("return nil");
             result.Data.Length.ShouldBe(1);
             result.Data[0].ShouldBeNull();
         }
@@ -119,14 +115,23 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             negativeResult.Data.ShouldBe(new[] { -n });
         }
 
-        //[Fact]
-        //does it expected behaviour?
-        public async Task DeserializeNumberAsDecimal_ShouldBeCorrectAsync()
+        [Fact]
+        public async Task DeserializeBinary8_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
-            const decimal number = 1.23456789m;
-            var result = await tarantoolClient.Eval<decimal>($"return {number}");
-            result.Data.ShouldBe(new[] { number });
+            var result = await tarantoolClient.Eval<byte[]>($"local msgpack = require(\"msgpack\"); return msgpack.object_from_raw('\\xc4\\x06foobar')");
+            var expectedByteArray = Encoding.ASCII.GetBytes("foobar");
+            result.Data.ShouldBe(new[] { expectedByteArray });
+        }
+
+        [Fact]
+        public async Task DeserializeBinary16_ShouldBeCorrectAsync()
+        {
+            using var tarantoolClient = await GetTarantoolClient();
+            var stringLen256 = String.Join("", Enumerable.Range(0, 256).Select(_ => "x"));
+            var result = await tarantoolClient.Eval<byte[]>($"local msgpack = require(\"msgpack\"); return msgpack.object_from_raw('\\xc5\\x01\\x00{stringLen256}')");
+            var expectedByteArray = Encoding.ASCII.GetBytes(stringLen256);
+            result.Data.ShouldBe(new[] { expectedByteArray });
         }
 
         [Fact]
