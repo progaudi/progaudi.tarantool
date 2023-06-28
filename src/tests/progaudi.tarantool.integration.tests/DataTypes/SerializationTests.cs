@@ -59,6 +59,33 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             await AssertThatYouGetWhatYouGive((DateTimeOffset)dt);
         }
 
+        [Fact]
+        public async Task SerializeTuple_ShouldBeCorrectAsync()
+        {
+            await AssertThatYouGetWhatYouGive(Tuple.Create(1, true, "test", 1m));
+        }
+
+        [Fact]
+        public async Task SerializeDictionary_ShouldBeCorrectAsync()
+        {
+            using var tarantoolClient = await GetTarantoolClient();
+            var expectedDict = new Dictionary<string, int>()
+            {
+                { "foo", 1 },
+                { "bar", 2 },
+                { "baz", 3 }
+            };
+            var result = await tarantoolClient.Eval<TarantoolTuple<Dictionary<string, int>>, Dictionary<string, int>>($"return ...", TarantoolTuple.Create(expectedDict));
+            
+            result.Data.Length.ShouldBe(1);
+            var actualDict = result.Data[0];
+            foreach (var key in expectedDict.Keys) // order doesn't preserve, so we need to check key by key
+            {
+                actualDict.ContainsKey(key).ShouldBeTrue();
+                actualDict[key].ShouldBe(expectedDict[key]);
+            }
+        }
+
         private static async Task AssertThatYouGetWhatYouGive<T>(T val)
         {
             using var tarantoolClient = await GetTarantoolClient();
