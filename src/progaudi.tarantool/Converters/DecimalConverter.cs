@@ -9,9 +9,11 @@ using System.Text;
 namespace ProGaudi.Tarantool.Client.Converters
 {
     /// <summary>
+    /// Converter for Tarantool decimal values, implemented as MsgPack extension.
     /// Format described in https://www.tarantool.io/ru/doc/latest/dev_guide/internals/msgpack_extensions/#the-decimal-type
+    /// Limitation: .NET decimal max scale is 28 digits, when Tarantool decimal max scale is 38 digits 
     /// </summary>
-    internal class DecimalConverter : IMsgPackConverter<decimal>
+    public class DecimalConverter : IMsgPackConverter<decimal>
     {
         private static readonly byte[] SupportedFixTypes = new byte[5]
         {
@@ -29,14 +31,12 @@ namespace ProGaudi.Tarantool.Client.Converters
         };
 
         private const byte MP_DECIMAL = 0x01;
+        private const byte DECIMAL_PLUS = 0x0C;
         private const byte DECIMAL_MINUS = 0x0D;
         private const byte DECIMAL_MINUS_ALT = 0x0B;
 
-        private IMsgPackConverter<double> doubleConverter;
-
         public void Initialize(MsgPackContext context)
         {
-            doubleConverter = context.GetConverter<double>();
         }
 
         public decimal Read(IMsgPackReader reader)
@@ -83,7 +83,7 @@ namespace ProGaudi.Tarantool.Client.Converters
 
             var data = reader.ReadBytes((uint)len).ToArray();
 
-            // see https://github.com/tarantool/cartridge-java/blob/1ca12332b870167b86d3e38891ab74527dfc8a19/src/main/java/io/tarantool/driver/mappers/converters/value/defaults/DefaultExtensionValueToBigDecimalConverter.java
+            // used Java impl https://github.com/tarantool/cartridge-java/blob/1ca12332b870167b86d3e38891ab74527dfc8a19/src/main/java/io/tarantool/driver/mappers/converters/value/defaults/DefaultExtensionValueToBigDecimalConverter.java
 
             // Extract sign from the last nibble
             int signum = (byte)(SecondNibbleFromByte(data[len - 1]));
@@ -101,10 +101,15 @@ namespace ProGaudi.Tarantool.Client.Converters
             }
 
             int scale = data[0];
+            if (scale > 28)
+            {
+                throw new OverflowException($"Maximum .NET decimal scale is exceeded. Maximum: 28. Actual: {scale}");
+            }
+
             int skipIndex = 1; //skip byte with scale
 
             int digitsNum = (len - skipIndex) << 1;
-            char digit = Digit(FirstNibbleFromByte(data[len - 1]), digitsNum - 1);
+            char digit = CharFromDigit(FirstNibbleFromByte(data[len - 1]), digitsNum - 1);
 
             char[] digits = new char[digitsNum];
             int pos = 2 * (len - skipIndex) - 1;
@@ -112,8 +117,8 @@ namespace ProGaudi.Tarantool.Client.Converters
             digits[pos--] = digit;
             for (int i = len - 2; i >= skipIndex; i--)
             {
-                digits[pos--] = Digit(SecondNibbleFromByte(data[i]), pos);
-                digits[pos--] = Digit(FirstNibbleFromByte(data[i]), pos);
+                digits[pos--] = CharFromDigit(SecondNibbleFromByte(data[i]), pos);
+                digits[pos--] = CharFromDigit(FirstNibbleFromByte(data[i]), pos);
             }
 
             return CreateDecimalFromDigits(digits, scale, signum < 0);
@@ -121,7 +126,42 @@ namespace ProGaudi.Tarantool.Client.Converters
 
         public void Write(decimal value, IMsgPackWriter writer)
         {
-            throw new NotImplementedException();
+            (int scale, decimal unscaledValue) = ExtractScaleFromDecimal(value);
+
+            // used Java impl https://github.com/tarantool/cartridge-java/blob/1ca12332b870167b86d3e38891ab74527dfc8a19/src/main/java/io/tarantool/driver/mappers/converters/value/defaults/DefaultExtensionValueToBigDecimalConverter.java
+            var unscaledValueStr = unscaledValue.ToString();
+            byte signum = value >= 0 ? DECIMAL_PLUS : DECIMAL_MINUS;
+            int digitsNum = unscaledValueStr.Length;
+            
+            int len = (digitsNum >> 1) + 1;
+            byte[] payload = new byte[len];
+            payload[len - 1] = signum;
+            int pos = 0;
+            char[] digits = unscaledValueStr.Substring(pos).ToCharArray();
+            pos = digits.Length - 1;
+            for (int i = len - 1; i > 0; i--)
+            {
+                payload[i] |= (byte)(DigitFromChar(digits[pos--]) << 4);
+                payload[i - 1] |= (byte)DigitFromChar(digits[pos--]);
+            }
+            if (pos == 0)
+            {
+                payload[0] |= (byte)(DigitFromChar(digits[pos]) << 4);
+            }
+
+            writer.Write(MsgPackExtDataTypes.Ext8);
+            writer.Write((byte)(len + 1));
+            writer.Write(MP_DECIMAL);
+            writer.Write((byte)scale);
+            writer.Write(payload);
+        }
+
+        private static (int, decimal) ExtractScaleFromDecimal(decimal val)
+        {
+            var bits = decimal.GetBits(val);
+            int scale = (bits[3] >> 16) & 0x7F;
+            decimal unscaledValue = new Decimal(bits[0], bits[1], bits[2], false, 0);
+            return (scale, unscaledValue);
         }
 
         private static int UnsignedRightShift(int signed, int places)
@@ -144,7 +184,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             return val & 0x0F;
         }
 
-        private static char Digit(int val, int pos)
+        private static char CharFromDigit(int val, int pos)
         {
             var digit = (char)val;
             if (digit > 9)
@@ -152,6 +192,11 @@ namespace ProGaudi.Tarantool.Client.Converters
                 throw new IOException(String.Format("Invalid digit at position %d", pos));
             }
             return digit;
+        }
+
+        private static int DigitFromChar(char val)
+        {
+            return val - '0';
         }
 
         private static decimal CreateDecimalFromDigits(char[] digits, int scale, bool isNegative)

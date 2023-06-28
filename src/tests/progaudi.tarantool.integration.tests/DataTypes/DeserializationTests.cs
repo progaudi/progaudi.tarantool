@@ -1,6 +1,7 @@
 using Xunit;
 using Shouldly;
 using System.Text;
+using System.ComponentModel;
 
 namespace progaudi.tarantool.integration.tests.DataTypes
 {
@@ -104,15 +105,29 @@ namespace progaudi.tarantool.integration.tests.DataTypes
         [InlineData("0.01")]
         [InlineData("0.001")]
         [InlineData("0.0001")]
-        public async Task DeserializeExtAsDecimal_ShouldBeCorrectAsync(string str)
+        
+        public async Task DeserializeExtAsDecimal_CorrectValue_ShouldBeDeserializedCorrectlyAsync(string str)
         {
             decimal n = Decimal.Parse(str);
             using var tarantoolClient = await GetTarantoolClient();
-            var result = await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"{n}\")");
+            var result = await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"{str}\")");
             result.Data.ShouldBe(new[] { n });
 
             var negativeResult = await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"{-n}\")");
             negativeResult.Data.ShouldBe(new[] { -n });
+        }
+
+        [Theory]
+        [InlineData("0.12345678901234567890123456789")]// scale == 29 (max possible in .net is 28)
+        [InlineData("0.12345678901234567890123456789012345678")]// scale == 38 (max possible in .net is 28)
+        [InlineData("79228162514264337593543950336")]// max .net decimal + 1
+        [InlineData("-79228162514264337593543950336")]// min .net decimal - 1
+        public async Task DeserializeExtAsDecimal_IncorrectValue_OverflowExceptionThrown(string str)
+        {
+            using var tarantoolClient = await GetTarantoolClient();
+            
+            await Assert.ThrowsAsync<OverflowException>(async () =>
+                await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"{str}\")"));
         }
 
         [Fact]

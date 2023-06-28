@@ -8,7 +8,7 @@ using System.Linq;
 namespace ProGaudi.Tarantool.Client.Converters
 {
     /// <summary>
-    /// Converter for Tarantool uuid values, implemeted as MsgPack extension.
+    /// Converter for Tarantool uuid values, implemented as MsgPack extension.
     /// See https://www.tarantool.io/ru/doc/latest/dev_guide/internals/msgpack_extensions/#the-uuid-type
     /// </summary>
     internal class GuidConverter : IMsgPackConverter<Guid>
@@ -43,7 +43,25 @@ namespace ProGaudi.Tarantool.Client.Converters
 
         public void Write(Guid value, IMsgPackWriter writer)
         {
-            throw new NotImplementedException();
+            writer.Write(GuidDataType);
+            writer.Write(MP_UUID);
+            
+            var byteArray = value.ToByteArray();
+
+            // big-endian swap
+            SwapTwoBytes(byteArray, 0, 3);
+            SwapTwoBytes(byteArray, 1, 2);
+            SwapTwoBytes(byteArray, 4, 5);
+            SwapTwoBytes(byteArray, 6, 7);
+
+            writer.Write(byteArray);
+        }
+
+        private static void SwapTwoBytes(byte[] array, int index1, int index2)
+        {
+            var temp = array[index1];
+            array[index1] = array[index2];
+            array[index2] = temp;
         }
     }
 }

@@ -53,12 +53,35 @@ namespace ProGaudi.Tarantool.Client.Converters
 
         public void Write(DateTimeOffset value, IMsgPackWriter writer)
         {
-            throw new NotImplementedException();
+            var timeSpan = value.ToUniversalTime().Subtract(UnixEpocUtc);
+            long seconds = (long)timeSpan.TotalSeconds;
+            timeSpan = timeSpan.Subtract(TimeSpan.FromSeconds(seconds));
+            int nanoSeconds = (int)(timeSpan.Ticks * 100);
+            int _ = 0;// also need to extract tzoffset; tzindex;
+
+            writer.Write(MsgPackExtDataTypes.FixExt16);
+            writer.Write(MP_DATETIME);
+
+            var byteArray = new byte[8];
+            var span = new Span<byte>(byteArray);
+            BinaryPrimitives.WriteInt64LittleEndian(span, seconds);
+            writer.Write(byteArray);
+
+            byteArray = new byte[4];
+            span = new Span<byte>(byteArray);
+            BinaryPrimitives.WriteInt32LittleEndian(span, nanoSeconds);
+            writer.Write(byteArray);
+
+            byteArray = new byte[4];
+            span = new Span<byte>(byteArray);
+            BinaryPrimitives.WriteInt32LittleEndian(span, _);
+            writer.Write(byteArray);
+            
         }
 
         public void Write(DateTime value, IMsgPackWriter writer)
         {
-            throw new NotImplementedException();
+            Write((DateTimeOffset)value, writer);
         }
     }
 }
