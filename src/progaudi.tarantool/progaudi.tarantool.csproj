@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="MsgPack.Light" Version="1.6.2" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
