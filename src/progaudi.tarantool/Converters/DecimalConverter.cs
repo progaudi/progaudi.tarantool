@@ -2,6 +2,7 @@
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Utils;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -232,7 +233,7 @@ namespace ProGaudi.Tarantool.Client.Converters
             {
                 sb.Insert(0, '-');
             }
-            return Decimal.Parse(sb.ToString());
+            return Decimal.Parse(sb.ToString(), CultureInfo.InvariantCulture);
         }
     }
 }

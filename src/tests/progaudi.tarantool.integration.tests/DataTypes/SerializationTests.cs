@@ -1,6 +1,7 @@
 ﻿using ProGaudi.Tarantool.Client.Model;
 using Shouldly;
 using NUnit.Framework;
+using System.Globalization;
 
 namespace progaudi.tarantool.integration.tests.DataTypes
 {
@@ -43,7 +44,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
         [TestCase("0.1234567890123456789012345678")]
         public async Task SerializeDecimal_ShouldBeCorrectAsync(string val)
         {
-            decimal n = Decimal.Parse(val);
+            decimal n = Decimal.Parse(val, CultureInfo.InvariantCulture);
             await AssertThatYouGetWhatYouGive(n);
             await AssertThatYouGetWhatYouGive(-n);
         }

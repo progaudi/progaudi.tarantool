@@ -1,6 +1,7 @@
 using Shouldly;
 using System.Text;
 using NUnit.Framework;
+using System.Globalization;
 
 namespace progaudi.tarantool.integration.tests.DataTypes
 {
@@ -105,12 +106,12 @@ namespace progaudi.tarantool.integration.tests.DataTypes
         
         public async Task DeserializeExtAsDecimal_CorrectValue_ShouldBeDeserializedCorrectlyAsync(string str)
         {
-            decimal n = Decimal.Parse(str);
+            decimal n = Decimal.Parse(str, CultureInfo.InvariantCulture);
             using var tarantoolClient = await GetTarantoolClient();
             var result = await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"{str}\")");
             result.Data.ShouldBe(new[] { n });
 
-            var negativeResult = await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"{-n}\")");
+            var negativeResult = await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"-{str}\")");
             negativeResult.Data.ShouldBe(new[] { -n });
         }
 
