@@ -11,6 +11,11 @@ namespace progaudi.tarantool.integration.tests
             return await Box.Connect(BuildConnectionString(userName, password));
         }
 
+        public static string RandomSpaceName()
+        {
+            return "sp_" + Guid.NewGuid().ToString().Replace("-", "");
+        }
+
         private static string BuildConnectionString(string userName, string password)
         {
             var userToken = (userName, password)

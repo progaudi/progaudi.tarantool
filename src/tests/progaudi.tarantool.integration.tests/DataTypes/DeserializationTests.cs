@@ -1,7 +1,6 @@
-using Xunit;
 using Shouldly;
 using System.Text;
-using System.ComponentModel;
+using NUnit.Framework;
 
 namespace progaudi.tarantool.integration.tests.DataTypes
 {
@@ -9,9 +8,10 @@ namespace progaudi.tarantool.integration.tests.DataTypes
     /// Test suite, where we create and return some values in Tarantool via Lua and Eval command, 
     /// and check that this value deserialize into correspoding C# class/structure correctly
     /// </summary>
+    [TestFixture]
     public class DeserializationTests : TarantoolBaseTest
     {
-        [Fact]
+        [Test]
         public async Task DeserializeNull_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -20,7 +20,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data[0].ShouldBeNull();
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeNil_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -29,9 +29,8 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data[0].ShouldBeNull();
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
+        [TestCase(true)]
+        [TestCase(false)]
         public async Task DeserializeBoolean_ShouldBeCorrectAsync(bool val)
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -40,10 +39,9 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data[0].ShouldBe(val);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(0)]
-        [InlineData(-1)]
+        [TestCase(1)]
+        [TestCase(0)]
+        [TestCase(-1)]
         public async Task DeserializeInt_ShouldBeCorrectAsync(int val)
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -51,7 +49,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data.ShouldBe(new[] { val });
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeFloat64_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -60,7 +58,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             Math.Abs(result.Data[0] - Math.Sqrt(2)).ShouldBeLessThan(double.Epsilon);
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeString_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -68,43 +66,42 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             var result = await tarantoolClient.Eval<string>($"return '{expectedStr}'");
             result.Data.ShouldBe(new[] { expectedStr });
         }
-
-        [Theory]      
-        [InlineData("2.7182818284590452353602874714")]
-        [InlineData("2.718281828459045235360287471")]
-        [InlineData("2.71828182845904523536028747")]
-        [InlineData("2.7182818284590452353602874")]
-        [InlineData("2.718281828459045235360287")]
-        [InlineData("2.71828182845904523536028")]
-        [InlineData("2.7182818284590452353602")]
-        [InlineData("2.718281828459045235360")]
-        [InlineData("2.71828182845904523536")]
-        [InlineData("2.7182818284590452353")]
-        [InlineData("2.718281828459045235")]
-        [InlineData("2.71828182845904523")]
-        [InlineData("2.7182818284590452")]
-        [InlineData("2.718281828459045")]
-        [InlineData("2.71828182845904")]
-        [InlineData("2.7182818284590")]
-        [InlineData("2.718281828459")]
-        [InlineData("2.71828182845")]
-        [InlineData("2.7182818284")]
-        [InlineData("2.718281828")]
-        [InlineData("2.71828182")]
-        [InlineData("2.7182818")]
-        [InlineData("2.718281")]
-        [InlineData("2.71828")]
-        [InlineData("2.7182")]
-        [InlineData("2.718")]
-        [InlineData("2.71")]
-        [InlineData("2.7")]
-        [InlineData("2")]
-        [InlineData("0")]
-        [InlineData("100000")]
-        [InlineData("0.1")]
-        [InlineData("0.01")]
-        [InlineData("0.001")]
-        [InlineData("0.0001")]
+  
+        [TestCase("2.7182818284590452353602874714")]
+        [TestCase("2.718281828459045235360287471")]
+        [TestCase("2.71828182845904523536028747")]
+        [TestCase("2.7182818284590452353602874")]
+        [TestCase("2.718281828459045235360287")]
+        [TestCase("2.71828182845904523536028")]
+        [TestCase("2.7182818284590452353602")]
+        [TestCase("2.718281828459045235360")]
+        [TestCase("2.71828182845904523536")]
+        [TestCase("2.7182818284590452353")]
+        [TestCase("2.718281828459045235")]
+        [TestCase("2.71828182845904523")]
+        [TestCase("2.7182818284590452")]
+        [TestCase("2.718281828459045")]
+        [TestCase("2.71828182845904")]
+        [TestCase("2.7182818284590")]
+        [TestCase("2.718281828459")]
+        [TestCase("2.71828182845")]
+        [TestCase("2.7182818284")]
+        [TestCase("2.718281828")]
+        [TestCase("2.71828182")]
+        [TestCase("2.7182818")]
+        [TestCase("2.718281")]
+        [TestCase("2.71828")]
+        [TestCase("2.7182")]
+        [TestCase("2.718")]
+        [TestCase("2.71")]
+        [TestCase("2.7")]
+        [TestCase("2")]
+        [TestCase("0")]
+        [TestCase("100000")]
+        [TestCase("0.1")]
+        [TestCase("0.01")]
+        [TestCase("0.001")]
+        [TestCase("0.0001")]
         
         public async Task DeserializeExtAsDecimal_CorrectValue_ShouldBeDeserializedCorrectlyAsync(string str)
         {
@@ -117,20 +114,19 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             negativeResult.Data.ShouldBe(new[] { -n });
         }
 
-        [Theory]
-        [InlineData("0.12345678901234567890123456789")]// scale == 29 (max possible in .net is 28)
-        [InlineData("0.12345678901234567890123456789012345678")]// scale == 38 (max possible in .net is 28)
-        [InlineData("79228162514264337593543950336")]// max .net decimal + 1
-        [InlineData("-79228162514264337593543950336")]// min .net decimal - 1
+        [TestCase("0.12345678901234567890123456789")]// scale == 29 (max possible in .net is 28)
+        [TestCase("0.12345678901234567890123456789012345678")]// scale == 38 (max possible in .net is 28)
+        [TestCase("79228162514264337593543950336")]// max .net decimal + 1
+        [TestCase("-79228162514264337593543950336")]// min .net decimal - 1
         public async Task DeserializeExtAsDecimal_IncorrectValue_OverflowExceptionThrown(string str)
         {
             using var tarantoolClient = await GetTarantoolClient();
             
-            await Assert.ThrowsAsync<OverflowException>(async () =>
+            Assert.ThrowsAsync<OverflowException>(async () =>
                 await tarantoolClient.Eval<decimal>($"local decimal = require(\"decimal\"); return decimal.new(\"{str}\")"));
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeBinary8_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -139,7 +135,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data.ShouldBe(new[] { expectedByteArray });
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeBinary16_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -149,7 +145,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data.ShouldBe(new[] { expectedByteArray });
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeExtAsGuid_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -158,7 +154,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data.ShouldBe(new[] { guid });
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeExtAsDatetime_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -185,7 +181,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             actualDt.Millisecond.ShouldBe(dt.Millisecond);
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeIntArray_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -194,7 +190,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data.ShouldBe(new[] { arr });
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeBooleanArray_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -203,7 +199,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data.ShouldBe(new[] { arr });
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeFloat64Array_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -216,7 +212,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             Math.Abs(result.Data[0][2] - Math.Sqrt(5)).ShouldBeLessThan(double.Epsilon);
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeStringArray_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -225,7 +221,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data.ShouldBe(new[] { arr });
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeMixedArrayToTuple_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
@@ -236,7 +232,7 @@ namespace progaudi.tarantool.integration.tests.DataTypes
             result.Data[0].Item3.ShouldBe("foo");
         }
 
-        [Fact]
+        [Test]
         public async Task DeserializeMapToDictionary_ShouldBeCorrectAsync()
         {
             using var tarantoolClient = await GetTarantoolClient();
