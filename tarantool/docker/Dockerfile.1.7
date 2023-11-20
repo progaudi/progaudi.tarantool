@@ -1,0 +1,6 @@
+FROM progaudi/tarantool:1.7.5-184-g5be3a82be
+
+RUN set -x \
+    && mkdir -p /usr/local/share/tarantool
+
+COPY --chown=tarantool:tarantool *.lua /usr/local/share/tarantool/

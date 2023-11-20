@@ -1,0 +1,21 @@
+<Project>
+    <PropertyGroup>
+      <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageVersion Include="MsgPack.Light" Version="2.0.1" />
+      <PackageVersion Include="System.Net.NameResolution" Version="4.3.0" />
+      <PackageVersion Include="System.Threading.Thread" Version="4.3.0" />
+
+      <!-- benchmark -->
+      <PackageVersion Include="BenchmarkDotNet" Version="0.10.12" />
+      <PackageVersion Include="StackExchange.Redis" Version="1.2.6" />
+
+      <!-- tests -->
+      <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+      <PackageVersion Include="xunit" Version="2.4.0" />
+      <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.0" />
+      <PackageVersion Include="JetBrains.Annotations" Version="2018.2.1" />
+      <PackageVersion Include="Shouldly" Version="3.0.1" />
+    </ItemGroup>
+  </Project>
