@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net46;netstandard1.4;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;net60</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFrameworks>netstandard1.4;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net60</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PatchLevelVersion Condition=" '$(BuildNumber)' == '' ">0</PatchLevelVersion>
@@ -16,11 +16,13 @@
     <AssemblyName>progaudi.tarantool</AssemblyName>
     <RootNamespace>ProGaudi.Tarantool.Client</RootNamespace>
     <Product>progaudi.tarantool</Product>
-    <Copyright>Copyright © 2016-2018</Copyright>
+    <Copyright>Copyright © 2016-2023</Copyright>
 
     <PackageTags>tarantool;csharp</PackageTags>
     <PackageProjectUrl>https://github.com/progaudi/progaudi.tarantool</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/progaudi/progaudi.tarantool/master/LICENSE</PackageLicenseUrl>
+
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
 
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
@@ -28,9 +30,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MsgPack.Light" Version="1.6.2" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+    <PackageReference Include="MsgPack.Light" />
+    <PackageReference Include="System.Net.NameResolution" />
+    <PackageReference Include="System.Threading.Thread" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,4 +85,9 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">
     <DefineConstants>$(DefineConstants);PROGAUDI_NETCORE</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 </Project>
