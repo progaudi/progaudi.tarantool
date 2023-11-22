@@ -1,0 +1,54 @@
+name: Build, Test & Pack nuget
+
+on:
+  push:
+    branches: [ "master" ]
+    tags: ['*']
+  pull_request:
+    types: [ opened, synchronize ]
+    branches: [ "master" ]
+
+env:
+  NuGetDirectory: ${{ github.workspace }}/nuget
+
+jobs:
+  build_test_and_pack:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetches entire history, so we can analyze commits since last tag
+    - name: Setup .net core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: |
+          3.1.x
+          6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build -c Release --no-restore
+    - name: Set up Tarantool in docker for tests
+      run: docker compose up -d --wait
+    - name: Tests
+      run: dotnet test -c Release --no-build --verbosity normal 
+    - name: Calc nuget package version
+      if: success()
+      run: echo "NugetVersion=$(git describe --tags --abbrev=1 | sed 's/-/./')" >> $GITHUB_ENV
+    - name: Pack nuget
+      if: success()
+      run: dotnet pack -c Release --no-build -v minimal -o ${{ env.NuGetDirectory }} -p:PackageVersion=${{ env.NugetVersion }}
+    - name: Upload files to a GitHub release
+      if: success() && github.ref_type == 'tag' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+      uses: xresloader/upload-to-github-release@v1.4.2
+      with:
+        file: ${{ env.NuGetDirectory }}\\*.nupkg
+        tags: true
+        overwrite: true
+        tag_name: ${{ github.ref_name }}
+    - name: Upload nuget as artifact
+      uses: actions/upload-artifact@v3
+      if: ${{ success() }}
+      with:
+        name: nuget-artifact
+        path: ${{ env.NuGetDirectory }}

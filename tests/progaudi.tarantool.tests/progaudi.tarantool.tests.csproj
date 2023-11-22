@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>progaudi.tarantool Class Library tests</Description>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp1.0;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
     <WarningsAsErrors>true</WarningsAsErrors>
 
     <AssemblyName>progaudi.tarantool.tests</AssemblyName>

@@ -1,0 +1,37 @@
+name: Publish nuget
+
+on:
+  workflow_run:
+    workflows: ["Build, Test & Pack nuget"]
+    types:
+      - completed
+
+jobs:
+  download_and_publish_nuget:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+    - name: 'Download zipped nuget artifact'
+      uses: actions/github-script@v3.1.0
+      with:
+        script: |
+          var artifacts = await github.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{github.event.workflow_run.id }},
+          });
+          var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "nuget-artifact"
+          })[0];
+          var download = await github.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+          });
+          var fs = require('fs');
+          fs.writeFileSync('${{ github.workspace }}/nuget.zip', Buffer.from(download.data));
+    - run: unzip nuget.zip
+    - name: Publish NuGet package
+      if: ${{ success() }}
+      run: dotnet nuget push "${{ github.workspace }}/*.nupkg" --api-key "${{ secrets.NUGET_PUSH }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
