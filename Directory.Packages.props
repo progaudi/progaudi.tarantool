@@ -6,6 +6,7 @@
       <PackageVersion Include="MsgPack.Light" Version="2.0.1" />
       <PackageVersion Include="System.Net.NameResolution" Version="4.3.0" />
       <PackageVersion Include="System.Threading.Thread" Version="4.3.0" />
+      <PackageVersion Include="System.Memory" Version="4.5.5" />
 
       <!-- benchmark -->
       <PackageVersion Include="BenchmarkDotNet" Version="0.10.12" />

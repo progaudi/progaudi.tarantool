@@ -24,6 +24,14 @@ services:
             TARANTOOL_USER_NAME: admin
             TARANTOOL_USER_PASSWORD: adminPassword
             TARANTOOL_SLAB_ALLOC_ARENA: 0.1
+            
+    tarantool_2_11:
+        image: tarantool/tarantool:2.11
+        ports:
+            - "3311:3301"
+        environment:
+            TARANTOOL_USER_NAME: admin
+            TARANTOOL_USER_PASSWORD: adminPassword
 
     redis:
         image: redis:3.0-alpine

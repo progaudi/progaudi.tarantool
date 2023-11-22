@@ -23,6 +23,25 @@ namespace ProGaudi.Tarantool.Client.Tests
 
             return $"{await ResolveHostname(redisUrl)}:6379";
         }
+        
+        public static string GetLatestTarantoolConnectionString(string userName = null, string password = null)
+        {
+            userName ??= "admin";
+            password ??= "adminPassword";
+            return BuildConnectionString(userName, password, 3311);
+        }
+
+        private static string BuildConnectionString(string userName, string password, int port)
+        {
+            var userToken = (userName, password)
+                switch
+                {
+                    (null, null) => "",
+                    (_, null) => $"{userName}@",
+                    _ => $"{userName}:{password}@",
+                };
+            return $"{userToken}127.0.0.1:{port}";
+        }
 
         private static async Task<string> ResolveHostname(string host)
         {

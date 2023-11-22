@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="MsgPack.Light" />
+    <PackageReference Include="System.Memory" />
     <PackageReference Include="System.Net.NameResolution" />
     <PackageReference Include="System.Threading.Thread" />
   </ItemGroup>
@@ -81,10 +82,6 @@
       <DependentUpon>ValueTupleConverters.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">
-    <DefineConstants>$(DefineConstants);PROGAUDI_NETCORE</DefineConstants>
-  </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
