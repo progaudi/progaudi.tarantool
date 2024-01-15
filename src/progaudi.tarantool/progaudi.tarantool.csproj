@@ -83,6 +83,10 @@
     </Compile>
   </ItemGroup>
 
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' ">
+    <DefineConstants>$(DefineConstants);PROGAUDI_NETCORE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
     <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
