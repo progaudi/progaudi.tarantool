@@ -4,6 +4,7 @@ using ProGaudi.Tarantool.Client.Converters;
 using ProGaudi.Tarantool.Client.Model;
 using ProGaudi.Tarantool.Client.Model.Enums;
 using ProGaudi.Tarantool.Client.Model.Responses;
+using System;
 
 namespace ProGaudi.Tarantool.Client
 {
@@ -51,6 +52,11 @@ namespace ProGaudi.Tarantool.Client
             context.RegisterGenericConverter(typeof(UpsertPacketConverter<>));
             context.RegisterConverter(new PingPacketConverter());
             context.RegisterConverter(new ExecuteSqlRequestConverter());
+
+            context.RegisterConverter(new DecimalConverter());
+            context.RegisterConverter(new GuidConverter());
+            context.RegisterConverter<DateTime>(new DateTimeConverter());
+            context.RegisterConverter<DateTimeOffset>(new DateTimeConverter());
 
             context.RegisterGenericConverter(typeof(TupleConverter<>));
             context.RegisterGenericConverter(typeof(TupleConverter<,>));

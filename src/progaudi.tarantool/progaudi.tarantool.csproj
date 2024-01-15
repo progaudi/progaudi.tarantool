@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="MsgPack.Light" />
+    <PackageReference Include="System.Memory" />
     <PackageReference Include="System.Net.NameResolution" />
     <PackageReference Include="System.Threading.Thread" />
   </ItemGroup>
